@@ -8,6 +8,7 @@ import {
   CardFooter
 } from "@/components/ui/card";
 import { Check, Crown, Zap } from "lucide-react";
+import { useLocation } from "wouter";
 
 const plans = [
   {
@@ -48,6 +49,16 @@ const plans = [
 ];
 
 export default function PremiumFeatures() {
+  const [, navigate] = useLocation();
+
+  const handlePlanClick = (planName: string) => {
+    if (planName === "Enterprise") {
+      navigate("/contact");
+    } else {
+      navigate("/signup");
+    }
+  };
+
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -115,6 +126,7 @@ export default function PremiumFeatures() {
                   <Button
                     className="w-full"
                     variant={plan.popular ? "default" : "outline"}
+                    onClick={() => handlePlanClick(plan.name)}
                   >
                     {plan.price === "Custom" ? "Contact Sales" : "Get Started"}
                   </Button>
