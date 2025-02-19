@@ -8,9 +8,17 @@
       "contact": "Contacto",
       "signup": "Registrarse"
     },
-    "hero": {
-      "title": "Tu camino hacia el éxito",
-      "subtitle": "Descubre nuevas posibilidades"
+    "landing": {
+      "identity": {
+        "title": "Tu identidad digital",
+        "subtitle": "Reinventada"
+      },
+      "seamless": "Integración física perfecta",
+      "ai": "Análisis de IA",
+      "real_time": "Sincronización en tiempo real",
+      "experience": "Experimenta todas las compras",
+      "retail": "Experiencia minorista conectada",
+      "connect": "Donde todo se conecta"
     }
   }
 }

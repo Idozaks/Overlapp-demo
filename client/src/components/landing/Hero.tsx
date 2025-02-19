@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight, Smartphone } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function Hero() {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
 
   return (
@@ -19,9 +21,9 @@ export default function Hero() {
           className="max-w-3xl"
         >
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Your Digital Identity,
+            {t('common.landing.identity.title')},
             <span className="text-primary block mt-2">
-              Reimagined
+              {t('common.landing.identity.subtitle')}
             </span>
           </h1>
 
