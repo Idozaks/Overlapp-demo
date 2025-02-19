@@ -72,3 +72,8 @@ export type User = typeof users.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type Connection = typeof connections.$inferSelect;
+
+// Add this after the other types
+export type PostWithUser = Post & {
+  user: User;
+};

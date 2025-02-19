@@ -8,6 +8,8 @@ import Signup from "@/pages/auth/Signup";
 import Demo from "@/pages/Demo";
 import RetailerDetails from "@/pages/RetailerDetails";
 import Contact from "@/pages/Contact";
+import SocialHub from "@/pages/social/SocialHub";
+import Profile from "@/pages/social/Profile";
 
 function Router() {
   return (
@@ -17,6 +19,8 @@ function Router() {
       <Route path="/demo" component={Demo} />
       <Route path="/retailer/:id" component={RetailerDetails} />
       <Route path="/contact" component={Contact} />
+      <Route path="/social" component={SocialHub} />
+      <Route path="/profile/:id" component={Profile} />
       <Route component={NotFound} />
     </Switch>
   );
