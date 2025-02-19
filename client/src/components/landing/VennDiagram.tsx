@@ -1,30 +1,32 @@
 import React, { useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 const circles = [
-  { id: 1, label: "Digital Identity", color: "rgba(99, 102, 241, 0.4)" },
-  { id: 2, label: "Physical World", color: "rgba(139, 92, 246, 0.4)" },
-  { id: 3, label: "AI Insights", color: "rgba(168, 85, 247, 0.4)" }
+  { id: 1, label: "common.landing.identity.title", color: "rgba(99, 102, 241, 0.4)" },
+  { id: 2, label: "common.landing.seamless", color: "rgba(139, 92, 246, 0.4)" },
+  { id: 3, label: "common.landing.ai", color: "rgba(168, 85, 247, 0.4)" }
 ];
 
 const intersections = [
   { 
-    label: "Smart Shopping",
-    description: "Personalized retail experiences based on your preferences"
+    label: "common.landing.retail",
+    description: "common.landing.features.physical.description"
   },
   {
-    label: "Location Intelligence",
-    description: "Context-aware recommendations and services"
+    label: "common.landing.real_time",
+    description: "common.landing.features.sync.description"
   },
   {
-    label: "Digital Twin",
-    description: "Your complete digital representation"
+    label: "common.landing.experience",
+    description: "common.landing.features.ai.description"
   }
 ];
 
 export default function VennDiagram() {
   const controls = useAnimation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     controls.start({
@@ -44,10 +46,10 @@ export default function VennDiagram() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Where Everything Connects
+            {t('common.landing.connect')}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover how Overlapp brings together your digital identity, physical world, and AI insights
+            {t('common.landing.features.subtitle')}
           </p>
         </motion.div>
 
@@ -80,7 +82,7 @@ export default function VennDiagram() {
                     className="text-sm font-semibold"
                     fill="#4B5563"
                   >
-                    {circle.label}
+                    {t(circle.label)}
                   </text>
                 </g>
               );
@@ -89,9 +91,9 @@ export default function VennDiagram() {
 
           <div className="absolute inset-0 flex items-center justify-center">
             <Card className="p-6 bg-white/90 backdrop-blur-sm max-w-xs">
-              <h3 className="text-xl font-semibold mb-2">Overlapp Magic</h3>
+              <h3 className="text-xl font-semibold mb-2">Overlapp</h3>
               <p className="text-gray-600">
-                Where your digital identity meets real-world experiences, enhanced by AI
+                {t('common.landing.features.physical.description')}
               </p>
             </Card>
           </div>
@@ -106,8 +108,8 @@ export default function VennDiagram() {
         >
           {intersections.map((item, index) => (
             <Card key={index} className="p-6">
-              <h4 className="text-lg font-semibold mb-2">{item.label}</h4>
-              <p className="text-gray-600">{item.description}</p>
+              <h4 className="text-lg font-semibold mb-2">{t(item.label)}</h4>
+              <p className="text-gray-600">{t(item.description)}</p>
             </Card>
           ))}
         </motion.div>

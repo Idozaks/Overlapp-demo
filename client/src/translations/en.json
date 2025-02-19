@@ -1,4 +1,3 @@
-
 {
   "common": {
     "language": "Language",
@@ -18,7 +17,80 @@
       "real_time": "Real-time Synchronization",
       "experience": "Experience All Shopping",
       "retail": "Connected Retail Experience",
-      "connect": "Where Everything Connects"
+      "connect": "Where Everything Connects",
+      "features": {
+        "title": "Redefining Digital Identity",
+        "subtitle": "Experience the future of personalized digital interactions with our cutting-edge features",
+        "secure": {
+          "title": "Secure Identity Management",
+          "description": "Control your digital identity with quantum-resistant encryption and advanced privacy controls"
+        },
+        "physical": {
+          "title": "Seamless Physical Integration",
+          "description": "Bridge your digital and physical experiences with smart location-based features"
+        },
+        "ai": {
+          "title": "AI-Powered Insights",
+          "description": "Get personalized recommendations and insights powered by advanced AI"
+        },
+        "sync": {
+          "title": "Real-time Synchronization",
+          "description": "Stay synchronized across all your devices and physical locations instantly"
+        }
+      },
+      "ar": {
+        "title": "Experience AR Shopping",
+        "subtitle": "See how Overlapp transforms your shopping experience with augmented reality",
+        "point": {
+          "title": "Point & Discover",
+          "description": "Simply point your camera at products to see real-time prices, reviews, and personalized recommendations"
+        },
+        "navigation": {
+          "title": "Smart Navigation",
+          "description": "Get guided to products you'll love with AR navigation overlays in stores"
+        }
+      },
+      "pricing": {
+        "title": "Choose Your Experience",
+        "subtitle": "Unlock the full potential of your digital identity with our premium features",
+        "plans": {
+          "basic": {
+            "name": "Basic",
+            "price": "Free",
+            "features": [
+              "Basic digital identity management",
+              "Limited AR experiences",
+              "Standard recommendations",
+              "Basic retail integrations"
+            ]
+          },
+          "premium": {
+            "name": "Premium",
+            "price": "$9.99/mo",
+            "popular": "Most Popular",
+            "features": [
+              "Advanced identity controls",
+              "Full AR capabilities",
+              "AI-powered personalization",
+              "Priority retail offers",
+              "Exclusive events access",
+              "24/7 premium support"
+            ]
+          },
+          "enterprise": {
+            "name": "Enterprise",
+            "price": "Custom",
+            "features": [
+              "Custom identity solutions",
+              "Advanced analytics",
+              "Dedicated support team",
+              "Custom integrations",
+              "API access",
+              "SLA guarantees"
+            ]
+          }
+        }
+      }
     }
   }
 }

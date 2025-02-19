@@ -9,47 +9,11 @@ import {
 } from "@/components/ui/card";
 import { Check, Crown, Zap } from "lucide-react";
 import { useLocation } from "wouter";
-
-const plans = [
-  {
-    name: "Basic",
-    price: "Free",
-    features: [
-      "Basic digital identity management",
-      "Limited AR experiences",
-      "Standard recommendations",
-      "Basic retail integrations"
-    ]
-  },
-  {
-    name: "Premium",
-    price: "$9.99/mo",
-    popular: true,
-    features: [
-      "Advanced identity controls",
-      "Full AR capabilities",
-      "AI-powered personalization",
-      "Priority retail offers",
-      "Exclusive events access",
-      "24/7 premium support"
-    ]
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    features: [
-      "Custom identity solutions",
-      "Advanced analytics",
-      "Dedicated support team",
-      "Custom integrations",
-      "API access",
-      "SLA guarantees"
-    ]
-  }
-];
+import { useTranslation } from "react-i18next";
 
 export default function PremiumFeatures() {
   const [, navigate] = useLocation();
+  const { t } = useTranslation();
 
   const handlePlanClick = (planName: string) => {
     if (planName === "Enterprise") {
@@ -69,10 +33,10 @@ export default function PremiumFeatures() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Choose Your Experience
+            {t('common.landing.pricing.title')}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Unlock the full potential of your digital identity with our premium features
+            {t('common.landing.pricing.subtitle')}
           </p>
         </motion.div>
 
@@ -82,7 +46,7 @@ export default function PremiumFeatures() {
           viewport={{ once: true }}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
-          {plans.map((plan, index) => (
+          {['basic', 'premium', 'enterprise'].map((plan, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
@@ -90,30 +54,34 @@ export default function PremiumFeatures() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.2 }}
             >
-              <Card className={`relative ${plan.popular ? 'border-primary shadow-lg' : ''}`}>
-                {plan.popular && (
+              <Card className={`relative ${plan === 'premium' ? 'border-primary shadow-lg' : ''}`}>
+                {plan === 'premium' && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="bg-primary text-primary-foreground text-sm font-medium px-3 py-1 rounded-full flex items-center gap-1">
                       <Crown className="w-4 h-4" />
-                      Most Popular
+                      {t('common.landing.pricing.plans.premium.popular')}
                     </span>
                   </div>
                 )}
 
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>{plan.name}</span>
-                    {plan.popular && <Zap className="w-5 h-5 text-primary" />}
+                    <span>{t(`common.landing.pricing.plans.${plan}.name`)}</span>
+                    {plan === 'premium' && <Zap className="w-5 h-5 text-primary" />}
                   </CardTitle>
                   <div className="mt-2">
-                    <span className="text-3xl font-bold">{plan.price}</span>
-                    {plan.price !== "Custom" && <span className="text-gray-600 ml-1">/month</span>}
+                    <span className="text-3xl font-bold">
+                      {t(`common.landing.pricing.plans.${plan}.price`)}
+                    </span>
+                    {t(`common.landing.pricing.plans.${plan}.price`) !== "Custom" && 
+                      <span className="text-gray-600 ml-1">/month</span>
+                    }
                   </div>
                 </CardHeader>
 
                 <CardContent>
                   <ul className="space-y-3">
-                    {plan.features.map((feature, featureIndex) => (
+                    {t(`common.landing.pricing.plans.${plan}.features`, { returnObjects: true }).map((feature: string, featureIndex: number) => (
                       <li key={featureIndex} className="flex items-center gap-2">
                         <Check className="w-5 h-5 text-primary" />
                         <span className="text-gray-600">{feature}</span>
@@ -125,10 +93,12 @@ export default function PremiumFeatures() {
                 <CardFooter>
                   <Button
                     className="w-full"
-                    variant={plan.popular ? "default" : "outline"}
-                    onClick={() => handlePlanClick(plan.name)}
+                    variant={plan === 'premium' ? "default" : "outline"}
+                    onClick={() => handlePlanClick(t(`common.landing.pricing.plans.${plan}.name`))}
                   >
-                    {plan.price === "Custom" ? "Contact Sales" : "Get Started"}
+                    {t(`common.landing.pricing.plans.${plan}.price`) === "Custom" 
+                      ? t('common.nav.contact') 
+                      : t('common.nav.signup')}
                   </Button>
                 </CardFooter>
               </Card>
