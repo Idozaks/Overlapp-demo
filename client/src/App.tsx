@@ -10,6 +10,8 @@ import RetailerDetails from "@/pages/RetailerDetails";
 import Contact from "@/pages/Contact";
 import SocialHub from "@/pages/social/SocialHub";
 import Profile from "@/pages/social/Profile";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import "./lib/i18n"; // Import i18n configuration
 
 function Router() {
   return (
@@ -29,7 +31,16 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
+      <div className="min-h-screen">
+        <header className="p-4 border-b">
+          <div className="container mx-auto flex justify-end">
+            <LanguageSwitcher />
+          </div>
+        </header>
+        <main>
+          <Router />
+        </main>
+      </div>
       <Toaster />
     </QueryClientProvider>
   );
