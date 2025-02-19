@@ -1,6 +1,8 @@
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useTranslation } from "react-i18next"
 import * as flags from 'country-flag-icons/react/3x2'
+import { useEffect } from "react"
 
 const languages = [
   { code: 'en', name: 'English', flag: flags.GB },
@@ -14,11 +16,14 @@ const languages = [
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation()
 
+  useEffect(() => {
+    const lang = languages.find(l => l.code === i18n.language)
+    document.documentElement.dir = lang?.dir || 'ltr'
+    document.documentElement.lang = i18n.language
+  }, [i18n.language])
+
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value)
-    // Update document direction for RTL languages
-    const lang = languages.find(l => l.code === value)
-    document.documentElement.dir = lang?.dir || 'ltr'
   }
 
   return (
