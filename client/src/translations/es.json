@@ -1,4 +1,3 @@
-
 {
   "common": {
     "language": "Idioma",
@@ -18,7 +17,80 @@
       "real_time": "Sincronización en tiempo real",
       "experience": "Experimenta todas las compras",
       "retail": "Experiencia minorista conectada",
-      "connect": "Donde todo se conecta"
+      "connect": "Donde todo se conecta",
+      "features": {
+        "title": "Redefiniendo la identidad digital",
+        "subtitle": "Experimenta el futuro de las interacciones digitales personalizadas con nuestras funciones de vanguardia",
+        "secure": {
+          "title": "Gestión segura de identidad",
+          "description": "Controla tu identidad digital con encriptación resistente a la computación cuántica y controles de privacidad avanzados"
+        },
+        "physical": {
+          "title": "Integración física perfecta",
+          "description": "Conecta tus experiencias digitales y físicas con funciones inteligentes basadas en ubicación"
+        },
+        "ai": {
+          "title": "Análisis impulsado por IA",
+          "description": "Obtén recomendaciones y análisis personalizados impulsados por IA avanzada"
+        },
+        "sync": {
+          "title": "Sincronización en tiempo real",
+          "description": "Mantente sincronizado en todos tus dispositivos y ubicaciones físicas al instante"
+        }
+      },
+      "ar": {
+        "title": "Experimenta las compras con RA",
+        "subtitle": "Mira cómo Overlapp transforma tu experiencia de compra con realidad aumentada",
+        "point": {
+          "title": "Apunta y Descubre",
+          "description": "Simplemente apunta tu cámara a los productos para ver precios en tiempo real, reseñas y recomendaciones personalizadas"
+        },
+        "navigation": {
+          "title": "Navegación inteligente",
+          "description": "Recibe guía hacia los productos que te encantarán con capas de navegación RA en tiendas"
+        }
+      },
+      "pricing": {
+        "title": "Elige tu experiencia",
+        "subtitle": "Desbloquea todo el potencial de tu identidad digital con nuestras funciones premium",
+        "plans": {
+          "basic": {
+            "name": "Básico",
+            "price": "Gratis",
+            "features": [
+              "Gestión básica de identidad digital",
+              "Experiencias RA limitadas",
+              "Recomendaciones estándar",
+              "Integraciones minoristas básicas"
+            ]
+          },
+          "premium": {
+            "name": "Premium",
+            "price": "9,99€/mes",
+            "popular": "Más popular",
+            "features": [
+              "Controles de identidad avanzados",
+              "Capacidades RA completas",
+              "Personalización impulsada por IA",
+              "Ofertas minoristas prioritarias",
+              "Acceso a eventos exclusivos",
+              "Soporte premium 24/7"
+            ]
+          },
+          "enterprise": {
+            "name": "Empresarial",
+            "price": "Personalizado",
+            "features": [
+              "Soluciones de identidad personalizadas",
+              "Análisis avanzado",
+              "Equipo de soporte dedicado",
+              "Integraciones personalizadas",
+              "Acceso API",
+              "Garantías SLA"
+            ]
+          }
+        }
+      }
     }
   }
 }

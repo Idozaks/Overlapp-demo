@@ -2,8 +2,11 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Phone, Navigation, Tag, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function ARDemo() {
+  const { t } = useTranslation();
+
   return (
     <section className="py-20 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
@@ -14,10 +17,10 @@ export default function ARDemo() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Experience AR Shopping
+            {t('common.landing.ar.title')}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            See how Overlapp transforms your shopping experience with augmented reality
+            {t('common.landing.ar.subtitle')}
           </p>
         </motion.div>
 
@@ -75,10 +78,10 @@ export default function ARDemo() {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-2">
-                    Point & Discover
+                    {t('common.landing.ar.point.title')}
                   </h3>
                   <p className="text-gray-600">
-                    Simply point your camera at products to see real-time prices, reviews, and personalized recommendations
+                    {t('common.landing.ar.point.description')}
                   </p>
                 </div>
               </div>
@@ -91,10 +94,10 @@ export default function ARDemo() {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-2">
-                    Smart Navigation
+                    {t('common.landing.ar.navigation.title')}
                   </h3>
                   <p className="text-gray-600">
-                    Get guided to products you'll love with AR navigation overlays in stores
+                    {t('common.landing.ar.navigation.description')}
                   </p>
                 </div>
               </div>
@@ -102,7 +105,7 @@ export default function ARDemo() {
 
             <div className="flex justify-center lg:justify-start">
               <Button size="lg" className="gap-2">
-                Try AR Demo <Phone className="w-4 h-4" />
+                {t('common.nav.demo')} <Phone className="w-4 h-4" />
               </Button>
             </div>
           </motion.div>

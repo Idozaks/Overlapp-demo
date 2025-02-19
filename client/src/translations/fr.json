@@ -1,4 +1,3 @@
-
 {
   "common": {
     "language": "Langue",
@@ -18,7 +17,80 @@
       "real_time": "Synchronisation en temps réel",
       "experience": "Expérimentez tout le shopping",
       "retail": "Expérience retail connectée",
-      "connect": "Là où tout se connecte"
+      "connect": "Là où tout se connecte",
+      "features": {
+        "title": "Redéfinir l'identité numérique",
+        "subtitle": "Découvrez le futur des interactions numériques personnalisées avec nos fonctionnalités de pointe",
+        "secure": {
+          "title": "Gestion d'identité sécurisée",
+          "description": "Contrôlez votre identité numérique avec un chiffrement résistant aux quantiques et des contrôles de confidentialité avancés"
+        },
+        "physical": {
+          "title": "Intégration physique transparente",
+          "description": "Reliez vos expériences numériques et physiques avec des fonctionnalités intelligentes basées sur la localisation"
+        },
+        "ai": {
+          "title": "Analyses alimentées par l'IA",
+          "description": "Obtenez des recommandations et des analyses personnalisées alimentées par une IA avancée"
+        },
+        "sync": {
+          "title": "Synchronisation en temps réel",
+          "description": "Restez synchronisé sur tous vos appareils et emplacements physiques instantanément"
+        }
+      },
+      "ar": {
+        "title": "Expérimentez le shopping en RA",
+        "subtitle": "Découvrez comment Overlapp transforme votre expérience shopping avec la réalité augmentée",
+        "point": {
+          "title": "Pointez & Découvrez",
+          "description": "Pointez simplement votre caméra vers les produits pour voir les prix en temps réel, les avis et les recommandations personnalisées"
+        },
+        "navigation": {
+          "title": "Navigation intelligente",
+          "description": "Soyez guidé vers les produits que vous aimerez avec des superpositions de navigation en RA dans les magasins"
+        }
+      },
+      "pricing": {
+        "title": "Choisissez votre expérience",
+        "subtitle": "Libérez tout le potentiel de votre identité numérique avec nos fonctionnalités premium",
+        "plans": {
+          "basic": {
+            "name": "Basique",
+            "price": "Gratuit",
+            "features": [
+              "Gestion basique de l'identité numérique",
+              "Expériences RA limitées",
+              "Recommandations standard",
+              "Intégrations retail basiques"
+            ]
+          },
+          "premium": {
+            "name": "Premium",
+            "price": "9,99€/mois",
+            "popular": "Le plus populaire",
+            "features": [
+              "Contrôles d'identité avancés",
+              "Capacités RA complètes",
+              "Personnalisation par IA",
+              "Offres retail prioritaires",
+              "Accès aux événements exclusifs",
+              "Support premium 24/7"
+            ]
+          },
+          "enterprise": {
+            "name": "Entreprise",
+            "price": "Sur mesure",
+            "features": [
+              "Solutions d'identité personnalisées",
+              "Analyses avancées",
+              "Équipe de support dédiée",
+              "Intégrations personnalisées",
+              "Accès API",
+              "Garanties SLA"
+            ]
+          }
+        }
+      }
     }
   }
 }
