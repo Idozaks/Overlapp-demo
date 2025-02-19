@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight, Smartphone } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function Hero() {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
 
   return (
