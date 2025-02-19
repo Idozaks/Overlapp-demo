@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Store, ShoppingBag, Percent, Star } from "lucide-react";
+import { useLocation } from "wouter";
 
 const retailers = [
   {
@@ -28,6 +29,8 @@ const retailers = [
 ];
 
 export default function RetailerDemo() {
+  const [, navigate] = useLocation();
+
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -59,7 +62,10 @@ export default function RetailerDemo() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.2 }}
             >
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <Card 
+                className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                onClick={() => navigate(`/retailer/${index + 1}`)}
+              >
                 <div
                   className="h-48 bg-cover bg-center"
                   style={{
@@ -74,7 +80,7 @@ export default function RetailerDemo() {
                       {retailer.category}
                     </Badge>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Star className="w-5 h-5 text-yellow-500" />
@@ -91,7 +97,7 @@ export default function RetailerDemo() {
                       <ShoppingBag className="w-4 h-4" />
                       Available in-store
                     </span>
-                    <span className="text-primary font-medium">
+                    <span className="text-primary font-medium hover:underline">
                       View Details →
                     </span>
                   </div>
