@@ -1,4 +1,3 @@
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useTranslation } from "react-i18next"
 import * as flags from 'country-flag-icons/react/3x2'
@@ -16,20 +15,28 @@ const languages = [
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation()
 
-  useEffect(() => {
-    const lang = languages.find(l => l.code === i18n.language)
-    document.documentElement.dir = lang?.dir || 'ltr'
-    document.documentElement.lang = i18n.language
-  }, [i18n.language])
-
   const handleLanguageChange = (value: string) => {
+    const lang = languages.find(l => l.code === value)
+    document.documentElement.dir = lang?.dir || 'ltr'
+    document.documentElement.lang = value
     i18n.changeLanguage(value)
   }
 
   return (
     <Select value={i18n.language} onValueChange={handleLanguageChange}>
       <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder={t('common.language')} />
+        <SelectValue>
+          {(() => {
+            const currentLang = languages.find(l => l.code === i18n.language)
+            const Flag = currentLang?.flag
+            return (
+              <div className="flex items-center gap-2">
+                {Flag && <Flag className="w-4 h-4" />}
+                <span>{currentLang?.name}</span>
+              </div>
+            )
+          })()}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {languages.map((lang) => {
