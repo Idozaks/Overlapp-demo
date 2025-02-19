@@ -1,0 +1,11 @@
+{
+  "common": {
+    "language": "שפה",
+    "nav": {
+      "home": "בית",
+      "demo": "הדגמה",
+      "contact": "צור קשר",
+      "signup": "הרשמה"
+    }
+  }
+}
