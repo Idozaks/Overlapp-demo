@@ -8,9 +8,17 @@
       "contact": "Contact",
       "signup": "S'inscrire"
     },
-    "hero": {
-      "title": "Votre chemin vers le succès",
-      "subtitle": "Découvrez de nouvelles possibilités"
+    "landing": {
+      "identity": {
+        "title": "Votre identité numérique",
+        "subtitle": "Réinventée"
+      },
+      "seamless": "Intégration physique transparente",
+      "ai": "Analyses IA",
+      "real_time": "Synchronisation en temps réel",
+      "experience": "Expérimentez tout le shopping",
+      "retail": "Expérience retail connectée",
+      "connect": "Là où tout se connecte"
     }
   }
 }

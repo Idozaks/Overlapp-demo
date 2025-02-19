@@ -19,9 +19,9 @@ export default function Hero() {
           className="max-w-3xl"
         >
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Your Digital Identity,
+            {t('common.landing.identity.title')},
             <span className="text-primary block mt-2">
-              Reimagined
+              {t('common.landing.identity.subtitle')}
             </span>
           </h1>
 

@@ -8,9 +8,17 @@
       "contact": "Contact",
       "signup": "Sign Up"
     },
-    "hero": {
-      "title": "Your Path to Success",
-      "subtitle": "Discover New Possibilities"
+    "landing": {
+      "identity": {
+        "title": "Your Digital Identity",
+        "subtitle": "Reimagined"
+      },
+      "seamless": "Seamless Physical Integration",
+      "ai": "AI Analytics",
+      "real_time": "Real-time Synchronization",
+      "experience": "Experience All Shopping",
+      "retail": "Connected Retail Experience",
+      "connect": "Where Everything Connects"
     }
   }
 }
