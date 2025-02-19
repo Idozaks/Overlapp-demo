@@ -94,11 +94,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPosts(userId: number): Promise<Post[]> {
-    return db
-      .select()
+    const posts = await db
+      .select({
+        id: posts.id,
+        content: posts.content,
+        location: posts.location,
+        createdAt: posts.createdAt,
+        userId: posts.userId,
+        user: users
+      })
       .from(posts)
+      .leftJoin(users, eq(users.id, posts.userId))
       .where(eq(posts.userId, userId))
       .orderBy(desc(posts.createdAt));
+
+    return posts;
   }
 
   async getFeed(userId: number): Promise<Post[]> {
@@ -106,11 +116,21 @@ export class DatabaseStorage implements IStorage {
     const followingIds = following.map(user => user.id);
     followingIds.push(userId); // Include user's own posts
 
-    return db
-      .select()
+    const posts = await db
+      .select({
+        id: posts.id,
+        content: posts.content,
+        location: posts.location,
+        createdAt: posts.createdAt,
+        userId: posts.userId,
+        user: users
+      })
       .from(posts)
+      .leftJoin(users, eq(users.id, posts.userId))
       .where(inArray(posts.userId, followingIds))
       .orderBy(desc(posts.createdAt));
+
+    return posts;
   }
 
   async likePost(userId: number, postId: number): Promise<void> {
