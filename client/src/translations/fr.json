@@ -1,3 +1,4 @@
+
 {
   "common": {
     "language": "Langue",
@@ -6,6 +7,10 @@
       "demo": "Démo",
       "contact": "Contact",
       "signup": "S'inscrire"
+    },
+    "hero": {
+      "title": "Votre chemin vers le succès",
+      "subtitle": "Découvrez de nouvelles possibilités"
     }
   }
 }
