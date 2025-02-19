@@ -1,5 +1,5 @@
+import React, { useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
-import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 
 const circles = [
