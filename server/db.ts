@@ -2,6 +2,8 @@ import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
+import { log } from "./vite";
+import { sql } from "drizzle-orm";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -11,5 +13,11 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
+log("Initializing database connection pool...");
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+
+log("Creating Drizzle ORM instance...");
+export const db = drizzle(pool, { schema });
+
+// Export sql for raw queries
+export { sql };

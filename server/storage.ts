@@ -1,7 +1,7 @@
-import { users, posts, comments, connections, likes } from "@shared/schema";
-import { type User, type InsertUser, type Post, type Comment, type Connection } from "@shared/schema";
+import { users, posts, comments, connections, likes, wallets, nfts, transactions } from "@shared/schema";
+import { type User, type InsertUser, type Post, type Comment, type Connection, type Wallet, type NFT, type Transaction, type InsertNFT, type InsertWallet } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, inArray } from "drizzle-orm";
+import { eq, desc, and, inArray, or } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -17,15 +17,28 @@ export interface IStorage {
 
   // Post operations
   createPost(userId: number, content: string, location?: any): Promise<Post>;
-  getPosts(userId: number): Promise<Post[]>;
-  getFeed(userId: number): Promise<Post[]>;
+  getPosts(userId: number): Promise<(Post & { user: User })[]>;
+  getFeed(userId: number): Promise<(Post & { user: User })[]>;
 
   // Interaction operations
   likePost(userId: number, postId: number): Promise<void>;
   unlikePost(userId: number, postId: number): Promise<void>;
   commentOnPost(userId: number, postId: number, content: string): Promise<Comment>;
 
-  // Recommendations
+  // Wallet operations
+  createWallet(wallet: InsertWallet): Promise<Wallet>;
+  getWallet(userId: number): Promise<Wallet | undefined>;
+  updateWalletBalance(walletId: number, amount: string): Promise<Wallet>;
+
+  // NFT operations
+  createNFT(nft: InsertNFT): Promise<NFT>;
+  getNFTsByOwner(userId: number): Promise<NFT[]>;
+  getNFTsByCreator(userId: number): Promise<NFT[]>;
+  transferNFT(nftId: number, fromUserId: number, toUserId: number): Promise<Transaction>;
+
+  // Transaction operations
+  getTransactions(walletId: number): Promise<Transaction[]>;
+  getTransaction(id: number): Promise<Transaction | undefined>;
   getRecommendations(userId: number): Promise<any[]>;
 }
 
@@ -69,20 +82,24 @@ export class DatabaseStorage implements IStorage {
 
   async getFollowers(userId: number): Promise<User[]> {
     const followers = await db
-      .select()
+      .select({
+        user: users
+      })
       .from(users)
       .innerJoin(connections, eq(connections.followerId, users.id))
       .where(eq(connections.followingId, userId));
-    return followers.map(({ users: user }) => user);
+    return followers.map(({ user }) => user);
   }
 
   async getFollowing(userId: number): Promise<User[]> {
     const following = await db
-      .select()
+      .select({
+        user: users
+      })
       .from(users)
       .innerJoin(connections, eq(connections.followingId, users.id))
       .where(eq(connections.followerId, userId));
-    return following.map(({ users: user }) => user);
+    return following.map(({ user }) => user);
   }
 
   async createPost(userId: number, content: string, location?: any): Promise<Post> {
@@ -93,14 +110,10 @@ export class DatabaseStorage implements IStorage {
     return post;
   }
 
-  async getPosts(userId: number): Promise<Post[]> {
-    const posts = await db
+  async getPosts(userId: number): Promise<(Post & { user: User })[]> {
+    const result = await db
       .select({
-        id: posts.id,
-        content: posts.content,
-        location: posts.location,
-        createdAt: posts.createdAt,
-        userId: posts.userId,
+        post: posts,
         user: users
       })
       .from(posts)
@@ -108,21 +121,20 @@ export class DatabaseStorage implements IStorage {
       .where(eq(posts.userId, userId))
       .orderBy(desc(posts.createdAt));
 
-    return posts;
+    return result.map(({ post, user }) => ({
+      ...post,
+      user
+    }));
   }
 
-  async getFeed(userId: number): Promise<Post[]> {
+  async getFeed(userId: number): Promise<(Post & { user: User })[]> {
     const following = await this.getFollowing(userId);
     const followingIds = following.map(user => user.id);
     followingIds.push(userId); // Include user's own posts
 
-    const posts = await db
+    const result = await db
       .select({
-        id: posts.id,
-        content: posts.content,
-        location: posts.location,
-        createdAt: posts.createdAt,
-        userId: posts.userId,
+        post: posts,
         user: users
       })
       .from(posts)
@@ -130,7 +142,10 @@ export class DatabaseStorage implements IStorage {
       .where(inArray(posts.userId, followingIds))
       .orderBy(desc(posts.createdAt));
 
-    return posts;
+    return result.map(({ post, user }) => ({
+      ...post,
+      user
+    }));
   }
 
   async likePost(userId: number, postId: number): Promise<void> {
@@ -151,26 +166,118 @@ export class DatabaseStorage implements IStorage {
     return comment;
   }
 
+  async createWallet(wallet: InsertWallet): Promise<Wallet> {
+    const [newWallet] = await db
+      .insert(wallets)
+      .values([wallet])
+      .returning();
+    return newWallet;
+  }
+
+  async getWallet(userId: number): Promise<Wallet | undefined> {
+    const [wallet] = await db
+      .select()
+      .from(wallets)
+      .where(eq(wallets.userId, userId));
+    return wallet;
+  }
+
+  async updateWalletBalance(walletId: number, amount: string): Promise<Wallet> {
+    const [wallet] = await db
+      .update(wallets)
+      .set({ balance: amount })
+      .where(eq(wallets.id, walletId))
+      .returning();
+    return wallet;
+  }
+
+  async createNFT(nft: InsertNFT): Promise<NFT> {
+    const [newNFT] = await db
+      .insert(nfts)
+      .values([{
+        title: nft.title,
+        description: nft.description,
+        metadata: nft.metadata,
+        creatorId: nft.creatorId,
+        tokenId: nft.tokenId,
+        ownerId: nft.creatorId // Initially, creator is the owner
+      }])
+      .returning();
+    return newNFT;
+  }
+
+  async getNFTsByOwner(userId: number): Promise<NFT[]> {
+    return await db
+      .select()
+      .from(nfts)
+      .where(eq(nfts.ownerId, userId));
+  }
+
+  async getNFTsByCreator(userId: number): Promise<NFT[]> {
+    return await db
+      .select()
+      .from(nfts)
+      .where(eq(nfts.creatorId, userId));
+  }
+
+  async transferNFT(nftId: number, fromUserId: number, toUserId: number): Promise<Transaction> {
+    const [transaction] = await db.transaction(async (tx) => {
+      // Update NFT ownership
+      await tx
+        .update(nfts)
+        .set({ ownerId: toUserId })
+        .where(eq(nfts.id, nftId));
+
+      // Create transaction record
+      const [txn] = await tx
+        .insert(transactions)
+        .values([{
+          nftId,
+          fromWalletId: fromUserId,
+          toWalletId: toUserId,
+          type: 'TRANSFER',
+          status: 'COMPLETED',
+          amount: "0" // Since this is an NFT transfer, not a sale
+        }])
+        .returning();
+
+      return [txn];
+    });
+
+    return transaction;
+  }
+
+  async getTransactions(walletId: number): Promise<Transaction[]> {
+    return await db
+      .select()
+      .from(transactions)
+      .where(
+        or(
+          eq(transactions.fromWalletId, walletId),
+          eq(transactions.toWalletId, walletId)
+        )
+      )
+      .orderBy(desc(transactions.createdAt));
+  }
+
+  async getTransaction(id: number): Promise<Transaction | undefined> {
+    const [transaction] = await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.id, id));
+    return transaction;
+  }
+
   async getRecommendations(userId: number): Promise<any[]> {
     const user = await this.getUser(userId);
     if (!user?.preferences) return [];
 
-    // Enhanced recommendations based on user interests and social connections
     const following = await this.getFollowing(userId);
-    const followingInterests = await Promise.all(
-      following.map(async (f) => {
-        const user = await this.getUser(f.id);
-        return user?.preferences?.interests || [];
-      })
-    );
+    const followingIds = following.map(f => f.id);
+    const interests = user.preferences?.interests || [];
 
-    // Use Array.from instead of spread operator for better compatibility
-    const allInterests = Array.from(new Set([
-      ...(user.preferences.interests || []),
-      ...followingInterests.flat()
-    ]));
-
-    return allInterests.map(interest => ({
+    // Create recommendations based on interests
+    return interests.map(interest => ({
       category: interest,
       items: [
         { name: `${interest} Item 1`, price: Math.floor(Math.random() * 100) + 20 },
