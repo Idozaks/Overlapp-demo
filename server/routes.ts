@@ -143,6 +143,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ recommendations });
   });
 
+  // Wallet Operations
+  app.get("/api/wallet", async (req, res) => {
+    const userId = Number(req.query.userId); // In production, get from session
+    try {
+      const wallet = await storage.getWallet(userId);
+      res.json({ wallet });
+    } catch (error) {
+      res.status(400).json({ message: "Unable to fetch wallet" });
+    }
+  });
+
+  app.get("/api/wallet/nfts", async (req, res) => {
+    const userId = Number(req.query.userId); // In production, get from session
+    try {
+      const nfts = await storage.getNFTsByOwner(userId);
+      res.json({ nfts });
+    } catch (error) {
+      res.status(400).json({ message: "Unable to fetch NFTs" });
+    }
+  });
+
+  app.get("/api/wallet/transactions", async (req, res) => {
+    const walletId = Number(req.query.walletId); // In production, get from session
+    try {
+      const transactions = await storage.getTransactions(walletId);
+      res.json({ transactions });
+    } catch (error) {
+      res.status(400).json({ message: "Unable to fetch transactions" });
+    }
+  });
+
+
   const httpServer = createServer(app);
   return httpServer;
 }
