@@ -3,6 +3,19 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { db, sql } from "./db";
 
+// Global error handlers
+process.on('uncaughtException', (error) => {
+  log('Uncaught Exception:');
+  log(error instanceof Error ? error.stack || error.message : String(error));
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+  log('Unhandled Rejection at:', String(promise));
+  log('Reason:', String(reason));
+  process.exit(1);
+});
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -42,14 +55,14 @@ app.use((req, res, next) => {
   try {
     log("Starting server initialization...");
 
-    // Test database connection
+    // Enhanced database connection testing
     try {
       log("Testing database connection...");
-      const result = await db.execute(sql`SELECT 1`);
+      const result = await db.execute(sql`SELECT current_timestamp as time, current_database() as database`);
       log("Database connection successful:", JSON.stringify(result));
     } catch (error) {
       log("Database connection failed:");
-      log(error instanceof Error ? error.message : "Unknown error");
+      log(error instanceof Error ? error.stack || error.message : "Unknown error");
       throw error;
     }
 
@@ -57,12 +70,16 @@ app.use((req, res, next) => {
     const server = await registerRoutes(app);
     log("Routes registered successfully");
 
+    // Enhanced error middleware
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       log("Error middleware caught an error:");
-      log(err instanceof Error ? err.message : "Unknown error");
+      log(err instanceof Error ? err.stack || err.message : String(err));
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
-      res.status(status).json({ message });
+      res.status(status).json({
+        message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+      });
     });
 
     if (app.get("env") === "development") {
@@ -77,10 +94,12 @@ app.use((req, res, next) => {
     const PORT = 5000;
     server.listen(PORT, "0.0.0.0", () => {
       log(`Server successfully started and listening on port ${PORT}`);
+      log(`Environment: ${app.get("env")}`);
+      log(`Database: ${process.env.PGDATABASE}`);
     });
   } catch (error) {
     log("Fatal error during server startup:");
-    log(error instanceof Error ? error.message : "Unknown error");
+    log(error instanceof Error ? error.stack || error.message : String(error));
     process.exit(1);
   }
 })();

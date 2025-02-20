@@ -10,6 +10,7 @@ import RetailerDetails from "@/pages/RetailerDetails";
 import Contact from "@/pages/Contact";
 import SocialHub from "@/pages/social/SocialHub";
 import Profile from "@/pages/social/Profile";
+import WalletDashboard from "@/pages/wallet/Dashboard";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import "./lib/i18n"; // Import i18n configuration
 
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/social" component={SocialHub} />
       <Route path="/profile/:id" component={Profile} />
+      <Route path="/wallet" component={WalletDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -32,14 +34,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen">
-        <head>
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-          <meta name="mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-        </head>
+        {/* Move meta tags to index.html */}
         <header className="p-4 border-b">
-          <div className="container mx-auto flex justify-end">
+          <div className="container mx-auto flex justify-between items-center">
+            <nav className="flex gap-4">
+              <a href="/" className="text-foreground hover:text-primary">Home</a>
+              <a href="/social" className="text-foreground hover:text-primary">Social</a>
+              <a href="/wallet" className="text-foreground hover:text-primary">Wallet</a>
+            </nav>
             <LanguageSwitcher />
           </div>
         </header>
