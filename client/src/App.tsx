@@ -32,6 +32,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+        </head>
         <header className="p-4 border-b">
           <div className="container mx-auto flex justify-end">
             <LanguageSwitcher />
