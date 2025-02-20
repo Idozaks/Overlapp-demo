@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertPostSchema } from "@shared/schema";
+import { log } from "./vite";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication
@@ -145,32 +146,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Wallet Operations
   app.get("/api/wallet", async (req, res) => {
-    const userId = Number(req.query.userId); // In production, get from session
+    const userId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ message: "Valid userId is required" });
+    }
+
     try {
-      const wallet = await storage.getWallet(userId);
+      let wallet = await storage.getWallet(userId);
+
+      if (!wallet) {
+        // If wallet doesn't exist, create one with default values
+        wallet = await storage.createWallet({
+          userId,
+          encryptedPrivateKey: "temp-key", // In production, generate proper keys
+          publicKey: "temp-pub-key",
+        });
+      }
+
       res.json({ wallet });
     } catch (error) {
-      res.status(400).json({ message: "Unable to fetch wallet" });
+      log("Error fetching wallet:", error);
+      res.status(500).json({ message: "Unable to fetch wallet" });
     }
   });
 
   app.get("/api/wallet/nfts", async (req, res) => {
-    const userId = Number(req.query.userId); // In production, get from session
+    const userId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ message: "Valid userId is required" });
+    }
+
     try {
       const nfts = await storage.getNFTsByOwner(userId);
-      res.json({ nfts });
+      res.json({ nfts: nfts || [] });
     } catch (error) {
-      res.status(400).json({ message: "Unable to fetch NFTs" });
+      log("Error fetching NFTs:", error);
+      res.status(500).json({ message: "Unable to fetch NFTs" });
     }
   });
 
   app.get("/api/wallet/transactions", async (req, res) => {
-    const walletId = Number(req.query.walletId); // In production, get from session
+    const walletId = req.query.walletId ? parseInt(req.query.walletId as string) : undefined;
+
+    if (!walletId || isNaN(walletId)) {
+      return res.status(400).json({ message: "Valid walletId is required" });
+    }
+
     try {
       const transactions = await storage.getTransactions(walletId);
-      res.json({ transactions });
+      res.json({ transactions: transactions || [] });
     } catch (error) {
-      res.status(400).json({ message: "Unable to fetch transactions" });
+      log("Error fetching transactions:", error);
+      res.status(500).json({ message: "Unable to fetch transactions" });
     }
   });
 
