@@ -1,7 +1,6 @@
-
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Brain, Globe, MapPin, Sparkles } from "lucide-react";
+import { Brain, Globe, MapPin, Sparkles, Layers, Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export default function PhygitalAI() {
@@ -17,86 +16,124 @@ export default function PhygitalAI() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {t('common.landing.phygital.title')}
+            Overlap with AI World
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {t('common.landing.phygital.subtitle')}
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Experience the seamless fusion of physical and digital identities powered by advanced AI technology
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
           >
-            <Card className="p-6 h-full">
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-full bg-primary/10">
-                    <Brain className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">
-                      {t('common.landing.phygital.ai_analysis.title')}
-                    </h3>
-                    <p className="text-gray-600">
-                      {t('common.landing.phygital.ai_analysis.description')}
-                    </p>
-                  </div>
+            <Card className="p-6 h-full hover:shadow-lg transition-shadow">
+              <div className="space-y-4">
+                <div className="p-3 rounded-full bg-primary/10 w-fit">
+                  <Brain className="w-6 h-6 text-primary" />
                 </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-full bg-primary/10">
-                    <MapPin className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">
-                      {t('common.landing.phygital.location.title')}
-                    </h3>
-                    <p className="text-gray-600">
-                      {t('common.landing.phygital.location.description')}
-                    </p>
-                  </div>
-                </div>
+                <h3 className="text-xl font-semibold">AI-Powered Identity Analysis</h3>
+                <p className="text-muted-foreground">
+                  Advanced machine learning algorithms analyze and verify digital-physical identity connections in real-time
+                </p>
               </div>
             </Card>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
           >
-            <Card className="p-6 h-full">
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-full bg-primary/10">
-                    <Globe className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">
-                      {t('common.landing.phygital.digital_twin.title')}
-                    </h3>
-                    <p className="text-gray-600">
-                      {t('common.landing.phygital.digital_twin.description')}
-                    </p>
-                  </div>
+            <Card className="p-6 h-full hover:shadow-lg transition-shadow">
+              <div className="space-y-4">
+                <div className="p-3 rounded-full bg-primary/10 w-fit">
+                  <Layers className="w-6 h-6 text-primary" />
                 </div>
+                <h3 className="text-xl font-semibold">Digital Twin Technology</h3>
+                <p className="text-muted-foreground">
+                  Create and maintain secure digital representations of physical identities with real-time synchronization
+                </p>
+              </div>
+            </Card>
+          </motion.div>
 
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-full bg-primary/10">
-                    <Sparkles className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">
-                      {t('common.landing.phygital.personalization.title')}
-                    </h3>
-                    <p className="text-gray-600">
-                      {t('common.landing.phygital.personalization.description')}
-                    </p>
-                  </div>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card className="p-6 h-full hover:shadow-lg transition-shadow">
+              <div className="space-y-4">
+                <div className="p-3 rounded-full bg-primary/10 w-fit">
+                  <Shield className="w-6 h-6 text-primary" />
                 </div>
+                <h3 className="text-xl font-semibold">Secure Identity Verification</h3>
+                <p className="text-muted-foreground">
+                  Blockchain-backed verification ensures the authenticity and security of phygital identities
+                </p>
+              </div>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card className="p-6 h-full hover:shadow-lg transition-shadow">
+              <div className="space-y-4">
+                <div className="p-3 rounded-full bg-primary/10 w-fit">
+                  <Globe className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Global Identity Network</h3>
+                <p className="text-muted-foreground">
+                  Connect and verify identities across borders with our distributed identity management system
+                </p>
+              </div>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="p-6 h-full hover:shadow-lg transition-shadow">
+              <div className="space-y-4">
+                <div className="p-3 rounded-full bg-primary/10 w-fit">
+                  <MapPin className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Location Intelligence</h3>
+                <p className="text-muted-foreground">
+                  Smart location tracking and verification for seamless physical-digital presence management
+                </p>
+              </div>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.6 }}
+          >
+            <Card className="p-6 h-full hover:shadow-lg transition-shadow">
+              <div className="space-y-4">
+                <div className="p-3 rounded-full bg-primary/10 w-fit">
+                  <Sparkles className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Smart Personalization</h3>
+                <p className="text-muted-foreground">
+                  AI-driven customization of digital identity features based on physical world interactions
+                </p>
               </div>
             </Card>
           </motion.div>
