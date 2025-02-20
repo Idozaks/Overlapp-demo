@@ -38,6 +38,26 @@
           "description": "Stay synchronized across all your devices and physical locations instantly"
         }
       },
+      "phygital": {
+        "title": "Where Digital Meets Physical",
+        "subtitle": "Experience seamless integration of AI-powered digital solutions in physical spaces",
+        "ai_analysis": {
+          "title": "Real-time AI Analysis",
+          "description": "Advanced AI processes real-world data to provide instant insights and recommendations"
+        },
+        "location": {
+          "title": "Context-Aware Experiences",
+          "description": "Location-based intelligence adapts your experience to your physical environment"
+        },
+        "digital_twin": {
+          "title": "Digital Twin Technology",
+          "description": "Create perfect digital representations of physical spaces and products"
+        },
+        "personalization": {
+          "title": "Smart Personalization",
+          "description": "AI learns from both online and offline behaviors to deliver truly personalized experiences"
+        }
+      },
       "ar": {
         "title": "Experience AR Shopping",
         "subtitle": "See how Overlapp transforms your shopping experience with augmented reality",
