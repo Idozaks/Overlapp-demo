@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Brain, Globe, MapPin, Sparkles } from "lucide-react";
@@ -16,10 +17,10 @@ export default function PhygitalAI() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Where Physical Meets Digital Intelligence
+            {t('common.landing.phygital.title')}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Experience the seamless fusion of physical identity with digital innovation, powered by advanced AI technology.
+            {t('common.landing.phygital.subtitle')}
           </p>
         </motion.div>
 
@@ -29,7 +30,7 @@ export default function PhygitalAI() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="p-6 h-full bg-gradient-to-br from-background to-primary/10">
+            <Card className="p-6 h-full">
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-full bg-primary/10">
@@ -37,10 +38,10 @@ export default function PhygitalAI() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2">
-                      Intelligent Identity Analysis
+                      {t('common.landing.phygital.ai_analysis.title')}
                     </h3>
                     <p className="text-gray-600">
-                      Advanced AI algorithms analyze and verify physical identities in real-time, ensuring secure and seamless authentication across platforms.
+                      {t('common.landing.phygital.ai_analysis.description')}
                     </p>
                   </div>
                 </div>
@@ -51,10 +52,10 @@ export default function PhygitalAI() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2">
-                      Location-Aware Identity
+                      {t('common.landing.phygital.location.title')}
                     </h3>
                     <p className="text-gray-600">
-                      Bridge physical presence with digital identity through AI-powered location verification and contextual authentication.
+                      {t('common.landing.phygital.location.description')}
                     </p>
                   </div>
                 </div>
@@ -67,7 +68,7 @@ export default function PhygitalAI() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="p-6 h-full bg-gradient-to-br from-background to-primary/10">
+            <Card className="p-6 h-full">
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-full bg-primary/10">
@@ -75,10 +76,10 @@ export default function PhygitalAI() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2">
-                      Digital Twin Technology
+                      {t('common.landing.phygital.digital_twin.title')}
                     </h3>
                     <p className="text-gray-600">
-                      Create and manage secure digital representations of physical identities, enabling trusted interactions in both worlds.
+                      {t('common.landing.phygital.digital_twin.description')}
                     </p>
                   </div>
                 </div>
@@ -89,10 +90,10 @@ export default function PhygitalAI() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2">
-                      AI-Driven Personalization
+                      {t('common.landing.phygital.personalization.title')}
                     </h3>
                     <p className="text-gray-600">
-                      Smart adaptation of digital experiences based on physical world interactions and behavioral patterns.
+                      {t('common.landing.phygital.personalization.description')}
                     </p>
                   </div>
                 </div>
