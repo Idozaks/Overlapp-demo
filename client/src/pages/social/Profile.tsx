@@ -1,15 +1,20 @@
 import { useParams } from "wouter";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import PostList from "@/components/social/PostList";
 import type { User } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Profile() {
   const { id } = useParams();
   const userId = id ? parseInt(id) : null;
+  const queryClient = useQueryClient();
+
+  // For demo purposes, using a hardcoded currentUserId
+  const currentUserId = 1;
 
   const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
     queryKey: [`/api/users/${userId}`],
@@ -19,6 +24,40 @@ export default function Profile() {
   const { data: posts, isLoading: loadingPosts } = useQuery({
     queryKey: [`/api/users/${userId}/posts`],
     enabled: !!userId && !isNaN(userId)
+  });
+
+  const { data: followers } = useQuery<{ followers: User[] }>({
+    queryKey: [`/api/users/${userId}/followers`],
+    enabled: !!userId && !isNaN(userId)
+  });
+
+  const { data: following } = useQuery<{ following: User[] }>({
+    queryKey: [`/api/users/${userId}/following`],
+    enabled: !!userId && !isNaN(userId)
+  });
+
+  const followMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest(`/api/users/${userId}/follow`, {
+        method: 'POST',
+        body: JSON.stringify({ followerId: currentUserId }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/followers`] });
+    },
+  });
+
+  const unfollowMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest(`/api/users/${userId}/follow`, {
+        method: 'DELETE',
+        body: JSON.stringify({ followerId: currentUserId }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/followers`] });
+    },
   });
 
   // Handle invalid ID
@@ -55,6 +94,16 @@ export default function Profile() {
     );
   }
 
+  const isFollowing = followers?.followers?.some(follower => follower.id === currentUserId);
+
+  const handleFollowToggle = async () => {
+    if (isFollowing) {
+      await unfollowMutation.mutateAsync();
+    } else {
+      await followMutation.mutateAsync();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -68,13 +117,37 @@ export default function Profile() {
                 )}
               </Avatar>
               <div className="flex-1">
-                <h1 className="text-2xl font-bold mb-2">
-                  {user.user.displayName || "Anonymous"}
-                </h1>
-                {user.user.bio && (
-                  <p className="text-muted-foreground mb-4">{user.user.bio}</p>
-                )}
-                <Button>Follow</Button>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h1 className="text-2xl font-bold mb-2">
+                      {user.user.displayName || "Anonymous"}
+                    </h1>
+                    {user.user.bio && (
+                      <p className="text-muted-foreground mb-4">{user.user.bio}</p>
+                    )}
+                  </div>
+                  {userId !== currentUserId && (
+                    <Button
+                      onClick={handleFollowToggle}
+                      disabled={followMutation.isPending || unfollowMutation.isPending}
+                      variant={isFollowing ? "outline" : "default"}
+                    >
+                      {followMutation.isPending || unfollowMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        isFollowing ? "Unfollow" : "Follow"
+                      )}
+                    </Button>
+                  )}
+                </div>
+                <div className="flex gap-4 mt-4">
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-semibold text-foreground">{followers?.followers?.length || 0}</span> followers
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-semibold text-foreground">{following?.following?.length || 0}</span> following
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>
