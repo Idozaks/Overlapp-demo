@@ -76,7 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       body: req.method !== 'GET' ? req.body : undefined
     };
     log(`[REQUEST] ${timestamp} - Incoming request:`, JSON.stringify(requestLog, null, 2));
-    
+
     const start = Date.now();
     res.on('finish', () => {
       const duration = Date.now() - start;
@@ -165,6 +165,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Unable to fetch user" });
     }
   });
+
+  // Add the update user endpoint
+  app.patch("/api/users/:id", async (req, res) => {
+    try {
+      const userId = Number(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Create an update schema by making all fields optional
+      const updateUserSchema = insertUserSchema.partial();
+      const result = updateUserSchema.safeParse(req.body);
+
+      if (!result.success) {
+        return res.status(400).json({
+          message: "Invalid user data",
+          errors: result.error.errors
+        });
+      }
+
+      // Get the current user to ensure it exists
+      const existingUser = await storage.getUser(userId);
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Update the user
+      const updatedUser = await storage.updateUser(userId, result.data);
+      res.json({ user: updatedUser });
+    } catch (error) {
+      log("Error updating user:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to update user" });
+    }
+  });
+
 
   // Social Connections
   app.post("/api/users/:id/follow", async (req, res) => {
@@ -325,17 +360,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let wallet = await storage.getWallet(userId);
 
       if (!wallet) {
-        // If wallet doesn't exist, create one with default values
         wallet = await storage.createWallet({
           userId,
-          encryptedPrivateKey: "temp-key", // In production, generate proper keys
+          encryptedPrivateKey: "temp-key",
           publicKey: "temp-pub-key",
         });
       }
 
       res.json({ wallet });
     } catch (error) {
-      log("Error fetching wallet:", error);
+      log("Error fetching wallet:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Unable to fetch wallet" });
     }
   });
@@ -351,7 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const nfts = await storage.getNFTsByOwner(userId);
       res.json({ nfts: nfts || [] });
     } catch (error) {
-      log("Error fetching NFTs:", error);
+      log("Error fetching NFTs:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Unable to fetch NFTs" });
     }
   });
@@ -367,7 +401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const transactions = await storage.getTransactions(walletId);
       res.json({ transactions: transactions || [] });
     } catch (error) {
-      log("Error fetching transactions:", error);
+      log("Error fetching transactions:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Unable to fetch transactions" });
     }
   });

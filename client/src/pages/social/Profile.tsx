@@ -3,15 +3,24 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Edit2 } from "lucide-react";
 import PostList from "@/components/social/PostList";
+import ProfileEdit from "@/components/profile/ProfileEdit";
 import type { User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function Profile() {
   const { id } = useParams();
   const userId = id ? parseInt(id) : null;
   const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
 
   // For demo purposes, using a hardcoded currentUserId
   const currentUserId = 1;
@@ -21,7 +30,7 @@ export default function Profile() {
     enabled: !!userId && !isNaN(userId)
   });
 
-  const { data: posts, isLoading: loadingPosts } = useQuery({
+  const { data: posts, isLoading: loadingPosts } = useQuery<{ posts: PostWithUser[] }>({
     queryKey: [`/api/users/${userId}/posts`],
     enabled: !!userId && !isNaN(userId)
   });
@@ -126,19 +135,30 @@ export default function Profile() {
                       <p className="text-muted-foreground mb-4">{user.user.bio}</p>
                     )}
                   </div>
-                  {userId !== currentUserId && (
-                    <Button
-                      onClick={handleFollowToggle}
-                      disabled={followMutation.isPending || unfollowMutation.isPending}
-                      variant={isFollowing ? "outline" : "default"}
-                    >
-                      {followMutation.isPending || unfollowMutation.isPending ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        isFollowing ? "Unfollow" : "Follow"
-                      )}
-                    </Button>
-                  )}
+                  <div className="flex gap-2">
+                    {userId === currentUserId ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsEditing(true)}
+                      >
+                        <Edit2 className="w-4 h-4 mr-2" />
+                        Edit Profile
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleFollowToggle}
+                        disabled={followMutation.isPending || unfollowMutation.isPending}
+                        variant={isFollowing ? "outline" : "default"}
+                      >
+                        {followMutation.isPending || unfollowMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          isFollowing ? "Unfollow" : "Follow"
+                        )}
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <div className="flex gap-4 mt-4">
                   <p className="text-sm text-muted-foreground">
@@ -157,6 +177,18 @@ export default function Profile() {
           <h2 className="text-xl font-semibold">Posts</h2>
           <PostList posts={posts?.posts || []} />
         </div>
+
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Profile</DialogTitle>
+            </DialogHeader>
+            <ProfileEdit 
+              user={user.user} 
+              onSuccess={() => setIsEditing(false)} 
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
