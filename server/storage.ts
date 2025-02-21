@@ -5,6 +5,7 @@ import { eq, desc, and, inArray, or } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
+  getAllUsers(): Promise<User[]>;
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
@@ -43,6 +44,10 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
@@ -54,9 +59,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
+    // Ensure preferences field is properly structured before insertion
+    const preferences = insertUser.preferences ? {
+      interests: Array.isArray(insertUser.preferences.interests) ? insertUser.preferences.interests : [],
+      retailPreferences: Array.isArray(insertUser.preferences.retailPreferences) ? insertUser.preferences.retailPreferences : []
+    } : null;
+
     const [user] = await db
       .insert(users)
-      .values([insertUser])
+      .values({
+        ...insertUser,
+        preferences
+      })
       .returning();
     return user;
   }
@@ -88,7 +102,7 @@ export class DatabaseStorage implements IStorage {
       .from(users)
       .innerJoin(connections, eq(connections.followerId, users.id))
       .where(eq(connections.followingId, userId));
-    return followers.map(({ user }) => user);
+    return followers.map(({ user }) => user!);
   }
 
   async getFollowing(userId: number): Promise<User[]> {
@@ -99,7 +113,7 @@ export class DatabaseStorage implements IStorage {
       .from(users)
       .innerJoin(connections, eq(connections.followingId, users.id))
       .where(eq(connections.followerId, userId));
-    return following.map(({ user }) => user);
+    return following.map(({ user }) => user!);
   }
 
   async createPost(userId: number, content: string, location?: any): Promise<Post> {
@@ -123,7 +137,7 @@ export class DatabaseStorage implements IStorage {
 
     return result.map(({ post, user }) => ({
       ...post,
-      user
+      user: user!
     }));
   }
 
@@ -144,7 +158,7 @@ export class DatabaseStorage implements IStorage {
 
     return result.map(({ post, user }) => ({
       ...post,
-      user
+      user: user!
     }));
   }
 
@@ -194,14 +208,18 @@ export class DatabaseStorage implements IStorage {
   async createNFT(nft: InsertNFT): Promise<NFT> {
     const [newNFT] = await db
       .insert(nfts)
-      .values([{
+      .values({
         title: nft.title,
         description: nft.description,
-        metadata: nft.metadata,
+        metadata: {
+          image: nft.metadata.image,
+          attributes: nft.metadata.attributes,
+          externalUrl: nft.metadata.externalUrl
+        },
         creatorId: nft.creatorId,
         tokenId: nft.tokenId,
         ownerId: nft.creatorId // Initially, creator is the owner
-      }])
+      })
       .returning();
     return newNFT;
   }

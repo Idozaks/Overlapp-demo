@@ -5,9 +5,10 @@ import CreatePost from "@/components/social/CreatePost";
 import PostList from "@/components/social/PostList";
 import UserSuggestions from "@/components/social/UserSuggestions";
 import { Loader2 } from "lucide-react";
+import type { PostWithUser } from "@shared/schema";
 
 export default function SocialHub() {
-  const { data: feed, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<{ posts: PostWithUser[] }>({
     queryKey: ["/api/feed"],
   });
 
@@ -28,7 +29,7 @@ export default function SocialHub() {
                 <Loader2 className="w-8 h-8 animate-spin" />
               </div>
             ) : (
-              <PostList posts={feed?.posts || []} />
+              <PostList posts={data?.posts || []} />
             )}
           </div>
 
