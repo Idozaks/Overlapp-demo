@@ -68,8 +68,12 @@ export class DatabaseStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
       const preferences = insertUser.preferences ? {
-        interests: Array.isArray(insertUser.preferences.interests) ? insertUser.preferences.interests : [],
-        retailPreferences: Array.isArray(insertUser.preferences.retailPreferences) ? insertUser.preferences.retailPreferences : []
+        interests: Array.isArray(insertUser.preferences.interests)
+          ? insertUser.preferences.interests.filter((interest): interest is string => typeof interest === 'string')
+          : [],
+        retailPreferences: Array.isArray(insertUser.preferences.retailPreferences)
+          ? insertUser.preferences.retailPreferences.filter((pref): pref is string => typeof pref === 'string')
+          : []
       } : undefined;
 
       const [user] = await db
@@ -228,9 +232,9 @@ export class DatabaseStorage implements IStorage {
           title: nft.title,
           description: nft.description || undefined,
           metadata: nft.metadata ? {
-            image: nft.metadata.image || undefined,
+            image: nft.metadata.image || '',
             attributes: nft.metadata.attributes || {},
-            externalUrl: nft.metadata.externalUrl || undefined
+            externalUrl: nft.metadata.externalUrl
           } : undefined,
           creatorId: nft.creatorId,
           tokenId: nft.tokenId,
@@ -326,8 +330,12 @@ export class DatabaseStorage implements IStorage {
   async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User> {
     try {
       const preferences = updateData.preferences ? {
-        interests: Array.isArray(updateData.preferences.interests) ? updateData.preferences.interests : [],
-        retailPreferences: Array.isArray(updateData.preferences.retailPreferences) ? updateData.preferences.retailPreferences : []
+        interests: Array.isArray(updateData.preferences.interests)
+          ? updateData.preferences.interests.filter((interest): interest is string => typeof interest === 'string')
+          : [],
+        retailPreferences: Array.isArray(updateData.preferences.retailPreferences)
+          ? updateData.preferences.retailPreferences.filter((pref): pref is string => typeof pref === 'string')
+          : []
       } : undefined;
 
       const [user] = await db

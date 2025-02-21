@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Edit2 } from "lucide-react";
 import PostList from "@/components/social/PostList";
 import ProfileEdit from "@/components/profile/ProfileEdit";
-import type { User } from "@shared/schema";
+import type { User, PostWithUser } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
 import {
