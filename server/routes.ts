@@ -18,6 +18,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Management
+  app.get("/api/users", async (_req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json({ users });
+    } catch (error) {
+      res.status(500).json({ message: "Unable to fetch users" });
+    }
+  });
+
   app.post("/api/users", async (req, res) => {
     const result = insertUserSchema.safeParse(req.body);
     if (!result.success) {
@@ -29,7 +38,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/users/:id", async (req, res) => {
-    const user = await storage.getUser(Number(req.params.id));
+    const userId = parseInt(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const user = await storage.getUser(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -95,9 +109,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/feed", async (req, res) => {
-    const userId = Number(req.query.userId); // In production, get from session
-    const posts = await storage.getFeed(userId);
-    res.json({ posts });
+    try {
+      const userId = req.query.userId ? parseInt(req.query.userId as string) : 1; // Default to user 1 for now
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      const posts = await storage.getFeed(userId);
+      res.json({ posts });
+    } catch (error) {
+      console.error("Error fetching feed:", error);
+      res.status(500).json({ message: "Unable to fetch feed" });
+    }
   });
 
   // Post Interactions

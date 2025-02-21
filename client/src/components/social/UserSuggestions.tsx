@@ -3,10 +3,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
+import type { User } from "@shared/schema";
 
 export default function UserSuggestions() {
   const [, navigate] = useLocation();
-  const { data: users, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<{ users: User[] }>({
     queryKey: ["/api/users"],
   });
 
@@ -18,9 +19,17 @@ export default function UserSuggestions() {
     );
   }
 
+  if (!data?.users?.length) {
+    return (
+      <div className="text-sm text-muted-foreground text-center py-4">
+        No users found
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {users?.map((user: any) => (
+      {data.users.map((user) => (
         <div key={user.id} className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Avatar className="cursor-pointer" onClick={() => navigate(`/profile/${user.id}`)}>
