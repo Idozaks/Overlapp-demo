@@ -7,6 +7,7 @@
       "contact": "Contacto",
       "signup": "Registrarse"
     },
+    "updating": "Actualizando...",
     "landing": {
       "identity": {
         "title": "Tu identidad digital",
@@ -69,7 +70,7 @@
             "price": "9,99€/mes",
             "popular": "Más popular",
             "features": [
-              "Controles de identidad avanzados",
+              "Controles de identidad avancados",
               "Capacidades RA completas",
               "Personalización impulsada por IA",
               "Ofertas minoristas prioritarias",
@@ -92,5 +93,19 @@
         }
       }
     }
+  },
+  "profile": {
+    "displayName": "Nombre para mostrar",
+    "bio": "Biografía",
+    "bioDescription": "Cuéntanos un poco sobre ti (máximo 500 caracteres)",
+    "avatarUrl": "URL del avatar",
+    "avatarDescription": "Ingresa la URL de tu foto de perfil",
+    "interests": "Intereses",
+    "retailPreferences": "Preferencias de compra",
+    "updateProfile": "Actualizar perfil",
+    "updateSuccess": "Perfil actualizado",
+    "updateSuccessMessage": "Tu perfil ha sido actualizado exitosamente",
+    "updateError": "Error de actualización",
+    "updateErrorMessage": "No se pudo actualizar el perfil. Por favor, inténtalo de nuevo."
   }
 }

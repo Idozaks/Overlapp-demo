@@ -7,6 +7,7 @@
       "contact": "اتصل بنا",
       "signup": "تسجيل"
     },
+    "updating": "جاري التحديث...",
     "landing": {
       "identity": {
         "title": "هويتك الرقمية",
@@ -92,5 +93,19 @@
         }
       }
     }
+  },
+  "profile": {
+    "displayName": "الاسم المعروض",
+    "bio": "نبذة",
+    "bioDescription": "أخبرنا قليلاً عن نفسك (الحد الأقصى 500 حرف)",
+    "avatarUrl": "رابط الصورة الرمزية",
+    "avatarDescription": "أدخل رابط صورة ملفك الشخصي",
+    "interests": "الاهتمامات",
+    "retailPreferences": "تفضيلات التسوق",
+    "updateProfile": "تحديث الملف الشخصي",
+    "updateSuccess": "تم تحديث الملف الشخصي",
+    "updateSuccessMessage": "تم تحديث ملفك الشخصي بنجاح",
+    "updateError": "فشل التحديث",
+    "updateErrorMessage": "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى."
   }
 }

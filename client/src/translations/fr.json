@@ -7,6 +7,7 @@
       "contact": "Contact",
       "signup": "S'inscrire"
     },
+    "updating": "Mise à jour...",
     "landing": {
       "identity": {
         "title": "Votre identité numérique",
@@ -92,5 +93,19 @@
         }
       }
     }
+  },
+  "profile": {
+    "displayName": "Nom d'affichage",
+    "bio": "Biographie",
+    "bioDescription": "Parlez-nous un peu de vous (max 500 caractères)",
+    "avatarUrl": "URL de l'avatar",
+    "avatarDescription": "Entrez l'URL de votre photo de profil",
+    "interests": "Centres d'intérêt",
+    "retailPreferences": "Préférences d'achat",
+    "updateProfile": "Mettre à jour le profil",
+    "updateSuccess": "Profil mis à jour",
+    "updateSuccessMessage": "Votre profil a été mis à jour avec succès",
+    "updateError": "Échec de la mise à jour",
+    "updateErrorMessage": "Échec de la mise à jour du profil. Veuillez réessayer."
   }
 }

@@ -174,6 +174,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid user ID" });
       }
 
+      // Get the current user to ensure it exists
+      const existingUser = await storage.getUser(userId);
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       // Create an update schema by making all fields optional
       const updateUserSchema = insertUserSchema.partial();
       const result = updateUserSchema.safeParse(req.body);
@@ -183,12 +189,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: "Invalid user data",
           errors: result.error.errors
         });
-      }
-
-      // Get the current user to ensure it exists
-      const existingUser = await storage.getUser(userId);
-      if (!existingUser) {
-        return res.status(404).json({ message: "User not found" });
       }
 
       // Update the user
