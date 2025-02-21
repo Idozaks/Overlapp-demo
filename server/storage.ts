@@ -2,6 +2,7 @@ import { users, posts, comments, connections, likes, wallets, nfts, transactions
 import { type User, type InsertUser, type Post, type Comment, type Connection, type Wallet, type NFT, type Transaction, type InsertNFT, type InsertWallet } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, inArray, or } from "drizzle-orm";
+import { log } from "./vite";
 
 export interface IStorage {
   // User operations
@@ -59,20 +60,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    // Ensure preferences field is properly structured before insertion
-    const preferences = insertUser.preferences ? {
-      interests: Array.isArray(insertUser.preferences.interests) ? insertUser.preferences.interests : [],
-      retailPreferences: Array.isArray(insertUser.preferences.retailPreferences) ? insertUser.preferences.retailPreferences : []
-    } : null;
+    try {
+      // Ensure preferences field is properly structured before insertion
+      const preferences = insertUser.preferences ? {
+        interests: Array.isArray(insertUser.preferences.interests) ? insertUser.preferences.interests : [],
+        retailPreferences: Array.isArray(insertUser.preferences.retailPreferences) ? insertUser.preferences.retailPreferences : []
+      } : null;
 
-    const [user] = await db
-      .insert(users)
-      .values({
-        ...insertUser,
-        preferences
-      })
-      .returning();
-    return user;
+      const [user] = await db
+        .insert(users)
+        .values({
+          username: insertUser.username,
+          password: insertUser.password,
+          displayName: insertUser.displayName || null,
+          bio: insertUser.bio || null,
+          avatar: insertUser.avatar || null,
+          preferences
+        })
+        .returning();
+      return user;
+    } catch (error) {
+      log("Error creating user:", String(error));
+      throw error;
+    }
   }
 
   async followUser(followerId: number, followingId: number): Promise<Connection> {
@@ -206,22 +216,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createNFT(nft: InsertNFT): Promise<NFT> {
-    const [newNFT] = await db
-      .insert(nfts)
-      .values({
-        title: nft.title,
-        description: nft.description,
-        metadata: {
-          image: nft.metadata.image,
-          attributes: nft.metadata.attributes,
-          externalUrl: nft.metadata.externalUrl
-        },
-        creatorId: nft.creatorId,
-        tokenId: nft.tokenId,
-        ownerId: nft.creatorId // Initially, creator is the owner
-      })
-      .returning();
-    return newNFT;
+    try {
+      const [newNFT] = await db
+        .insert(nfts)
+        .values({
+          title: nft.title,
+          description: nft.description || null,
+          metadata: nft.metadata ? {
+            image: nft.metadata.image || null,
+            attributes: nft.metadata.attributes || [],
+            externalUrl: nft.metadata.externalUrl || null
+          } : null,
+          creatorId: nft.creatorId,
+          tokenId: nft.tokenId,
+          ownerId: nft.creatorId // Initially, creator is the owner
+        })
+        .returning();
+      return newNFT;
+    } catch (error) {
+      log("Error creating NFT:", String(error));
+      throw error;
+    }
   }
 
   async getNFTsByOwner(userId: number): Promise<NFT[]> {

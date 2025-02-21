@@ -3,18 +3,111 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertPostSchema } from "@shared/schema";
 import { log } from "./vite";
+import express from "express";
+
+const SYNTHETIC_USERS = [
+  {
+    username: "tech_explorer",
+    password: "password123",
+    displayName: "Alex Tech",
+    bio: "Tech enthusiast exploring the intersection of AI and human creativity",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    preferences: {
+      interests: ["AI", "Technology", "Innovation"],
+      retailPreferences: ["Electronics", "Books"]
+    }
+  },
+  {
+    username: "nature_lens",
+    password: "password123",
+    displayName: "Sam Nature",
+    bio: "Wildlife photographer capturing Earth's beauty one frame at a time",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sam",
+    preferences: {
+      interests: ["Photography", "Nature", "Travel"],
+      retailPreferences: ["Camera Gear", "Outdoor Equipment"]
+    }
+  },
+  {
+    username: "fitness_guru",
+    password: "password123",
+    displayName: "Jordan Fit",
+    bio: "Personal trainer helping others achieve their fitness goals",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jordan",
+    preferences: {
+      interests: ["Fitness", "Nutrition", "Wellness"],
+      retailPreferences: ["Sports Equipment", "Health Foods"]
+    }
+  },
+  {
+    username: "art_soul",
+    password: "password123",
+    displayName: "Morgan Art",
+    bio: "Digital artist exploring new forms of expression",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Morgan",
+    preferences: {
+      interests: ["Art", "Digital Media", "Design"],
+      retailPreferences: ["Art Supplies", "Digital Tools"]
+    }
+  },
+  {
+    username: "food_adventurer",
+    password: "password123",
+    displayName: "Jamie Food",
+    bio: "Culinary explorer sharing global flavors and recipes",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jamie",
+    preferences: {
+      interests: ["Cooking", "Travel", "Culture"],
+      retailPreferences: ["Kitchen Equipment", "Specialty Foods"]
+    }
+  }
+];
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Authentication
-  app.post("/api/auth/login", async (req, res) => {
-    const { username, password } = req.body;
-    const user = await storage.getUserByUsername(username);
+  // Add JSON body parser middleware
+  app.use(express.json());
 
-    if (!user || user.password !== password) {
-      return res.status(401).json({ message: "Invalid credentials" });
+  // Health check endpoint
+  app.get("/api/health", (_req, res) => {
+    res.json({ status: "ok" });
+  });
+
+  // Move the debug route to the top to ensure it's matched first
+  app.post("/api/debug/generate-users", async (req, res) => {
+    try {
+      log("Starting synthetic user generation...");
+      const createdUsers = [];
+      for (const userData of SYNTHETIC_USERS) {
+        const result = insertUserSchema.safeParse(userData);
+        if (result.success) {
+          const user = await storage.createUser(result.data);
+          createdUsers.push(user);
+          log(`Created user: ${user.displayName}`);
+        } else {
+          log(`Failed to validate user data: ${JSON.stringify(result.error)}`);
+        }
+      }
+      log(`Successfully created ${createdUsers.length} synthetic users`);
+      return res.status(201).json({ message: "Synthetic users created", users: createdUsers });
+    } catch (error) {
+      log("Error creating synthetic users:", String(error));
+      return res.status(500).json({ message: "Unable to create synthetic users", error: String(error) });
     }
+  });
 
-    res.json({ user });
+  // Feed endpoint
+  app.get("/api/feed", async (req, res) => {
+    try {
+      const userId = typeof req.query.userId === 'string' ? parseInt(req.query.userId) : 1;
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      const posts = await storage.getFeed(userId);
+      res.json({ posts });
+    } catch (error) {
+      log("Error fetching feed:", String(error));
+      res.status(500).json({ message: "Unable to fetch feed" });
+    }
   });
 
   // User Management
@@ -23,148 +116,175 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const users = await storage.getAllUsers();
       res.json({ users });
     } catch (error) {
+      log("Error fetching users:", String(error));
       res.status(500).json({ message: "Unable to fetch users" });
     }
   });
 
-  app.post("/api/users", async (req, res) => {
-    const result = insertUserSchema.safeParse(req.body);
-    if (!result.success) {
-      return res.status(400).json({ message: "Invalid user data" });
-    }
-
-    const user = await storage.createUser(result.data);
-    res.status(201).json({ user });
-  });
-
   app.get("/api/users/:id", async (req, res) => {
-    const userId = parseInt(req.params.id);
-    if (isNaN(userId)) {
-      return res.status(400).json({ message: "Invalid user ID" });
-    }
+    try {
+      const userId = parseInt(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
 
-    const user = await storage.getUser(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({ user });
+    } catch (error) {
+      log("Error fetching user:", String(error));
+      res.status(500).json({ message: "Unable to fetch user" });
     }
-    res.json({ user });
   });
 
   // Social Connections
   app.post("/api/users/:id/follow", async (req, res) => {
-    const followerId = Number(req.body.followerId);
-    const followingId = Number(req.params.id);
-
     try {
+      const followerId = Number(req.body.followerId);
+      const followingId = Number(req.params.id);
+
+      if (isNaN(followerId) || isNaN(followingId)) {
+        return res.status(400).json({ message: "Invalid user IDs" });
+      }
+
       const connection = await storage.followUser(followerId, followingId);
       res.status(201).json({ connection });
     } catch (error) {
+      log("Error following user:", String(error));
       res.status(400).json({ message: "Unable to follow user" });
     }
   });
 
   app.delete("/api/users/:id/follow", async (req, res) => {
-    const followerId = Number(req.body.followerId);
-    const followingId = Number(req.params.id);
-
     try {
+      const followerId = Number(req.body.followerId);
+      const followingId = Number(req.params.id);
+
+      if (isNaN(followerId) || isNaN(followingId)) {
+        return res.status(400).json({ message: "Invalid user IDs" });
+      }
+
       await storage.unfollowUser(followerId, followingId);
       res.status(204).send();
     } catch (error) {
+      log("Error unfollowing user:", String(error));
       res.status(400).json({ message: "Unable to unfollow user" });
     }
   });
 
   app.get("/api/users/:id/followers", async (req, res) => {
-    const followers = await storage.getFollowers(Number(req.params.id));
-    res.json({ followers });
+    try {
+      const userId = Number(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      const followers = await storage.getFollowers(userId);
+      res.json({ followers });
+    } catch (error) {
+      log("Error fetching followers:", String(error));
+      res.status(500).json({ message: "Unable to fetch followers" });
+    }
   });
 
   app.get("/api/users/:id/following", async (req, res) => {
-    const following = await storage.getFollowing(Number(req.params.id));
-    res.json({ following });
+    try {
+      const userId = Number(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      const following = await storage.getFollowing(userId);
+      res.json({ following });
+    } catch (error) {
+      log("Error fetching following:", String(error));
+      res.status(500).json({ message: "Unable to fetch following" });
+    }
   });
 
   // Posts
   app.post("/api/posts", async (req, res) => {
-    const result = insertPostSchema.safeParse(req.body);
-    if (!result.success) {
-      return res.status(400).json({ message: "Invalid post data" });
-    }
-
-    const { content, location } = result.data;
-    const userId = Number(req.body.userId); // In production, get from session
-
     try {
+      const result = insertPostSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ message: "Invalid post data" });
+      }
+
+      const { content, location } = result.data;
+      const userId = Number(req.body.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
       const post = await storage.createPost(userId, content, location);
       res.status(201).json({ post });
     } catch (error) {
+      log("Error creating post:", String(error));
       res.status(400).json({ message: "Unable to create post" });
     }
   });
 
   app.get("/api/users/:id/posts", async (req, res) => {
-    const posts = await storage.getPosts(Number(req.params.id));
-    res.json({ posts });
-  });
-
-  app.get("/api/feed", async (req, res) => {
     try {
-      const userId = req.query.userId ? parseInt(req.query.userId as string) : 1; // Default to user 1 for now
+      const userId = Number(req.params.id);
       if (isNaN(userId)) {
         return res.status(400).json({ message: "Invalid user ID" });
       }
-      const posts = await storage.getFeed(userId);
+      const posts = await storage.getPosts(userId);
       res.json({ posts });
     } catch (error) {
-      console.error("Error fetching feed:", error);
-      res.status(500).json({ message: "Unable to fetch feed" });
+      log("Error fetching posts:", String(error));
+      res.status(500).json({ message: "Unable to fetch posts" });
     }
   });
 
-  // Post Interactions
   app.post("/api/posts/:id/like", async (req, res) => {
-    const postId = Number(req.params.id);
-    const userId = Number(req.body.userId); // In production, get from session
-
     try {
+      const postId = Number(req.params.id);
+      const userId = Number(req.body.userId);
+      if (isNaN(postId) || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid ID" });
+      }
+
       await storage.likePost(userId, postId);
       res.status(201).send();
     } catch (error) {
+      log("Error liking post:", String(error));
       res.status(400).json({ message: "Unable to like post" });
     }
   });
 
   app.delete("/api/posts/:id/like", async (req, res) => {
-    const postId = Number(req.params.id);
-    const userId = Number(req.body.userId); // In production, get from session
-
     try {
+      const postId = Number(req.params.id);
+      const userId = Number(req.body.userId);
+      if (isNaN(postId) || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid ID" });
+      }
+
       await storage.unlikePost(userId, postId);
       res.status(204).send();
     } catch (error) {
+      log("Error unliking post:", String(error));
       res.status(400).json({ message: "Unable to unlike post" });
-    }
-  });
-
-  app.post("/api/posts/:id/comments", async (req, res) => {
-    const postId = Number(req.params.id);
-    const userId = Number(req.body.userId); // In production, get from session
-    const { content } = req.body;
-
-    try {
-      const comment = await storage.commentOnPost(userId, postId, content);
-      res.status(201).json({ comment });
-    } catch (error) {
-      res.status(400).json({ message: "Unable to create comment" });
     }
   });
 
   // Recommendations
   app.get("/api/recommendations/:userId", async (req, res) => {
-    const recommendations = await storage.getRecommendations(Number(req.params.userId));
-    res.json({ recommendations });
+    try {
+      const userId = Number(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      const recommendations = await storage.getRecommendations(userId);
+      res.json({ recommendations });
+    } catch (error) {
+      log("Error fetching recommendations:", String(error));
+      res.status(500).json({ message: "Unable to fetch recommendations" });
+    }
   });
+
 
   // Wallet Operations
   app.get("/api/wallet", async (req, res) => {
@@ -224,7 +344,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Unable to fetch transactions" });
     }
   });
-
 
   const httpServer = createServer(app);
   return httpServer;
