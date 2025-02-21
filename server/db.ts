@@ -3,6 +3,16 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
 import { log } from "./vite";
+
+const dbLog = (message: string, data?: any) => {
+  const timestamp = new Date().toISOString();
+  const logMessage = `[DATABASE] ${timestamp} - ${message}`;
+  if (data) {
+    log(logMessage, JSON.stringify(data, null, 2));
+  } else {
+    log(logMessage);
+  }
+};
 import { sql } from "drizzle-orm";
 
 neonConfig.webSocketConstructor = ws;

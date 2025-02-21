@@ -64,6 +64,33 @@ const SYNTHETIC_USERS = [
 ];
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Add request logging middleware
+  app.use((req, res, next) => {
+    const timestamp = new Date().toISOString();
+    const requestLog = {
+      timestamp,
+      method: req.method,
+      path: req.path,
+      query: req.query,
+      headers: req.headers,
+      body: req.method !== 'GET' ? req.body : undefined
+    };
+    log(`[REQUEST] ${timestamp} - Incoming request:`, JSON.stringify(requestLog, null, 2));
+    
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      const responseLog = {
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        path: req.path,
+        statusCode: res.statusCode,
+        duration: `${duration}ms`
+      };
+      log(`[RESPONSE] ${timestamp} - Outgoing response:`, JSON.stringify(responseLog, null, 2));
+    });
+    next();
+  });
   // Add JSON body parser middleware
   app.use(express.json());
 

@@ -71,13 +71,31 @@ app.use((req, res, next) => {
     log("Routes registered successfully");
 
     // Enhanced error middleware
-    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-      log("Error middleware caught an error:");
-      log(err instanceof Error ? err.stack || err.message : String(err));
+    app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
+      const timestamp = new Date().toISOString();
+      const errorDetails = {
+        timestamp,
+        path: req.path,
+        method: req.method,
+        ip: req.ip,
+        error: err instanceof Error ? {
+          name: err.name,
+          message: err.message,
+          stack: err.stack
+        } : String(err),
+        headers: req.headers,
+        query: req.query,
+        body: req.body
+      };
+
+      log(`[ERROR] ${timestamp} - Error caught in middleware:`, JSON.stringify(errorDetails, null, 2));
+
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
       res.status(status).json({
         message,
+        timestamp,
+        path: req.path,
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
       });
     });
