@@ -15,7 +15,9 @@ interface RequestOptions {
 export async function apiRequest(url: string, options?: RequestOptions): Promise<Response> {
   const res = await fetch(url, {
     method: options?.method || 'GET',
-    headers: options?.body ? { "Content-Type": "application/json" } : {},
+    headers: {
+      ...(options?.body ? { "Content-Type": "application/json" } : {}),
+    },
     body: options?.body ? JSON.stringify(options.body) : undefined,
     credentials: "include",
   });

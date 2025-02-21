@@ -94,6 +94,41 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User> {
+    try {
+      storageLog("updateUser", { id, updateData });
+
+      const preferences = updateData.preferences ? {
+        interests: Array.isArray(updateData.preferences.interests)
+          ? updateData.preferences.interests.filter((interest): interest is string => typeof interest === 'string')
+          : [],
+        retailPreferences: Array.isArray(updateData.preferences.retailPreferences)
+          ? updateData.preferences.retailPreferences.filter((pref): pref is string => typeof pref === 'string')
+          : []
+      } : undefined;
+
+      const [user] = await db
+        .update(users)
+        .set({
+          displayName: updateData.displayName,
+          bio: updateData.bio,
+          avatar: updateData.avatar,
+          preferences: preferences
+        })
+        .where(eq(users.id, id))
+        .returning();
+
+      if (!user) {
+        throw new Error(`User with ID ${id} not found`);
+      }
+
+      return user;
+    } catch (error) {
+      log("Error updating user:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
   async followUser(followerId: number, followingId: number): Promise<Connection> {
     const [connection] = await db
       .insert(connections)
@@ -326,34 +361,6 @@ export class DatabaseStorage implements IStorage {
         { name: `${interest} Item 2`, price: Math.floor(Math.random() * 100) + 20 }
       ]
     }));
-  }
-  async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User> {
-    try {
-      const preferences = updateData.preferences ? {
-        interests: Array.isArray(updateData.preferences.interests)
-          ? updateData.preferences.interests.filter((interest): interest is string => typeof interest === 'string')
-          : [],
-        retailPreferences: Array.isArray(updateData.preferences.retailPreferences)
-          ? updateData.preferences.retailPreferences.filter((pref): pref is string => typeof pref === 'string')
-          : []
-      } : undefined;
-
-      const [user] = await db
-        .update(users)
-        .set({
-          displayName: updateData.displayName || undefined,
-          bio: updateData.bio || undefined,
-          avatar: updateData.avatar || undefined,
-          preferences
-        })
-        .where(eq(users.id, id))
-        .returning();
-
-      return user;
-    } catch (error) {
-      log("Error updating user:", error instanceof Error ? error.message : String(error));
-      throw error;
-    }
   }
 }
 
