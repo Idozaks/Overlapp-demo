@@ -9,15 +9,32 @@ import type { User } from "@shared/schema";
 
 export default function Profile() {
   const { id } = useParams();
-  
+  const userId = id ? parseInt(id) : null;
+
   const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
-    queryKey: [`/api/users/${id}`],
+    queryKey: [`/api/users/${userId}`],
+    enabled: !!userId && !isNaN(userId)
   });
 
   const { data: posts, isLoading: loadingPosts } = useQuery({
-    queryKey: [`/api/users/${id}/posts`],
+    queryKey: [`/api/users/${userId}/posts`],
+    enabled: !!userId && !isNaN(userId)
   });
 
+  // Handle invalid ID
+  if (!userId || isNaN(userId)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-muted-foreground">Invalid user ID</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show loading state
   if (loadingUser || loadingPosts) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
