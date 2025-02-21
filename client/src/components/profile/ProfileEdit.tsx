@@ -21,7 +21,6 @@ import type { User } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 
-// Profile update validation schema
 const profileUpdateSchema = z.object({
   displayName: z.string()
     .min(2, { message: "Display name must be at least 2 characters" })
@@ -75,12 +74,19 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
 
   const updateMutation = useMutation({
     mutationFn: async (data: ProfileUpdateData) => {
+      if (!user.id || isNaN(user.id)) {
+        throw new Error("Invalid user ID");
+      }
+
       const response = await apiRequest(`/api/users/${user.id}`, {
         method: "PATCH",
         body: data
       });
-      const updatedUser = await response.json();
-      return updatedUser;
+      const result = await response.json();
+      if (!result.user) {
+        throw new Error("Invalid response from server");
+      }
+      return result.user;
     },
     onSuccess: (updatedUser) => {
       toast({
@@ -118,11 +124,14 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
   };
 
   const onSubmit = async (data: ProfileUpdateData) => {
-    // Clean up empty strings for optional fields
     const cleanData = {
       ...data,
       bio: data.bio || undefined,
       avatar: data.avatar || undefined,
+      preferences: {
+        interests: data.preferences?.interests || [],
+        retailPreferences: data.preferences?.retailPreferences || []
+      }
     };
     await updateMutation.mutateAsync(cleanData);
   };
@@ -210,8 +219,8 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
           </div>
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={updateMutation.isPending}
           className="w-full"
         >
