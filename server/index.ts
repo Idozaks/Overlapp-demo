@@ -109,9 +109,25 @@ app.use((req, res, next) => {
       serveStatic(app);
     }
 
-    const PORT = process.env.PORT || 3000;
-    server.listen(PORT, "0.0.0.0", () => {
-      log(`Server successfully started and listening on port ${PORT}`);
+    const tryPort = async (port: number): Promise<number> => {
+      try {
+        await new Promise((resolve, reject) => {
+          server.listen(port, "0.0.0.0")
+            .once('listening', () => {
+              server.close(() => resolve(port));
+            })
+            .once('error', reject);
+        });
+        return port;
+      } catch {
+        return port < 3010 ? tryPort(port + 1) : Promise.reject('No available ports');
+      }
+    };
+
+    const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+    const finalPort = await tryPort(PORT);
+    server.listen(finalPort, "0.0.0.0", () => {
+      log(`Server successfully started and listening on port ${finalPort}`);
       log(`Environment: ${app.get("env")}`);
       log(`Database: ${process.env.PGDATABASE}`);
     });
