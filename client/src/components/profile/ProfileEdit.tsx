@@ -10,6 +10,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,12 +18,22 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { User } from "@shared/schema";
+import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 // Profile update validation schema
 const profileUpdateSchema = z.object({
-  displayName: z.string().min(2, "Display name must be at least 2 characters"),
-  bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
-  avatar: z.string().url("Invalid avatar URL").optional(),
+  displayName: z.string()
+    .min(2, { message: "Display name must be at least 2 characters" })
+    .max(50, { message: "Display name must be less than 50 characters" }),
+  bio: z.string()
+    .max(500, { message: "Bio must be less than 500 characters" })
+    .optional()
+    .or(z.literal("")),
+  avatar: z.string()
+    .url({ message: "Please enter a valid URL" })
+    .optional()
+    .or(z.literal("")),
   preferences: z.object({
     interests: z.array(z.string()),
     retailPreferences: z.array(z.string())
@@ -36,7 +47,19 @@ interface ProfileEditProps {
   onSuccess?: () => void;
 }
 
+const AVAILABLE_INTERESTS = [
+  "Technology", "Fashion", "Sports", "Art", "Music",
+  "Travel", "Food", "Fitness", "Gaming", "Books"
+];
+
+const RETAIL_PREFERENCES = [
+  "Electronics", "Clothing", "Home & Garden", "Sports Equipment",
+  "Books & Media", "Beauty & Health", "Toys & Games", "Automotive",
+  "Office Supplies", "Food & Beverage"
+];
+
 export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -54,29 +77,54 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
     mutationFn: async (data: ProfileUpdateData) => {
       const response = await apiRequest(`/api/users/${user.id}`, {
         method: "PATCH",
-        body: JSON.stringify(data)
+        body: data
       });
-      return response.json();
+      const updatedUser = await response.json();
+      return updatedUser;
     },
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
       toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated."
+        title: t("profile.updateSuccess"),
+        description: t("profile.updateSuccessMessage")
       });
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${user.id}`] });
+      // Update the cache with the new user data
+      queryClient.setQueryData([`/api/users/${user.id}`], { user: updatedUser });
       onSuccess?.();
     },
-    onError: (error) => {
+    onError: (error: Error) => {
+      console.error('Profile update error:', error);
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
+        title: t("profile.updateError"),
+        description: t("profile.updateErrorMessage"),
         variant: "destructive"
       });
     }
   });
 
+  const toggleInterest = (interest: string) => {
+    const currentInterests = form.getValues("preferences.interests") || [];
+    const newInterests = currentInterests.includes(interest)
+      ? currentInterests.filter(i => i !== interest)
+      : [...currentInterests, interest];
+    form.setValue("preferences.interests", newInterests, { shouldValidate: true });
+  };
+
+  const toggleRetailPreference = (preference: string) => {
+    const currentPreferences = form.getValues("preferences.retailPreferences") || [];
+    const newPreferences = currentPreferences.includes(preference)
+      ? currentPreferences.filter(p => p !== preference)
+      : [...currentPreferences, preference];
+    form.setValue("preferences.retailPreferences", newPreferences, { shouldValidate: true });
+  };
+
   const onSubmit = async (data: ProfileUpdateData) => {
-    await updateMutation.mutateAsync(data);
+    // Clean up empty strings for optional fields
+    const cleanData = {
+      ...data,
+      bio: data.bio || undefined,
+      avatar: data.avatar || undefined,
+    };
+    await updateMutation.mutateAsync(cleanData);
   };
 
   return (
@@ -87,7 +135,7 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
           name="displayName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Display Name</FormLabel>
+              <FormLabel>{t("profile.displayName")}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -101,10 +149,13 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
           name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bio</FormLabel>
+              <FormLabel>{t("profile.bio")}</FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
+              <FormDescription>
+                {t("profile.bioDescription")}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -115,14 +166,49 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
           name="avatar"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Avatar URL</FormLabel>
+              <FormLabel>{t("profile.avatarUrl")}</FormLabel>
               <FormControl>
-                <Input {...field} type="url" />
+                <Input {...field} type="url" placeholder="https://example.com/avatar.jpg" />
               </FormControl>
+              <FormDescription>
+                {t("profile.avatarDescription")}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        <div className="space-y-4">
+          <FormLabel>{t("profile.interests")}</FormLabel>
+          <div className="flex flex-wrap gap-2">
+            {AVAILABLE_INTERESTS.map(interest => (
+              <Badge
+                key={interest}
+                variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={() => toggleInterest(interest)}
+              >
+                {interest}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <FormLabel>{t("profile.retailPreferences")}</FormLabel>
+          <div className="flex flex-wrap gap-2">
+            {RETAIL_PREFERENCES.map(preference => (
+              <Badge
+                key={preference}
+                variant={form.watch("preferences.retailPreferences")?.includes(preference) ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={() => toggleRetailPreference(preference)}
+              >
+                {preference}
+              </Badge>
+            ))}
+          </div>
+        </div>
 
         <Button 
           type="submit" 
@@ -132,10 +218,10 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
           {updateMutation.isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Updating...
+              {t("common.updating")}
             </>
           ) : (
-            "Update Profile"
+            t("profile.updateProfile")
           )}
         </Button>
       </form>

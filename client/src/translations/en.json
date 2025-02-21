@@ -7,6 +7,7 @@
       "contact": "Contact",
       "signup": "Sign Up"
     },
+    "updating": "Updating...",
     "landing": {
       "identity": {
         "title": "Your Digital Identity",
@@ -112,5 +113,19 @@
         }
       }
     }
+  },
+  "profile": {
+    "displayName": "Display Name",
+    "bio": "Bio",
+    "bioDescription": "Tell us a bit about yourself (max 500 characters)",
+    "avatarUrl": "Avatar URL",
+    "avatarDescription": "Enter the URL of your profile picture",
+    "interests": "Interests",
+    "retailPreferences": "Shopping Preferences",
+    "updateProfile": "Update Profile",
+    "updateSuccess": "Profile Updated",
+    "updateSuccessMessage": "Your profile has been successfully updated",
+    "updateError": "Update Failed",
+    "updateErrorMessage": "Failed to update profile. Please try again."
   }
 }
