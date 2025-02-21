@@ -4,6 +4,11 @@ import { db } from "./db";
 import { eq, desc, and, inArray, or } from "drizzle-orm";
 import { log } from "./vite";
 
+const storageLog = (operation: string, details: any) => {
+  const timestamp = new Date().toISOString();
+  log(`[STORAGE] ${timestamp} - ${operation}:`, JSON.stringify(details, null, 2));
+};
+
 export interface IStorage {
   // User operations
   getAllUsers(): Promise<User[]>;
