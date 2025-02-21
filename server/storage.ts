@@ -15,6 +15,7 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User>;
 
   // Social operations
   followUser(followerId: number, followingId: number): Promise<Connection>;
@@ -66,26 +67,25 @@ export class DatabaseStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
-      // Ensure preferences field is properly structured before insertion
       const preferences = insertUser.preferences ? {
         interests: Array.isArray(insertUser.preferences.interests) ? insertUser.preferences.interests : [],
         retailPreferences: Array.isArray(insertUser.preferences.retailPreferences) ? insertUser.preferences.retailPreferences : []
-      } : null;
+      } : undefined;
 
       const [user] = await db
         .insert(users)
         .values({
           username: insertUser.username,
           password: insertUser.password,
-          displayName: insertUser.displayName || null,
-          bio: insertUser.bio || null,
-          avatar: insertUser.avatar || null,
+          displayName: insertUser.displayName || undefined,
+          bio: insertUser.bio || undefined,
+          avatar: insertUser.avatar || undefined,
           preferences
         })
         .returning();
       return user;
     } catch (error) {
-      log("Error creating user:", String(error));
+      log("Error creating user:", error instanceof Error ? error.message : String(error));
       throw error;
     }
   }
@@ -226,20 +226,20 @@ export class DatabaseStorage implements IStorage {
         .insert(nfts)
         .values({
           title: nft.title,
-          description: nft.description || null,
+          description: nft.description || undefined,
           metadata: nft.metadata ? {
-            image: nft.metadata.image || null,
-            attributes: nft.metadata.attributes || [],
-            externalUrl: nft.metadata.externalUrl || null
-          } : null,
+            image: nft.metadata.image || undefined,
+            attributes: nft.metadata.attributes || {},
+            externalUrl: nft.metadata.externalUrl || undefined
+          } : undefined,
           creatorId: nft.creatorId,
           tokenId: nft.tokenId,
-          ownerId: nft.creatorId // Initially, creator is the owner
+          ownerId: nft.creatorId
         })
         .returning();
       return newNFT;
     } catch (error) {
-      log("Error creating NFT:", String(error));
+      log("Error creating NFT:", error instanceof Error ? error.message : String(error));
       throw error;
     }
   }
@@ -322,6 +322,30 @@ export class DatabaseStorage implements IStorage {
         { name: `${interest} Item 2`, price: Math.floor(Math.random() * 100) + 20 }
       ]
     }));
+  }
+  async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User> {
+    try {
+      const preferences = updateData.preferences ? {
+        interests: Array.isArray(updateData.preferences.interests) ? updateData.preferences.interests : [],
+        retailPreferences: Array.isArray(updateData.preferences.retailPreferences) ? updateData.preferences.retailPreferences : []
+      } : undefined;
+
+      const [user] = await db
+        .update(users)
+        .set({
+          displayName: updateData.displayName || undefined,
+          bio: updateData.bio || undefined,
+          avatar: updateData.avatar || undefined,
+          preferences
+        })
+        .where(eq(users.id, id))
+        .returning();
+
+      return user;
+    } catch (error) {
+      log("Error updating user:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
   }
 }
 
