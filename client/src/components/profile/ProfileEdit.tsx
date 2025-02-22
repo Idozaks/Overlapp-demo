@@ -93,7 +93,6 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
         title: t("profile.updateSuccess"),
         description: t("profile.updateSuccessMessage")
       });
-      // Update the cache with the new user data
       queryClient.setQueryData([`/api/users/${user.id}`], { user: updatedUser });
       onSuccess?.();
     },
@@ -138,101 +137,105 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="displayName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("profile.displayName")}</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-20">
+        <div className="max-h-[calc(100vh-8rem)] overflow-y-auto px-4">
+          <FormField
+            control={form.control}
+            name="displayName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("profile.displayName")}</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="bio"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("profile.bio")}</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormDescription>
-                {t("profile.bioDescription")}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="bio"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("profile.bio")}</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+                <FormDescription>
+                  {t("profile.bioDescription")}
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="avatar"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("profile.avatarUrl")}</FormLabel>
-              <FormControl>
-                <Input {...field} type="url" placeholder="https://example.com/avatar.jpg" />
-              </FormControl>
-              <FormDescription>
-                {t("profile.avatarDescription")}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="avatar"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("profile.avatarUrl")}</FormLabel>
+                <FormControl>
+                  <Input {...field} type="url" placeholder="https://example.com/avatar.jpg" />
+                </FormControl>
+                <FormDescription>
+                  {t("profile.avatarDescription")}
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <div className="space-y-4">
-          <FormLabel>{t("profile.interests")}</FormLabel>
-          <div className="flex flex-wrap gap-2">
-            {AVAILABLE_INTERESTS.map(interest => (
-              <Badge
-                key={interest}
-                variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => toggleInterest(interest)}
-              >
-                {interest}
-              </Badge>
-            ))}
+          <div className="space-y-4 mt-6">
+            <FormLabel>{t("profile.interests")}</FormLabel>
+            <div className="flex flex-wrap gap-2">
+              {AVAILABLE_INTERESTS.map(interest => (
+                <Badge
+                  key={interest}
+                  variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => toggleInterest(interest)}
+                >
+                  {interest}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4 mt-6">
+            <FormLabel>{t("profile.retailPreferences")}</FormLabel>
+            <div className="flex flex-wrap gap-2">
+              {RETAIL_PREFERENCES.map(preference => (
+                <Badge
+                  key={preference}
+                  variant={form.watch("preferences.retailPreferences")?.includes(preference) ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => toggleRetailPreference(preference)}
+                >
+                  {preference}
+                </Badge>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <FormLabel>{t("profile.retailPreferences")}</FormLabel>
-          <div className="flex flex-wrap gap-2">
-            {RETAIL_PREFERENCES.map(preference => (
-              <Badge
-                key={preference}
-                variant={form.watch("preferences.retailPreferences")?.includes(preference) ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => toggleRetailPreference(preference)}
-              >
-                {preference}
-              </Badge>
-            ))}
-          </div>
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4">
+          <Button
+            type="submit"
+            disabled={updateMutation.isPending}
+            className="w-full"
+          >
+            {updateMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t("common.updating")}
+              </>
+            ) : (
+              t("profile.updateProfile")
+            )}
+          </Button>
         </div>
-
-        <Button
-          type="submit"
-          disabled={updateMutation.isPending}
-          className="w-full"
-        >
-          {updateMutation.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("common.updating")}
-            </>
-          ) : (
-            t("profile.updateProfile")
-          )}
-        </Button>
       </form>
     </Form>
   );
