@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertUserSchema, insertPostSchema } from "@shared/schema";
 import { log } from "./vite";
 import express from "express";
+import { setupAuth } from "./auth";
 
 const SYNTHETIC_USERS = [
   {
@@ -64,6 +65,9 @@ const SYNTHETIC_USERS = [
 ];
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication first
+  setupAuth(app);
+
   // Add request logging middleware
   app.use((req, res, next) => {
     const timestamp = new Date().toISOString();
