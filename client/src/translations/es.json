@@ -39,6 +39,26 @@
           "description": "Mantente sincronizado en todos tus dispositivos y ubicaciones físicas al instante"
         }
       },
+      "phygital": {
+        "title": "Donde lo digital se encuentra con lo físico",
+        "subtitle": "Experimenta la integración perfecta de soluciones digitales impulsadas por IA en espacios físicos",
+        "ai_analysis": {
+          "title": "Análisis de IA en tiempo real",
+          "description": "IA avanzada procesa datos del mundo real para proporcionar ideas y recomendaciones instantáneas"
+        },
+        "location": {
+          "title": "Experiencias contextuales",
+          "description": "La inteligencia basada en ubicación adapta tu experiencia a tu entorno físico"
+        },
+        "digital_twin": {
+          "title": "Tecnología de gemelo digital",
+          "description": "Crea representaciones digitales perfectas de espacios y productos físicos"
+        },
+        "personalization": {
+          "title": "Personalización inteligente",
+          "description": "La IA aprende de comportamientos en línea y fuera de línea para ofrecer experiencias verdaderamente personalizadas"
+        }
+      },
       "ar": {
         "title": "Experimenta las compras con RA",
         "subtitle": "Mira cómo Overlapp transforma tu experiencia de compra con realidad aumentada",
