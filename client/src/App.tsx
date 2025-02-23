@@ -1,8 +1,8 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Signup from "@/pages/auth/Signup";
@@ -14,6 +14,8 @@ import ExploreUsers from "@/pages/social/ExploreUsers";
 import Profile from "@/pages/social/Profile";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import "./lib/i18n"; // Import i18n configuration
 
 function Router() {
@@ -33,22 +35,70 @@ function Router() {
   );
 }
 
+function Header() {
+  const { user, logoutMutation } = useAuth();
+  const [, navigate] = useLocation();
+
+  return (
+    <header className="p-4 border-b">
+      <div className="container mx-auto flex justify-between items-center">
+        <nav className="flex gap-4">
+          <a href="/" className="text-foreground hover:text-primary">Home</a>
+          {user ? (
+            <>
+              <a href="/social" className="text-foreground hover:text-primary">Social</a>
+              <a href="/social/explore" className="text-foreground hover:text-primary">Explore</a>
+              <a href="/wallet" className="text-foreground hover:text-primary">Wallet</a>
+            </>
+          ) : (
+            <a href="/demo" className="text-foreground hover:text-primary">Demo</a>
+          )}
+          <a href="/contact" className="text-foreground hover:text-primary">Contact</a>
+        </nav>
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher />
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Welcome, {user.displayName || user.username}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  logoutMutation.mutate();
+                  navigate("/");
+                }}
+                disabled={logoutMutation.isPending}
+              >
+                {logoutMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Logout"
+                )}
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/signup")}
+            >
+              Sign In
+            </Button>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <div className="min-h-screen">
-          <header className="p-4 border-b">
-            <div className="container mx-auto flex justify-between items-center">
-              <nav className="flex gap-4">
-                <a href="/" className="text-foreground hover:text-primary">Home</a>
-                <a href="/social" className="text-foreground hover:text-primary">Social</a>
-                <a href="/social/explore" className="text-foreground hover:text-primary">Explore</a>
-                <a href="/wallet" className="text-foreground hover:text-primary">Wallet</a>
-              </nav>
-              <LanguageSwitcher />
-            </div>
-          </header>
+          <Header />
           <main>
             <Router />
           </main>

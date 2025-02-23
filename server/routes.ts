@@ -5,68 +5,126 @@ import { insertUserSchema, insertPostSchema } from "@shared/schema";
 import { log } from "./vite";
 import express from "express";
 import { setupAuth } from "./auth";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
 
-const SYNTHETIC_USERS = [
-  {
-    username: "tech_explorer",
-    password: "password123",
-    displayName: "Alex Tech",
-    bio: "Tech enthusiast exploring the intersection of AI and human creativity",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-    preferences: {
-      interests: ["AI", "Technology", "Innovation"],
-      retailPreferences: ["Electronics", "Books"]
-    }
-  },
-  {
-    username: "nature_lens",
-    password: "password123",
-    displayName: "Sam Nature",
-    bio: "Wildlife photographer capturing Earth's beauty one frame at a time",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sam",
-    preferences: {
-      interests: ["Photography", "Nature", "Travel"],
-      retailPreferences: ["Camera Gear", "Outdoor Equipment"]
-    }
-  },
-  {
-    username: "fitness_guru",
-    password: "password123",
-    displayName: "Jordan Fit",
-    bio: "Personal trainer helping others achieve their fitness goals",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jordan",
-    preferences: {
-      interests: ["Fitness", "Nutrition", "Wellness"],
-      retailPreferences: ["Sports Equipment", "Health Foods"]
-    }
-  },
-  {
-    username: "art_soul",
-    password: "password123",
-    displayName: "Morgan Art",
-    bio: "Digital artist exploring new forms of expression",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Morgan",
-    preferences: {
-      interests: ["Art", "Digital Media", "Design"],
-      retailPreferences: ["Art Supplies", "Digital Tools"]
-    }
-  },
-  {
-    username: "food_adventurer",
-    password: "password123",
-    displayName: "Jamie Food",
-    bio: "Culinary explorer sharing global flavors and recipes",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jamie",
-    preferences: {
-      interests: ["Cooking", "Travel", "Culture"],
-      retailPreferences: ["Kitchen Equipment", "Specialty Foods"]
-    }
-  }
-];
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+async function comparePasswords(supplied: string, stored: string) {
+  const [hashed, salt] = stored.split(".");
+  const hashedBuf = Buffer.from(hashed, "hex");
+  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(hashedBuf, suppliedBuf);
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Set up authentication first
-  setupAuth(app);
+  app.use(express.json());
+
+  // Authentication setup
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  passport.use(
+    new LocalStrategy(async (username, password, done) => {
+      try {
+        const user = await storage.getUserByUsername(username);
+        if (!user || !(await comparePasswords(password, user.password))) {
+          return done(null, false, { message: "Invalid credentials" });
+        }
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    })
+  );
+
+  passport.serializeUser((user: any, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id: number, done) => {
+    try {
+      const user = await storage.getUser(id);
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
+  });
+
+  // Authentication routes
+  app.post("/api/register", async (req, res) => {
+    try {
+      const result = insertUserSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ message: "Invalid user data" });
+      }
+
+      const { username, password, ...rest } = result.data;
+      const existingUser = await storage.getUserByUsername(username);
+
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      const hashedPassword = await hashPassword(password);
+      const user = await storage.createUser({
+        ...rest,
+        username,
+        password: hashedPassword,
+      });
+
+      req.login(user, (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Error during login after registration" });
+        }
+        return res.status(201).json(user);
+      });
+    } catch (error) {
+      log("Registration error:", error);
+      res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        return res.status(500).json({ message: "Internal server error" });
+      }
+      if (!user) {
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
+      }
+      req.login(user, (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Error during login" });
+        }
+        return res.json(user);
+      });
+    })(req, res, next);
+  });
+
+  app.post("/api/logout", (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Error during logout" });
+      }
+      res.status(200).json({ message: "Logged out successfully" });
+    });
+  });
+
+  app.get("/api/user", (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    res.json(req.user);
+  });
 
   // Add these debug routes at the top of the routes, after health check
   app.get("/api/auth/test/session", (req, res) => {
@@ -108,6 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Login failed", error: String(error) });
     }
   });
+
 
   // Add these debug routes at the top of the routes, after health check
   app.get("/api/test/public", (req, res) => {
@@ -157,9 +216,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
     next();
   });
-  // Add JSON body parser middleware before routes
-  app.use(express.json());
-
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
@@ -515,3 +571,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   return httpServer;
 }
+
+const SYNTHETIC_USERS = [
+  {
+    username: "tech_explorer",
+    password: "password123",
+    displayName: "Alex Tech",
+    bio: "Tech enthusiast exploring the intersection of AI and human creativity",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    preferences: {
+      interests: ["AI", "Technology", "Innovation"],
+      retailPreferences: ["Electronics", "Books"]
+    }
+  },
+  {
+    username: "nature_lens",
+    password: "password123",
+    displayName: "Sam Nature",
+    bio: "Wildlife photographer capturing Earth's beauty one frame at a time",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sam",
+    preferences: {
+      interests: ["Photography", "Nature", "Travel"],
+      retailPreferences: ["Camera Gear", "Outdoor Equipment"]
+    }
+  },
+  {
+    username: "fitness_guru",
+    password: "password123",
+    displayName: "Jordan Fit",
+    bio: "Personal trainer helping others achieve their fitness goals",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jordan",
+    preferences: {
+      interests: ["Fitness", "Nutrition", "Wellness"],
+      retailPreferences: ["Sports Equipment", "Health Foods"]
+    }
+  },
+  {
+    username: "art_soul",
+    password: "password123",
+    displayName: "Morgan Art",
+    bio: "Digital artist exploring new forms of expression",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Morgan",
+    preferences: {
+      interests: ["Art", "Digital Media", "Design"],
+      retailPreferences: ["Art Supplies", "Digital Tools"]
+    }
+  },
+  {
+    username: "food_adventurer",
+    password: "password123",
+    displayName: "Jamie Food",
+    bio: "Culinary explorer sharing global flavors and recipes",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jamie",
+    preferences: {
+      interests: ["Cooking", "Travel", "Culture"],
+      retailPreferences: ["Kitchen Equipment", "Specialty Foods"]
+    }
+  }
+];
