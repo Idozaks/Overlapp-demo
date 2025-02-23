@@ -452,6 +452,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/users", async (req, res) => {
     try {
       const userIds = req.body.userIds;
+      log(`Deleting users with IDs: ${userIds.join(', ')}`);
       await storage.deleteUsers(userIds);
       res.status(200).json({ message: "Users deleted successfully" });
     } catch (error) {
