@@ -150,8 +150,14 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async deleteUsers(userIds: number[]): Promise<void> {
-    await db.delete(users).where(inArray(users.id, userIds));
+  async deleteUsers(userIds: number[]): Promise<boolean> {
+    try {
+      const result = await db.delete(users).where(inArray(users.id, userIds)).returning();
+      return result.length > 0;
+    } catch (error) {
+      log("Error deleting users:", error instanceof Error ? error.message : String(error));
+      return false;
+    }
   }
 
   async updateUserCredentials(userId: number, username: string, password: string): Promise<void> {
