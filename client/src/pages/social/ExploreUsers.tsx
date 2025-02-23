@@ -9,43 +9,38 @@ import { useState } from "react";
 import type { User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function ExploreUsers() {
   const [, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user: currentUser, isLoading: isAuthLoading } = useAuth();
 
-  // For demo purposes, using a hardcoded currentUserId
-  const currentUserId = 1;
-
-  // Constants for query keys
-  const USERS_QUERY_KEY = ["/api/users", { currentUserId }];
+  const USERS_QUERY_KEY = ["/api/users"];
   const FEED_QUERY_KEY = ["/api/feed"];
 
   const { data, isLoading } = useQuery<{ users: (User & { isFollowing?: boolean })[] }>({
     queryKey: USERS_QUERY_KEY,
+    enabled: !!currentUser,
   });
 
   const followMutation = useMutation({
     mutationFn: async (userId: number) => {
-      console.log('Attempting to follow user:', userId);
-      try {
-        const response = await apiRequest(`/api/users/${userId}/follow`, {
-          method: 'POST',
-          body: { followerId: currentUserId },
-        });
+      if (!currentUser) throw new Error("Must be logged in to follow users");
 
-        if (!response.ok) {
-          const responseData = await response.json();
-          throw new Error(responseData.message || 'Failed to follow user');
-        }
+      const response = await apiRequest(`/api/users/${userId}/follow`, {
+        method: 'POST',
+        body: { followerId: currentUser.id },
+      });
 
-        return await response.json();
-      } catch (error) {
-        console.error('Follow request error:', error);
-        throw error;
+      if (!response.ok) {
+        const responseData = await response.json();
+        throw new Error(responseData.message || 'Failed to follow user');
       }
+
+      return await response.json();
     },
     onMutate: async (userId) => {
       await queryClient.cancelQueries({ queryKey: USERS_QUERY_KEY });
@@ -87,22 +82,19 @@ export default function ExploreUsers() {
 
   const unfollowMutation = useMutation({
     mutationFn: async (userId: number) => {
-      try {
-        const response = await apiRequest(`/api/users/${userId}/follow`, {
-          method: 'DELETE',
-          body: { followerId: currentUserId },
-        });
+      if (!currentUser) throw new Error("Must be logged in to unfollow users");
 
-        if (!response.ok) {
-          const responseData = await response.json();
-          throw new Error(responseData.message || 'Failed to unfollow user');
-        }
+      const response = await apiRequest(`/api/users/${userId}/follow`, {
+        method: 'DELETE',
+        body: { followerId: currentUser.id },
+      });
 
-        return await response.json();
-      } catch (error) {
-        console.error('Unfollow request error:', error);
-        throw error;
+      if (!response.ok) {
+        const responseData = await response.json();
+        throw new Error(responseData.message || 'Failed to unfollow user');
       }
+
+      return await response.json();
     },
     onMutate: async (userId) => {
       await queryClient.cancelQueries({ queryKey: USERS_QUERY_KEY });
@@ -155,10 +147,12 @@ export default function ExploreUsers() {
   };
 
   const handleEditProfile = () => {
-    navigate("/profile/edit");
+    if (currentUser) {
+      navigate(`/profile/${currentUser.id}`);
+    }
   };
 
-  if (isLoading) {
+  if (isLoading || isAuthLoading) {
     return (
       <div className="flex justify-center py-8">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -194,7 +188,10 @@ export default function ExploreUsers() {
               <Card key={user.id}>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <Avatar className="h-16 w-16 cursor-pointer" onClick={() => navigate(`/profile/${user.id}`)}>
+                    <Avatar 
+                      className="h-16 w-16 cursor-pointer" 
+                      onClick={() => navigate(`/profile/${user.id}`)}
+                    >
                       <AvatarFallback>{user.displayName?.[0] || "U"}</AvatarFallback>
                       {user.avatar && (
                         <AvatarImage src={user.avatar} alt={user.displayName || "User"} />
@@ -223,7 +220,7 @@ export default function ExploreUsers() {
                         </div>
                       )}
                     </div>
-                    {user.id === currentUserId ? (
+                    {currentUser && user.id === currentUser.id ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -237,6 +234,7 @@ export default function ExploreUsers() {
                         size="sm"
                         onClick={() => handleFollow(user.id, user.isFollowing || false)}
                         disabled={
+                          !currentUser ||
                           (followMutation.isPending && followMutation.variables === user.id) ||
                           (unfollowMutation.isPending && unfollowMutation.variables === user.id)
                         }
