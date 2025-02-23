@@ -15,14 +15,17 @@ export default function UserSuggestions() {
   // For demo purposes, using a hardcoded currentUserId
   const currentUserId = 1;
 
+  // Constants for query keys to ensure consistency
+  const USERS_QUERY_KEY = ["/api/users", { currentUserId }];
+  const FEED_QUERY_KEY = ["/api/feed"];
+
   const { data, isLoading } = useQuery<{ users: (User & { isFollowing?: boolean })[] }>({
-    queryKey: ["/api/users", { currentUserId }],
+    queryKey: USERS_QUERY_KEY,
   });
 
   const followMutation = useMutation({
     mutationFn: async (userId: number) => {
       console.log('Attempting to follow user:', userId);
-
       try {
         const response = await apiRequest(`/api/users/${userId}/follow`, {
           method: 'POST',
@@ -45,11 +48,11 @@ export default function UserSuggestions() {
     },
     onMutate: async (userId) => {
       console.log('Starting optimistic update for follow:', userId);
-      await queryClient.cancelQueries({ queryKey: ["/api/users", { currentUserId }] });
-      const previousUsers = queryClient.getQueryData(["/api/users", { currentUserId }]);
+      await queryClient.cancelQueries({ queryKey: USERS_QUERY_KEY });
+      const previousUsers = queryClient.getQueryData(USERS_QUERY_KEY);
 
       queryClient.setQueryData<{ users: (User & { isFollowing?: boolean })[] }>(
-        ["/api/users", { currentUserId }],
+        USERS_QUERY_KEY,
         (old) => {
           if (!old) return { users: [] };
           return {
@@ -64,7 +67,7 @@ export default function UserSuggestions() {
     },
     onError: (err, userId, context) => {
       console.error('Follow mutation error:', err);
-      queryClient.setQueryData(["/api/users", { currentUserId }], context?.previousUsers);
+      queryClient.setQueryData(USERS_QUERY_KEY, context?.previousUsers);
 
       toast({
         title: "Error",
@@ -80,14 +83,14 @@ export default function UserSuggestions() {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users", { currentUserId }] });
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FEED_QUERY_KEY });
     },
   });
 
   const unfollowMutation = useMutation({
     mutationFn: async (userId: number) => {
       console.log('Attempting to unfollow user:', userId);
-
       try {
         const response = await apiRequest(`/api/users/${userId}/follow`, {
           method: 'DELETE',
@@ -110,11 +113,11 @@ export default function UserSuggestions() {
     },
     onMutate: async (userId) => {
       console.log('Starting optimistic update for unfollow:', userId);
-      await queryClient.cancelQueries({ queryKey: ["/api/users", { currentUserId }] });
-      const previousUsers = queryClient.getQueryData(["/api/users", { currentUserId }]);
+      await queryClient.cancelQueries({ queryKey: USERS_QUERY_KEY });
+      const previousUsers = queryClient.getQueryData(USERS_QUERY_KEY);
 
       queryClient.setQueryData<{ users: (User & { isFollowing?: boolean })[] }>(
-        ["/api/users", { currentUserId }],
+        USERS_QUERY_KEY,
         (old) => {
           if (!old) return { users: [] };
           return {
@@ -129,7 +132,7 @@ export default function UserSuggestions() {
     },
     onError: (err, userId, context) => {
       console.error('Unfollow mutation error:', err);
-      queryClient.setQueryData(["/api/users", { currentUserId }], context?.previousUsers);
+      queryClient.setQueryData(USERS_QUERY_KEY, context?.previousUsers);
 
       toast({
         title: "Error",
@@ -145,7 +148,8 @@ export default function UserSuggestions() {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users", { currentUserId }] });
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FEED_QUERY_KEY });
     },
   });
 
