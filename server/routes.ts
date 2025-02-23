@@ -223,19 +223,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const followerId = Number(req.body.followerId);
       const followingId = Number(req.params.id);
 
-      log(`Follow request - followerId: ${followerId}, followingId: ${followingId}`);
+      log(`Follow request received - followerId: ${followerId}, followingId: ${followingId}`);
 
       if (isNaN(followerId) || isNaN(followingId)) {
         log(`Invalid user IDs - followerId: ${followerId}, followingId: ${followingId}`);
         return res.status(400).json({ message: "Invalid user IDs" });
       }
 
+      // Check if users exist
+      const follower = await storage.getUser(followerId);
+      const following = await storage.getUser(followingId);
+
+      if (!follower || !following) {
+        log(`User not found - follower: ${!!follower}, following: ${!!following}`);
+        return res.status(404).json({ message: "One or both users not found" });
+      }
+
       const connection = await storage.followUser(followerId, followingId);
-      log(`Successfully created follow connection: ${JSON.stringify(connection)}`);
-      res.status(201).json({ connection });
+      log(`Successfully created follow connection:`, JSON.stringify(connection));
+      res.status(201).json({ success: true, connection });
     } catch (error) {
-      log("Error following user:", String(error));
-      res.status(400).json({ message: "Unable to follow user" });
+      log("Error following user:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to follow user", error: String(error) });
     }
   });
 
@@ -244,15 +253,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const followerId = Number(req.body.followerId);
       const followingId = Number(req.params.id);
 
+      log(`Unfollow request received - followerId: ${followerId}, followingId: ${followingId}`);
+
       if (isNaN(followerId) || isNaN(followingId)) {
+        log(`Invalid user IDs - followerId: ${followerId}, followingId: ${followingId}`);
         return res.status(400).json({ message: "Invalid user IDs" });
       }
 
+      // Check if users exist
+      const follower = await storage.getUser(followerId);
+      const following = await storage.getUser(followingId);
+
+      if (!follower || !following) {
+        log(`User not found - follower: ${!!follower}, following: ${!!following}`);
+        return res.status(404).json({ message: "One or both users not found" });
+      }
+
       await storage.unfollowUser(followerId, followingId);
-      res.status(204).send();
+      log(`Successfully unfollowed - followerId: ${followerId}, followingId: ${followingId}`);
+      res.status(200).json({ success: true });
     } catch (error) {
-      log("Error unfollowing user:", String(error));
-      res.status(400).json({ message: "Unable to unfollow user" });
+      log("Error unfollowing user:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to unfollow user", error: String(error) });
     }
   });
 
