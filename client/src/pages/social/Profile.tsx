@@ -49,7 +49,7 @@ export default function Profile() {
     mutationFn: async () => {
       await apiRequest(`/api/users/${userId}/follow`, {
         method: 'POST',
-        body: JSON.stringify({ followerId: currentUserId }),
+        body: { followerId: currentUserId }, // Remove JSON.stringify
       });
     },
     onSuccess: () => {
@@ -61,7 +61,7 @@ export default function Profile() {
     mutationFn: async () => {
       await apiRequest(`/api/users/${userId}/follow`, {
         method: 'DELETE',
-        body: JSON.stringify({ followerId: currentUserId }),
+        body: { followerId: currentUserId }, // Remove JSON.stringify
       });
     },
     onSuccess: () => {

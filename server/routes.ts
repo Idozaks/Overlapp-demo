@@ -138,9 +138,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Management
-  app.get("/api/users", async (_req, res) => {
+  app.get("/api/users", async (req, res) => {
     try {
+      const currentUserId = typeof req.query.currentUserId === 'string' ? parseInt(req.query.currentUserId) : undefined;
       const users = await storage.getAllUsers();
+
+      if (currentUserId) {
+        // Get all followers for the current user to determine follow status
+        const following = await storage.getFollowing(currentUserId);
+        const followingIds = following.map(f => f.id);
+
+        // Enhance users with isFollowing property
+        const enhancedUsers = users.map(user => ({
+          ...user,
+          isFollowing: followingIds.includes(user.id)
+        }));
+
+        return res.json({ users: enhancedUsers });
+      }
+
       res.json({ users });
     } catch (error) {
       log("Error fetching users:", String(error));
@@ -207,11 +223,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const followerId = Number(req.body.followerId);
       const followingId = Number(req.params.id);
 
+      log(`Follow request - followerId: ${followerId}, followingId: ${followingId}`);
+
       if (isNaN(followerId) || isNaN(followingId)) {
+        log(`Invalid user IDs - followerId: ${followerId}, followingId: ${followingId}`);
         return res.status(400).json({ message: "Invalid user IDs" });
       }
 
       const connection = await storage.followUser(followerId, followingId);
+      log(`Successfully created follow connection: ${JSON.stringify(connection)}`);
       res.status(201).json({ connection });
     } catch (error) {
       log("Error following user:", String(error));
