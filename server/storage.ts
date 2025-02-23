@@ -152,11 +152,20 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUsers(userIds: number[]): Promise<boolean> {
     try {
+      // Delete related records first
+      await db.delete(connections).where(inArray(connections.followerId, userIds));
+      await db.delete(connections).where(inArray(connections.followingId, userIds));
+      await db.delete(likes).where(inArray(likes.userId, userIds));
+      await db.delete(comments).where(inArray(comments.userId, userIds));
+      await db.delete(posts).where(inArray(posts.userId, userIds));
+      
+      // Finally delete the users
       const result = await db.delete(users).where(inArray(users.id, userIds)).returning();
+      log(`Deleted ${result.length} users`);
       return result.length > 0;
     } catch (error) {
       log("Error deleting users:", error instanceof Error ? error.message : String(error));
-      return false;
+      throw error; // Propagate error to handler
     }
   }
 
