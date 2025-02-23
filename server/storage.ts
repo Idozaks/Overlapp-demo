@@ -3,6 +3,10 @@ import { type User, type InsertUser, type Post, type Comment, type Connection, t
 import { db } from "./db";
 import { eq, desc, and, inArray, or } from "drizzle-orm";
 import { log } from "./vite";
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+
+const PostgresStore = connectPgSimple(session);
 
 const storageLog = (operation: string, details: any) => {
   const timestamp = new Date().toISOString();
@@ -48,9 +52,61 @@ export interface IStorage {
   getTransactions(walletId: number): Promise<Transaction[]>;
   getTransaction(id: number): Promise<Transaction | undefined>;
   getRecommendations(userId: number): Promise<any[]>;
+  // Add session store
+  sessionStore: session.Store;
+
+  // Add specific auth methods
+  validateUserCredentials(username: string, password: string): Promise<User | null>;
 }
 
 export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+
+  constructor() {
+    try {
+      log("[STORAGE] Initializing PostgreSQL session store...");
+
+      if (!process.env.DATABASE_URL) {
+        throw new Error("DATABASE_URL environment variable is not set");
+      }
+
+      this.sessionStore = new PostgresStore({
+        conObject: {
+          connectionString: process.env.DATABASE_URL,
+        },
+        createTableIfMissing: true,
+        tableName: 'session',
+        pruneSessionInterval: 60 * 15 // Prune invalid sessions every 15 minutes
+      });
+
+      log("[STORAGE] PostgreSQL session store initialized successfully");
+    } catch (error) {
+      log("[STORAGE] Failed to initialize session store:", error instanceof Error ? error.message : String(error));
+      // Fallback to memory store in case of initialization failure
+      const MemoryStore = require('memorystore')(session);
+      log("[STORAGE] Falling back to memory store");
+      this.sessionStore = new MemoryStore({
+        checkPeriod: 86400000 // Prune expired entries every 24h
+      });
+    }
+  }
+
+  async validateUserCredentials(username: string, password: string): Promise<User | null> {
+    try {
+      const user = await this.getUserByUsername(username);
+      if (!user) {
+        log(`User not found: ${username}`);
+        return null;
+      }
+
+      // Password comparison will be done in auth.ts
+      return user;
+    } catch (error) {
+      log(`Error validating credentials: ${error instanceof Error ? error.message : String(error)}`);
+      return null;
+    }
+  }
+
   async getAllUsers(): Promise<User[]> {
     return await db.select().from(users);
   }
