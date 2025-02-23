@@ -19,14 +19,17 @@ export default function ExploreUsers() {
   // For demo purposes, using a hardcoded currentUserId
   const currentUserId = 1;
 
+  // Constants for query keys
+  const USERS_QUERY_KEY = ["/api/users", { currentUserId }];
+  const FEED_QUERY_KEY = ["/api/feed"];
+
   const { data, isLoading } = useQuery<{ users: (User & { isFollowing?: boolean })[] }>({
-    queryKey: ["/api/users", { currentUserId }],
+    queryKey: USERS_QUERY_KEY,
   });
 
   const followMutation = useMutation({
     mutationFn: async (userId: number) => {
       console.log('Attempting to follow user:', userId);
-
       try {
         const response = await apiRequest(`/api/users/${userId}/follow`, {
           method: 'POST',
@@ -49,11 +52,16 @@ export default function ExploreUsers() {
     },
     onMutate: async (userId) => {
       console.log('Starting optimistic update for follow:', userId);
-      await queryClient.cancelQueries({ queryKey: ["/api/users", { currentUserId }] });
-      const previousUsers = queryClient.getQueryData(["/api/users", { currentUserId }]);
 
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: USERS_QUERY_KEY });
+
+      // Snapshot the previous value
+      const previousUsers = queryClient.getQueryData(USERS_QUERY_KEY);
+
+      // Optimistically update to the new value
       queryClient.setQueryData<{ users: (User & { isFollowing?: boolean })[] }>(
-        ["/api/users", { currentUserId }],
+        USERS_QUERY_KEY,
         (old) => {
           if (!old) return { users: [] };
           return {
@@ -68,7 +76,9 @@ export default function ExploreUsers() {
     },
     onError: (err, userId, context) => {
       console.error('Follow mutation error:', err);
-      queryClient.setQueryData(["/api/users", { currentUserId }], context?.previousUsers);
+
+      // Revert the optimistic update
+      queryClient.setQueryData(USERS_QUERY_KEY, context?.previousUsers);
 
       toast({
         title: "Error",
@@ -84,15 +94,15 @@ export default function ExploreUsers() {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users", { currentUserId }] });
-      queryClient.invalidateQueries({ queryKey: ["/api/feed"] });
+      // Always refetch after error or success to ensure consistency
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FEED_QUERY_KEY });
     },
   });
 
   const unfollowMutation = useMutation({
     mutationFn: async (userId: number) => {
       console.log('Attempting to unfollow user:', userId);
-
       try {
         const response = await apiRequest(`/api/users/${userId}/follow`, {
           method: 'DELETE',
@@ -115,11 +125,16 @@ export default function ExploreUsers() {
     },
     onMutate: async (userId) => {
       console.log('Starting optimistic update for unfollow:', userId);
-      await queryClient.cancelQueries({ queryKey: ["/api/users", { currentUserId }] });
-      const previousUsers = queryClient.getQueryData(["/api/users", { currentUserId }]);
 
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: USERS_QUERY_KEY });
+
+      // Snapshot the previous value
+      const previousUsers = queryClient.getQueryData(USERS_QUERY_KEY);
+
+      // Optimistically update to the new value
       queryClient.setQueryData<{ users: (User & { isFollowing?: boolean })[] }>(
-        ["/api/users", { currentUserId }],
+        USERS_QUERY_KEY,
         (old) => {
           if (!old) return { users: [] };
           return {
@@ -134,7 +149,9 @@ export default function ExploreUsers() {
     },
     onError: (err, userId, context) => {
       console.error('Unfollow mutation error:', err);
-      queryClient.setQueryData(["/api/users", { currentUserId }], context?.previousUsers);
+
+      // Revert the optimistic update
+      queryClient.setQueryData(USERS_QUERY_KEY, context?.previousUsers);
 
       toast({
         title: "Error",
@@ -150,8 +167,9 @@ export default function ExploreUsers() {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users", { currentUserId }] });
-      queryClient.invalidateQueries({ queryKey: ["/api/feed"] });
+      // Always refetch after error or success to ensure consistency
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FEED_QUERY_KEY });
     },
   });
 
@@ -230,22 +248,32 @@ export default function ExploreUsers() {
                           </div>
                         )}
                       </div>
-                      <Button
-                        variant={user.isFollowing ? "outline" : "default"}
-                        size="sm"
-                        onClick={() => handleFollow(user.id, user.isFollowing || false)}
-                        disabled={
-                          (followMutation.isPending && followMutation.variables === user.id) ||
-                          (unfollowMutation.isPending && unfollowMutation.variables === user.id)
-                        }
-                      >
-                        {((followMutation.isPending && followMutation.variables === user.id) ||
-                          (unfollowMutation.isPending && unfollowMutation.variables === user.id)) ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          user.isFollowing ? "Unfollow" : "Follow"
-                        )}
-                      </Button>
+                      {user.id === currentUserId ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate('/profile/edit')}
+                        >
+                          Edit Profile
+                        </Button>
+                      ) : (
+                        <Button
+                          variant={user.isFollowing ? "outline" : "default"}
+                          size="sm"
+                          onClick={() => handleFollow(user.id, user.isFollowing || false)}
+                          disabled={
+                            (followMutation.isPending && followMutation.variables === user.id) ||
+                            (unfollowMutation.isPending && unfollowMutation.variables === user.id)
+                          }
+                        >
+                          {((followMutation.isPending && followMutation.variables === user.id) ||
+                            (unfollowMutation.isPending && unfollowMutation.variables === user.id)) ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            user.isFollowing ? "Unfollow" : "Follow"
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
