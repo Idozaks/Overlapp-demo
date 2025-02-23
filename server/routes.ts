@@ -69,6 +69,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
 
   // Add these debug routes at the top of the routes, after health check
+  app.get("/api/auth/test/session", (req, res) => {
+    res.json({
+      session: req.session,
+      isAuthenticated: req.isAuthenticated(),
+      user: req.user,
+      cookies: req.cookies,
+      sessionID: req.sessionID
+    });
+  });
+
+  app.post("/api/auth/test/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      log(`Test login attempt for user: ${username}`);
+
+      const user = await storage.getUserByUsername(username);
+      if (!user) {
+        log(`User not found: ${username}`);
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      req.login(user, (err) => {
+        if (err) {
+          log(`Login error: ${err.message}`);
+          return res.status(500).json({ message: "Login failed", error: err.message });
+        }
+        log(`Successfully logged in user: ${username}`);
+        res.json({
+          message: "Login successful",
+          user,
+          sessionID: req.sessionID,
+          isAuthenticated: req.isAuthenticated()
+        });
+      });
+    } catch (error) {
+      log(`Login error: ${error instanceof Error ? error.message : String(error)}`);
+      res.status(500).json({ message: "Login failed", error: String(error) });
+    }
+  });
+
+  // Add these debug routes at the top of the routes, after health check
   app.get("/api/test/public", (req, res) => {
     res.json({
       message: "Public route accessible",
@@ -123,48 +164,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
   });
-
-  app.post("/api/auth/test/login", async (req, res) => {
-    try {
-      const { username, password } = req.body;
-      log(`Test login attempt for user: ${username}`);
-
-      const user = await storage.getUserByUsername(username);
-      if (!user) {
-        log(`User not found: ${username}`);
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      req.login(user, (err) => {
-        if (err) {
-          log(`Login error: ${err.message}`);
-          return res.status(500).json({ message: "Login failed", error: err.message });
-        }
-        log(`Successfully logged in user: ${username}`);
-        res.json({
-          message: "Login successful",
-          user,
-          sessionID: req.sessionID,
-          isAuthenticated: req.isAuthenticated()
-        });
-      });
-    } catch (error) {
-      log(`Login error: ${error instanceof Error ? error.message : String(error)}`);
-      res.status(500).json({ message: "Login failed", error: String(error) });
-    }
-  });
-
-  app.get("/api/auth/test/session", (req, res) => {
-    res.json({
-      session: req.session,
-      isAuthenticated: req.isAuthenticated(),
-      user: req.user,
-      cookies: req.cookies,
-      sessionID: req.sessionID
-    });
-  });
-
-
   app.post("/api/debug/generate-users", async (req, res) => {
     try {
       log("Starting synthetic user generation...");
