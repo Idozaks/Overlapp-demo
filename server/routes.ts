@@ -68,6 +68,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication first
   setupAuth(app);
 
+  // Add these debug routes at the top of the routes, after health check
+  app.get("/api/test/public", (req, res) => {
+    res.json({
+      message: "Public route accessible",
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  app.get("/api/test/private", (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    res.json({
+      message: "Private route accessible",
+      user: req.user,
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Add request logging middleware
   app.use((req, res, next) => {
     const timestamp = new Date().toISOString();
@@ -105,17 +124,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
 
-  // Add these debug routes at the top of the routes, after health check
-  app.get("/api/auth/test/session", (req, res) => {
-    res.json({
-      session: req.session,
-      isAuthenticated: req.isAuthenticated(),
-      user: req.user,
-      cookies: req.cookies,
-      sessionID: req.sessionID
-    });
-  });
-
   app.post("/api/auth/test/login", async (req, res) => {
     try {
       const { username, password } = req.body;
@@ -133,7 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(500).json({ message: "Login failed", error: err.message });
         }
         log(`Successfully logged in user: ${username}`);
-        res.json({ 
+        res.json({
           message: "Login successful",
           user,
           sessionID: req.sessionID,
@@ -145,26 +153,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Login failed", error: String(error) });
     }
   });
-  
-  app.get("/api/test/public", (req, res) => {
-    res.json({ 
-      message: "Public route accessible",
-      timestamp: new Date().toISOString()
-    });
-  });
 
-  app.get("/api/test/private", (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
-    res.json({ 
-      message: "Private route accessible",
+  app.get("/api/auth/test/session", (req, res) => {
+    res.json({
+      session: req.session,
+      isAuthenticated: req.isAuthenticated(),
       user: req.user,
-      timestamp: new Date().toISOString()
+      cookies: req.cookies,
+      sessionID: req.sessionID
     });
   });
 
-  // Move the debug route to the top to ensure it's matched first
+
   app.post("/api/debug/generate-users", async (req, res) => {
     try {
       log("Starting synthetic user generation...");
