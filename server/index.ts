@@ -5,7 +5,7 @@ import { db, sql } from "./db";
 import { setupAuth } from "./auth";
 import cookieParser from "cookie-parser";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import { storage } from "./storage";
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
@@ -63,33 +63,28 @@ app.use((req, res, next) => {
   next();
 });
 
-// Set up session store
-const MemoryStore = createMemoryStore(session);
-
 // Set trust proxy first
 app.set('trust proxy', 1);
 
-// Configure session middleware before auth
+// Configure session middleware
 app.use(session({
-  store: new MemoryStore({
-    checkPeriod: 86400000 // prune expired entries every 24h
-  }),
+  store: storage.sessionStore,
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set to false for development
-    sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    path: '/'
-  }
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'lax'
+  },
+  name: 'overlapp.sid' // Custom session cookie name
 }));
 
 // Add cookie parser after session middleware
 app.use(cookieParser());
 
-// 3. Auth setup (after session middleware, before routes)
+// Auth setup (after session middleware)
 setupAuth(app);
 
 (async () => {
