@@ -7,6 +7,7 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 import createMemoryStore from "memorystore";
+import { log } from "./vite";
 
 declare global {
   namespace Express {
@@ -39,11 +40,23 @@ export function setupAuth(app: Express) {
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Changed to false for development
       sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      httpOnly: true,
+      path: '/'
     }
   };
+
+  // Debug middleware to log session and auth state
+  app.use((req, res, next) => {
+    log(`[SESSION] Request path: ${req.path}`);
+    log(`[SESSION] Session ID: ${req.sessionID}`);
+    log(`[SESSION] Is Authenticated: ${req.isAuthenticated?.()}`);
+    log(`[SESSION] Session data:`, JSON.stringify(req.session, null, 2));
+    log(`[SESSION] Cookies:`, JSON.stringify(req.cookies, null, 2));
+    next();
+  });
 
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));
@@ -55,25 +68,34 @@ export function setupAuth(app: Express) {
       try {
         const user = await storage.getUserByUsername(username);
         if (!user || !(await comparePasswords(password, user.password))) {
+          log(`[AUTH] Login failed for user: ${username}`);
           return done(null, false, { message: "Invalid username or password" });
         }
+        log(`[AUTH] Login successful for user: ${username}`);
         return done(null, user);
       } catch (error) {
+        log(`[AUTH] Error during login: ${error instanceof Error ? error.message : String(error)}`);
         return done(error);
       }
     })
   );
 
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user, done) => {
+    log(`[AUTH] Serializing user: ${user.id}`);
+    done(null, user.id);
+  });
 
   passport.deserializeUser(async (id: number, done) => {
     try {
       const user = await storage.getUser(id);
       if (!user) {
+        log(`[AUTH] Failed to deserialize user: ${id} - User not found`);
         return done(null, false);
       }
+      log(`[AUTH] Successfully deserialized user: ${id}`);
       done(null, user);
     } catch (error) {
+      log(`[AUTH] Error deserializing user: ${error instanceof Error ? error.message : String(error)}`);
       done(error);
     }
   });
@@ -82,6 +104,7 @@ export function setupAuth(app: Express) {
     try {
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
+        log(`[AUTH] Registration failed - Username already exists: ${req.body.username}`);
         return res.status(400).json({ message: "Username already exists" });
       }
 
@@ -92,29 +115,42 @@ export function setupAuth(app: Express) {
       });
 
       req.login(user, (err) => {
-        if (err) return next(err);
+        if (err) {
+          log(`[AUTH] Error during post-registration login: ${err.message}`);
+          return next(err);
+        }
+        log(`[AUTH] Successfully registered and logged in user: ${user.username}`);
         res.status(201).json(user);
       });
     } catch (error) {
+      log(`[AUTH] Registration error: ${error instanceof Error ? error.message : String(error)}`);
       next(error);
     }
   });
 
   app.post("/api/login", passport.authenticate("local"), (req, res) => {
+    log(`[AUTH] Login successful - Session ID: ${req.sessionID}`);
     res.json(req.user);
   });
 
   app.post("/api/logout", (req, res, next) => {
+    const username = req.user?.username;
     req.logout((err) => {
-      if (err) return next(err);
+      if (err) {
+        log(`[AUTH] Logout error for user ${username}: ${err.message}`);
+        return next(err);
+      }
+      log(`[AUTH] Successfully logged out user: ${username}`);
       res.sendStatus(200);
     });
   });
 
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) {
+      log(`[AUTH] Unauthorized access attempt to /api/user - No valid session`);
       return res.status(401).json({ message: "Not authenticated" });
     }
+    log(`[AUTH] Successfully retrieved user data for: ${req.user.username}`);
     res.json(req.user);
   });
 }
