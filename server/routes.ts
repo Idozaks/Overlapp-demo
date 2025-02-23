@@ -448,6 +448,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin routes for user management
+  app.delete("/api/admin/users", async (req, res) => {
+    try {
+      const userIds = req.body.userIds;
+      await storage.deleteUsers(userIds);
+      res.status(200).json({ message: "Users deleted successfully" });
+    } catch (error) {
+      log("Error deleting users:", String(error));
+      res.status(500).json({ message: "Unable to delete users" });
+    }
+  });
+
+  app.patch("/api/admin/users/:id/credentials", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { username, password } = req.body;
+      const hashedPassword = await hashPassword(password);
+      await storage.updateUserCredentials(userId, username, hashedPassword);
+      res.status(200).json({ message: "Credentials updated successfully" });
+    } catch (error) {
+      log("Error updating credentials:", String(error));
+      res.status(500).json({ message: "Unable to update credentials" });
+    }
+  });
+
+
   app.get("/api/users/:id/posts", async (req, res) => {
     try {
       const userId = Number(req.params.id);
