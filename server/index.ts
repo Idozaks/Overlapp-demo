@@ -4,6 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import { db, sql } from "./db";
 import { setupAuth } from "./auth";
 import cookieParser from "cookie-parser";
+import session from "express-session";
+import createMemoryStore from "memorystore";
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
@@ -24,7 +26,6 @@ const app = express();
 // 1. Basic middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 
 // 2. Request logging (before auth to catch all requests)
 app.use((req, res, next) => {
@@ -62,7 +63,33 @@ app.use((req, res, next) => {
   next();
 });
 
-// 3. Auth setup (after basic middleware, before routes)
+// Set up session store
+const MemoryStore = createMemoryStore(session);
+
+// Set trust proxy first
+app.set('trust proxy', 1);
+
+// Configure session middleware before auth
+app.use(session({
+  store: new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  }),
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to false for development
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    httpOnly: true,
+    path: '/'
+  }
+}));
+
+// Add cookie parser after session middleware
+app.use(cookieParser());
+
+// 3. Auth setup (after session middleware, before routes)
 setupAuth(app);
 
 (async () => {
