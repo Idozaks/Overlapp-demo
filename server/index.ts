@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { db, sql } from "./db";
+import { setupAuth } from "./auth";
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
@@ -65,6 +66,10 @@ app.use((req, res, next) => {
       log(error instanceof Error ? error.stack || error.message : "Unknown error");
       throw error;
     }
+
+    // Setup authentication before routes
+    log("Setting up authentication...");
+    setupAuth(app);
 
     log("Registering routes...");
     const server = await registerRoutes(app);
