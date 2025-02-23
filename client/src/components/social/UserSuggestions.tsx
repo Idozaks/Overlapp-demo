@@ -23,22 +23,25 @@ export default function UserSuggestions() {
     mutationFn: async (userId: number) => {
       console.log('Attempting to follow user:', userId);
 
-      const response = await apiRequest(`/api/users/${userId}/follow`, {
-        method: 'POST',
-        body: { followerId: currentUserId },
-      });
+      try {
+        const response = await apiRequest(`/api/users/${userId}/follow`, {
+          method: 'POST',
+          body: { followerId: currentUserId },
+        });
 
-      console.log('Follow response:', response.status);
+        console.log('Follow response status:', response.status);
+        const responseData = await response.json();
+        console.log('Follow response data:', responseData);
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Follow error response:', error);
-        throw new Error(error.message || 'Failed to follow user');
+        if (!response.ok) {
+          throw new Error(responseData.message || 'Failed to follow user');
+        }
+
+        return responseData;
+      } catch (error) {
+        console.error('Follow request error:', error);
+        throw error;
       }
-
-      const result = await response.json();
-      console.log('Follow success response:', result);
-      return result;
     },
     onMutate: async (userId) => {
       console.log('Starting optimistic update for follow:', userId);
@@ -85,22 +88,25 @@ export default function UserSuggestions() {
     mutationFn: async (userId: number) => {
       console.log('Attempting to unfollow user:', userId);
 
-      const response = await apiRequest(`/api/users/${userId}/follow`, {
-        method: 'DELETE',
-        body: { followerId: currentUserId },
-      });
+      try {
+        const response = await apiRequest(`/api/users/${userId}/follow`, {
+          method: 'DELETE',
+          body: { followerId: currentUserId },
+        });
 
-      console.log('Unfollow response:', response.status);
+        console.log('Unfollow response status:', response.status);
+        const responseData = await response.json();
+        console.log('Unfollow response data:', responseData);
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Unfollow error response:', error);
-        throw new Error(error.message || 'Failed to unfollow user');
+        if (!response.ok) {
+          throw new Error(responseData.message || 'Failed to unfollow user');
+        }
+
+        return responseData;
+      } catch (error) {
+        console.error('Unfollow request error:', error);
+        throw error;
       }
-
-      const result = await response.json();
-      console.log('Unfollow success response:', result);
-      return result;
     },
     onMutate: async (userId) => {
       console.log('Starting optimistic update for unfollow:', userId);
