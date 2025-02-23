@@ -25,29 +25,24 @@ export default function UserSuggestions() {
 
   const followMutation = useMutation({
     mutationFn: async (userId: number) => {
-      console.log('Attempting to follow user:', userId);
       try {
         const response = await apiRequest(`/api/users/${userId}/follow`, {
           method: 'POST',
           body: { followerId: currentUserId },
         });
 
-        console.log('Follow response status:', response.status);
-        const responseData = await response.json();
-        console.log('Follow response data:', responseData);
-
         if (!response.ok) {
+          const responseData = await response.json();
           throw new Error(responseData.message || 'Failed to follow user');
         }
 
-        return responseData;
+        return await response.json();
       } catch (error) {
         console.error('Follow request error:', error);
         throw error;
       }
     },
     onMutate: async (userId) => {
-      console.log('Starting optimistic update for follow:', userId);
       await queryClient.cancelQueries({ queryKey: USERS_QUERY_KEY });
       const previousUsers = queryClient.getQueryData(USERS_QUERY_KEY);
 
@@ -66,17 +61,14 @@ export default function UserSuggestions() {
       return { previousUsers };
     },
     onError: (err, userId, context) => {
-      console.error('Follow mutation error:', err);
       queryClient.setQueryData(USERS_QUERY_KEY, context?.previousUsers);
-
       toast({
         title: "Error",
         description: err instanceof Error ? err.message : "Failed to follow user",
         variant: "destructive",
       });
     },
-    onSuccess: (data, userId) => {
-      console.log('Follow mutation succeeded:', { data, userId });
+    onSuccess: () => {
       toast({
         title: "Success",
         description: "Successfully followed user",
@@ -90,29 +82,24 @@ export default function UserSuggestions() {
 
   const unfollowMutation = useMutation({
     mutationFn: async (userId: number) => {
-      console.log('Attempting to unfollow user:', userId);
       try {
         const response = await apiRequest(`/api/users/${userId}/follow`, {
           method: 'DELETE',
           body: { followerId: currentUserId },
         });
 
-        console.log('Unfollow response status:', response.status);
-        const responseData = await response.json();
-        console.log('Unfollow response data:', responseData);
-
         if (!response.ok) {
+          const responseData = await response.json();
           throw new Error(responseData.message || 'Failed to unfollow user');
         }
 
-        return responseData;
+        return await response.json();
       } catch (error) {
         console.error('Unfollow request error:', error);
         throw error;
       }
     },
     onMutate: async (userId) => {
-      console.log('Starting optimistic update for unfollow:', userId);
       await queryClient.cancelQueries({ queryKey: USERS_QUERY_KEY });
       const previousUsers = queryClient.getQueryData(USERS_QUERY_KEY);
 
@@ -131,17 +118,14 @@ export default function UserSuggestions() {
       return { previousUsers };
     },
     onError: (err, userId, context) => {
-      console.error('Unfollow mutation error:', err);
       queryClient.setQueryData(USERS_QUERY_KEY, context?.previousUsers);
-
       toast({
         title: "Error",
         description: err instanceof Error ? err.message : "Failed to unfollow user",
         variant: "destructive",
       });
     },
-    onSuccess: (data, userId) => {
-      console.log('Unfollow mutation succeeded:', { data, userId });
+    onSuccess: () => {
       toast({
         title: "Success",
         description: "Successfully unfollowed user",
@@ -155,7 +139,6 @@ export default function UserSuggestions() {
 
   const handleFollow = async (userId: number, isFollowing: boolean) => {
     try {
-      console.log(`Handling ${isFollowing ? 'unfollow' : 'follow'} for user:`, userId);
       if (isFollowing) {
         await unfollowMutation.mutateAsync(userId);
       } else {
@@ -164,6 +147,10 @@ export default function UserSuggestions() {
     } catch (error) {
       console.error('Follow/unfollow error:', error);
     }
+  };
+
+  const handleEditProfile = () => {
+    navigate("/profile/edit");
   };
 
   if (isLoading) {
@@ -208,22 +195,32 @@ export default function UserSuggestions() {
               </p>
             </div>
           </div>
-          <Button
-            variant={user.isFollowing ? "outline" : "default"}
-            size="sm"
-            onClick={() => handleFollow(user.id, user.isFollowing || false)}
-            disabled={
-              (followMutation.isPending && followMutation.variables === user.id) ||
-              (unfollowMutation.isPending && unfollowMutation.variables === user.id)
-            }
-          >
-            {((followMutation.isPending && followMutation.variables === user.id) ||
-              (unfollowMutation.isPending && unfollowMutation.variables === user.id)) ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              user.isFollowing ? "Unfollow" : "Follow"
-            )}
-          </Button>
+          {user.id === currentUserId ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEditProfile}
+            >
+              Edit Profile
+            </Button>
+          ) : (
+            <Button
+              variant={user.isFollowing ? "outline" : "default"}
+              size="sm"
+              onClick={() => handleFollow(user.id, user.isFollowing || false)}
+              disabled={
+                (followMutation.isPending && followMutation.variables === user.id) ||
+                (unfollowMutation.isPending && unfollowMutation.variables === user.id)
+              }
+            >
+              {((followMutation.isPending && followMutation.variables === user.id) ||
+                (unfollowMutation.isPending && unfollowMutation.variables === user.id)) ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                user.isFollowing ? "Unfollow" : "Follow"
+              )}
+            </Button>
+          )}
         </div>
       ))}
     </div>
