@@ -16,23 +16,35 @@ export default function UserSuggestions() {
   const currentUserId = 1; //  REPLACE THIS WITH PROPER AUTHENTICATION
 
   const { data, isLoading } = useQuery<{ users: (User & { isFollowing?: boolean })[] }>({
-    queryKey: [`/api/users?currentUserId=${currentUserId}`],
+    queryKey: ["/api/users", { currentUserId }],
   });
 
   const followMutation = useMutation({
     mutationFn: async (userId: number) => {
       const response = await apiRequest(`/api/users/${userId}/follow`, {
         method: 'POST',
-        body: { followerId: currentUserId, followingId: userId }, // Added followingId
+        body: { followerId: currentUserId },
       });
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to follow user');
+        throw new Error('Failed to follow user');
       }
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/users?currentUserId=${currentUserId}`] });
+    onSuccess: (_, userId) => {
+      // Optimistically update the UI
+      queryClient.setQueryData<{ users: (User & { isFollowing?: boolean })[] }>(
+        ["/api/users", { currentUserId }],
+        (old) => {
+          if (!old) return old;
+          return {
+            users: old.users.map(user => 
+              user.id === userId ? { ...user, isFollowing: true } : user
+            )
+          };
+        }
+      );
+
+      // Show success notification
       toast({
         title: "Success",
         description: "Successfully followed user",
@@ -42,7 +54,7 @@ export default function UserSuggestions() {
       console.error('Follow error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to follow user. Please try again.",
+        description: "Failed to follow user. Please try again.",
         variant: "destructive",
       });
     },
@@ -52,16 +64,28 @@ export default function UserSuggestions() {
     mutationFn: async (userId: number) => {
       const response = await apiRequest(`/api/users/${userId}/follow`, {
         method: 'DELETE',
-        body: { followerId: currentUserId, followingId: userId }, // Added followingId
+        body: { followerId: currentUserId },
       });
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to unfollow user');
+        throw new Error('Failed to unfollow user');
       }
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/users?currentUserId=${currentUserId}`] });
+    onSuccess: (_, userId) => {
+      // Optimistically update the UI
+      queryClient.setQueryData<{ users: (User & { isFollowing?: boolean })[] }>(
+        ["/api/users", { currentUserId }],
+        (old) => {
+          if (!old) return old;
+          return {
+            users: old.users.map(user => 
+              user.id === userId ? { ...user, isFollowing: false } : user
+            )
+          };
+        }
+      );
+
+      // Show success notification
       toast({
         title: "Success",
         description: "Successfully unfollowed user",
@@ -71,7 +95,7 @@ export default function UserSuggestions() {
       console.error('Unfollow error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to unfollow user. Please try again.",
+        description: "Failed to unfollow user. Please try again.",
         variant: "destructive",
       });
     },
@@ -101,12 +125,8 @@ export default function UserSuggestions() {
         await followMutation.mutateAsync(userId);
       }
     } catch (error) {
+      // Error is already handled in mutation callbacks
       console.error('Follow/unfollow error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "An error occurred.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -134,7 +154,7 @@ export default function UserSuggestions() {
             </div>
           </div>
           <Button
-            variant="outline"
+            variant={user.isFollowing ? "outline" : "default"}
             size="sm"
             onClick={() => handleFollow(user.id, user.isFollowing || false)}
             disabled={followMutation.isPending || unfollowMutation.isPending}
