@@ -77,7 +77,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       path: req.path,
       query: req.query,
       headers: req.headers,
-      body: req.method !== 'GET' ? req.body : undefined
+      body: req.method !== 'GET' ? req.body : undefined,
+      isAuthenticated: req.isAuthenticated?.() || false
     };
     log(`[REQUEST] ${timestamp} - Incoming request:`, JSON.stringify(requestLog, null, 2));
 
@@ -89,18 +90,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         method: req.method,
         path: req.path,
         statusCode: res.statusCode,
-        duration: `${duration}ms`
+        duration: `${duration}ms`,
+        isAuthenticated: req.isAuthenticated?.() || false
       };
       log(`[RESPONSE] ${timestamp} - Outgoing response:`, JSON.stringify(responseLog, null, 2));
     });
     next();
   });
-  // Add JSON body parser middleware
+  // Add JSON body parser middleware before routes
   app.use(express.json());
 
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Add these routes after the health check endpoint but before other routes
+  app.get("/api/test/public", (req, res) => {
+    res.json({ 
+      message: "Public route accessible",
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  app.get("/api/test/private", (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    res.json({ 
+      message: "Private route accessible",
+      user: req.user,
+      timestamp: new Date().toISOString()
+    });
   });
 
   // Move the debug route to the top to ensure it's matched first
