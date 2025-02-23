@@ -137,8 +137,8 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-20">
-        <div className="max-h-[calc(100vh-8rem)] overflow-y-auto px-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-6">
           <FormField
             control={form.control}
             name="displayName"
@@ -187,7 +187,7 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
             )}
           />
 
-          <div className="space-y-4 mt-6">
+          <div className="space-y-4">
             <FormLabel>{t("profile.interests")}</FormLabel>
             <div className="flex flex-wrap gap-2">
               {AVAILABLE_INTERESTS.map(interest => (
@@ -203,7 +203,7 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
             </div>
           </div>
 
-          <div className="space-y-4 mt-6">
+          <div className="space-y-4">
             <FormLabel>{t("profile.retailPreferences")}</FormLabel>
             <div className="flex flex-wrap gap-2">
               {RETAIL_PREFERENCES.map(preference => (
@@ -218,13 +218,11 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
               ))}
             </div>
           </div>
-        </div>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4">
           <Button
             type="submit"
             disabled={updateMutation.isPending}
-            className="w-full"
+            className="w-full mt-6"
           >
             {updateMutation.isPending ? (
               <>
