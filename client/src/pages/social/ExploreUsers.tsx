@@ -252,7 +252,7 @@ export default function ExploreUsers() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate('/profile/edit')}
+                          onClick={() => navigate(`/profile/${currentUserId}/edit`)}
                         >
                           Edit Profile
                         </Button>
