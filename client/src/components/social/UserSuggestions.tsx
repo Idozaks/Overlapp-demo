@@ -12,8 +12,8 @@ export default function UserSuggestions() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // For demo purposes, using a hardcoded currentUserId
-  const currentUserId = 1;
+  //  This should be fetched from authentication or context
+  const currentUserId = 1; //  REPLACE THIS WITH PROPER AUTHENTICATION
 
   const { data, isLoading } = useQuery<{ users: (User & { isFollowing?: boolean })[] }>({
     queryKey: [`/api/users?currentUserId=${currentUserId}`],
@@ -21,10 +21,15 @@ export default function UserSuggestions() {
 
   const followMutation = useMutation({
     mutationFn: async (userId: number) => {
-      await apiRequest(`/api/users/${userId}/follow`, {
+      const response = await apiRequest(`/api/users/${userId}/follow`, {
         method: 'POST',
-        body: { followerId: currentUserId },
+        body: { followerId: currentUserId, followingId: userId }, // Added followingId
       });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to follow user');
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/users?currentUserId=${currentUserId}`] });
@@ -37,7 +42,7 @@ export default function UserSuggestions() {
       console.error('Follow error:', error);
       toast({
         title: "Error",
-        description: "Failed to follow user. Please try again.",
+        description: error.message || "Failed to follow user. Please try again.",
         variant: "destructive",
       });
     },
@@ -45,10 +50,15 @@ export default function UserSuggestions() {
 
   const unfollowMutation = useMutation({
     mutationFn: async (userId: number) => {
-      await apiRequest(`/api/users/${userId}/follow`, {
+      const response = await apiRequest(`/api/users/${userId}/follow`, {
         method: 'DELETE',
-        body: { followerId: currentUserId },
+        body: { followerId: currentUserId, followingId: userId }, // Added followingId
       });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to unfollow user');
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/users?currentUserId=${currentUserId}`] });
@@ -61,7 +71,7 @@ export default function UserSuggestions() {
       console.error('Unfollow error:', error);
       toast({
         title: "Error",
-        description: "Failed to unfollow user. Please try again.",
+        description: error.message || "Failed to unfollow user. Please try again.",
         variant: "destructive",
       });
     },
@@ -92,6 +102,11 @@ export default function UserSuggestions() {
       }
     } catch (error) {
       console.error('Follow/unfollow error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -118,8 +133,8 @@ export default function UserSuggestions() {
               </p>
             </div>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => handleFollow(user.id, user.isFollowing || false)}
             disabled={followMutation.isPending || unfollowMutation.isPending}
