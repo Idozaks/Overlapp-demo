@@ -325,7 +325,7 @@ export class DatabaseStorage implements IStorage {
           metadata: nft.metadata ? {
             image: nft.metadata.image || '',
             attributes: nft.metadata.attributes || {},
-            externalUrl: nft.metadata.externalUrl
+            externalUrl: nft.metadata.externalUrl || undefined
           } : undefined,
           creatorId: nft.creatorId,
           tokenId: nft.tokenId,
