@@ -21,9 +21,17 @@ export default function ExploreUsers() {
   const USERS_QUERY_KEY = ["/api/users"];
   const FEED_QUERY_KEY = ["/api/feed"];
 
+  // Query to fetch users with currentUserId
   const { data, isLoading } = useQuery<{ users: (User & { isFollowing?: boolean })[] }>({
     queryKey: USERS_QUERY_KEY,
-    enabled: !!currentUser,
+    queryFn: async () => {
+      const response = await apiRequest(`/api/users${currentUser ? `?currentUserId=${currentUser.id}` : ''}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      return response.json();
+    },
+    enabled: !isAuthLoading // Only run query after auth status is determined
   });
 
   const followMutation = useMutation({
@@ -32,7 +40,7 @@ export default function ExploreUsers() {
 
       const response = await apiRequest(`/api/users/${userId}/follow`, {
         method: 'POST',
-        body: { followerId: currentUser.id },
+        body: { followerId: currentUser.id }
       });
 
       if (!response.ok) {
@@ -86,7 +94,7 @@ export default function ExploreUsers() {
 
       const response = await apiRequest(`/api/users/${userId}/follow`, {
         method: 'DELETE',
-        body: { followerId: currentUser.id },
+        body: { followerId: currentUser.id }
       });
 
       if (!response.ok) {
@@ -147,9 +155,15 @@ export default function ExploreUsers() {
   };
 
   const handleEditProfile = () => {
-    if (currentUser) {
-      navigate(`/profile/${currentUser.id}`);
+    if (!currentUser) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to edit your profile",
+        variant: "destructive"
+      });
+      return;
     }
+    navigate(`/profile/${currentUser.id}`);
   };
 
   if (isLoading || isAuthLoading) {
@@ -160,10 +174,10 @@ export default function ExploreUsers() {
     );
   }
 
-  const filteredUsers = data?.users.filter(user => 
-    (searchQuery === "" || 
-    user.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.bio?.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredUsers = data?.users.filter(user =>
+    (searchQuery === "" ||
+      user.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.bio?.toLowerCase().includes(searchQuery.toLowerCase()))
   ) || [];
 
   return (
@@ -188,8 +202,8 @@ export default function ExploreUsers() {
               <Card key={user.id}>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <Avatar 
-                      className="h-16 w-16 cursor-pointer" 
+                    <Avatar
+                      className="h-16 w-16 cursor-pointer"
                       onClick={() => navigate(`/profile/${user.id}`)}
                     >
                       <AvatarFallback>{user.displayName?.[0] || "U"}</AvatarFallback>
@@ -198,7 +212,7 @@ export default function ExploreUsers() {
                       )}
                     </Avatar>
                     <div className="flex-1">
-                      <h3 
+                      <h3
                         className="text-lg font-semibold hover:underline cursor-pointer"
                         onClick={() => navigate(`/profile/${user.id}`)}
                       >
@@ -210,7 +224,7 @@ export default function ExploreUsers() {
                       {user.preferences?.interests && user.preferences.interests.length > 0 && (
                         <div className="flex flex-wrap gap-2">
                           {user.preferences.interests.map((interest, i) => (
-                            <span 
+                            <span
                               key={i}
                               className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full"
                             >
