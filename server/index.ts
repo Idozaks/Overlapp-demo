@@ -100,6 +100,7 @@ app.use((req, res, next) => {
       });
     });
 
+    log("Setting up server environment...");
     if (app.get("env") === "development") {
       log("Setting up Vite in development mode...");
       await setupVite(app, server);
@@ -109,11 +110,19 @@ app.use((req, res, next) => {
       serveStatic(app);
     }
 
-    const PORT = process.env.PORT || 3000;
-    server.listen(PORT, "0.0.0.0", () => {
-      log(`Server successfully started and listening on port ${PORT}`);
-      log(`Environment: ${app.get("env")}`);
-      log(`Database: ${process.env.PGDATABASE}`);
+    const PORT = Number(process.env.PORT) || 5000;
+    log(`Attempting to start server on port ${PORT}...`);
+
+    await new Promise<void>((resolve, reject) => {
+      server.listen(PORT, "0.0.0.0", () => {
+        log(`Server successfully started and listening on port ${PORT}`);
+        log(`Environment: ${app.get("env")}`);
+        log(`Database: ${process.env.PGDATABASE}`);
+        resolve();
+      }).on('error', (err) => {
+        log(`Failed to start server: ${err.message}`);
+        reject(err);
+      });
     });
   } catch (error) {
     log("Fatal error during server startup:");
