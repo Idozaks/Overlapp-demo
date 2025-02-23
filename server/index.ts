@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { db, sql } from "./db";
 import { setupAuth } from "./auth";
+import cookieParser from "cookie-parser";
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
@@ -18,14 +19,23 @@ process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) =>
 });
 
 const app = express();
+
+// Important: Order of middleware matters
+// 1. Basic middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
-// Enhanced logging middleware
+// 2. Request logging (before auth to catch all requests)
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
+
+  // Log incoming request details
+  log(`[REQUEST] ${req.method} ${path}`);
+  log(`[COOKIES] ${JSON.stringify(req.cookies)}`);
+  log(`[SESSION] ${req.sessionID || 'No session'}`);
 
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
@@ -52,6 +62,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// 3. Auth setup (after basic middleware, before routes)
+setupAuth(app);
+
 (async () => {
   try {
     log("Starting server initialization...");
@@ -66,10 +79,6 @@ app.use((req, res, next) => {
       log(error instanceof Error ? error.stack || error.message : "Unknown error");
       throw error;
     }
-
-    // Setup authentication before routes
-    log("Setting up authentication...");
-    setupAuth(app);
 
     log("Registering routes...");
     const server = await registerRoutes(app);
