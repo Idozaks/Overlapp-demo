@@ -147,6 +147,8 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       log("Error creating user:", error instanceof Error ? error.message : String(error));
       throw error;
+    }
+  }
 
   async deleteUsers(userIds: number[]): Promise<void> {
     await db.delete(users).where(inArray(users.id, userIds));
@@ -156,9 +158,6 @@ export class DatabaseStorage implements IStorage {
     await db.update(users)
       .set({ username, password })
       .where(eq(users.id, userId));
-  }
-
-    }
   }
 
   async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User> {
