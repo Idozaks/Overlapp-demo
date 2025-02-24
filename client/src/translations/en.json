@@ -37,6 +37,22 @@
         "sync": {
           "title": "Real-time Synchronization",
           "description": "Stay synchronized across all your devices and physical locations instantly"
+        },
+        "global_network": {
+          "title": "Global Identity Network",
+          "description": "Connect and verify identities across borders with our distributed identity management system"
+        },
+        "secure_verify": {
+          "title": "Secure Identity Verification",
+          "description": "Blockchain-backed verification ensures the authenticity and security of phygital identities"
+        },
+        "smart_personalization": {
+          "title": "Smart Personalization",
+          "description": "AI-driven customization of digital identity features based on physical world"
+        },
+        "location": {
+          "title": "Location Intelligence",
+          "description": "Smart location tracking and verification for seamless physical-digital presence"
         }
       },
       "phygital": {

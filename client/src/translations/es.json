@@ -36,7 +36,23 @@
         },
         "sync": {
           "title": "Sincronización en tiempo real",
-          "description": "Mantente sincronizado en todos tus dispositivos y ubicaciones físicas al instante"
+          "description": "Mantente sincronizado al instante en todos tus dispositivos y ubicaciones físicas"
+        },
+        "global_network": {
+          "title": "Red Global de Identidad",
+          "description": "Conecta y verifica identidades a través de fronteras con nuestro sistema distribuido de gestión de identidad"
+        },
+        "secure_verify": {
+          "title": "Verificación Segura de Identidad",
+          "description": "La verificación respaldada por blockchain garantiza la autenticidad y seguridad de las identidades físico-digitales"
+        },
+        "smart_personalization": {
+          "title": "Personalización Inteligente",
+          "description": "Personalización impulsada por IA de funciones de identidad digital basada en el mundo físico"
+        },
+        "location": {
+          "title": "Inteligencia de Ubicación",
+          "description": "Seguimiento y verificación inteligente de ubicación para una presencia físico-digital perfecta"
         }
       },
       "phygital": {
