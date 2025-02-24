@@ -21,9 +21,7 @@ export default function Profile() {
   const userId = id ? parseInt(id) : null;
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-
-  // Placeholder for authentication context -  This needs to be replaced with actual authentication logic
-  const currentUser = { id: 1 }; // Replace with actual user ID from auth context
+  const { user: currentUser } = useAuth();
 
   const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
     queryKey: [`/api/users/${userId}`],
