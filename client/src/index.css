@@ -1,3 +1,50 @@
+
+@layer base {
+  h1 {
+    @apply text-4xl md:text-5xl font-bold tracking-tight;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl font-semibold;
+  }
+  p {
+    @apply text-sm md:text-base;
+  }
+}
+
+.mobile-nav {
+  @apply flex-1 flex items-center justify-between px-2 md:px-4;
+}
+
+.mobile-nav-items {
+  @apply flex items-center space-x-2 md:space-x-4;
+}
+
+.mobile-menu-button {
+  @apply p-2 rounded-md hover:bg-accent;
+}
+
+.nav-link {
+  @apply flex items-center gap-1 px-2 py-1 text-sm md:text-base rounded-md hover:bg-accent;
+}
+
+@media (max-width: 640px) {
+  .hero-section {
+    @apply px-4 py-12;
+  }
+  
+  .hero-content {
+    @apply space-y-4;
+  }
+  
+  .button-group {
+    @apply flex-col w-full space-y-2;
+  }
+  
+  .nav-text {
+    @apply text-xs;
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

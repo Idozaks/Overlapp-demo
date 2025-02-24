@@ -1,0 +1,22 @@
+useIsMobile is not defined
+at Header (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/src/App.tsx?v=MYCy1Na2JGWQuYP4icgLo:100:20)
+at renderWithHooks (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=d086d177:11548:26)
+at mountIndeterminateComponent (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=d086d177:14926:21)
+at beginWork (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=d086d177:15914:22)
+at HTMLUnknownElement.callCallback2 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=d086d177:3674:22)
+at Object.invokeGuardedCallbackDev (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=d086d177:3699:24)
+at invokeGuardedCallback (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=d086d177:3733:39)
+at beginWork$1 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=d086d177:19765:15)
+at performUnitOfWork (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=d086d177:19198:20)
+at workLoopSync (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=d086d177:19137:13)
+The above error occurred in the <Header> component:
+
+    at Header (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/src/App.tsx?v=MYCy1Na2JGWQuYP4icgLo:98:36)
+    at div
+    at AuthProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/src/hooks/use-auth.tsx:27:32)
+    at QueryClientProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d086d177:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+useIsMobile is not defined
