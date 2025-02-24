@@ -22,8 +22,8 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
 
-  // For demo purposes, using a hardcoded currentUserId
-  const currentUserId = 1;
+  // Placeholder for authentication context -  This needs to be replaced with actual authentication logic
+  const currentUser = { id: 1 }; // Replace with actual user ID from auth context
 
   const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
     queryKey: [`/api/users/${userId}`],
@@ -47,26 +47,40 @@ export default function Profile() {
 
   const followMutation = useMutation({
     mutationFn: async () => {
+      if (!currentUser?.id) {
+        throw new Error("You must be logged in to follow users.");
+      }
       await apiRequest(`/api/users/${userId}/follow`, {
         method: 'POST',
-        body: { followerId: currentUserId }, // Remove JSON.stringify
+        body: { followerId: currentUser.id },
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/followers`] });
     },
+    onError: (error) => {
+      console.error("Follow mutation error:", error);
+      //Add user-friendly error handling here.
+    }
   });
 
   const unfollowMutation = useMutation({
     mutationFn: async () => {
+      if (!currentUser?.id) {
+        throw new Error("You must be logged in to unfollow users.");
+      }
       await apiRequest(`/api/users/${userId}/follow`, {
         method: 'DELETE',
-        body: { followerId: currentUserId }, // Remove JSON.stringify
+        body: { followerId: currentUser.id },
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/followers`] });
     },
+    onError: (error) => {
+      console.error("Unfollow mutation error:", error);
+      //Add user-friendly error handling here.
+    }
   });
 
   // Handle invalid ID
@@ -103,7 +117,7 @@ export default function Profile() {
     );
   }
 
-  const isFollowing = followers?.followers?.some(follower => follower.id === currentUserId);
+  const isFollowing = followers?.followers?.some(follower => follower.id === currentUser.id);
 
   const handleFollowToggle = async () => {
     if (isFollowing) {
@@ -136,7 +150,7 @@ export default function Profile() {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    {userId === currentUserId ? (
+                    {userId === currentUser.id ? (
                       <Button
                         variant="outline"
                         size="sm"
