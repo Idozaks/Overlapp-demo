@@ -147,7 +147,7 @@ export default function UserSuggestions() {
       });
       return;
     }
-    
+
     try {
       if (isFollowing) {
         await unfollowMutation.mutateAsync(userId);
@@ -219,9 +219,11 @@ export default function UserSuggestions() {
               size="sm"
               onClick={() => handleFollow(user.id, user.isFollowing || false)}
               disabled={
+                !currentUserId ||
                 (followMutation.isPending && followMutation.variables === user.id) ||
                 (unfollowMutation.isPending && unfollowMutation.variables === user.id)
               }
+              className={user.isFollowing ? "hover:bg-destructive hover:text-destructive-foreground" : ""}
             >
               {((followMutation.isPending && followMutation.variables === user.id) ||
                 (unfollowMutation.isPending && unfollowMutation.variables === user.id)) ? (
