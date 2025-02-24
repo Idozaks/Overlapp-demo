@@ -38,6 +38,7 @@ function Router() {
 function Header() {
   const { user, logoutMutation } = useAuth();
   const [, navigate] = useLocation();
+  const isMobile = useIsMobile();
 
   return (
     <header className="p-4 border-b">
