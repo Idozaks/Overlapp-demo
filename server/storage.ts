@@ -152,31 +152,42 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUsers(userIds: number[]): Promise<boolean> {
     try {
-      // Delete wallet transactions first
-      await db.delete(transactions).where(sql`from_wallet_id IN (SELECT id FROM wallets WHERE user_id = ANY(${userIds}))`);
-      await db.delete(transactions).where(sql`to_wallet_id IN (SELECT id FROM wallets WHERE user_id = ANY(${userIds}))`);
+      log(`Starting deletion of users: ${userIds.join(', ')}`);
       
-      // Delete NFTs
-      await db.delete(nfts).where(inArray(nfts.ownerId, userIds));
-      await db.delete(nfts).where(inArray(nfts.creatorId, userIds));
+      // Delete in transaction to ensure atomicity
+      const result = await db.transaction(async (tx) => {
+        // Delete wallet transactions
+        await tx.delete(likes).where(inArray(likes.userId, userIds));
+        await tx.delete(comments).where(inArray(comments.userId, userIds));
+        await tx.delete(posts).where(inArray(posts.userId, userIds));
+        await tx.delete(connections).where(inArray(connections.followerId, userIds));
+        await tx.delete(connections).where(inArray(connections.followingId, userIds));
+        
+        const walletIds = await tx
+          .select({ id: wallets.id })
+          .from(wallets)
+          .where(inArray(wallets.userId, userIds));
+        
+        if (walletIds.length > 0) {
+          const wIds = walletIds.map(w => w.id);
+          await tx.delete(transactions).where(inArray(transactions.fromWalletId, wIds));
+          await tx.delete(transactions).where(inArray(transactions.toWalletId, wIds));
+        }
+        
+        await tx.delete(nfts).where(inArray(nfts.ownerId, userIds));
+        await tx.delete(nfts).where(inArray(nfts.creatorId, userIds));
+        await tx.delete(wallets).where(inArray(wallets.userId, userIds));
+        
+        const deleted = await tx.delete(users).where(inArray(users.id, userIds)).returning();
+        return deleted;
+      });
       
-      // Delete wallets
-      await db.delete(wallets).where(inArray(wallets.userId, userIds));
-      
-      // Delete related social records
-      await db.delete(connections).where(inArray(connections.followerId, userIds));
-      await db.delete(connections).where(inArray(connections.followingId, userIds));
-      await db.delete(likes).where(inArray(likes.userId, userIds));
-      await db.delete(comments).where(inArray(comments.userId, userIds));
-      await db.delete(posts).where(inArray(posts.userId, userIds));
-      
-      // Finally delete the users
-      const result = await db.delete(users).where(inArray(users.id, userIds)).returning();
-      log(`Deleted ${result.length} users`);
+      log(`Successfully deleted ${result.length} users`);
       return result.length > 0;
     } catch (error) {
-      log("Error deleting users:", error instanceof Error ? error.message : String(error));
-      throw error; // Propagate error to handler
+      const errMsg = error instanceof Error ? error.message : String(error);
+      log(`Failed to delete users: ${errMsg}`);
+      return false; // Return false instead of throwing
     }
   }
 
