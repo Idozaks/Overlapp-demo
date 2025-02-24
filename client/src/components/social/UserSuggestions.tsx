@@ -12,8 +12,8 @@ export default function UserSuggestions() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // For demo purposes, using a hardcoded currentUserId
-  const currentUserId = 1;
+  const { user: currentUser } = useAuth();
+  const currentUserId = currentUser?.id;
 
   // Constants for query keys to ensure consistency
   const USERS_QUERY_KEY = ["/api/users", { currentUserId }];
@@ -138,6 +138,15 @@ export default function UserSuggestions() {
   });
 
   const handleFollow = async (userId: number, isFollowing: boolean) => {
+    if (!currentUserId) {
+      toast({
+        title: "Error",
+        description: "Please log in to follow users",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       if (isFollowing) {
         await unfollowMutation.mutateAsync(userId);
