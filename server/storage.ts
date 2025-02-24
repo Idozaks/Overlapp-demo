@@ -1,7 +1,7 @@
 import { users, posts, comments, connections, likes, wallets, nfts, transactions } from "@shared/schema";
 import { type User, type InsertUser, type Post, type Comment, type Connection, type Wallet, type NFT, type Transaction, type InsertNFT, type InsertWallet } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, inArray, or } from "drizzle-orm";
+import { eq, desc, and, inArray, or, sql } from "drizzle-orm";
 import { log } from "./vite";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
