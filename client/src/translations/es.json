@@ -38,6 +38,34 @@
           "title": "Sincronización en tiempo real",
           "description": "Mantente sincronizado al instante en todos tus dispositivos y ubicaciones físicas"
         },
+        "ai_world": {
+          "title": "Fusión con el Mundo IA",
+          "subtitle": "Experimenta la fusión perfecta de identidades físicas y digitales impulsada por IA avanzada",
+          "analysis": {
+            "title": "Análisis de Identidad por IA",
+            "description": "Algoritmos avanzados de machine learning analizan y verifican conexiones de identidad digital-física en tiempo real"
+          },
+          "digital_twin": {
+            "title": "Tecnología de Gemelo Digital",
+            "description": "Crea y mantén representaciones digitales seguras de identidades físicas con sincronización en tiempo real"
+          },
+          "verification": {
+            "title": "Verificación Segura de Identidad",
+            "description": "Verificación basada en blockchain asegura la autenticidad y seguridad de identidades phygitales"
+          },
+          "global_network": {
+            "title": "Red Global de Identidad",
+            "description": "Conecta y verifica identidades a través de fronteras con nuestro sistema distribuido de gestión de identidad"
+          },
+          "location": {
+            "title": "Inteligencia de Ubicación",
+            "description": "Seguimiento y verificación inteligente de ubicación para gestión perfecta de presencia física-digital"
+          },
+          "personalization": {
+            "title": "Personalización Inteligente",
+            "description": "Personalización impulsada por IA de funciones de identidad digital basada en interacciones del mundo físico"
+          }
+        },
         "global_network": {
           "title": "Red Global de Identidad",
           "description": "Conecta y verifica identidades a través de fronteras con nuestro sistema distribuido de gestión de identidad"

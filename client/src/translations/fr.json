@@ -38,6 +38,34 @@
           "title": "Synchronisation en temps réel",
           "description": "Restez synchronisé instantanément sur tous vos appareils et emplacements physiques"
         },
+        "ai_world": {
+          "title": "Fusion avec le Monde IA",
+          "subtitle": "Découvrez la fusion harmonieuse des identités physiques et numériques propulsée par l'IA avancée",
+          "analysis": {
+            "title": "Analyse d'Identité par IA",
+            "description": "Les algorithmes avancés de machine learning analysent et vérifient les connexions d'identité numérique-physique en temps réel"
+          },
+          "digital_twin": {
+            "title": "Technologie de Jumeau Numérique",
+            "description": "Créez et maintenez des représentations numériques sécurisées des identités physiques avec synchronisation en temps réel"
+          },
+          "verification": {
+            "title": "Vérification d'Identité Sécurisée",
+            "description": "La vérification basée sur la blockchain assure l'authenticité et la sécurité des identités phygitales"
+          },
+          "global_network": {
+            "title": "Réseau d'Identité Global",
+            "description": "Connectez et vérifiez les identités à travers les frontières avec notre système de gestion d'identité distribuée"
+          },
+          "location": {
+            "title": "Intelligence de Localisation",
+            "description": "Suivi et vérification intelligents de la localisation pour une gestion transparente de la présence physique-numérique"
+          },
+          "personalization": {
+            "title": "Personnalisation Intelligente",
+            "description": "Personnalisation par IA des fonctionnalités d'identité numérique basée sur les interactions du monde physique"
+          }
+        },
         "global_network": {
           "title": "Réseau d'Identité Mondiale",
           "description": "Connectez et vérifiez les identités à travers les frontières avec notre système de gestion d'identité distribuée"
