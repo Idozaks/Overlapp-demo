@@ -9,6 +9,9 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 const scryptAsync = promisify(scrypt);
 
@@ -303,7 +306,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add the update user endpoint
-  app.patch("/api/users/:id", async (req, res) => {
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: './uploads/',
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  }),
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
+
+// Ensure uploads directory exists
+if (!fs.existsSync('./uploads')) {
+  fs.mkdirSync('./uploads');
+}
+
+app.patch("/api/users/:id", upload.single('avatar'), async (req, res) => {
     try {
       const userId = Number(req.params.id);
       if (isNaN(userId)) {
@@ -316,9 +346,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
+      let updateData = req.body;
+      
+      // If file was uploaded, add the file path to update data
+      if (req.file) {
+        updateData = {
+          ...updateData,
+          avatar: `/uploads/${req.file.filename}`
+        };
+      }
+
       // Create an update schema by making all fields optional
       const updateUserSchema = insertUserSchema.partial();
-      const result = updateUserSchema.safeParse(req.body);
+      const result = updateUserSchema.safeParse(updateData);
 
       if (!result.success) {
         return res.status(400).json({
@@ -335,6 +375,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Unable to update user" });
     }
   });
+
+// Serve uploaded files
+app.use('/uploads', express.static('uploads'));
 
 
   // Social Connections
