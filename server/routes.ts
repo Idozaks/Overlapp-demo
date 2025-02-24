@@ -462,12 +462,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       log(`Attempting to delete users with IDs: ${userIds.join(', ')}`);
       const result = await storage.deleteUsers(userIds);
-
-      if (!result) {
-        return res.status(404).json({ message: "No users found to delete" });
+      log(`Delete operation result: ${result}`);
+      
+      if (result) {
+        res.status(200).json({ message: "Users deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Unable to delete users" });
       }
-
-      res.status(200).json({ message: "Users deleted successfully" });
     } catch (error) {
       log("Error deleting users:", String(error));
       res.status(500).json({ message: "Unable to delete users" });

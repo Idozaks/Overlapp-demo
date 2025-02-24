@@ -156,12 +156,21 @@ export class DatabaseStorage implements IStorage {
       
       // Delete in transaction to ensure atomicity
       const result = await db.transaction(async (tx) => {
+        log(`Starting transaction to delete users: ${userIds.join(',')}`);
+        
         // Delete wallet transactions
-        await tx.delete(likes).where(inArray(likes.userId, userIds));
-        await tx.delete(comments).where(inArray(comments.userId, userIds));
-        await tx.delete(posts).where(inArray(posts.userId, userIds));
-        await tx.delete(connections).where(inArray(connections.followerId, userIds));
-        await tx.delete(connections).where(inArray(connections.followingId, userIds));
+        const deletedLikes = await tx.delete(likes).where(inArray(likes.userId, userIds)).returning();
+        log(`Deleted ${deletedLikes.length} likes`);
+        
+        const deletedComments = await tx.delete(comments).where(inArray(comments.userId, userIds)).returning();
+        log(`Deleted ${deletedComments.length} comments`);
+        
+        const deletedPosts = await tx.delete(posts).where(inArray(posts.userId, userIds)).returning();
+        log(`Deleted ${deletedPosts.length} posts`);
+        
+        const deletedConnections1 = await tx.delete(connections).where(inArray(connections.followerId, userIds)).returning();
+        const deletedConnections2 = await tx.delete(connections).where(inArray(connections.followingId, userIds)).returning();
+        log(`Deleted ${deletedConnections1.length + deletedConnections2.length} connections`);
         
         const walletIds = await tx
           .select({ id: wallets.id })
