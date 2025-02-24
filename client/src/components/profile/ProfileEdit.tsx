@@ -75,22 +75,29 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
         throw new Error("Invalid user ID");
       }
 
-      const formData = new FormData();
-      formData.append('displayName', data.displayName);
-      formData.append('bio', data.bio);
-      if (data.avatar) {
-        if (typeof data.avatar === 'string') {
-          formData.append('avatar', data.avatar);
-        } else {
-          formData.append('avatar', data.avatar);
+      let body;
+      let headers = {};
+      
+      if (data.avatar instanceof File) {
+        const formData = new FormData();
+        formData.append('avatar', data.avatar);
+        if (data.displayName) formData.append('displayName', data.displayName);
+        if (data.bio) formData.append('bio', data.bio);
+        if (data.preferences) {
+          formData.append('preferences', JSON.stringify(data.preferences));
         }
+        body = formData;
+      } else {
+        body = JSON.stringify(data);
+        headers = {
+          'Content-Type': 'application/json'
+        };
       }
-      formData.append('preferences[interests]', JSON.stringify(data.preferences?.interests || []));
-      formData.append('preferences[retailPreferences]', JSON.stringify(data.preferences?.retailPreferences || []));
 
       const response = await apiRequest(`/api/users/${user.id}`, {
         method: "PATCH",
-        body: formData
+        body,
+        headers
       });
       const result = await response.json();
       if (!result.user) {

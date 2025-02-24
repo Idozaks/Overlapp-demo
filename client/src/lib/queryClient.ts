@@ -16,9 +16,9 @@ export async function apiRequest(url: string, options?: RequestOptions): Promise
   const res = await fetch(url, {
     method: options?.method || 'GET',
     headers: {
-      ...(options?.body ? { "Content-Type": "application/json" } : {}),
+      ...(!(options?.body instanceof FormData) && { "Content-Type": "application/json" }), //Added this line to handle FormData
     },
-    body: options?.body ? JSON.stringify(options.body) : undefined,
+    body: options?.body, // Removed JSON.stringify as FormData should not be stringified.
     credentials: "include",
   });
 
