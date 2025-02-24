@@ -35,6 +35,8 @@ function Router() {
   );
 }
 
+import { useIsMobile } from "@/hooks/use-mobile";
+
 function Header() {
   const { user, logoutMutation } = useAuth();
   const [, navigate] = useLocation();
