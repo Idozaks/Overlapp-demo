@@ -146,7 +146,7 @@ setupAuth(app);
       serveStatic(app);
     }
 
-    const PORT = Number(process.env.PORT) || 5000;
+    const PORT = Number(process.env.PORT) || 3000;
     log(`Attempting to start server on port ${PORT}...`);
 
     await new Promise<void>((resolve, reject) => {
