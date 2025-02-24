@@ -15,8 +15,16 @@ import Profile from "@/pages/social/Profile";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Button } from "@/components/ui/button";
-import { Loader2, HomeIcon, UsersIcon, CompassIcon, WalletIcon, PlayIcon, MailIcon } from "lucide-react";
-import "./lib/i18n"; // Import i18n configuration
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Loader2, HomeIcon, UsersIcon, CompassIcon, WalletIcon, PlayIcon, MailIcon, User, Settings, LogOut } from "lucide-react";
+import "./lib/i18n";
 
 function Router() {
   return (
@@ -35,12 +43,9 @@ function Router() {
   );
 }
 
-import { useIsMobile } from "@/hooks/use-mobile";
-
 function Header() {
   const { user, logoutMutation } = useAuth();
   const [, navigate] = useLocation();
-  const isMobile = useIsMobile();
 
   return (
     <header className="p-4 border-b">
@@ -80,24 +85,43 @@ function Header() {
           <LanguageSwitcher />
           {user ? (
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
-                Welcome, {user.displayName || user.username}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  logoutMutation.mutate();
-                  navigate("/");
-                }}
-                disabled={logoutMutation.isPending}
-              >
-                {logoutMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Logout"
-                )}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-2">
+                    <span className="text-sm">
+                      {user.displayName || user.username}
+                    </span>
+                    <User className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)}>
+                    <User className="w-4 h-4 mr-2" />
+                    View Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      logoutMutation.mutate();
+                      navigate("/");
+                    }}
+                    disabled={logoutMutation.isPending}
+                    className="text-red-500 focus:text-red-500"
+                  >
+                    {logoutMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <LogOut className="w-4 h-4 mr-2" />
+                    )}
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ) : (
             <Button
