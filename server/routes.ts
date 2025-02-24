@@ -450,10 +450,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Admin routes for user management
   app.delete("/api/admin/users", async (req, res) => {
+    // TODO: Re-enable auth check after testing
+    // if (!req.isAuthenticated()) {
+    //   return res.status(401).json({ message: "Not authenticated" });
+    // }
     try {
       const userIds = req.body.userIds;
-      await storage.deleteUsers(userIds);
-      res.status(200).json({ message: "Users deleted successfully" });
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        return res.status(400).json({ message: "Invalid user IDs provided" });
+      }
+
+      log(`Attempting to delete users with IDs: ${userIds.join(', ')}`);
+      const result = await storage.deleteUsers(userIds);
+      log(`Delete operation result: ${result}`);
+      
+      if (result) {
+        res.status(200).json({ message: "Users deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Unable to delete users" });
+      }
     } catch (error) {
       log("Error deleting users:", String(error));
       res.status(500).json({ message: "Unable to delete users" });

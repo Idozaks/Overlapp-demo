@@ -1,7 +1,7 @@
 import { users, posts, comments, connections, likes, wallets, nfts, transactions } from "@shared/schema";
 import { type User, type InsertUser, type Post, type Comment, type Connection, type Wallet, type NFT, type Transaction, type InsertNFT, type InsertWallet } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, inArray, or } from "drizzle-orm";
+import { eq, desc, and, inArray, or, sql } from "drizzle-orm";
 import { log } from "./vite";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
@@ -150,8 +150,54 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async deleteUsers(userIds: number[]): Promise<void> {
-    await db.delete(users).where(inArray(users.id, userIds));
+  async deleteUsers(userIds: number[]): Promise<boolean> {
+    try {
+      log(`Starting deletion of users: ${userIds.join(', ')}`);
+      
+      // Delete in transaction to ensure atomicity
+      const result = await db.transaction(async (tx) => {
+        log(`Starting transaction to delete users: ${userIds.join(',')}`);
+        
+        // Delete wallet transactions
+        const deletedLikes = await tx.delete(likes).where(inArray(likes.userId, userIds)).returning();
+        log(`Deleted ${deletedLikes.length} likes`);
+        
+        const deletedComments = await tx.delete(comments).where(inArray(comments.userId, userIds)).returning();
+        log(`Deleted ${deletedComments.length} comments`);
+        
+        const deletedPosts = await tx.delete(posts).where(inArray(posts.userId, userIds)).returning();
+        log(`Deleted ${deletedPosts.length} posts`);
+        
+        const deletedConnections1 = await tx.delete(connections).where(inArray(connections.followerId, userIds)).returning();
+        const deletedConnections2 = await tx.delete(connections).where(inArray(connections.followingId, userIds)).returning();
+        log(`Deleted ${deletedConnections1.length + deletedConnections2.length} connections`);
+        
+        const walletIds = await tx
+          .select({ id: wallets.id })
+          .from(wallets)
+          .where(inArray(wallets.userId, userIds));
+        
+        if (walletIds.length > 0) {
+          const wIds = walletIds.map(w => w.id);
+          await tx.delete(transactions).where(inArray(transactions.fromWalletId, wIds));
+          await tx.delete(transactions).where(inArray(transactions.toWalletId, wIds));
+        }
+        
+        await tx.delete(nfts).where(inArray(nfts.ownerId, userIds));
+        await tx.delete(nfts).where(inArray(nfts.creatorId, userIds));
+        await tx.delete(wallets).where(inArray(wallets.userId, userIds));
+        
+        const deleted = await tx.delete(users).where(inArray(users.id, userIds)).returning();
+        return deleted;
+      });
+      
+      log(`Successfully deleted ${result.length} users`);
+      return result.length > 0;
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : String(error);
+      log(`Failed to delete users: ${errMsg}`);
+      return false; // Return false instead of throwing
+    }
   }
 
   async updateUserCredentials(userId: number, username: string, password: string): Promise<void> {
