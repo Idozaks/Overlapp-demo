@@ -59,7 +59,6 @@ export default function Profile() {
     },
     onError: (error) => {
       console.error("Follow mutation error:", error);
-      //Add user-friendly error handling here.
     }
   });
 
@@ -78,11 +77,9 @@ export default function Profile() {
     },
     onError: (error) => {
       console.error("Unfollow mutation error:", error);
-      //Add user-friendly error handling here.
     }
   });
 
-  // Handle invalid ID
   if (!userId || isNaN(userId)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -95,7 +92,6 @@ export default function Profile() {
     );
   }
 
-  // Show loading state
   if (loadingUser || loadingPosts) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -116,7 +112,8 @@ export default function Profile() {
     );
   }
 
-  const isFollowing = followers?.followers?.some(follower => follower.id === currentUser.id);
+  const isFollowing = followers?.followers?.some(follower => follower.id === currentUser?.id);
+  const isOwnProfile = currentUser?.id === userId;
 
   const handleFollowToggle = async () => {
     if (isFollowing) {
@@ -149,7 +146,7 @@ export default function Profile() {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    {userId === currentUser.id ? (
+                    {isOwnProfile ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -159,17 +156,19 @@ export default function Profile() {
                         Edit Profile
                       </Button>
                     ) : (
-                      <Button
-                        onClick={handleFollowToggle}
-                        disabled={followMutation.isPending || unfollowMutation.isPending}
-                        variant={isFollowing ? "outline" : "default"}
-                      >
-                        {followMutation.isPending || unfollowMutation.isPending ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          isFollowing ? "Unfollow" : "Follow"
-                        )}
-                      </Button>
+                      currentUser && (
+                        <Button
+                          onClick={handleFollowToggle}
+                          disabled={followMutation.isPending || unfollowMutation.isPending}
+                          variant={isFollowing ? "outline" : "default"}
+                        >
+                          {followMutation.isPending || unfollowMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            isFollowing ? "Unfollow" : "Follow"
+                          )}
+                        </Button>
+                      )
                     )}
                   </div>
                 </div>
