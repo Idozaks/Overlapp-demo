@@ -22,6 +22,13 @@ export default function UserSuggestions() {
 
   const { data, isLoading } = useQuery<{ users: (User & { isFollowing?: boolean })[] }>({
     queryKey: USERS_QUERY_KEY,
+    queryFn: async () => {
+      const response = await apiRequest(`/api/users${currentUserId ? `?currentUserId=${currentUserId}` : ''}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      return response.json();
+    },
   });
 
   const followMutation = useMutation({
