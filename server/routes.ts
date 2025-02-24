@@ -306,9 +306,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add the update user endpoint
-  import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 
 const upload = multer({
   storage: multer.diskStorage({
