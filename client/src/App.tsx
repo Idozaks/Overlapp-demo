@@ -15,7 +15,7 @@ import Profile from "@/pages/social/Profile";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, HomeIcon, UsersIcon, CompassIcon, WalletIcon, PlayIcon, MailIcon } from "lucide-react";
 import "./lib/i18n"; // Import i18n configuration
 
 function Router() {
@@ -42,18 +42,36 @@ function Header() {
   return (
     <header className="p-4 border-b">
       <div className="container mx-auto flex justify-between items-center">
-        <nav className="flex gap-4">
-          <a href="/" className="text-foreground hover:text-primary">Home</a>
+        <nav className="flex gap-6">
+          <a href="/" className="text-foreground hover:text-primary flex items-center gap-2">
+            <HomeIcon className="w-4 h-4" />
+            Home
+          </a>
           {user ? (
             <>
-              <a href="/social" className="text-foreground hover:text-primary">Social</a>
-              <a href="/social/explore" className="text-foreground hover:text-primary">Explore</a>
-              <a href="/wallet" className="text-foreground hover:text-primary">Wallet</a>
+              <a href="/social" className="text-foreground hover:text-primary flex items-center gap-2">
+                <UsersIcon className="w-4 h-4" />
+                Social
+              </a>
+              <a href="/social/explore" className="text-foreground hover:text-primary flex items-center gap-2">
+                <CompassIcon className="w-4 h-4" />
+                Explore
+              </a>
+              <a href="/wallet" className="text-foreground hover:text-primary flex items-center gap-2">
+                <WalletIcon className="w-4 h-4" />
+                Wallet
+              </a>
             </>
           ) : (
-            <a href="/demo" className="text-foreground hover:text-primary">Demo</a>
+            <a href="/demo" className="text-foreground hover:text-primary flex items-center gap-2">
+              <PlayIcon className="w-4 h-4" />
+              Demo
+            </a>
           )}
-          <a href="/contact" className="text-foreground hover:text-primary">Contact</a>
+          <a href="/contact" className="text-foreground hover:text-primary flex items-center gap-2">
+            <MailIcon className="w-4 h-4" />
+            Contact
+          </a>
         </nav>
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
