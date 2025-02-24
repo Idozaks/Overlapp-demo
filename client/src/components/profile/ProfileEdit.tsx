@@ -214,8 +214,20 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
                     />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Or choose from predefined avatars:</p>
-                    <div className="grid grid-cols-5 gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="mb-2"
+                      onClick={() => {
+                        const elem = document.getElementById('avatar-grid');
+                        if (elem) {
+                          elem.style.display = elem.style.display === 'none' ? 'grid' : 'none';
+                        }
+                      }}
+                    >
+                      Pick from predefined avatars
+                    </Button>
+                    <div id="avatar-grid" className="grid grid-cols-5 gap-2" style={{display: 'none'}}>
                       {Array.from({length: 20}, (_, i) => (
                         <div 
                           key={i}
