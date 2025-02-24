@@ -6,6 +6,7 @@ import { useLocation } from "wouter";
 import type { User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function UserSuggestions() {
   const [, navigate] = useLocation();
