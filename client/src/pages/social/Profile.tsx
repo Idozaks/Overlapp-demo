@@ -1,6 +1,7 @@
 import { useParams } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit2 } from "lucide-react";
@@ -21,9 +22,7 @@ export default function Profile() {
   const userId = id ? parseInt(id) : null;
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-
-  // For demo purposes, using a hardcoded currentUserId
-  const currentUserId = 1;
+  const { user: currentUser } = useAuth();
 
   const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
     queryKey: [`/api/users/${userId}`],
@@ -47,26 +46,40 @@ export default function Profile() {
 
   const followMutation = useMutation({
     mutationFn: async () => {
+      if (!currentUser?.id) {
+        throw new Error("You must be logged in to follow users.");
+      }
       await apiRequest(`/api/users/${userId}/follow`, {
         method: 'POST',
-        body: { followerId: currentUserId }, // Remove JSON.stringify
+        body: { followerId: currentUser.id },
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/followers`] });
     },
+    onError: (error) => {
+      console.error("Follow mutation error:", error);
+      //Add user-friendly error handling here.
+    }
   });
 
   const unfollowMutation = useMutation({
     mutationFn: async () => {
+      if (!currentUser?.id) {
+        throw new Error("You must be logged in to unfollow users.");
+      }
       await apiRequest(`/api/users/${userId}/follow`, {
         method: 'DELETE',
-        body: { followerId: currentUserId }, // Remove JSON.stringify
+        body: { followerId: currentUser.id },
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/followers`] });
     },
+    onError: (error) => {
+      console.error("Unfollow mutation error:", error);
+      //Add user-friendly error handling here.
+    }
   });
 
   // Handle invalid ID
@@ -103,7 +116,7 @@ export default function Profile() {
     );
   }
 
-  const isFollowing = followers?.followers?.some(follower => follower.id === currentUserId);
+  const isFollowing = followers?.followers?.some(follower => follower.id === currentUser.id);
 
   const handleFollowToggle = async () => {
     if (isFollowing) {
@@ -136,7 +149,7 @@ export default function Profile() {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    {userId === currentUserId ? (
+                    {userId === currentUser.id ? (
                       <Button
                         variant="outline"
                         size="sm"
