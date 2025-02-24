@@ -22,6 +22,13 @@ export default function UserSuggestions() {
 
   const { data, isLoading } = useQuery<{ users: (User & { isFollowing?: boolean })[] }>({
     queryKey: USERS_QUERY_KEY,
+    queryFn: async () => {
+      const response = await apiRequest(`/api/users${currentUserId ? `?currentUserId=${currentUserId}` : ''}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      return response.json();
+    },
   });
 
   const followMutation = useMutation({
@@ -147,7 +154,7 @@ export default function UserSuggestions() {
       });
       return;
     }
-    
+
     try {
       if (isFollowing) {
         await unfollowMutation.mutateAsync(userId);
@@ -219,9 +226,11 @@ export default function UserSuggestions() {
               size="sm"
               onClick={() => handleFollow(user.id, user.isFollowing || false)}
               disabled={
+                !currentUserId ||
                 (followMutation.isPending && followMutation.variables === user.id) ||
                 (unfollowMutation.isPending && unfollowMutation.variables === user.id)
               }
+              className={user.isFollowing ? "hover:bg-destructive hover:text-destructive-foreground" : ""}
             >
               {((followMutation.isPending && followMutation.variables === user.id) ||
                 (unfollowMutation.isPending && unfollowMutation.variables === user.id)) ? (
