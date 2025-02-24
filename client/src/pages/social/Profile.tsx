@@ -4,11 +4,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader2, Edit2 } from "lucide-react";
+import { Loader2, Edit2, AtSign, Calendar } from "lucide-react";
 import { Link } from "wouter";
 import PostList from "@/components/social/PostList";
 import type { User, PostWithUser } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 export default function Profile() {
   const { id } = useParams();
@@ -115,65 +117,111 @@ export default function Profile() {
     }
   };
 
+  const interests = user.user.preferences?.interests || [];
+  const retailPreferences = user.user.preferences?.retailPreferences || [];
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <Card className="mb-8">
           <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <Avatar className="w-20 h-20">
-                <AvatarFallback>{user.user.displayName?.[0] || "U"}</AvatarFallback>
-                {user.user.avatar && (
-                  <AvatarImage src={user.user.avatar} alt={user.user.displayName || "User"} />
-                )}
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
+            <div className="flex flex-col md:flex-row items-start gap-6">
+              <div className="w-full md:w-1/3">
+                <Avatar className="w-32 h-32 mx-auto md:mx-0">
+                  <AvatarFallback>{user.user.displayName?.[0] || "U"}</AvatarFallback>
+                  {user.user.avatar && (
+                    <AvatarImage src={user.user.avatar} alt={user.user.displayName || "User"} />
+                  )}
+                </Avatar>
+
+                <div className="mt-4 text-center md:text-left">
+                  <h1 className="text-2xl font-bold">
+                    {user.user.displayName || "Anonymous"}
+                  </h1>
+                  <p className="text-muted-foreground flex items-center gap-2 mt-2">
+                    <AtSign className="w-4 h-4" />
+                    {user.user.username}
+                  </p>
+                  {user.user.createdAt && (
+                    <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                      <Calendar className="w-4 h-4" />
+                      Joined {format(new Date(user.user.createdAt), 'MMMM yyyy')}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-4 mt-6">
+                  {isOwnProfile ? (
+                    <Link href={`/profile/${userId}/edit`}>
+                      <Button
+                        variant="outline"
+                        className="w-full cursor-pointer"
+                      >
+                        <Edit2 className="w-4 h-4 mr-2" />
+                        Edit Profile
+                      </Button>
+                    </Link>
+                  ) : (
+                    currentUser && (
+                      <Button
+                        onClick={handleFollowToggle}
+                        disabled={followMutation.isPending || unfollowMutation.isPending}
+                        variant={isFollowing ? "outline" : "default"}
+                        className="w-full"
+                      >
+                        {followMutation.isPending || unfollowMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          isFollowing ? "Unfollow" : "Follow"
+                        )}
+                      </Button>
+                    )
+                  )}
+
+                  <div className="flex gap-4 justify-center md:justify-start">
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">{followers?.followers?.length || 0}</span> followers
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">{following?.following?.length || 0}</span> following
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-full md:w-2/3 space-y-6">
+                {user.user.bio && (
                   <div>
-                    <h1 className="text-2xl font-bold mb-2">
-                      {user.user.displayName || "Anonymous"}
-                    </h1>
-                    {user.user.bio && (
-                      <p className="text-muted-foreground mb-4">{user.user.bio}</p>
-                    )}
+                    <h2 className="text-lg font-semibold mb-2">About</h2>
+                    <p className="text-muted-foreground">{user.user.bio}</p>
                   </div>
-                  <div className="flex gap-2">
-                    {isOwnProfile ? (
-                      <Link href={`/profile/${userId}/edit`}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="cursor-pointer"
-                        >
-                          <Edit2 className="w-4 h-4 mr-2" />
-                          Edit Profile
-                        </Button>
-                      </Link>
-                    ) : (
-                      currentUser && (
-                        <Button
-                          onClick={handleFollowToggle}
-                          disabled={followMutation.isPending || unfollowMutation.isPending}
-                          variant={isFollowing ? "outline" : "default"}
-                        >
-                          {followMutation.isPending || unfollowMutation.isPending ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            isFollowing ? "Unfollow" : "Follow"
-                          )}
-                        </Button>
-                      )
-                    )}
+                )}
+
+                {interests.length > 0 && (
+                  <div>
+                    <h2 className="text-lg font-semibold mb-2">Interests</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {interests.map(interest => (
+                        <Badge key={interest} variant="secondary">
+                          {interest}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-4 mt-4">
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-semibold text-foreground">{followers?.followers?.length || 0}</span> followers
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-semibold text-foreground">{following?.following?.length || 0}</span> following
-                  </p>
-                </div>
+                )}
+
+                {retailPreferences.length > 0 && (
+                  <div>
+                    <h2 className="text-lg font-semibold mb-2">Shopping Preferences</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {retailPreferences.map(preference => (
+                        <Badge key={preference} variant="outline">
+                          {preference}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

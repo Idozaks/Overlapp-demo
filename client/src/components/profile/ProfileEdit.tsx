@@ -193,24 +193,56 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
             <FormItem>
               <FormLabel>{t("profile.avatar")}</FormLabel>
               <FormControl>
-                <div className="flex gap-2">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        onChange(file);
-                      }
-                    }}
-                    {...field}
-                  />
-                  <Input
-                    type="text"
-                    placeholder="Or enter URL"
-                    onChange={(e) => onChange(e.target.value)}
-                    value={typeof value === 'string' ? value : ''}
-                  />
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          onChange(file);
+                        }
+                      }}
+                      {...field}
+                    />
+                    <Input
+                      type="text"
+                      placeholder="Or enter URL"
+                      onChange={(e) => onChange(e.target.value)}
+                      value={typeof value === 'string' ? value : ''}
+                    />
+                  </div>
+                  <div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="mb-2"
+                      onClick={() => {
+                        const elem = document.getElementById('avatar-grid');
+                        if (elem) {
+                          elem.style.display = elem.style.display === 'none' ? 'grid' : 'none';
+                        }
+                      }}
+                    >
+                      Pick from predefined avatars
+                    </Button>
+                    <div id="avatar-grid" className="grid grid-cols-5 gap-2" style={{display: 'none'}}>
+                      {Array.from({length: 20}, (_, i) => (
+                        <div 
+                          key={i}
+                          className={`cursor-pointer rounded-lg p-1 hover:bg-accent ${value === `https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}` ? 'ring-2 ring-primary' : ''}`}
+                          onClick={() => onChange(`https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}`)}
+                        >
+                          <img
+                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}`}
+                            alt={`Avatar ${i+1}`}
+                            className="w-full h-auto rounded"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </FormControl>
               <FormMessage />
