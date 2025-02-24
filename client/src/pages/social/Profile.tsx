@@ -5,23 +5,15 @@ import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit2 } from "lucide-react";
+import { Link } from "wouter";
 import PostList from "@/components/social/PostList";
-import ProfileEdit from "@/components/profile/ProfileEdit";
 import type { User, PostWithUser } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 export default function Profile() {
   const { id } = useParams();
   const userId = id ? parseInt(id) : null;
   const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
   const { user: currentUser } = useAuth();
 
   const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
@@ -147,14 +139,16 @@ export default function Profile() {
                   </div>
                   <div className="flex gap-2">
                     {isOwnProfile ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setIsEditing(true)}
-                      >
-                        <Edit2 className="w-4 h-4 mr-2" />
-                        Edit Profile
-                      </Button>
+                      <Link href={`/profile/${userId}/edit`}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="cursor-pointer"
+                        >
+                          <Edit2 className="w-4 h-4 mr-2" />
+                          Edit Profile
+                        </Button>
+                      </Link>
                     ) : (
                       currentUser && (
                         <Button
@@ -189,18 +183,6 @@ export default function Profile() {
           <h2 className="text-xl font-semibold">Posts</h2>
           <PostList posts={posts?.posts || []} />
         </div>
-
-        <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Profile</DialogTitle>
-            </DialogHeader>
-            <ProfileEdit 
-              user={user.user} 
-              onSuccess={() => setIsEditing(false)} 
-            />
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );

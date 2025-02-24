@@ -12,6 +12,7 @@ import Contact from "@/pages/Contact";
 import SocialHub from "@/pages/social/SocialHub";
 import ExploreUsers from "@/pages/social/ExploreUsers";
 import Profile from "@/pages/social/Profile";
+import ProfileEdit from "@/pages/social/ProfileEdit"; // Added import
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/social" component={SocialHub} />
       <Route path="/social/explore" component={ExploreUsers} />
       <Route path="/profile/:id" component={Profile} />
+      <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/wallet" component={WalletDashboard} />
       <Route component={NotFound} />
     </Switch>
@@ -100,7 +102,7 @@ function Header() {
                     <User className="w-4 h-4 mr-2" />
                     View Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)}>
+                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}/edit`)}> {/*Updated Navigation*/}
                     <Settings className="w-4 h-4 mr-2" />
                     Edit Profile
                   </DropdownMenuItem>

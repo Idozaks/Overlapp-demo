@@ -41,7 +41,7 @@ const profileUpdateSchema = z.object({
 
 type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 
-interface ProfileEditProps {
+interface ProfileEditFormProps {
   user: User;
   onSuccess?: () => void;
 }
@@ -57,7 +57,7 @@ const RETAIL_PREFERENCES = [
   "Office Supplies", "Food & Beverage"
 ];
 
-export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
+export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -138,102 +138,100 @@ export default function ProfileEdit({ user, onSuccess }: ProfileEditProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="space-y-6">
-          <FormField
-            control={form.control}
-            name="displayName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("profile.displayName")}</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="displayName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("profile.displayName")}</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="bio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("profile.bio")}</FormLabel>
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                <FormDescription>
-                  {t("profile.bioDescription")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="bio"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("profile.bio")}</FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
+              <FormDescription>
+                {t("profile.bioDescription")}
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="avatar"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("profile.avatarUrl")}</FormLabel>
-                <FormControl>
-                  <Input {...field} type="url" placeholder="https://example.com/avatar.jpg" />
-                </FormControl>
-                <FormDescription>
-                  {t("profile.avatarDescription")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="avatar"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("profile.avatarUrl")}</FormLabel>
+              <FormControl>
+                <Input {...field} type="url" placeholder="https://example.com/avatar.jpg" />
+              </FormControl>
+              <FormDescription>
+                {t("profile.avatarDescription")}
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <div className="space-y-4">
-            <FormLabel>{t("profile.interests")}</FormLabel>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_INTERESTS.map(interest => (
-                <Badge
-                  key={interest}
-                  variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => toggleInterest(interest)}
-                >
-                  {interest}
-                </Badge>
-              ))}
-            </div>
+        <div className="space-y-4">
+          <FormLabel>{t("profile.interests")}</FormLabel>
+          <div className="flex flex-wrap gap-2">
+            {AVAILABLE_INTERESTS.map(interest => (
+              <Badge
+                key={interest}
+                variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={() => toggleInterest(interest)}
+              >
+                {interest}
+              </Badge>
+            ))}
           </div>
-
-          <div className="space-y-4">
-            <FormLabel>{t("profile.retailPreferences")}</FormLabel>
-            <div className="flex flex-wrap gap-2">
-              {RETAIL_PREFERENCES.map(preference => (
-                <Badge
-                  key={preference}
-                  variant={form.watch("preferences.retailPreferences")?.includes(preference) ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => toggleRetailPreference(preference)}
-                >
-                  {preference}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <Button
-            type="submit"
-            disabled={updateMutation.isPending}
-            className="w-full mt-6"
-          >
-            {updateMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t("common.updating")}
-              </>
-            ) : (
-              t("profile.updateProfile")
-            )}
-          </Button>
         </div>
+
+        <div className="space-y-4">
+          <FormLabel>{t("profile.retailPreferences")}</FormLabel>
+          <div className="flex flex-wrap gap-2">
+            {RETAIL_PREFERENCES.map(preference => (
+              <Badge
+                key={preference}
+                variant={form.watch("preferences.retailPreferences")?.includes(preference) ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={() => toggleRetailPreference(preference)}
+              >
+                {preference}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={updateMutation.isPending}
+          className="w-full mt-6"
+        >
+          {updateMutation.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t("common.updating")}
+            </>
+          ) : (
+            t("profile.updateProfile")
+          )}
+        </Button>
       </form>
     </Form>
   );
