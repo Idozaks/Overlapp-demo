@@ -152,7 +152,18 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUsers(userIds: number[]): Promise<boolean> {
     try {
-      // Delete related records first
+      // Delete wallet transactions first
+      await db.delete(transactions).where(sql`from_wallet_id IN (SELECT id FROM wallets WHERE user_id = ANY(${userIds}))`);
+      await db.delete(transactions).where(sql`to_wallet_id IN (SELECT id FROM wallets WHERE user_id = ANY(${userIds}))`);
+      
+      // Delete NFTs
+      await db.delete(nfts).where(inArray(nfts.ownerId, userIds));
+      await db.delete(nfts).where(inArray(nfts.creatorId, userIds));
+      
+      // Delete wallets
+      await db.delete(wallets).where(inArray(wallets.userId, userIds));
+      
+      // Delete related social records
       await db.delete(connections).where(inArray(connections.followerId, userIds));
       await db.delete(connections).where(inArray(connections.followingId, userIds));
       await db.delete(likes).where(inArray(likes.userId, userIds));
