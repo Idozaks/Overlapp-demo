@@ -29,10 +29,7 @@ const profileUpdateSchema = z.object({
     .max(500, { message: "Bio must be less than 500 characters" })
     .optional()
     .or(z.literal("")),
-  avatar: z.string()
-    .url({ message: "Please enter a valid URL" })
-    .optional()
-    .or(z.literal("")),
+  avatar: z.union([z.string().url({ message: "Please enter a valid URL" }), z.instanceof(File)]).optional().or(z.literal("")),
   preferences: z.object({
     interests: z.array(z.string()),
     retailPreferences: z.array(z.string())
@@ -78,9 +75,22 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
         throw new Error("Invalid user ID");
       }
 
+      const formData = new FormData();
+      formData.append('displayName', data.displayName);
+      formData.append('bio', data.bio);
+      if (data.avatar) {
+        if (typeof data.avatar === 'string') {
+          formData.append('avatar', data.avatar);
+        } else {
+          formData.append('avatar', data.avatar);
+        }
+      }
+      formData.append('preferences[interests]', JSON.stringify(data.preferences?.interests || []));
+      formData.append('preferences[retailPreferences]', JSON.stringify(data.preferences?.retailPreferences || []));
+
       const response = await apiRequest(`/api/users/${user.id}`, {
         method: "PATCH",
-        body: data
+        body: formData
       });
       const result = await response.json();
       if (!result.user) {
@@ -172,15 +182,30 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
         <FormField
           control={form.control}
           name="avatar"
-          render={({ field }) => (
+          render={({ field: { onChange, value, ...field } }) => (
             <FormItem>
-              <FormLabel>{t("profile.avatarUrl")}</FormLabel>
+              <FormLabel>{t("profile.avatar")}</FormLabel>
               <FormControl>
-                <Input {...field} type="url" placeholder="https://example.com/avatar.jpg" />
+                <div className="flex gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        onChange(file);
+                      }
+                    }}
+                    {...field}
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Or enter URL"
+                    onChange={(e) => onChange(e.target.value)}
+                    value={typeof value === 'string' ? value : ''}
+                  />
+                </div>
               </FormControl>
-              <FormDescription>
-                {t("profile.avatarDescription")}
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
