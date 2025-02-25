@@ -15,11 +15,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { User } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 const profileUpdateSchema = z.object({
   displayName: z.string()
@@ -45,7 +46,8 @@ interface ProfileEditFormProps {
 
 const AVAILABLE_INTERESTS = [
   "Technology", "Fashion", "Sports", "Art", "Music",
-  "Travel", "Food", "Fitness", "Gaming", "Books"
+  "Travel", "Food", "Fitness", "Gaming", "Books",
+  "Water Sports", "Photography", "Cooking", "Dance", "Movies"
 ];
 
 const RETAIL_PREFERENCES = [
@@ -58,6 +60,8 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [suggestedInterests, setSuggestedInterests] = useState<string[]>([]);
+  const [isEnriching, setIsEnriching] = useState(false);
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -77,7 +81,7 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
 
       let body;
       let headers = {};
-      
+
       if (data.avatar instanceof File) {
         const formData = new FormData();
         formData.append('avatar', data.avatar);
@@ -122,6 +126,50 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
       });
     }
   });
+
+  const enrichInterestsMutation = useMutation({
+    mutationFn: async (interests: string[]) => {
+      const response = await apiRequest('/api/interests/enrich', {
+        method: 'POST',
+        body: { interests }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to enrich interests');
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setSuggestedInterests(data.suggestions);
+      toast({
+        title: t("profile.enrichSuccess"),
+        description: t("profile.enrichSuccessMessage")
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t("profile.enrichError"),
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleEnrichInterests = async () => {
+    const currentInterests = form.getValues("preferences.interests") || [];
+    if (currentInterests.length === 0) {
+      toast({
+        title: t("profile.enrichError"),
+        description: t("profile.selectInterestsFirst"),
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsEnriching(true);
+    await enrichInterestsMutation.mutateAsync(currentInterests);
+    setIsEnriching(false);
+  };
 
   const toggleInterest = (interest: string) => {
     const currentInterests = form.getValues("preferences.interests") || [];
@@ -227,16 +275,16 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
                     >
                       Pick from predefined avatars
                     </Button>
-                    <div id="avatar-grid" className="grid grid-cols-5 gap-2" style={{display: 'none'}}>
-                      {Array.from({length: 20}, (_, i) => (
-                        <div 
+                    <div id="avatar-grid" className="grid grid-cols-5 gap-2" style={{ display: 'none' }}>
+                      {Array.from({ length: 20 }, (_, i) => (
+                        <div
                           key={i}
                           className={`cursor-pointer rounded-lg p-1 hover:bg-accent ${value === `https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}` ? 'ring-2 ring-primary' : ''}`}
                           onClick={() => onChange(`https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}`)}
                         >
                           <img
                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}`}
-                            alt={`Avatar ${i+1}`}
+                            alt={`Avatar ${i + 1}`}
                             className="w-full h-auto rounded"
                           />
                         </div>
@@ -251,7 +299,24 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
         />
 
         <div className="space-y-4">
-          <FormLabel>{t("profile.interests")}</FormLabel>
+          <div className="flex justify-between items-center">
+            <FormLabel>{t("profile.interests")}</FormLabel>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleEnrichInterests}
+              disabled={isEnriching}
+              className="gap-2"
+            >
+              {isEnriching ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              {t("profile.enrichWithAI")}
+            </Button>
+          </div>
           <div className="flex flex-wrap gap-2">
             {AVAILABLE_INTERESTS.map(interest => (
               <Badge
@@ -264,6 +329,26 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
               </Badge>
             ))}
           </div>
+
+          {suggestedInterests.length > 0 && (
+            <div className="mt-4">
+              <FormLabel className="text-sm text-muted-foreground">
+                {t("profile.aiSuggestions")}
+              </FormLabel>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {suggestedInterests.map((interest, index) => (
+                  <Badge
+                    key={`suggestion-${index}`}
+                    variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}
+                    className="cursor-pointer bg-secondary/50"
+                    onClick={() => toggleInterest(interest)}
+                  >
+                    {interest}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
