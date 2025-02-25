@@ -12,6 +12,13 @@ export const users = pgTable("users", {
   preferences: jsonb("preferences").$type<{
     interests: string[];
     retailPreferences: string[];
+    privacySettings: {
+      shareLocation: boolean;
+      allowAiSuggestions: boolean;
+      publicProfile: boolean;
+      shareInterests: boolean;
+    };
+    onboardingCompleted: boolean;
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -85,7 +92,6 @@ export const likes = pgTable("likes", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Insert Schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -93,6 +99,18 @@ export const insertUserSchema = createInsertSchema(users).pick({
   avatar: true,
   bio: true,
   preferences: true,
+}).extend({
+  preferences: z.object({
+    interests: z.array(z.string()).optional(),
+    retailPreferences: z.array(z.string()).optional(),
+    privacySettings: z.object({
+      shareLocation: z.boolean(),
+      allowAiSuggestions: z.boolean(),
+      publicProfile: z.boolean(),
+      shareInterests: z.boolean(),
+    }).optional(),
+    onboardingCompleted: z.boolean().optional(),
+  }).optional(),
 });
 
 export const insertPostSchema = createInsertSchema(posts).pick({
@@ -124,7 +142,6 @@ export const insertTransactionSchema = createInsertSchema(transactions).pick({
   status: true,
 });
 
-// Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type InsertNFT = z.infer<typeof insertNFTSchema>;
@@ -139,7 +156,6 @@ export type NFT = typeof nfts.$inferSelect;
 export type Wallet = typeof wallets.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
 
-// Combined Types
 export type PostWithUser = Post & { user: User };
 export type NFTWithCreator = NFT & { creator: User };
 export type TransactionWithDetails = Transaction & {
