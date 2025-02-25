@@ -8,6 +8,7 @@ import {
 import { type User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 type LoginData = {
   username: string;
@@ -32,6 +33,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
 
   const {
     data: user,
@@ -79,6 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Success",
         description: "Successfully logged in",
       });
+      if (!loggedInUser.preferences?.onboardingCompleted) {
+        navigate("/onboarding");
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -109,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Success",
         description: "Account created successfully",
       });
+      navigate("/onboarding");
     },
     onError: (error: Error) => {
       toast({
