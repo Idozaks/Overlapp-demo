@@ -42,8 +42,13 @@ export function setupAuth(app: Express) {
   app.use(passport.session());
 
   passport.serializeUser((user: Express.User, done) => {
-    log(`[AUTH] Serializing user: ${user.id}`);
-    done(null, user.id);
+    try {
+      log(`[AUTH] Serializing user: ${user.id}`);
+      done(null, user.id);
+    } catch (error) {
+      log(`[AUTH] Error serializing user:`, error);
+      done(error);
+    }
   });
 
   passport.deserializeUser(async (id: number, done) => {
@@ -65,7 +70,7 @@ export function setupAuth(app: Express) {
   passport.use(new LocalStrategy(async (username, password, done) => {
     try {
       log(`[AUTH] Login attempt for user: ${username}`);
-      const user = await storage.validateUserCredentials(username, password);
+      const user = await storage.getUserByUsername(username);
 
       if (!user) {
         log(`[AUTH] Invalid credentials for user: ${username}`);
@@ -84,7 +89,6 @@ export function setupAuth(app: Express) {
       return done(error);
     }
   }));
-
   app.post("/api/register", async (req, res) => {
     try {
       const existingUser = await storage.getUserByUsername(req.body.username);
