@@ -1,4 +1,4 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express, { type Request, type Response, type NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { db, sql } from "./db";
@@ -27,47 +27,11 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// 2. Request logging (before auth to catch all requests)
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  // Log incoming request details
-  log(`[REQUEST] ${req.method} ${path}`);
-  log(`[COOKIES] ${JSON.stringify(req.cookies)}`);
-  log(`[SESSION] ${req.sessionID || 'No session'}`);
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
-  next();
-});
-
 // Set trust proxy first
 app.set('trust proxy', 1);
 
 // Configure session middleware
-app.use(session({
+const sessionConfig = {
   store: storage.sessionStore,
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
@@ -76,15 +40,30 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' as const : 'lax' as const
   },
   name: 'overlapp.sid' // Custom session cookie name
-}));
+};
 
-// Add cookie parser after session middleware
+// Add cookie parser and session before auth
 app.use(cookieParser());
+app.use(session(sessionConfig));
 
-// Auth setup (after session middleware)
+// Add detailed request logging
+app.use((req, res, next) => {
+  const start = Date.now();
+  log(`[REQUEST] ${req.method} ${req.path}`);
+  log(`[SESSION] ID: ${req.sessionID}, Authenticated: ${req.isAuthenticated?.()}`);
+
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    log(`[RESPONSE] ${req.method} ${req.path} ${res.statusCode} (${duration}ms)`);
+  });
+
+  next();
+});
+
+// Setup auth after session middleware
 setupAuth(app);
 
 (async () => {
@@ -102,9 +81,17 @@ setupAuth(app);
       throw error;
     }
 
-    log("Registering routes...");
+    log("Setting up server environment...");
     const server = await registerRoutes(app);
-    log("Routes registered successfully");
+
+    if (app.get("env") === "development") {
+      log("Setting up Vite in development mode...");
+      await setupVite(app, server);
+      log("Vite setup complete");
+    } else {
+      log("Setting up static file serving...");
+      serveStatic(app);
+    }
 
     // Enhanced error middleware
     app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
@@ -135,16 +122,6 @@ setupAuth(app);
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
       });
     });
-
-    log("Setting up server environment...");
-    if (app.get("env") === "development") {
-      log("Setting up Vite in development mode...");
-      await setupVite(app, server);
-      log("Vite setup complete");
-    } else {
-      log("Setting up static file serving...");
-      serveStatic(app);
-    }
 
     // Ensure we use port 5000 for consistency
     const PORT = 5000;
