@@ -1,4 +1,4 @@
-import { users, posts, comments, connections, likes, wallets, nfts, transactions } from "@shared/schema";
+import { users, posts, comments, connections, likes, wallets, nfts, transactions, interests, interestContent, userInterests, type Interest, type InterestContent, type UserInterest, type InsertInterest, type InsertInterestContent, type InsertUserInterest } from "@shared/schema";
 import { type User, type InsertUser, type Post, type Comment, type Connection, type Wallet, type NFT, type Transaction, type InsertNFT, type InsertWallet } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, inArray, or, sql } from "drizzle-orm";
@@ -57,6 +57,16 @@ export interface IStorage {
 
   // Add specific auth methods
   validateUserCredentials(username: string, password: string): Promise<User | null>;
+
+  // Interest operations
+  getInterests(): Promise<Interest[]>;
+  getInterestsByCategory(category: string): Promise<Interest[]>;
+  getInterest(id: number): Promise<Interest | undefined>;
+  getInterestContent(interestId: number): Promise<InterestContent[]>;
+  getUserInterests(userId: number): Promise<Interest[]>;
+  addUserInterest(userId: number, interestId: number): Promise<void>;
+  removeUserInterest(userId: number, interestId: number): Promise<void>;
+  addInterestContent(content: InsertInterestContent): Promise<InterestContent>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -153,44 +163,44 @@ export class DatabaseStorage implements IStorage {
   async deleteUsers(userIds: number[]): Promise<boolean> {
     try {
       log(`Starting deletion of users: ${userIds.join(', ')}`);
-      
+
       // Delete in transaction to ensure atomicity
       const result = await db.transaction(async (tx) => {
         log(`Starting transaction to delete users: ${userIds.join(',')}`);
-        
+
         // Delete wallet transactions
         const deletedLikes = await tx.delete(likes).where(inArray(likes.userId, userIds)).returning();
         log(`Deleted ${deletedLikes.length} likes`);
-        
+
         const deletedComments = await tx.delete(comments).where(inArray(comments.userId, userIds)).returning();
         log(`Deleted ${deletedComments.length} comments`);
-        
+
         const deletedPosts = await tx.delete(posts).where(inArray(posts.userId, userIds)).returning();
         log(`Deleted ${deletedPosts.length} posts`);
-        
+
         const deletedConnections1 = await tx.delete(connections).where(inArray(connections.followerId, userIds)).returning();
         const deletedConnections2 = await tx.delete(connections).where(inArray(connections.followingId, userIds)).returning();
         log(`Deleted ${deletedConnections1.length + deletedConnections2.length} connections`);
-        
+
         const walletIds = await tx
           .select({ id: wallets.id })
           .from(wallets)
           .where(inArray(wallets.userId, userIds));
-        
+
         if (walletIds.length > 0) {
           const wIds = walletIds.map(w => w.id);
           await tx.delete(transactions).where(inArray(transactions.fromWalletId, wIds));
           await tx.delete(transactions).where(inArray(transactions.toWalletId, wIds));
         }
-        
+
         await tx.delete(nfts).where(inArray(nfts.ownerId, userIds));
         await tx.delete(nfts).where(inArray(nfts.creatorId, userIds));
         await tx.delete(wallets).where(inArray(wallets.userId, userIds));
-        
+
         const deleted = await tx.delete(users).where(inArray(users.id, userIds)).returning();
         return deleted;
       });
-      
+
       log(`Successfully deleted ${result.length} users`);
       return result.length > 0;
     } catch (error) {
@@ -201,7 +211,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserCredentials(userId: number, username: string, password: string): Promise<void> {
-    await db.update(users)
+    await db
+      .update(users)
       .set({ username, password })
       .where(eq(users.id, userId));
   }
@@ -473,6 +484,70 @@ export class DatabaseStorage implements IStorage {
         { name: `${interest} Item 2`, price: Math.floor(Math.random() * 100) + 20 }
       ]
     }));
+  }
+
+  async getInterests(): Promise<Interest[]> {
+    return await db.select().from(interests);
+  }
+
+  async getInterestsByCategory(category: string): Promise<Interest[]> {
+    return await db
+      .select()
+      .from(interests)
+      .where(eq(interests.category, category));
+  }
+
+  async getInterest(id: number): Promise<Interest | undefined> {
+    const [interest] = await db
+      .select()
+      .from(interests)
+      .where(eq(interests.id, id));
+    return interest;
+  }
+
+  async getInterestContent(interestId: number): Promise<InterestContent[]> {
+    return await db
+      .select()
+      .from(interestContent)
+      .where(eq(interestContent.interestId, interestId))
+      .orderBy(desc(interestContent.createdAt));
+  }
+
+  async getUserInterests(userId: number): Promise<Interest[]> {
+    const result = await db
+      .select({
+        interest: interests
+      })
+      .from(interests)
+      .innerJoin(userInterests, eq(userInterests.interestId, interests.id))
+      .where(eq(userInterests.userId, userId));
+
+    return result.map(({ interest }) => interest);
+  }
+
+  async addUserInterest(userId: number, interestId: number): Promise<void> {
+    await db
+      .insert(userInterests)
+      .values({ userId, interestId });
+  }
+
+  async removeUserInterest(userId: number, interestId: number): Promise<void> {
+    await db
+      .delete(userInterests)
+      .where(
+        and(
+          eq(userInterests.userId, userId),
+          eq(userInterests.interestId, interestId)
+        )
+      );
+  }
+
+  async addInterestContent(content: InsertInterestContent): Promise<InterestContent> {
+    const [newContent] = await db
+      .insert(interestContent)
+      .values(content)
+      .returning();
+    return newContent;
   }
 }
 
