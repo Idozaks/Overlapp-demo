@@ -13,7 +13,6 @@ const dbLog = (message: string, data?: any) => {
     log(logMessage);
   }
 };
-
 import { sql } from "drizzle-orm";
 
 neonConfig.webSocketConstructor = ws;
@@ -24,17 +23,11 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-dbLog("Initializing database connection pool...");
+log("Initializing database connection pool...");
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-// Test the database connection
-pool.connect()
-  .then(() => dbLog("Successfully connected to database"))
-  .catch(err => dbLog("Error connecting to database:", err));
-
-dbLog("Creating Drizzle ORM instance...");
+log("Creating Drizzle ORM instance...");
 export const db = drizzle(pool, { schema });
-dbLog("Drizzle ORM instance created successfully");
 
 // Export sql for raw queries
 export { sql };

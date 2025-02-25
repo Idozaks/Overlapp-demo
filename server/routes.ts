@@ -29,16 +29,11 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Add startup logging
-  log("[SERVER] Starting server initialization...");
-
   app.use(express.json());
-  log("[SERVER] JSON middleware initialized");
 
   // Authentication setup
   app.use(passport.initialize());
   app.use(passport.session());
-  log("[SERVER] Passport authentication initialized");
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
@@ -87,41 +82,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...rest,
         username,
         password: hashedPassword,
-        preferences: {
-          interests: [],
-          retailPreferences: [],
-          privacySettings: {
-            shareLocation: true,
-            allowAiSuggestions: true,
-            publicProfile: true,
-            shareInterests: true,
-          },
-          onboardingCompleted: false,
-        },
       });
 
-      req.login(user, (err: Error | null) => {
+      req.login(user, (err) => {
         if (err) {
           return res.status(500).json({ message: "Error during login after registration" });
         }
         return res.status(201).json(user);
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      log("Registration error:", errorMessage);
+      log("Registration error:", error);
       res.status(500).json({ message: "Registration failed" });
     }
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
+    passport.authenticate("local", (err, user, info) => {
       if (err) {
         return res.status(500).json({ message: "Internal server error" });
       }
       if (!user) {
         return res.status(401).json({ message: info?.message || "Invalid credentials" });
       }
-      req.login(user, (err: Error | null) => {
+      req.login(user, (err) => {
         if (err) {
           return res.status(500).json({ message: "Error during login" });
         }
@@ -324,33 +307,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Add the update user endpoint
 
-  const upload = multer({
-    storage: multer.diskStorage({
-      destination: './uploads/',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-      }
-    }),
-    fileFilter: (req, file, cb) => {
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-      } else {
-        cb(new Error('Invalid file type'));
-      }
-    },
-    limits: {
-      fileSize: 5 * 1024 * 1024 // 5MB limit
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: './uploads/',
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
-  });
-
-  // Ensure uploads directory exists
-  if (!fs.existsSync('./uploads')) {
-    fs.mkdirSync('./uploads');
+  }),
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
   }
+});
 
-  app.patch("/api/users/:id", upload.single('avatar'), async (req, res) => {
+// Ensure uploads directory exists
+if (!fs.existsSync('./uploads')) {
+  fs.mkdirSync('./uploads');
+}
+
+app.patch("/api/users/:id", upload.single('avatar'), async (req, res) => {
     try {
       const userId = Number(req.params.id);
       if (isNaN(userId)) {
@@ -364,7 +347,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       let updateData = req.body;
-
+      
       // If file was uploaded, add the file path to update data
       if (req.file) {
         updateData = {
@@ -393,8 +376,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve uploaded files
-  app.use('/uploads', express.static('uploads'));
+// Serve uploaded files
+app.use('/uploads', express.static('uploads'));
 
 
   // Social Connections
@@ -523,7 +506,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       log(`Attempting to delete users with IDs: ${userIds.join(', ')}`);
       const result = await storage.deleteUsers(userIds);
       log(`Delete operation result: ${result}`);
-
+      
       if (result) {
         res.status(200).json({ message: "Users deleted successfully" });
       } else {
@@ -670,7 +653,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
-  log("[SERVER] HTTP server instance created");
   return httpServer;
 }
 

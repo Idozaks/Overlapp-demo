@@ -146,17 +146,20 @@ setupAuth(app);
       serveStatic(app);
     }
 
-    const PORT = 5000; // Always use port 5000 as specified
-    const HOST = '0.0.0.0';
-
+    const PORT = Number(process.env.PORT) || 3000;
     log(`Attempting to start server on port ${PORT}...`);
 
-    server.listen(PORT, HOST, () => {
-      log(`Server successfully started and listening on port ${PORT}`);
-      log(`Environment: ${app.get("env")}`);
-      log(`Database: ${process.env.PGDATABASE}`);
+    await new Promise<void>((resolve, reject) => {
+      server.listen(PORT, "0.0.0.0", () => {
+        log(`Server successfully started and listening on port ${PORT}`);
+        log(`Environment: ${app.get("env")}`);
+        log(`Database: ${process.env.PGDATABASE}`);
+        resolve();
+      }).on('error', (err) => {
+        log(`Failed to start server: ${err.message}`);
+        reject(err);
+      });
     });
-
   } catch (error) {
     log("Fatal error during server startup:");
     log(error instanceof Error ? error.stack || error.message : String(error));
