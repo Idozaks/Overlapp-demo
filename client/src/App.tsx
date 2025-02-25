@@ -12,7 +12,7 @@ import Contact from "@/pages/Contact";
 import SocialHub from "@/pages/social/SocialHub";
 import ExploreUsers from "@/pages/social/ExploreUsers";
 import Profile from "@/pages/social/Profile";
-import ProfileEdit from "@/pages/social/ProfileEdit"; // Added import
+import ProfileEdit from "@/pages/social/ProfileEdit";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Loader2, HomeIcon, UsersIcon, CompassIcon, WalletIcon, PlayIcon, MailIcon, User, Settings, LogOut } from "lucide-react";
+import { 
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "@/components/ui/drawer";
+import { Loader2, HomeIcon, UsersIcon, CompassIcon, WalletIcon, PlayIcon, MailIcon, User, Settings, LogOut, Menu } from "lucide-react";
 import "./lib/i18n";
 
 function Router() {
@@ -49,45 +57,75 @@ function Header() {
   const { user, logoutMutation } = useAuth();
   const [, navigate] = useLocation();
 
+  const NavigationLinks = () => (
+    <nav className="flex flex-col lg:flex-row gap-6">
+      <a href="/" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+        <HomeIcon className="w-4 h-4" />
+        Home
+      </a>
+      {user ? (
+        <>
+          <a href="/social" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+            <UsersIcon className="w-4 h-4" />
+            Social
+          </a>
+          <a href="/social/explore" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+            <CompassIcon className="w-4 h-4" />
+            Explore
+          </a>
+          <a href="/wallet" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+            <WalletIcon className="w-4 h-4" />
+            Wallet
+          </a>
+        </>
+      ) : (
+        <a href="/demo" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+          <PlayIcon className="w-4 h-4" />
+          Demo
+        </a>
+      )}
+      <a href="/contact" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+        <MailIcon className="w-4 h-4" />
+        Contact
+      </a>
+    </nav>
+  );
+
   return (
     <header className="p-4 border-b">
       <div className="container mx-auto">
         <div className="flex justify-between items-center">
-          <div className="overflow-x-auto pb-2 -mb-2">
-            <nav className="flex gap-6 min-w-max">
-              <a href="/" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-                <HomeIcon className="w-4 h-4" />
-                Home
-              </a>
-              {user ? (
-                <>
-                  <a href="/social" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-                    <UsersIcon className="w-4 h-4" />
-                    Social
-                  </a>
-                  <a href="/social/explore" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-                    <CompassIcon className="w-4 h-4" />
-                    Explore
-                  </a>
-                  <a href="/wallet" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-                    <WalletIcon className="w-4 h-4" />
-                    Wallet
-                  </a>
-                </>
-              ) : (
-                <a href="/demo" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-                  <PlayIcon className="w-4 h-4" />
-                  Demo
-                </a>
-              )}
-              <a href="/contact" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-                <MailIcon className="w-4 h-4" />
-                Contact
-              </a>
-            </nav>
+          {/* Mobile Menu */}
+          <div className="lg:hidden">
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Menu</DrawerTitle>
+                </DrawerHeader>
+                <div className="p-4">
+                  <NavigationLinks />
+                </div>
+                <DrawerFooter className="pt-2">
+                  <LanguageSwitcher />
+                </DrawerFooter>
+              </DrawerContent>
+            </Drawer>
           </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:block overflow-x-auto pb-2 -mb-2">
+            <NavigationLinks />
+          </div>
+
           <div className="flex items-center gap-4">
-            <LanguageSwitcher />
+            <div className="hidden lg:block">
+              <LanguageSwitcher />
+            </div>
             {user ? (
               <div className="flex items-center gap-4">
                 <DropdownMenu>
