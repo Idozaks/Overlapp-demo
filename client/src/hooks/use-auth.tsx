@@ -60,7 +60,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async (credentials: LoginData) => {
       const response = await apiRequest("/api/login", {
         method: "POST",
-        body: credentials,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
       });
 
       if (!response.ok) {

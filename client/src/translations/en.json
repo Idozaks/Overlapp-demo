@@ -37,6 +37,50 @@
         "sync": {
           "title": "Real-time Synchronization",
           "description": "Stay synchronized across all your devices and physical locations instantly"
+        },
+        "ai_world": {
+          "title": "Overlap with AI World",
+          "subtitle": "Experience the seamless fusion of physical and digital identities powered by advanced AI technology",
+          "analysis": {
+            "title": "AI-Powered Identity Analysis",
+            "description": "Advanced machine learning algorithms analyze and verify digital-physical identity connections in real-time"
+          },
+          "digital_twin": {
+            "title": "Digital Twin Technology",
+            "description": "Create and maintain secure digital representations of physical identities with real-time synchronization"
+          },
+          "verification": {
+            "title": "Secure Identity Verification", 
+            "description": "Blockchain-backed verification ensures the authenticity and security of phygital identities"
+          },
+          "global_network": {
+            "title": "Global Identity Network",
+            "description": "Connect and verify identities across borders with our distributed identity management system"
+          },
+          "location": {
+            "title": "Location Intelligence",
+            "description": "Smart location tracking and verification for seamless physical-digital presence management"
+          },
+          "personalization": {
+            "title": "Smart Personalization",
+            "description": "AI-driven customization of digital identity features based on physical world interactions"
+          }
+        },
+        "global_network": {
+          "title": "Global Identity Network",
+          "description": "Connect and verify identities across borders with our distributed identity management system"
+        },
+        "secure_verify": {
+          "title": "Secure Identity Verification",
+          "description": "Blockchain-backed verification ensures the authenticity and security of phygital identities"
+        },
+        "smart_personalization": {
+          "title": "Smart Personalization",
+          "description": "AI-driven customization of digital identity features based on physical world"
+        },
+        "location": {
+          "title": "Location Intelligence",
+          "description": "Smart location tracking and verification for seamless physical-digital presence"
         }
       },
       "phygital": {
