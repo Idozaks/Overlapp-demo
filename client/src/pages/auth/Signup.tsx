@@ -83,10 +83,10 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen bg-background circle-pattern flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-background/95 backdrop-blur">
         <CardHeader>
-          <CardTitle>Welcome to Overlapp</CardTitle>
+          <CardTitle className="gradient-primary gradient-text">Welcome to Overlapp</CardTitle>
           <CardDescription>
             Sign in to your account or create a new one
           </CardDescription>
@@ -129,7 +129,7 @@ export default function AuthPage() {
                   />
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full gradient-primary text-white hover:opacity-90"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? (
@@ -186,7 +186,7 @@ export default function AuthPage() {
                   />
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full gradient-secondary text-white hover:opacity-90"
                     disabled={registerMutation.isPending}
                   >
                     {registerMutation.isPending ? (
