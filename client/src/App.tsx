@@ -6,14 +6,13 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Signup from "@/pages/auth/Signup";
-import Onboarding from "@/pages/auth/Onboarding";
 import Demo from "@/pages/Demo";
 import RetailerDetails from "@/pages/RetailerDetails";
 import Contact from "@/pages/Contact";
 import SocialHub from "@/pages/social/SocialHub";
 import ExploreUsers from "@/pages/social/ExploreUsers";
 import Profile from "@/pages/social/Profile";
-import ProfileEdit from "@/pages/social/ProfileEdit";
+import ProfileEdit from "@/pages/social/ProfileEdit"; // Added import
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Button } from "@/components/ui/button";
@@ -33,7 +32,6 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/signup" component={Signup} />
-      <Route path="/onboarding" component={Onboarding} />
       <Route path="/demo" component={Demo} />
       <Route path="/retailer/:id" component={RetailerDetails} />
       <Route path="/contact" component={Contact} />
@@ -104,7 +102,7 @@ function Header() {
                     <User className="w-4 h-4 mr-2" />
                     View Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}/edit`)}>
+                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}/edit`)}> {/*Updated Navigation*/}
                     <Settings className="w-4 h-4 mr-2" />
                     Edit Profile
                   </DropdownMenuItem>
