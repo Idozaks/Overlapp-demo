@@ -615,7 +615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "For example, if 'Sports' is given, suggest specific sports or related activities.";
 
       const completion = await openai.chat.completions.create({
-        model: "o1-preview",
+        model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
@@ -627,31 +627,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         ],
         temperature: 0.7,
-        max_tokens: 200,
-        response_format: { type: "json_object" }
+        max_tokens: 200
       });
 
       let suggestions: string[] = [];
       try {
         const content = completion.choices[0].message.content || "[]";
-        // Parse the JSON response
-        const parsed = JSON.parse(content);
-        suggestions = Array.isArray(parsed.suggestions) ? parsed.suggestions : [];
+        if (content.startsWith("[") && content.endsWith("]")) {
+          suggestions = JSON.parse(content);
+        } else {
+          suggestions = content
+            .split(",")
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+        }
       } catch (error) {
-        log("Error parsing OpenAI response:", error);
-        return res.status(500).json({
-          message: "Failed to parse AI suggestions",
-          error: error instanceof Error ? error.message : String(error)
-        });
+        log("Error parsing OpenAI response:", error instanceof Error ? error.message : String(error));
+        suggestions = (completion.choices[0].message.content || "")
+          .split("\n")
+          .map(s => s.replace(/^[-*\d.]+\s*/, "").trim())
+          .filter(s => s.length > 0);
       }
 
-      // Filter out duplicates and existing interests
-      suggestions = [...new Set(suggestions)]
+      // Filter out duplicates and existing interests using Array.from for better compatibility
+      suggestions = Array.from(new Set(suggestions))
         .filter(s => !interests.includes(s));
 
       res.json({ suggestions });
     } catch (error) {
-      log("Interest enrichment error:", error);
+      log("Interest enrichment error:", error instanceof Error ? error.message : String(error));
       res.status(500).json({
         message: "Failed to enrich interests",
         error: error instanceof Error ? error.message : String(error)
