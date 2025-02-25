@@ -1,16 +1,14 @@
-
 import * as React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { Menu, Home, Sparkles, Mail, Globe, Network } from 'lucide-react';
+import { Menu, Home, Sparkles, Mail, Globe, Network, Users, Compass, Wallet } from 'lucide-react'; // Added imports for new icons
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import {
   NavigationMenu,
-  NavigationMenuContent,
+  NavigationMenuList,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
@@ -61,21 +59,33 @@ export default function Header() {
         </SheetTrigger>
         <SheetContent side="right">
           <nav className="flex flex-col gap-4">
-            <Link href="/" className="flex items-center">
-              <Home className="mr-2 h-4 w-4" />
+            <Link href="/" className="flex items-center gap-2 p-2 hover:bg-accent rounded-md">
+              <Home className="w-4 h-4" />
               {t('common.nav.home')}
             </Link>
-            <Link href="/demo" className="flex items-center">
-              <Sparkles className="mr-2 h-4 w-4" />
+            <Link href="/demo" className="flex items-center gap-2 p-2 hover:bg-accent rounded-md">
+              <Sparkles className="w-4 h-4" />
               {t('common.nav.demo')}
             </Link>
-            <Link href="/contact" className="flex items-center">
-              <Mail className="mr-2 h-4 w-4" />
+            <Link href="/contact" className="flex items-center gap-2 p-2 hover:bg-accent rounded-md">
+              <Mail className="w-4 h-4" />
               {t('common.nav.contact')}
             </Link>
-            <Link href="/analytics/interactions" className="flex items-center">
-              <Network className="mr-2 h-4 w-4" />
+            <Link href="/analytics/interactions" className="flex items-center gap-2 p-2 hover:bg-accent rounded-md">
+              <Network className="w-4 h-4" />
               {t('common.nav.interactions')}
+            </Link>
+            <Link href="/social" className="flex items-center gap-2 p-2 hover:bg-accent rounded-md">
+              <Users className="w-4 h-4" />
+              Social
+            </Link>
+            <Link href="/explore" className="flex items-center gap-2 p-2 hover:bg-accent rounded-md">
+              <Compass className="w-4 h-4" />
+              Explore
+            </Link>
+            <Link href="/wallet" className="flex items-center gap-2 p-2 hover:bg-accent rounded-md">
+              <Wallet className="w-4 h-4" />
+              Wallet
             </Link>
           </nav>
         </SheetContent>
