@@ -51,89 +51,93 @@ function Header() {
 
   return (
     <header className="p-4 border-b">
-      <div className="container mx-auto flex justify-between items-center">
-        <nav className="flex gap-6">
-          <a href="/" className="text-foreground hover:text-primary flex items-center gap-2">
-            <HomeIcon className="w-4 h-4" />
-            Home
-          </a>
-          {user ? (
-            <>
-              <a href="/social" className="text-foreground hover:text-primary flex items-center gap-2">
-                <UsersIcon className="w-4 h-4" />
-                Social
+      <div className="container mx-auto">
+        <div className="flex justify-between items-center">
+          <div className="overflow-x-auto pb-2 -mb-2">
+            <nav className="flex gap-6 min-w-max">
+              <a href="/" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+                <HomeIcon className="w-4 h-4" />
+                Home
               </a>
-              <a href="/social/explore" className="text-foreground hover:text-primary flex items-center gap-2">
-                <CompassIcon className="w-4 h-4" />
-                Explore
+              {user ? (
+                <>
+                  <a href="/social" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+                    <UsersIcon className="w-4 h-4" />
+                    Social
+                  </a>
+                  <a href="/social/explore" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+                    <CompassIcon className="w-4 h-4" />
+                    Explore
+                  </a>
+                  <a href="/wallet" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+                    <WalletIcon className="w-4 h-4" />
+                    Wallet
+                  </a>
+                </>
+              ) : (
+                <a href="/demo" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+                  <PlayIcon className="w-4 h-4" />
+                  Demo
+                </a>
+              )}
+              <a href="/contact" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+                <MailIcon className="w-4 h-4" />
+                Contact
               </a>
-              <a href="/wallet" className="text-foreground hover:text-primary flex items-center gap-2">
-                <WalletIcon className="w-4 h-4" />
-                Wallet
-              </a>
-            </>
-          ) : (
-            <a href="/demo" className="text-foreground hover:text-primary flex items-center gap-2">
-              <PlayIcon className="w-4 h-4" />
-              Demo
-            </a>
-          )}
-          <a href="/contact" className="text-foreground hover:text-primary flex items-center gap-2">
-            <MailIcon className="w-4 h-4" />
-            Contact
-          </a>
-        </nav>
-        <div className="flex items-center gap-4">
-          <LanguageSwitcher />
-          {user ? (
-            <div className="flex items-center gap-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2">
-                    <span className="text-sm">
-                      {user.displayName || user.username}
-                    </span>
-                    <User className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)}>
-                    <User className="w-4 h-4 mr-2" />
-                    View Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}/edit`)}> {/*Updated Navigation*/}
-                    <Settings className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      logoutMutation.mutate();
-                      navigate("/");
-                    }}
-                    disabled={logoutMutation.isPending}
-                    className="text-red-500 focus:text-red-500"
-                  >
-                    {logoutMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <LogOut className="w-4 h-4 mr-2" />
-                    )}
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/signup")}
-            >
-              Sign In
-            </Button>
-          )}
+            </nav>
+          </div>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            {user ? (
+              <div className="flex items-center gap-4">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2">
+                      <span className="text-sm">
+                        {user.displayName || user.username}
+                      </span>
+                      <User className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)}>
+                      <User className="w-4 h-4 mr-2" />
+                      View Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}/edit`)}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Edit Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        logoutMutation.mutate();
+                        navigate("/");
+                      }}
+                      disabled={logoutMutation.isPending}
+                      className="text-red-500 focus:text-red-500"
+                    >
+                      {logoutMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <LogOut className="w-4 h-4 mr-2" />
+                      )}
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/signup")}
+              >
+                Sign In
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </header>
