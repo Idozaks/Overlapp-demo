@@ -1,4 +1,5 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
+import type { User } from "@shared/schema";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertPostSchema } from "@shared/schema";
@@ -12,6 +13,7 @@ import { promisify } from "util";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import OpenAI from "openai";
 
 const scryptAsync = promisify(scrypt);
 
@@ -28,6 +30,10 @@ async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.json());
 
@@ -36,7 +42,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(passport.session());
 
   passport.use(
-    new LocalStrategy(async (username, password, done) => {
+    new LocalStrategy(async (username: string, password: string, done) => {
       try {
         const user = await storage.getUserByUsername(username);
         if (!user || !(await comparePasswords(password, user.password))) {
@@ -49,8 +55,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })
   );
 
-  passport.serializeUser((user: any, done) => {
-    done(null, user.id);
+  passport.serializeUser((user: Express.User, done) => {
+    done(null, (user as User).id);
   });
 
   passport.deserializeUser(async (id: number, done) => {
@@ -63,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Authentication routes
-  app.post("/api/register", async (req, res) => {
+  app.post("/api/register", async (req: Request, res: Response) => {
     try {
       const result = insertUserSchema.safeParse(req.body);
       if (!result.success) {
@@ -91,13 +97,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(201).json(user);
       });
     } catch (error) {
-      log("Registration error:", error);
+      log("Registration error:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Registration failed" });
     }
   });
 
-  app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
+  app.post("/api/login", (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate("local", (err: any, user: User | false, info: { message?: string }) => {
       if (err) {
         return res.status(500).json({ message: "Internal server error" });
       }
@@ -113,7 +119,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })(req, res, next);
   });
 
-  app.post("/api/logout", (req, res) => {
+  app.post("/api/logout", (req: Request, res: Response) => {
     req.logout((err) => {
       if (err) {
         return res.status(500).json({ message: "Error during logout" });
@@ -122,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get("/api/user", (req, res) => {
+  app.get("/api/user", (req: Request, res: Response) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
@@ -130,7 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add these debug routes at the top of the routes, after health check
-  app.get("/api/auth/test/session", (req, res) => {
+  app.get("/api/auth/test/session", (req: Request, res: Response) => {
     res.json({
       session: req.session,
       isAuthenticated: req.isAuthenticated(),
@@ -140,7 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.post("/api/auth/test/login", async (req, res) => {
+  app.post("/api/auth/test/login", async (req: Request, res: Response) => {
     try {
       const { username, password } = req.body;
       log(`Test login attempt for user: ${username}`);
@@ -172,14 +178,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Add these debug routes at the top of the routes, after health check
-  app.get("/api/test/public", (req, res) => {
+  app.get("/api/test/public", (req: Request, res: Response) => {
     res.json({
       message: "Public route accessible",
       timestamp: new Date().toISOString()
     });
   });
 
-  app.get("/api/test/private", (req, res) => {
+  app.get("/api/test/private", (req: Request, res: Response) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -191,7 +197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add request logging middleware
-  app.use((req, res, next) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     const timestamp = new Date().toISOString();
     const requestLog = {
       timestamp,
@@ -220,10 +226,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
   // Health check endpoint
-  app.get("/api/health", (_req, res) => {
+  app.get("/api/health", (_req: Request, res: Response) => {
     res.json({ status: "ok" });
   });
-  app.post("/api/debug/generate-users", async (req, res) => {
+  app.post("/api/debug/generate-users", async (req: Request, res: Response) => {
     try {
       log("Starting synthetic user generation...");
       const createdUsers = [];
@@ -246,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Feed endpoint
-  app.get("/api/feed", async (req, res) => {
+  app.get("/api/feed", async (req: Request, res: Response) => {
     try {
       const userId = typeof req.query.userId === 'string' ? parseInt(req.query.userId) : 1;
       if (isNaN(userId)) {
@@ -261,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Management
-  app.get("/api/users", async (req, res) => {
+  app.get("/api/users", async (req: Request, res: Response) => {
     try {
       const currentUserId = typeof req.query.currentUserId === 'string' ? parseInt(req.query.currentUserId) : undefined;
       const users = await storage.getAllUsers();
@@ -287,7 +293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/users/:id", async (req, res) => {
+  app.get("/api/users/:id", async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.id);
       if (isNaN(userId)) {
@@ -307,33 +313,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Add the update user endpoint
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: './uploads/',
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: './uploads/',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+      }
+    }),
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Invalid file type'));
+      }
+    },
+    limits: {
+      fileSize: 5 * 1024 * 1024 // 5MB limit
     }
-  }),
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type'));
-    }
-  },
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+  });
+
+  // Ensure uploads directory exists
+  if (!fs.existsSync('./uploads')) {
+    fs.mkdirSync('./uploads');
   }
-});
 
-// Ensure uploads directory exists
-if (!fs.existsSync('./uploads')) {
-  fs.mkdirSync('./uploads');
-}
-
-app.patch("/api/users/:id", upload.single('avatar'), async (req, res) => {
+  app.patch("/api/users/:id", upload.single('avatar'), async (req: Request, res: Response) => {
     try {
       const userId = Number(req.params.id);
       if (isNaN(userId)) {
@@ -347,7 +353,7 @@ app.patch("/api/users/:id", upload.single('avatar'), async (req, res) => {
       }
 
       let updateData = req.body;
-      
+
       // If file was uploaded, add the file path to update data
       if (req.file) {
         updateData = {
@@ -376,12 +382,12 @@ app.patch("/api/users/:id", upload.single('avatar'), async (req, res) => {
     }
   });
 
-// Serve uploaded files
-app.use('/uploads', express.static('uploads'));
+  // Serve uploaded files
+  app.use('/uploads', express.static('uploads'));
 
 
   // Social Connections
-  app.post("/api/users/:id/follow", async (req, res) => {
+  app.post("/api/users/:id/follow", async (req: Request, res: Response) => {
     try {
       const followerId = Number(req.body.followerId);
       const followingId = Number(req.params.id);
@@ -411,7 +417,7 @@ app.use('/uploads', express.static('uploads'));
     }
   });
 
-  app.delete("/api/users/:id/follow", async (req, res) => {
+  app.delete("/api/users/:id/follow", async (req: Request, res: Response) => {
     try {
       const followerId = Number(req.body.followerId);
       const followingId = Number(req.params.id);
@@ -441,7 +447,7 @@ app.use('/uploads', express.static('uploads'));
     }
   });
 
-  app.get("/api/users/:id/followers", async (req, res) => {
+  app.get("/api/users/:id/followers", async (req: Request, res: Response) => {
     try {
       const userId = Number(req.params.id);
       if (isNaN(userId)) {
@@ -455,7 +461,7 @@ app.use('/uploads', express.static('uploads'));
     }
   });
 
-  app.get("/api/users/:id/following", async (req, res) => {
+  app.get("/api/users/:id/following", async (req: Request, res: Response) => {
     try {
       const userId = Number(req.params.id);
       if (isNaN(userId)) {
@@ -470,7 +476,7 @@ app.use('/uploads', express.static('uploads'));
   });
 
   // Posts
-  app.post("/api/posts", async (req, res) => {
+  app.post("/api/posts", async (req: Request, res: Response) => {
     try {
       const result = insertPostSchema.safeParse(req.body);
       if (!result.success) {
@@ -492,7 +498,7 @@ app.use('/uploads', express.static('uploads'));
   });
 
   // Admin routes for user management
-  app.delete("/api/admin/users", async (req, res) => {
+  app.delete("/api/admin/users", async (req: Request, res: Response) => {
     // TODO: Re-enable auth check after testing
     // if (!req.isAuthenticated()) {
     //   return res.status(401).json({ message: "Not authenticated" });
@@ -506,7 +512,7 @@ app.use('/uploads', express.static('uploads'));
       log(`Attempting to delete users with IDs: ${userIds.join(', ')}`);
       const result = await storage.deleteUsers(userIds);
       log(`Delete operation result: ${result}`);
-      
+
       if (result) {
         res.status(200).json({ message: "Users deleted successfully" });
       } else {
@@ -518,7 +524,7 @@ app.use('/uploads', express.static('uploads'));
     }
   });
 
-  app.patch("/api/admin/users/:id/credentials", async (req, res) => {
+  app.patch("/api/admin/users/:id/credentials", async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.id);
       const { username, password } = req.body;
@@ -532,7 +538,7 @@ app.use('/uploads', express.static('uploads'));
   });
 
 
-  app.get("/api/users/:id/posts", async (req, res) => {
+  app.get("/api/users/:id/posts", async (req: Request, res: Response) => {
     try {
       const userId = Number(req.params.id);
       if (isNaN(userId)) {
@@ -546,7 +552,7 @@ app.use('/uploads', express.static('uploads'));
     }
   });
 
-  app.post("/api/posts/:id/like", async (req, res) => {
+  app.post("/api/posts/:id/like", async (req: Request, res: Response) => {
     try {
       const postId = Number(req.params.id);
       const userId = Number(req.body.userId);
@@ -562,7 +568,7 @@ app.use('/uploads', express.static('uploads'));
     }
   });
 
-  app.delete("/api/posts/:id/like", async (req, res) => {
+  app.delete("/api/posts/:id/like", async (req: Request, res: Response) => {
     try {
       const postId = Number(req.params.id);
       const userId = Number(req.body.userId);
@@ -579,7 +585,7 @@ app.use('/uploads', express.static('uploads'));
   });
 
   // Recommendations
-  app.get("/api/recommendations/:userId", async (req, res) => {
+  app.get("/api/recommendations/:userId", async (req: Request, res: Response) => {
     try {
       const userId = Number(req.params.userId);
       if (isNaN(userId)) {
@@ -593,9 +599,68 @@ app.use('/uploads', express.static('uploads'));
     }
   });
 
+  // Add this new route before httpServer creation
+  app.post("/api/interests/enrich", async (req: Request, res: Response) => {
+    try {
+      const { interests } = req.body;
+
+      if (!Array.isArray(interests) || interests.length === 0) {
+        return res.status(400).json({ message: "Invalid interests format" });
+      }
+
+      const prompt = `Given these interests: ${interests.join(", ")}\n\n` +
+        "For each interest, suggest 2-3 related or more specific interests. " +
+        "Format the response as a simple array of strings, including only the new suggestions. " +
+        "The suggestions should be specific and related to the original interests. " +
+        "For example, if 'Sports' is given, suggest specific sports or related activities.";
+
+      const completion = await openai.chat.completions.create({
+        model: "o1-preview",
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful assistant that suggests related interests based on a user's current interests. Keep suggestions concise and relevant."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 200,
+        response_format: { type: "json_object" }
+      });
+
+      let suggestions: string[] = [];
+      try {
+        const content = completion.choices[0].message.content || "[]";
+        // Parse the JSON response
+        const parsed = JSON.parse(content);
+        suggestions = Array.isArray(parsed.suggestions) ? parsed.suggestions : [];
+      } catch (error) {
+        log("Error parsing OpenAI response:", error);
+        return res.status(500).json({
+          message: "Failed to parse AI suggestions",
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
+
+      // Filter out duplicates and existing interests
+      suggestions = [...new Set(suggestions)]
+        .filter(s => !interests.includes(s));
+
+      res.json({ suggestions });
+    } catch (error) {
+      log("Interest enrichment error:", error);
+      res.status(500).json({
+        message: "Failed to enrich interests",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
 
   // Wallet Operations
-  app.get("/api/wallet", async (req, res) => {
+  app.get("/api/wallet", async (req: Request, res: Response) => {
     const userId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
 
     if (!userId || isNaN(userId)) {
@@ -620,7 +685,7 @@ app.use('/uploads', express.static('uploads'));
     }
   });
 
-  app.get("/api/wallet/nfts", async (req, res) => {
+  app.get("/api/wallet/nfts", async (req: Request, res: Response) => {
     const userId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
 
     if (!userId || isNaN(userId)) {
@@ -636,7 +701,7 @@ app.use('/uploads', express.static('uploads'));
     }
   });
 
-  app.get("/api/wallet/transactions", async (req, res) => {
+  app.get("/api/wallet/transactions", async (req: Request, res: Response) => {
     const walletId = req.query.walletId ? parseInt(req.query.walletId as string) : undefined;
 
     if (!walletId || isNaN(walletId)) {
