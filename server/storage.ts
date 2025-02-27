@@ -67,6 +67,18 @@ export interface IStorage {
   addUserInterest(userId: number, interestId: number): Promise<void>;
   removeUserInterest(userId: number, interestId: number): Promise<void>;
   addInterestContent(content: InsertInterestContent): Promise<InterestContent>;
+
+  // Contact Card operations
+  createContactCard(card: InsertContactCard): Promise<ContactCard>;
+  getContactCard(id: number): Promise<ContactCard | undefined>;
+  getUserContactCard(userId: number): Promise<ContactCardWithLinks | undefined>;
+  addCardLink(link: InsertCardLink): Promise<CardLink>;
+  removeCardLink(id: number): Promise<void>;
+
+  // Overlap Analysis operations
+  createOverlapRecord(record: InsertOverlapRecord): Promise<OverlapRecord>;
+  getOverlapRecord(id: number): Promise<OverlapRecordWithCards | undefined>;
+  getOverlapHistory(cardId: number): Promise<OverlapRecordWithCards[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -548,6 +560,140 @@ export class DatabaseStorage implements IStorage {
       .values(content)
       .returning();
     return newContent;
+  }
+
+  async createContactCard(card: InsertContactCard): Promise<ContactCard> {
+    const [newCard] = await db
+      .insert(contactCards)
+      .values(card)
+      .returning();
+    return newCard;
+  }
+
+  async getContactCard(id: number): Promise<ContactCard | undefined> {
+    const [card] = await db
+      .select()
+      .from(contactCards)
+      .where(eq(contactCards.id, id));
+    return card;
+  }
+
+  async getUserContactCard(userId: number): Promise<ContactCardWithLinks | undefined> {
+    const [card] = await db
+      .select()
+      .from(contactCards)
+      .where(eq(contactCards.userId, userId));
+
+    if (!card) return undefined;
+
+    const links = await db
+      .select()
+      .from(cardLinks)
+      .where(eq(cardLinks.cardId, card.id));
+
+    return {
+      ...card,
+      links
+    };
+  }
+
+  async addCardLink(link: InsertCardLink): Promise<CardLink> {
+    const [newLink] = await db
+      .insert(cardLinks)
+      .values(link)
+      .returning();
+    return newLink;
+  }
+
+  async removeCardLink(id: number): Promise<void> {
+    await db
+      .delete(cardLinks)
+      .where(eq(cardLinks.id, id));
+  }
+
+  async createOverlapRecord(record: InsertOverlapRecord): Promise<OverlapRecord> {
+    const [newRecord] = await db
+      .insert(overlapRecords)
+      .values(record)
+      .returning();
+    return newRecord;
+  }
+
+  async getOverlapRecord(id: number): Promise<OverlapRecordWithCards | undefined> {
+    const [record] = await db
+      .select({
+        record: overlapRecords,
+        card1: contactCards,
+        card2: contactCards
+      })
+      .from(overlapRecords)
+      .leftJoin(contactCards, eq(contactCards.id, overlapRecords.card1Id))
+      .leftJoin(contactCards, eq(contactCards.id, overlapRecords.card2Id))
+      .where(eq(overlapRecords.id, id));
+
+    if (!record) return undefined;
+
+    const card1Links = await db
+      .select()
+      .from(cardLinks)
+      .where(eq(cardLinks.cardId, record.card1.id));
+
+    const card2Links = record.card2 ? await db
+      .select()
+      .from(cardLinks)
+      .where(eq(cardLinks.cardId, record.card2.id)) : [];
+
+    return {
+      ...record.record,
+      card1: {
+        ...record.card1,
+        links: card1Links
+      },
+      card2: record.card2 ? {
+        ...record.card2,
+        links: card2Links
+      } : undefined
+    };
+  }
+
+  async getOverlapHistory(cardId: number): Promise<OverlapRecordWithCards[]> {
+    const records = await db
+      .select({
+        record: overlapRecords,
+        card1: contactCards,
+        card2: contactCards
+      })
+      .from(overlapRecords)
+      .leftJoin(contactCards, eq(contactCards.id, overlapRecords.card1Id))
+      .leftJoin(contactCards, eq(contactCards.id, overlapRecords.card2Id))
+      .where(or(
+        eq(overlapRecords.card1Id, cardId),
+        eq(overlapRecords.card2Id, cardId)
+      ))
+      .orderBy(desc(overlapRecords.createdAt));
+
+    // Fetch links for all cards
+    const cardIds = records
+      .flatMap(r => [r.card1.id, r.card2?.id])
+      .filter((id): id is number => id !== undefined);
+
+    const links = await db
+      .select()
+      .from(cardLinks)
+      .where(inArray(cardLinks.cardId, cardIds));
+
+    // Map links to their respective cards
+    return records.map(record => ({
+      ...record.record,
+      card1: {
+        ...record.card1,
+        links: links.filter(l => l.cardId === record.card1.id)
+      },
+      card2: record.card2 ? {
+        ...record.card2,
+        links: links.filter(l => l.cardId === record.card2.id)
+      } : undefined
+    }));
   }
 }
 
