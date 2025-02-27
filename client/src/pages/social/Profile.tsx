@@ -11,7 +11,6 @@ import type { User, PostWithUser } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import ContactCard from "@/components/profile/ContactCard";
 
 export default function Profile() {
   const { id } = useParams();
@@ -227,13 +226,6 @@ export default function Profile() {
             </div>
           </CardContent>
         </Card>
-
-        {isOwnProfile && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Contact Card</h2>
-            <ContactCard userId={userId} />
-          </div>
-        )}
 
         <div className="space-y-6">
           <h2 className="text-xl font-semibold">Posts</h2>

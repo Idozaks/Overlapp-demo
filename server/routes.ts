@@ -14,11 +14,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import OpenAI from "openai";
-import { interests, interestContent, userInterests, type Interest, type InterestContent, type UserInterest, type InsertInterest, type InsertInterestContent, type InsertUserInterest } from "@shared/schema";
-import { type InsertUser, type Post, type Comment, type Connection, type Wallet, type NFT, type Transaction, type InsertNFT, type InsertWallet } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, and, inArray, or, sql } from "drizzle-orm";
-
 
 const scryptAsync = promisify(scrypt);
 
@@ -668,185 +663,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Contact Card Routes
-  app.post("/api/contact-cards", async (req: Request, res: Response) => {
+  // Wallet Operations
+  app.get("/api/wallet", async (req: Request, res: Response) => {
+    const userId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ message: "Valid userId is required" });
+    }
+
     try {
-      if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: "Not authenticated" });
+      let wallet = await storage.getWallet(userId);
+
+      if (!wallet) {
+        wallet = await storage.createWallet({
+          userId,
+          encryptedPrivateKey: "temp-key",
+          publicKey: "temp-pub-key",
+        });
       }
 
-      const { customMessage, jobTitle } = req.body;
-      const userId = (req.user as User).id;
-
-      // Generate a unique QR code (in reality, you'd want to use a proper QR code library)
-      const qrCode = `https://overlapp.io/cards/${userId}-${Date.now()}`;
-
-      const card = await storage.createContactCard({
-        userId,
-        qrCode,
-        customMessage,
-        jobTitle
-      });
-
-      res.status(201).json({ card });
+      res.json({ wallet });
     } catch (error) {
-      log("Error creating contact card:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to create contact card" });
+      log("Error fetching wallet:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch wallet" });
     }
   });
 
-  app.get("/api/contact-cards/:id", async (req: Request, res: Response) => {
+  app.get("/api/wallet/nfts", async (req: Request, res: Response) => {
+    const userId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ message: "Valid userId is required" });
+    }
+
     try {
-      const cardId = parseInt(req.params.id);
-      if (isNaN(cardId)) {
-        return res.status(400).json({ message: "Invalid card ID" });
-      }
-
-      const card = await storage.getContactCard(cardId);
-      if (!card) {
-        return res.status(404).json({ message: "Contact card not found" });
-      }
-
-      res.json({ card });
+      const nfts = await storage.getNFTsByOwner(userId);
+      res.json({ nfts: nfts || [] });
     } catch (error) {
-      log("Error fetching contact card:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to fetch contact card" });
+      log("Error fetching NFTs:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch NFTs" });
     }
   });
 
-  app.get("/api/users/:userId/contact-card", async (req: Request, res: Response) => {
+  app.get("/api/wallet/transactions", async (req: Request, res: Response) => {
+    const walletId = req.query.walletId ? parseInt(req.query.walletId as string) : undefined;
+
+    if (!walletId || isNaN(walletId)) {
+      return res.status(400).json({ message: "Valid walletId is required" });
+    }
+
     try {
-      const userId = parseInt(req.params.userId);
-      if (isNaN(userId)) {
-        return res.status(400).json({ message: "Invalid user ID" });
-      }
-
-      const card = await storage.getUserContactCard(userId);
-      if (!card) {
-        return res.status(404).json({ message: "Contact card not found" });
-      }
-
-      res.json({ card });
+      const transactions = await storage.getTransactions(walletId);
+      res.json({ transactions: transactions || [] });
     } catch (error) {
-      log("Error fetching user contact card:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to fetch user contact card" });
+      log("Error fetching transactions:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch transactions" });
     }
   });
 
-  // Card Links Routes
-  app.post("/api/contact-cards/:cardId/links", async (req: Request, res: Response) => {
-    try {
-      if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: "Not authenticated" });
-      }
-
-      const cardId = parseInt(req.params.cardId);
-      if (isNaN(cardId)) {
-        return res.status(400).json({ message: "Invalid card ID" });
-      }
-
-      const { platform, url } = req.body;
-      const link = await storage.addCardLink({
-        cardId,
-        platform,
-        url
-      });
-
-      res.status(201).json({ link });
-    } catch (error) {
-      log("Error adding card link:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to add card link" });
-    }
-  });
-
-  app.delete("/api/contact-cards/:cardId/links/:linkId", async (req: Request, res: Response) => {
-    try {
-      if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: "Not authenticated" });
-      }
-
-      const linkId = parseInt(req.params.linkId);
-      if (isNaN(linkId)) {
-        return res.status(400).json({ message: "Invalid link ID" });
-      }
-
-      await storage.removeCardLink(linkId);
-      res.status(204).send();
-    } catch (error) {
-      log("Error removing card link:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to remove card link" });
-    }
-  });
-
-  // Overlap Analysis Routes
-  app.post("/api/overlap-analysis", async (req: Request, res: Response) => {
-    try {
-      const { card1Id, card2Id } = req.body;
-
-      if (!card1Id || isNaN(card1Id)) {
-        return res.status(400).json({ message: "Invalid card1 ID" });
-      }
-
-      // Get cards and their user data
-      const card1WithUser = await storage.getUserContactCard(card1Id);
-      const card2WithUser = card2Id ? await storage.getUserContactCard(card2Id) : undefined;
-
-      if (!card1WithUser) {
-        return res.status(404).json({ message: "Card 1 not found" });
-      }
-
-      // Analyze overlap between the cards
-      const analysisResult = {
-        sharedInterests: ["Technology", "Innovation"],  // This would come from actual analysis
-        commonConnections: [1, 2, 3],  // Example connection IDs
-        relevanceScore: 0.85,
-        suggestedActions: [
-          "Connect on LinkedIn",
-          "Schedule a coffee chat",
-          "Explore mutual interests in Technology"
-        ]
-      };
-
-      // Create overlap record
-      const overlapRecord = await storage.createOverlapRecord({
-        card1Id,
-        card2Id: card2Id || undefined,
-        type: card2Id ? "MUTUAL_SCAN" : "SINGLE_SCAN",
-        analysisResult
-      });
-
-      res.status(201).json({
-        overlap: overlapRecord,
-        card1: card1WithUser,
-        card2: card2WithUser
-      });
-    } catch (error) {
-      log("Error analyzing overlap:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to analyze overlap" });
-    }
-  });
-
-  app.get("/api/overlap-history/:cardId", async (req: Request, res: Response) => {
-    try {
-      const cardId = parseInt(req.params.cardId);
-      if (isNaN(cardId)) {
-        return res.status(400).json({ message: "Invalid card ID" });
-      }
-
-      const history = await storage.getOverlapHistory(cardId);
-      res.json({ history });
-    } catch (error) {
-      log("Error fetching overlap history:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to fetch overlap history" });
-    }
-  });
-
-  // Continue with the httpServer creation
   const httpServer = createServer(app);
   return httpServer;
 }
 
-// Keep the synthetic users data at the end
 const SYNTHETIC_USERS = [
   {
     username: "tech_explorer",
