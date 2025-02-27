@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Plus, QrCode, Link as LinkIcon } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { ContactCardWithLinks } from "@shared/schema";
@@ -16,6 +17,7 @@ interface ContactCardProps {
 export default function ContactCard({ userId }: ContactCardProps) {
   const { toast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newLink, setNewLink] = useState({ platform: "", url: "" });
 
   const { data: cardData, isLoading } = useQuery<{ card: ContactCardWithLinks }>({
@@ -25,12 +27,20 @@ export default function ContactCard({ userId }: ContactCardProps) {
 
   const createCardMutation = useMutation({
     mutationFn: async (data: { customMessage: string; jobTitle: string }) => {
-      const response = await apiRequest("POST", "/api/contact-cards", data);
+      const response = await apiRequest("/api/contact-cards", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to create contact card');
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/contact-card`] });
       setIsCreating(false);
+      setIsDialogOpen(false);
       toast({
         title: "Success",
         description: "Contact card created successfully"
@@ -47,7 +57,14 @@ export default function ContactCard({ userId }: ContactCardProps) {
 
   const addLinkMutation = useMutation({
     mutationFn: async ({ cardId, platform, url }: { cardId: number; platform: string; url: string }) => {
-      const response = await apiRequest("POST", `/api/contact-cards/${cardId}/links`, { platform, url });
+      const response = await apiRequest(`/api/contact-cards/${cardId}/links`, {
+        method: "POST",
+        body: JSON.stringify({ platform, url }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to add link');
       return response.json();
     },
     onSuccess: () => {
@@ -83,57 +100,77 @@ export default function ContactCard({ userId }: ContactCardProps) {
         <CardContent className="pt-6">
           <div className="text-center">
             <p className="text-muted-foreground mb-4">No contact card found</p>
-            <Button onClick={() => setIsCreating(true)}>
+            <Button onClick={() => setIsDialogOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Create Contact Card
             </Button>
           </div>
+
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Contact Card</DialogTitle>
+                <DialogDescription>
+                  Create your digital contact card to share your professional information and social links.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                createCardMutation.mutate({
+                  customMessage: formData.get("customMessage") as string,
+                  jobTitle: formData.get("jobTitle") as string
+                });
+              }}>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="jobTitle">Job Title</Label>
+                    <Input 
+                      id="jobTitle" 
+                      name="jobTitle" 
+                      required 
+                      aria-describedby="jobTitle-description"
+                    />
+                    <p id="jobTitle-description" className="text-sm text-muted-foreground">
+                      Your current professional role
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="customMessage">Custom Message</Label>
+                    <Input 
+                      id="customMessage" 
+                      name="customMessage" 
+                      required 
+                      aria-describedby="customMessage-description"
+                    />
+                    <p id="customMessage-description" className="text-sm text-muted-foreground">
+                      A brief message to share with your connections
+                    </p>
+                  </div>
+                  <Button type="submit" disabled={createCardMutation.isPending}>
+                    {createCardMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : null}
+                    Create Card
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     );
   }
 
-  if (isCreating) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Contact Card</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            createCardMutation.mutate({
-              customMessage: formData.get("customMessage") as string,
-              jobTitle: formData.get("jobTitle") as string
-            });
-          }}>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="jobTitle">Job Title</Label>
-                <Input id="jobTitle" name="jobTitle" required />
-              </div>
-              <div>
-                <Label htmlFor="customMessage">Custom Message</Label>
-                <Input id="customMessage" name="customMessage" required />
-              </div>
-              <Button type="submit" disabled={createCardMutation.isPending}>
-                {createCardMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : null}
-                Create Card
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    );
-  }
+  if (!cardData?.card) return null;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Contact Card</CardTitle>
+        <CardDescription>
+          Your digital business card with QR code and social links
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -182,13 +219,19 @@ export default function ContactCard({ userId }: ContactCardProps) {
                     placeholder="Platform (e.g. LinkedIn)"
                     value={newLink.platform}
                     onChange={(e) => setNewLink(prev => ({ ...prev, platform: e.target.value }))}
+                    aria-label="Social platform name"
                   />
                   <Input
                     placeholder="URL"
                     value={newLink.url}
                     onChange={(e) => setNewLink(prev => ({ ...prev, url: e.target.value }))}
+                    aria-label="Social platform URL"
                   />
-                  <Button type="submit" disabled={addLinkMutation.isPending || !newLink.platform || !newLink.url}>
+                  <Button 
+                    type="submit" 
+                    disabled={addLinkMutation.isPending || !newLink.platform || !newLink.url}
+                    aria-label="Add social link"
+                  >
                     Add Link
                   </Button>
                 </div>
