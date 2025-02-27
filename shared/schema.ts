@@ -10,7 +10,7 @@ export const users = pgTable("users", {
   avatar: text("avatar_url"),
   bio: text("bio"),
   preferences: jsonb("preferences").$type<{
-    interests: number[]; // Changed to array of interest IDs
+    interests: number[]; 
     retailPreferences: string[];
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -65,8 +65,8 @@ export const transactions = pgTable("transactions", {
   toWalletId: integer("to_wallet_id").references(() => wallets.id),
   nftId: integer("nft_id").references(() => nfts.id),
   amount: text("amount"),
-  type: text("type").notNull(), // 'MINT', 'TRANSFER', 'SALE'
-  status: text("status").notNull(), // 'PENDING', 'COMPLETED', 'FAILED'
+  type: text("type").notNull(), 
+  status: text("status").notNull(), 
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -85,11 +85,10 @@ export const likes = pgTable("likes", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// New tables for interests management
 export const interests = pgTable("interests", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
-  category: text("category").notNull(), // 'HOBBY', 'SHOPPING'
+  category: text("category").notNull(), 
   description: text("description"),
   iconUrl: text("icon_url"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -102,7 +101,7 @@ export const interestContent = pgTable("interest_content", {
   description: text("description"),
   url: text("url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
-  type: text("type").notNull(), // 'ARTICLE', 'SITE', 'VIDEO', etc.
+  type: text("type").notNull(), 
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -113,8 +112,37 @@ export const userInterests = pgTable("user_interests", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const contactCards = pgTable("contact_cards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  qrCode: text("qr_code").notNull(),
+  customMessage: text("custom_message"),
+  jobTitle: text("job_title"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
 
-// Insert Schemas
+export const cardLinks = pgTable("card_links", {
+  id: serial("id").primaryKey(),
+  cardId: integer("card_id").references(() => contactCards.id).notNull(),
+  platform: text("platform").notNull(), 
+  url: text("url").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const overlapRecords = pgTable("overlap_records", {
+  id: serial("id").primaryKey(),
+  card1Id: integer("card1_id").references(() => contactCards.id).notNull(),
+  card2Id: integer("card2_id").references(() => contactCards.id),
+  type: text("type").notNull(), 
+  analysisResult: jsonb("analysis_result").$type<{
+    sharedInterests: string[];
+    commonConnections: number[];
+    relevanceScore: number;
+    suggestedActions: string[];
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -153,7 +181,6 @@ export const insertTransactionSchema = createInsertSchema(transactions).pick({
   status: true,
 });
 
-// New insert schemas
 export const insertInterestSchema = createInsertSchema(interests).pick({
   name: true,
   category: true,
@@ -175,17 +202,39 @@ export const insertUserInterestSchema = createInsertSchema(userInterests).pick({
   interestId: true,
 });
 
-// Types
+export const insertContactCardSchema = createInsertSchema(contactCards).pick({
+  userId: true,
+  qrCode: true,
+  customMessage: true,
+  jobTitle: true,
+});
+
+export const insertCardLinkSchema = createInsertSchema(cardLinks).pick({
+  cardId: true,
+  platform: true,
+  url: true,
+});
+
+export const insertOverlapRecordSchema = createInsertSchema(overlapRecords).pick({
+  card1Id: true,
+  card2Id: true,
+  type: true,
+  analysisResult: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type InsertNFT = z.infer<typeof insertNFTSchema>;
 export type InsertWallet = z.infer<typeof insertWalletSchema>;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 
-// New types
 export type InsertInterest = z.infer<typeof insertInterestSchema>;
 export type InsertInterestContent = z.infer<typeof insertInterestContentSchema>;
 export type InsertUserInterest = z.infer<typeof insertUserInterestSchema>;
+
+export type InsertContactCard = z.infer<typeof insertContactCardSchema>;
+export type InsertCardLink = z.infer<typeof insertCardLinkSchema>;
+export type InsertOverlapRecord = z.infer<typeof insertOverlapRecordSchema>;
 
 export type User = typeof users.$inferSelect;
 export type Post = typeof posts.$inferSelect;
@@ -199,8 +248,10 @@ export type Interest = typeof interests.$inferSelect;
 export type InterestContent = typeof interestContent.$inferSelect;
 export type UserInterest = typeof userInterests.$inferSelect;
 
+export type ContactCard = typeof contactCards.$inferSelect;
+export type CardLink = typeof cardLinks.$inferSelect;
+export type OverlapRecord = typeof overlapRecords.$inferSelect;
 
-// Combined Types
 export type PostWithUser = Post & { user: User };
 export type NFTWithCreator = NFT & { creator: User };
 export type TransactionWithDetails = Transaction & {
@@ -209,6 +260,11 @@ export type TransactionWithDetails = Transaction & {
   toWallet?: Wallet;
 };
 
-// Additional combined types
 export type InterestWithContent = Interest & { content: InterestContent[] };
 export type UserWithInterests = User & { interests: Interest[] };
+
+export type ContactCardWithLinks = ContactCard & { links: CardLink[] };
+export type OverlapRecordWithCards = OverlapRecord & {
+  card1: ContactCardWithLinks;
+  card2?: ContactCardWithLinks;
+};
