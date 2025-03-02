@@ -64,8 +64,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const [showAiThinking, setShowAiThinking] = useState(false);
   const [aiGeneratedInterests, setAiGeneratedInterests] = useState<Set<string>>(new Set());
 
-  // Fetch interests from the database
-  const { data: interestsData } = useQuery({
+  // Fetch all available interests from the database
+  const { data: allInterests } = useQuery({
     queryKey: ['/api/interests'],
     queryFn: async () => {
       const response = await apiRequest('/api/interests');
@@ -74,7 +74,18 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     }
   });
 
-  const availableInterests = interestsData?.map((interest: Interest) => interest.name) || [];
+  // Fetch user's current interests
+  const { data: userInterests } = useQuery({
+    queryKey: [`/api/users/${user.id}/interests`],
+    queryFn: async () => {
+      const response = await apiRequest(`/api/users/${user.id}/interests`);
+      const data = await response.json();
+      return data.interests;
+    }
+  });
+
+  const availableInterests = allInterests?.map((interest: Interest) => interest.name) || [];
+  const userInterestIds = new Set(userInterests?.map((interest: Interest) => interest.id) || []);
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -82,7 +93,10 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       displayName: user.displayName || "",
       bio: user.bio || "",
       avatar: user.avatar || "",
-      preferences: user.preferences || { interests: [], retailPreferences: [] }
+      preferences: {
+        interests: userInterests?.map((interest: Interest) => interest.name) || [],
+        retailPreferences: user.preferences?.retailPreferences || []
+      }
     }
   });
 
@@ -187,25 +201,73 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     setIsEnriching(false);
   };
 
-  const toggleInterest = (interest: string, isAiSuggested = false) => {
+  const toggleInterest = async (interest: string, isAiSuggested = false) => {
     const currentInterests = form.getValues("preferences.interests") || [];
-    const newInterests = currentInterests.includes(interest)
-      ? currentInterests.filter(i => i !== interest)
-      : [...currentInterests, interest];
+    const interestObj = allInterests?.find((i: Interest) => i.name === interest);
 
-    if (isAiSuggested) {
-      setAiGeneratedInterests(prev => {
-        const newSet = new Set(prev);
-        if (currentInterests.includes(interest)) {
-          newSet.delete(interest);
-        } else {
-          newSet.add(interest);
-        }
-        return newSet;
-      });
+    if (!interestObj) {
+      console.error('Interest not found in database:', interest);
+      return;
     }
 
-    form.setValue("preferences.interests", newInterests, { shouldValidate: true });
+    if (currentInterests.includes(interest)) {
+      // Remove interest
+      try {
+        await apiRequest(`/api/users/${user.id}/interests/${interestObj.id}`, {
+          method: 'DELETE'
+        });
+
+        const newInterests = currentInterests.filter(i => i !== interest);
+        form.setValue("preferences.interests", newInterests, { shouldValidate: true });
+
+        if (isAiSuggested) {
+          setAiGeneratedInterests(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(interest);
+            return newSet;
+          });
+        }
+      } catch (error) {
+        console.error('Error removing interest:', error);
+        toast({
+          title: "Error",
+          description: "Failed to remove interest",
+          variant: "destructive"
+        });
+      }
+    } else {
+      // Add interest
+      try {
+        await apiRequest(`/api/users/${user.id}/interests`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ interestId: interestObj.id })
+        });
+
+        const newInterests = [...currentInterests, interest];
+        form.setValue("preferences.interests", newInterests, { shouldValidate: true });
+
+        if (isAiSuggested) {
+          setAiGeneratedInterests(prev => {
+            const newSet = new Set(prev);
+            newSet.add(interest);
+            return newSet;
+          });
+        }
+      } catch (error) {
+        console.error('Error adding interest:', error);
+        toast({
+          title: "Error",
+          description: "Failed to add interest",
+          variant: "destructive"
+        });
+      }
+    }
+
+    // Invalidate queries to refresh the data
+    queryClient.invalidateQueries([`/api/users/${user.id}/interests`]);
   };
 
   const toggleRetailPreference = (preference: string) => {
@@ -346,6 +408,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               Discover More Interests with AI
             </Button>
           </div>
+
           <div className="flex flex-wrap gap-2">
             {[...availableInterests, ...Array.from(aiGeneratedInterests)].map(interest => (
               <Badge

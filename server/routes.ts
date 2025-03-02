@@ -748,6 +748,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/users/:id/interests", async (req: Request, res: Response) => {
+    try {
+      const userId = Number(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      const userInterests = await storage.getUserInterests(userId);
+      res.json({ interests: userInterests });
+    } catch (error) {
+      log("Error fetching user interests:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch user interests" });
+    }
+  });
+
+  app.post("/api/users/:id/interests", async (req: Request, res: Response) => {
+    try {
+      const userId = Number(req.params.id);
+      const { interestId } = req.body;
+
+      if (isNaN(userId) || !interestId) {
+        return res.status(400).json({ message: "Invalid user ID or interest ID" });
+      }
+
+      await storage.addUserInterest(userId, interestId);
+      res.status(201).json({ message: "Interest added successfully" });
+    } catch (error) {
+      log("Error adding user interest:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to add user interest" });
+    }
+  });
+
+  app.delete("/api/users/:id/interests/:interestId", async (req: Request, res: Response) => {
+    try {
+      const userId = Number(req.params.id);
+      const interestId = Number(req.params.interestId);
+
+      if (isNaN(userId) || isNaN(interestId)) {
+        return res.status(400).json({ message: "Invalid user ID or interest ID" });
+      }
+
+      await storage.removeUserInterest(userId, interestId);
+      res.status(200).json({ message: "Interest removed successfully" });
+    } catch (error) {
+      log("Error removing user interest:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to remove user interest" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
