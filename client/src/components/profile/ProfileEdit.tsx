@@ -71,8 +71,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     queryKey: ['/api/interests'],
     queryFn: async () => {
       const response = await apiRequest('/api/interests');
-      const data = await response.json();
-      return data;
+      return response.json();
     }
   });
 
@@ -81,8 +80,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     queryKey: [`/api/users/${user.id}/interests`],
     queryFn: async () => {
       const response = await apiRequest(`/api/users/${user.id}/interests`);
-      const data = await response.json();
-      return data;
+      return response.json();
     }
   });
 
@@ -94,7 +92,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     if (userSelectedInterests.length > 0) {
       setPendingInterests(new Set(userSelectedInterests));
     }
-  }, [userSelectedInterests]);
+  }, [JSON.stringify(userSelectedInterests)]); // Use JSON.stringify to avoid infinite loop
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -146,7 +144,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
       // Then update interests
       const currentInterestNames = new Set(userSelectedInterests);
-      const pendingInterestNames = new Set(pendingInterests);
+      const pendingInterestNames = pendingInterests;
 
       // Remove interests that are no longer selected
       for (const interest of currentInterestNames) {
@@ -183,8 +181,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         title: t("profile.updateSuccess"),
         description: t("profile.updateSuccessMessage")
       });
-      queryClient.invalidateQueries([`/api/users/${user.id}`]);
-      queryClient.invalidateQueries([`/api/users/${user.id}/interests`]);
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${user.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${user.id}/interests`] });
       onSuccess?.();
     },
     onError: (error: Error) => {
