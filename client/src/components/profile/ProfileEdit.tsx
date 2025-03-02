@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import type { User } from "@shared/schema";
+import type { User, Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -51,7 +51,7 @@ const RETAIL_PREFERENCES = [
   "Office Supplies", "Food & Beverage"
 ];
 
-const suggestedInterest = (interest: string) => {
+const suggestedInterest = (interest: string): string => {
   return interest.replace(/[\[\]"]/g, '').trim();
 };
 
@@ -74,7 +74,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     }
   });
 
-  const availableInterests = interestsData?.map(interest => interest.name) || [];
+  const availableInterests = interestsData?.map((interest: Interest) => interest.name) || [];
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -93,7 +93,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       }
 
       let body;
-      let headers = {};
+      const requestOptions: RequestInit = {
+        method: "PATCH"
+      };
 
       if (data.avatar instanceof File) {
         const formData = new FormData();
@@ -106,16 +108,14 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         body = formData;
       } else {
         body = JSON.stringify(data);
-        headers = {
+        requestOptions.headers = {
           'Content-Type': 'application/json'
         };
       }
 
-      const response = await apiRequest(`/api/users/${user.id}`, {
-        method: "PATCH",
-        body,
-        headers
-      });
+      requestOptions.body = body;
+
+      const response = await apiRequest(`/api/users/${user.id}`, requestOptions);
       const result = await response.json();
       if (!result.user) {
         throw new Error("Invalid response from server");
