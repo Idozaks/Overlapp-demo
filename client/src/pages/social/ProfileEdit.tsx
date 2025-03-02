@@ -64,7 +64,7 @@ export default function ProfileEditPage() {
   );
 }
 import { useState, useEffect } from "react";
-import { useLocation, useParams, useRoute } from "wouter";
+import { useParams, useRoute } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
