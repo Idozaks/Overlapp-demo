@@ -654,6 +654,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/interests", async (req: Request, res: Response) => {
+    try {
+      const { name, category, description, isAiGenerated } = req.body;
+
+      // Validate required fields
+      if (!name || !category) {
+        return res.status(400).json({ 
+          message: "Missing required fields", 
+          details: "Name and category are required" 
+        });
+      }
+
+      // For non-admin users, only allow creation of AI-generated interests
+      if (!req.isAuthenticated() || (!req.user?.isAdmin && !isAiGenerated)) {
+        return res.status(403).json({ 
+          message: "Unauthorized. Only admins can create regular interests." 
+        });
+      }
+
+      // Check if interest already exists
+      const existingInterest = await storage.getInterestByName(name);
+      if (existingInterest) {
+        return res.status(200).json({ 
+          interest: existingInterest
+        });
+      }
+
+      // Create new interest
+      const interest = await storage.createInterest({
+        name,
+        category,
+        description: description || `AI-suggested interest: ${name}`,
+        isAiGenerated: isAiGenerated || false
+      });
+
+      res.status(201).json(interest);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log("Error creating interest:", errorMessage);
+      res.status(500).json({ 
+        message: "Failed to create interest",
+        error: errorMessage
+      });
+    }
+  });
+
   app.post("/api/interests/enrich", async (req: Request, res: Response) => {
     try {
       const { interests } = req.body;
@@ -789,7 +835,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const userInterests = await storage.getUserInterests(userId);
       res.json({ interests: userInterests });
-    } catch (error) {
+    }catch (error) {
       log("Error fetching user interests:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Unable to fetch user interests" });
     }
