@@ -60,12 +60,13 @@ const suggestedInterest = (interest: string) => {
   return interest.replace(/[\[\]"]/g, '').trim();
 };
 
-export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProps) {
+const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [suggestedInterests, setSuggestedInterests] = useState<string[]>([]);
   const [isEnriching, setIsEnriching] = useState(false);
+  const [showAiThinking, setShowAiThinking] = useState(false);
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -321,7 +322,7 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
-              {t("profile.enrichWithAI")}
+              Discover More Interests with AI
             </Button>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -338,21 +339,50 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
           </div>
 
           {suggestedInterests.length > 0 && (
-            <div className="mt-4 p-4 border rounded-lg bg-secondary/10">
-              <FormLabel className="text-sm text-muted-foreground mb-2 block">
-                {t("profile.aiSuggestions")}
-              </FormLabel>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {suggestedInterests.map((interest, index) => (
-                  <Badge
-                    key={`suggestion-${index}`}
-                    variant={form.watch("preferences.interests")?.includes(suggestedInterest(interest)) ? "default" : "outline"}
-                    className="cursor-pointer hover:bg-primary/20 transition-colors"
-                    onClick={() => toggleInterest(suggestedInterest(interest))}
-                  >
-                    {suggestedInterest(interest)}
-                  </Badge>
-                ))}
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-sm font-medium"
+                  onClick={() => setShowAiThinking(!showAiThinking)}
+                >
+                  {showAiThinking ? "Hide AI Analysis" : "Show AI Analysis"}
+                </Button>
+              </div>
+
+              {showAiThinking && (
+                <div className="p-4 rounded-lg bg-primary/5 text-sm space-y-2">
+                  <p className="font-medium text-primary">AI Analysis Process:</p>
+                  <p>Based on your selected interests, our AI analyzes patterns and relationships to suggest related activities and sub-categories that might interest you. For example:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    {form.watch("preferences.interests")?.map((interest, idx) => (
+                      <li key={idx} className="text-muted-foreground">
+                        From "{interest}" → Looking for specific activities, related hobbies, and specialized sub-categories
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="p-4 border rounded-lg bg-secondary/5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <p className="font-medium">AI-Suggested Interests</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {suggestedInterests.map((interest, index) => (
+                    <Badge
+                      key={`suggestion-${index}`}
+                      variant={form.watch("preferences.interests")?.includes(suggestedInterest(interest)) ? "default" : "outline"}
+                      className="cursor-pointer hover:bg-primary/20 transition-colors"
+                      onClick={() => toggleInterest(suggestedInterest(interest))}
+                    >
+                      {suggestedInterest(interest)}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -391,4 +421,6 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
       </form>
     </Form>
   );
-}
+};
+
+export default ProfileEditForm;
