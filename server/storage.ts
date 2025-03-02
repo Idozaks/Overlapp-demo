@@ -13,6 +13,10 @@ const storageLog = (operation: string, details: any) => {
   log(`[STORAGE] ${timestamp} - ${operation}:`, JSON.stringify(details, null, 2));
 };
 
+import { interests, type Interest, type InsertInterest } from "@shared/schema";
+import { eq } from "drizzle-orm";
+
+// Add to the IStorage interface
 export interface IStorage {
   // User operations
   getAllUsers(): Promise<User[]>;
@@ -70,6 +74,8 @@ export interface IStorage {
   addAiGeneratedInterest(name: string): Promise<Interest>;
   getOrCreateAiInterest(name: string): Promise<Interest>;
   deleteInterest(id: number): Promise<void>;
+  createInterest(interest: InsertInterest): Promise<Interest>;
+  getInterestByName(name: string): Promise<Interest | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -601,6 +607,33 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       log("Error deleting interest:", errorMessage);
+      throw error;
+    }
+  }
+  async createInterest(interest: InsertInterest): Promise<Interest> {
+    try {
+      const [newInterest] = await db
+        .insert(interests)
+        .values(interest)
+        .returning();
+      return newInterest;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log("Error creating interest:", errorMessage);
+      throw error;
+    }
+  }
+
+  async getInterestByName(name: string): Promise<Interest | undefined> {
+    try {
+      const [interest] = await db
+        .select()
+        .from(interests)
+        .where(eq(interests.name, name));
+      return interest;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log("Error getting interest by name:", errorMessage);
       throw error;
     }
   }

@@ -156,9 +156,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             // Create the new AI-generated interest
             const response = await apiRequest('/api/interests', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
               body: JSON.stringify({
                 name: interest,
                 category: 'AI_GENERATED',
@@ -166,13 +163,27 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 isAiGenerated: true
               })
             });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || errorData.error || 'Failed to create interest');
+            }
+
             const newInterest = await response.json();
-            newInterests.push(newInterest);
+            if (newInterest.interest) { // Handle case where interest already exists
+              newInterests.push(newInterest.interest);
+            } else {
+              newInterests.push(newInterest);
+            }
           } catch (error) {
-            console.error('Error creating new interest:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            console.error('Error creating interest:', errorMessage);
             toast({
               title: t("profile.error"),
-              description: t("profile.errorCreatingInterest", { interest }),
+              description: t("profile.errorCreatingInterest", { 
+                interest,
+                error: errorMessage 
+              }),
               variant: "destructive"
             });
             // Skip this interest but continue with others
