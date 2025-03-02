@@ -253,6 +253,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return response.json();
     },
     onSuccess: (data) => {
+      // Only update local state, don't create interests in DB yet
       setSuggestedInterests(data.suggestions);
       toast({
         title: t("profile.enrichSuccess"),
@@ -287,23 +288,25 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       const newSet = new Set(prev);
       if (newSet.has(interest)) {
         newSet.delete(interest);
+        if (isAiSuggested) {
+          setAiGeneratedInterests(prev => {
+            const newAiSet = new Set(prev);
+            newAiSet.delete(interest);
+            return newAiSet;
+          });
+        }
       } else {
         newSet.add(interest);
+        if (isAiSuggested) {
+          setAiGeneratedInterests(prev => {
+            const newAiSet = new Set(prev);
+            newAiSet.add(interest);
+            return newAiSet;
+          });
+        }
       }
       return newSet;
     });
-
-    if (isAiSuggested) {
-      setAiGeneratedInterests(prev => {
-        const newSet = new Set(prev);
-        if (prev.has(interest)) {
-          newSet.delete(interest);
-        } else {
-          newSet.add(interest);
-        }
-        return newSet;
-      });
-    }
   };
 
   const toggleRetailPreference = (preference: string) => {
