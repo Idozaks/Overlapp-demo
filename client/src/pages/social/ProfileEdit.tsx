@@ -2,7 +2,7 @@ import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import ProfileEditForm from "@/components/profile/ProfileEdit"; //This import will be updated
+import ProfileEditForm from "@/components/profile/ProfileEdit"; 
 import type { User } from "@shared/schema";
 import { useState, useEffect } from "react";
 import { useRoute } from "wouter";
@@ -20,7 +20,6 @@ import { useToast } from "@/components/ui/use-toast";
 import type { User as User2 } from "@shared/schema";
 import TagInput from "@/components/profile/TagInput";
 
-
 export default function ProfileEditPage() {
   const { id } = useParams();
   const userId = id ? parseInt(id) : null;
@@ -31,7 +30,6 @@ export default function ProfileEditPage() {
     enabled: !!userId && !isNaN(userId)
   });
 
-  // Make sure all returns are inside the ProfileEditPage function
   const [isLoading, setIsLoading] = useState(loadingUser);
   const [userData, setUserData] = useState(user);
 
@@ -90,7 +88,6 @@ export default function ProfileEditPage() {
     </div>
   );
 }
-
 
 const { toast } = useToast();
 const queryClient = useQueryClient();
