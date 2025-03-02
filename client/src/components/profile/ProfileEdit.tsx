@@ -21,6 +21,7 @@ import type { User } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 const profileUpdateSchema = z.object({
   displayName: z.string()
@@ -67,6 +68,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const [suggestedInterests, setSuggestedInterests] = useState<string[]>([]);
   const [isEnriching, setIsEnriching] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
+  const [aiGeneratedInterests, setAiGeneratedInterests] = useState<Set<string>>(new Set());
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -179,11 +181,24 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     setIsEnriching(false);
   };
 
-  const toggleInterest = (interest: string) => {
+  const toggleInterest = (interest: string, isAiSuggested = false) => {
     const currentInterests = form.getValues("preferences.interests") || [];
     const newInterests = currentInterests.includes(interest)
       ? currentInterests.filter(i => i !== interest)
       : [...currentInterests, interest];
+
+    if (isAiSuggested) {
+      setAiGeneratedInterests(prev => {
+        const newSet = new Set(prev);
+        if (currentInterests.includes(interest)) {
+          newSet.delete(interest);
+        } else {
+          newSet.add(interest);
+        }
+        return newSet;
+      });
+    }
+
     form.setValue("preferences.interests", newInterests, { shouldValidate: true });
   };
 
@@ -326,13 +341,19 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             </Button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {AVAILABLE_INTERESTS.map(interest => (
+            {[...AVAILABLE_INTERESTS, ...Array.from(aiGeneratedInterests)].map(interest => (
               <Badge
                 key={interest}
                 variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}
-                className="cursor-pointer"
+                className={cn(
+                  "cursor-pointer",
+                  aiGeneratedInterests.has(interest) && "border-primary/50 bg-primary/5"
+                )}
                 onClick={() => toggleInterest(interest)}
               >
+                {aiGeneratedInterests.has(interest) && (
+                  <Sparkles className="h-3 w-3 mr-1 inline-block text-primary" />
+                )}
                 {interest}
               </Badge>
             ))}
@@ -373,16 +394,22 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <p className="font-medium">AI-Suggested Interests</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {suggestedInterests.map((interest, index) => (
-                    <Badge
-                      key={`suggestion-${index}`}
-                      variant={form.watch("preferences.interests")?.includes(suggestedInterest(interest)) ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-primary/20 transition-colors"
-                      onClick={() => toggleInterest(suggestedInterest(interest))}
-                    >
-                      {suggestedInterest(interest)}
-                    </Badge>
-                  ))}
+                  {suggestedInterests.map((interest, index) => {
+                    const cleanInterest = suggestedInterest(interest);
+                    const isSelected = form.watch("preferences.interests")?.includes(cleanInterest);
+
+                    return (
+                      <Badge
+                        key={`suggestion-${index}`}
+                        variant={isSelected ? "default" : "outline"}
+                        className="cursor-pointer hover:bg-primary/20 transition-colors"
+                        onClick={() => toggleInterest(cleanInterest, true)}
+                      >
+                        <Sparkles className="h-3 w-3 mr-1 inline-block" />
+                        {cleanInterest}
+                      </Badge>
+                    );
+                  })}
                 </div>
               </div>
             </div>
