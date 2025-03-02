@@ -33,7 +33,6 @@ const profileUpdateSchema = z.object({
     .or(z.literal("")),
   avatar: z.union([z.string().url({ message: "Please enter a valid URL" }), z.instanceof(File)]).optional().or(z.literal("")),
   preferences: z.object({
-    interests: z.array(z.string()),
     retailPreferences: z.array(z.string())
   }).optional()
 });
@@ -64,7 +63,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const [showAiThinking, setShowAiThinking] = useState(false);
   const [aiGeneratedInterests, setAiGeneratedInterests] = useState<Set<string>>(new Set());
 
-  // Fetch all available interests from the database
+  // Fetch all available interests
   const { data: allInterests } = useQuery({
     queryKey: ['/api/interests'],
     queryFn: async () => {
@@ -85,7 +84,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   });
 
   const availableInterests = allInterests?.map((interest: Interest) => interest.name) || [];
-  const userInterestIds = new Set(userInterests?.map((interest: Interest) => interest.id) || []);
+  const userSelectedInterests = userInterests?.map((interest: Interest) => interest.name) || [];
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -94,7 +93,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       bio: user.bio || "",
       avatar: user.avatar || "",
       preferences: {
-        interests: userInterests?.map((interest: Interest) => interest.name) || [],
         retailPreferences: user.preferences?.retailPreferences || []
       }
     }
@@ -187,8 +185,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   });
 
   const handleEnrichInterests = async () => {
-    const currentInterests = form.getValues("preferences.interests") || [];
-    if (currentInterests.length === 0) {
+    if (userSelectedInterests.length === 0) {
       toast({
         title: t("profile.enrichError"),
         description: t("profile.selectInterestsFirst"),
@@ -197,12 +194,11 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return;
     }
     setIsEnriching(true);
-    await enrichInterestsMutation.mutateAsync(currentInterests);
+    await enrichInterestsMutation.mutateAsync(userSelectedInterests);
     setIsEnriching(false);
   };
 
   const toggleInterest = async (interest: string, isAiSuggested = false) => {
-    const currentInterests = form.getValues("preferences.interests") || [];
     const interestObj = allInterests?.find((i: Interest) => i.name === interest);
 
     if (!interestObj) {
@@ -210,15 +206,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return;
     }
 
-    if (currentInterests.includes(interest)) {
+    if (userSelectedInterests.includes(interest)) {
       // Remove interest
       try {
         await apiRequest(`/api/users/${user.id}/interests/${interestObj.id}`, {
           method: 'DELETE'
         });
-
-        const newInterests = currentInterests.filter(i => i !== interest);
-        form.setValue("preferences.interests", newInterests, { shouldValidate: true });
 
         if (isAiSuggested) {
           setAiGeneratedInterests(prev => {
@@ -245,9 +238,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
           },
           body: JSON.stringify({ interestId: interestObj.id })
         });
-
-        const newInterests = [...currentInterests, interest];
-        form.setValue("preferences.interests", newInterests, { shouldValidate: true });
 
         if (isAiSuggested) {
           setAiGeneratedInterests(prev => {
@@ -284,7 +274,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       bio: data.bio || undefined,
       avatar: data.avatar || undefined,
       preferences: {
-        interests: data.preferences?.interests || [],
         retailPreferences: data.preferences?.retailPreferences || []
       }
     };
@@ -413,7 +402,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             {[...availableInterests, ...Array.from(aiGeneratedInterests)].map(interest => (
               <Badge
                 key={interest}
-                variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}
+                variant={userSelectedInterests.includes(interest) ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer",
                   aiGeneratedInterests.has(interest) && "border-primary/50 bg-primary/5"
@@ -448,7 +437,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <p className="font-medium text-primary">AI Analysis Process:</p>
                   <p>Based on your selected interests, our AI analyzes patterns and relationships to suggest related activities and sub-categories that might interest you. For example:</p>
                   <ul className="list-disc list-inside space-y-1 ml-2">
-                    {form.watch("preferences.interests")?.map((interest, idx) => (
+                    {userSelectedInterests.map((interest, idx) => (
                       <li key={idx} className="text-muted-foreground">
                         From "{interest}" → Looking for specific activities, related hobbies, and specialized sub-categories
                       </li>
@@ -465,7 +454,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 <div className="flex flex-wrap gap-2">
                   {suggestedInterests.map((interest, index) => {
                     const cleanInterest = suggestedInterest(interest);
-                    const isSelected = form.watch("preferences.interests")?.includes(cleanInterest);
+                    const isSelected = userSelectedInterests.includes(cleanInterest);
 
                     return (
                       <Badge
