@@ -62,6 +62,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const [isEnriching, setIsEnriching] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
   const [aiGeneratedInterests, setAiGeneratedInterests] = useState<Set<string>>(new Set());
+  const [pendingInterests, setPendingInterests] = useState<Set<string>>(new Set());
 
   // Fetch all available interests
   const { data: allInterests } = useQuery({
@@ -86,6 +87,13 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const availableInterests = allInterests?.map((interest: Interest) => interest.name) || [];
   const userSelectedInterests = userInterests?.map((interest: Interest) => interest.name) || [];
 
+  // Initialize pending interests with current user interests
+  useState(() => {
+    if (userSelectedInterests.length > 0) {
+      setPendingInterests(new Set(userSelectedInterests));
+    }
+  }, [userSelectedInterests]);
+
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
@@ -104,6 +112,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         throw new Error("Invalid user ID");
       }
 
+      // First update user profile
       let body;
       const requestOptions: RequestInit = {
         method: "PATCH"
@@ -132,6 +141,39 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       if (!result.user) {
         throw new Error("Invalid response from server");
       }
+
+      // Then update interests
+      const currentInterestNames = new Set(userSelectedInterests);
+      const pendingInterestNames = new Set(pendingInterests);
+
+      // Remove interests that are no longer selected
+      for (const interest of currentInterestNames) {
+        if (!pendingInterestNames.has(interest)) {
+          const interestObj = allInterests?.find((i: Interest) => i.name === interest);
+          if (interestObj) {
+            await apiRequest(`/api/users/${user.id}/interests/${interestObj.id}`, {
+              method: 'DELETE'
+            });
+          }
+        }
+      }
+
+      // Add new interests
+      for (const interest of pendingInterestNames) {
+        if (!currentInterestNames.has(interest)) {
+          const interestObj = allInterests?.find((i: Interest) => i.name === interest);
+          if (interestObj) {
+            await apiRequest(`/api/users/${user.id}/interests`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ interestId: interestObj.id })
+            });
+          }
+        }
+      }
+
       return result.user;
     },
     onSuccess: (updatedUser) => {
@@ -139,7 +181,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         title: t("profile.updateSuccess"),
         description: t("profile.updateSuccessMessage")
       });
-      queryClient.setQueryData([`/api/users/${user.id}`], { user: updatedUser });
+      queryClient.invalidateQueries([`/api/users/${user.id}`]);
+      queryClient.invalidateQueries([`/api/users/${user.id}/interests`]);
       onSuccess?.();
     },
     onError: (error: Error) => {
@@ -185,7 +228,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   });
 
   const handleEnrichInterests = async () => {
-    if (userSelectedInterests.length === 0) {
+    if (pendingInterests.size === 0) {
       toast({
         title: t("profile.enrichError"),
         description: t("profile.selectInterestsFirst"),
@@ -194,70 +237,32 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return;
     }
     setIsEnriching(true);
-    await enrichInterestsMutation.mutateAsync(userSelectedInterests);
+    await enrichInterestsMutation.mutateAsync(Array.from(pendingInterests));
     setIsEnriching(false);
   };
 
-  const toggleInterest = async (interest: string, isAiSuggested = false) => {
-    const interestObj = allInterests?.find((i: Interest) => i.name === interest);
-
-    if (!interestObj) {
-      console.error('Interest not found in database:', interest);
-      return;
-    }
-
-    if (userSelectedInterests.includes(interest)) {
-      // Remove interest
-      try {
-        await apiRequest(`/api/users/${user.id}/interests/${interestObj.id}`, {
-          method: 'DELETE'
-        });
-
-        if (isAiSuggested) {
-          setAiGeneratedInterests(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(interest);
-            return newSet;
-          });
-        }
-      } catch (error) {
-        console.error('Error removing interest:', error);
-        toast({
-          title: "Error",
-          description: "Failed to remove interest",
-          variant: "destructive"
-        });
+  const toggleInterest = (interest: string, isAiSuggested = false) => {
+    setPendingInterests(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(interest)) {
+        newSet.delete(interest);
+      } else {
+        newSet.add(interest);
       }
-    } else {
-      // Add interest
-      try {
-        await apiRequest(`/api/users/${user.id}/interests`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ interestId: interestObj.id })
-        });
+      return newSet;
+    });
 
-        if (isAiSuggested) {
-          setAiGeneratedInterests(prev => {
-            const newSet = new Set(prev);
-            newSet.add(interest);
-            return newSet;
-          });
+    if (isAiSuggested) {
+      setAiGeneratedInterests(prev => {
+        const newSet = new Set(prev);
+        if (prev.has(interest)) {
+          newSet.delete(interest);
+        } else {
+          newSet.add(interest);
         }
-      } catch (error) {
-        console.error('Error adding interest:', error);
-        toast({
-          title: "Error",
-          description: "Failed to add interest",
-          variant: "destructive"
-        });
-      }
+        return newSet;
+      });
     }
-
-    // Invalidate queries to refresh the data
-    queryClient.invalidateQueries([`/api/users/${user.id}/interests`]);
   };
 
   const toggleRetailPreference = (preference: string) => {
@@ -402,7 +407,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             {[...availableInterests, ...Array.from(aiGeneratedInterests)].map(interest => (
               <Badge
                 key={interest}
-                variant={userSelectedInterests.includes(interest) ? "default" : "outline"}
+                variant={pendingInterests.has(interest) ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer",
                   aiGeneratedInterests.has(interest) && "border-primary/50 bg-primary/5"
@@ -437,7 +442,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <p className="font-medium text-primary">AI Analysis Process:</p>
                   <p>Based on your selected interests, our AI analyzes patterns and relationships to suggest related activities and sub-categories that might interest you. For example:</p>
                   <ul className="list-disc list-inside space-y-1 ml-2">
-                    {userSelectedInterests.map((interest, idx) => (
+                    {Array.from(pendingInterests).map((interest, idx) => (
                       <li key={idx} className="text-muted-foreground">
                         From "{interest}" → Looking for specific activities, related hobbies, and specialized sub-categories
                       </li>
@@ -454,7 +459,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 <div className="flex flex-wrap gap-2">
                   {suggestedInterests.map((interest, index) => {
                     const cleanInterest = suggestedInterest(interest);
-                    const isSelected = userSelectedInterests.includes(cleanInterest);
+                    const isSelected = pendingInterests.has(cleanInterest);
 
                     return (
                       <Badge
