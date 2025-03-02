@@ -622,16 +622,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid interest ID" });
       }
 
-      // Delete the interest
-      await storage.deleteInterest(interestId);
-      res.status(200).json({ message: "Interest deleted successfully" });
+      // Check if interest exists first
+      const interest = await storage.getInterest(interestId);
+      if (!interest) {
+        return res.status(404).json({ message: `Interest with ID ${interestId} not found` });
+      }
+
+      try {
+        // Delete the interest
+        await storage.deleteInterest(interestId);
+        res.status(200).json({ message: "Interest deleted successfully" });
+      } catch (deleteError) {
+        // Check if error is due to foreign key constraint
+        const errorMessage = deleteError instanceof Error ? deleteError.message : String(deleteError);
+        if (errorMessage.includes('foreign key constraint')) {
+          return res.status(409).json({ 
+            message: "Cannot delete this interest as it is currently being used by users. Please remove all user associations first.",
+            error: errorMessage
+          });
+        }
+        throw deleteError; // Re-throw other errors to be caught by outer catch
+      }
     } catch (error) {
-      log("Error deleting interest:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to delete interest" });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log("Error deleting interest:", errorMessage);
+      res.status(500).json({ 
+        message: "Failed to delete interest", 
+        error: errorMessage,
+        details: "This could be due to a database connection issue or the interest being referenced by other users"
+      });
     }
   });
 
-  // Add this new route before httpServer creation
   app.post("/api/interests/enrich", async (req: Request, res: Response) => {
     try {
       const { interests } = req.body;
