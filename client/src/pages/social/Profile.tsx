@@ -23,6 +23,7 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
 
+  // Group all useQuery hooks together at the top
   const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
     queryKey: [`/api/users/${userId}`],
     enabled: !!userId && !isNaN(userId)
@@ -43,6 +44,16 @@ export default function Profile() {
     enabled: !!userId && !isNaN(userId)
   });
 
+  const { data: userInterests } = useQuery<{ interests: Interest[] }>({
+    queryKey: [`/api/users/${userId}/interests`],
+    queryFn: async () => {
+      const response = await apiRequest(`/api/users/${userId}/interests`);
+      return response.json();
+    },
+    enabled: !!userId && !isNaN(userId)
+  });
+
+  // Group mutations together
   const followMutation = useMutation({
     mutationFn: async () => {
       if (!currentUser?.id) {
@@ -79,6 +90,7 @@ export default function Profile() {
     }
   });
 
+  // Handle invalid userId
   if (!userId || isNaN(userId)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -91,6 +103,7 @@ export default function Profile() {
     );
   }
 
+  // Handle loading state
   if (loadingUser || loadingPosts) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -99,6 +112,7 @@ export default function Profile() {
     );
   }
 
+  // Handle user not found
   if (!user?.user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -123,16 +137,6 @@ export default function Profile() {
   };
 
   const retailPreferences = user.user.preferences?.retailPreferences || [];
-
-  const { data: userInterests } = useQuery<{ interests: Interest[] }>({
-    queryKey: [`/api/users/${userId}/interests`],
-    queryFn: async () => {
-      const response = await apiRequest(`/api/users/${userId}/interests`);
-      return response.json();
-    },
-    enabled: !!userId && !isNaN(userId)
-  });
-
   const interests = userInterests?.interests?.map(interest => interest.name) || [];
 
   return (
