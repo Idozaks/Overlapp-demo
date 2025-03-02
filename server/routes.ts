@@ -609,6 +609,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add DELETE endpoint for interests
+  app.delete("/api/interests/:id", async (req: Request, res: Response) => {
+    try {
+      // Check if user is authenticated and is admin
+      if (!req.isAuthenticated() || !req.user?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized. Admin access required." });
+      }
+
+      const interestId = Number(req.params.id);
+      if (isNaN(interestId)) {
+        return res.status(400).json({ message: "Invalid interest ID" });
+      }
+
+      // Delete the interest
+      await storage.deleteInterest(interestId);
+      res.status(200).json({ message: "Interest deleted successfully" });
+    } catch (error) {
+      log("Error deleting interest:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to delete interest" });
+    }
+  });
+
   // Add this new route before httpServer creation
   app.post("/api/interests/enrich", async (req: Request, res: Response) => {
     try {
@@ -805,7 +827,7 @@ const SYNTHETIC_USERS = [
     username: "tech_explorer",
     password: "password123",
     displayName: "Alex Tech",
-    bio: "Tech enthusiast exploring the intersection of AI and human creativity",
+    bio: "Tech enthusiast exploring theintersection of AI and human creativity",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
     preferences: {
       interests: ["AI", "Technology", "Innovation"],
