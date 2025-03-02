@@ -12,6 +12,11 @@ import { apiRequest } from "@/lib/queryClient";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
+// Added type definition for Interest
+interface Interest {
+  name: string;
+}
+
 export default function Profile() {
   const { id } = useParams();
   const userId = id ? parseInt(id) : null;
@@ -117,8 +122,18 @@ export default function Profile() {
     }
   };
 
-  const interests = user.user.preferences?.interests || [];
   const retailPreferences = user.user.preferences?.retailPreferences || [];
+
+  const { data: userInterests } = useQuery<{ interests: Interest[] }>({
+    queryKey: [`/api/users/${userId}/interests`],
+    queryFn: async () => {
+      const response = await apiRequest(`/api/users/${userId}/interests`);
+      return response.json();
+    },
+    enabled: !!userId && !isNaN(userId)
+  });
+
+  const interests = userInterests?.interests?.map(interest => interest.name) || [];
 
   return (
     <div className="min-h-screen bg-background">
