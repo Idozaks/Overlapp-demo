@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,12 +45,6 @@ interface ProfileEditFormProps {
   onSuccess?: () => void;
 }
 
-const AVAILABLE_INTERESTS = [
-  "Technology", "Fashion", "Sports", "Art", "Music",
-  "Travel", "Food", "Fitness", "Gaming", "Books",
-  "Water Sports", "Photography", "Cooking", "Dance", "Movies"
-];
-
 const RETAIL_PREFERENCES = [
   "Electronics", "Clothing", "Home & Garden", "Sports Equipment",
   "Books & Media", "Beauty & Health", "Toys & Games", "Automotive",
@@ -69,6 +63,18 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const [isEnriching, setIsEnriching] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
   const [aiGeneratedInterests, setAiGeneratedInterests] = useState<Set<string>>(new Set());
+
+  // Fetch interests from the database
+  const { data: interestsData } = useQuery({
+    queryKey: ['/api/interests'],
+    queryFn: async () => {
+      const response = await apiRequest('/api/interests');
+      const data = await response.json();
+      return data.interests;
+    }
+  });
+
+  const availableInterests = interestsData?.map(interest => interest.name) || [];
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -296,7 +302,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                         }
                       }}
                     >
-                      Pick from predefined avatars
+                      {t("profile.selectPredefinedAvatar")}
                     </Button>
                     <div id="avatar-grid" className="grid grid-cols-5 gap-2" style={{ display: 'none' }}>
                       {Array.from({ length: 20 }, (_, i) => (
@@ -341,7 +347,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             </Button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {[...AVAILABLE_INTERESTS, ...Array.from(aiGeneratedInterests)].map(interest => (
+            {[...availableInterests, ...Array.from(aiGeneratedInterests)].map(interest => (
               <Badge
                 key={interest}
                 variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}

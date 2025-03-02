@@ -385,7 +385,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 
-
   // Social Connections
   app.post("/api/users/:id/follow", async (req: Request, res: Response) => {
     try {
@@ -596,6 +595,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       log("Error fetching recommendations:", String(error));
       res.status(500).json({ message: "Unable to fetch recommendations" });
+    }
+  });
+
+  // Add new endpoint to get all interests
+  app.get("/api/interests", async (req: Request, res: Response) => {
+    try {
+      const allInterests = await storage.getInterests();
+      res.json({ interests: allInterests });
+    } catch (error) {
+      log("Error fetching interests:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch interests" });
     }
   });
 

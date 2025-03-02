@@ -1,4 +1,4 @@
-import { pgTable, text, serial, jsonb, timestamp, integer, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, jsonb, timestamp, integer, decimal, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -91,7 +91,7 @@ export const interests = pgTable("interests", {
   category: text("category").notNull(), 
   description: text("description"),
   iconUrl: text("icon_url"),
-  isAiGenerated: text("is_ai_generated").default("false"),
+  isAiGenerated: boolean("is_ai_generated").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
