@@ -9,8 +9,8 @@ export const users = pgTable("users", {
   displayName: text("display_name"),
   avatar: text("avatar_url"),
   bio: text("bio"),
+  isAdmin: boolean("is_admin").default(false),
   preferences: jsonb("preferences").$type<{
-    interests: string[]; 
     retailPreferences: string[];
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -65,8 +65,8 @@ export const transactions = pgTable("transactions", {
   toWalletId: integer("to_wallet_id").references(() => wallets.id),
   nftId: integer("nft_id").references(() => nfts.id),
   amount: text("amount"),
-  type: text("type").notNull(), 
-  status: text("status").notNull(), 
+  type: text("type").notNull(),
+  status: text("status").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -88,7 +88,7 @@ export const likes = pgTable("likes", {
 export const interests = pgTable("interests", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
-  category: text("category").notNull(), 
+  category: text("category").notNull(),
   description: text("description"),
   iconUrl: text("icon_url"),
   isAiGenerated: boolean("is_ai_generated").default(false),
@@ -102,7 +102,7 @@ export const interestContent = pgTable("interest_content", {
   description: text("description"),
   url: text("url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
-  type: text("type").notNull(), 
+  type: text("type").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -119,6 +119,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   displayName: true,
   avatar: true,
   bio: true,
+  isAdmin: true,
   preferences: true,
 });
 

@@ -14,6 +14,7 @@ import ExploreUsers from "@/pages/social/ExploreUsers";
 import Profile from "@/pages/social/Profile";
 import ProfileEdit from "@/pages/social/ProfileEdit";
 import WalletDashboard from "@/pages/wallet/Dashboard";
+import InterestManager from "@/pages/admin/InterestManager";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,10 +33,25 @@ import {
   DrawerTitle,
   DrawerFooter,
 } from "@/components/ui/drawer";
-import { Loader2, HomeIcon, UsersIcon, CompassIcon, WalletIcon, PlayIcon, MailIcon, User, Settings, LogOut, Menu } from "lucide-react";
+import { 
+  Loader2, 
+  HomeIcon, 
+  UsersIcon, 
+  CompassIcon, 
+  WalletIcon, 
+  PlayIcon, 
+  MailIcon, 
+  User, 
+  Settings, 
+  LogOut, 
+  Menu,
+  Shield
+} from "lucide-react";
 import "./lib/i18n";
 
 function Router() {
+  const { user } = useAuth();
+
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -48,6 +64,7 @@ function Router() {
       <Route path="/profile/:id" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/wallet" component={WalletDashboard} />
+      {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
       <Route component={NotFound} />
     </Switch>
   );
@@ -77,6 +94,12 @@ function Header() {
             <WalletIcon className="w-4 h-4" />
             Wallet
           </a>
+          {user.isAdmin && (
+            <a href="/admin/interests" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+              <Shield className="w-4 h-4" />
+              Manage Interests
+            </a>
+          )}
         </>
       ) : (
         <a href="/demo" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
@@ -133,6 +156,7 @@ function Header() {
                     <Button variant="ghost" className="flex items-center gap-2">
                       <span className="text-sm">
                         {user.displayName || user.username}
+                        {user.isAdmin && <Shield className="w-3 h-3 ml-1 inline" />}
                       </span>
                       <User className="w-4 h-4" />
                     </Button>
@@ -147,6 +171,15 @@ function Header() {
                       <Settings className="w-4 h-4 mr-2" />
                       Edit Profile
                     </DropdownMenuItem>
+                    {user.isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => navigate('/admin/interests')}>
+                          <Shield className="w-4 h-4 mr-2" />
+                          Manage Interests
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => {
