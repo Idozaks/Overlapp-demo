@@ -59,7 +59,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Group all state hooks at the top
+  // All state hooks at the top
   const [suggestedInterests, setSuggestedInterests] = useState<string[]>([]);
   const [isEnriching, setIsEnriching] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
@@ -67,27 +67,27 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const [pendingInterests, setPendingInterests] = useState<Set<string>>(new Set());
 
   // Fetch all available interests
-  const { data: allInterests } = useQuery({
+  const { data: allInterests } = useQuery<{ interests: Interest[] }>({
     queryKey: ['/api/interests'],
     queryFn: async () => {
       const response = await apiRequest('/api/interests');
       const data = await response.json();
-      return data.interests;
+      return data;
     }
   });
 
   // Fetch user's current interests
-  const { data: userInterests } = useQuery({
+  const { data: userInterests } = useQuery<{ interests: Interest[] }>({
     queryKey: [`/api/users/${user.id}/interests`],
     queryFn: async () => {
       const response = await apiRequest(`/api/users/${user.id}/interests`);
       const data = await response.json();
-      return data.interests;
+      return data;
     }
   });
 
-  const availableInterests = allInterests?.map((interest: Interest) => interest.name) || [];
-  const userSelectedInterests = userInterests?.map((interest: Interest) => interest.name) || [];
+  const availableInterests = allInterests?.interests?.map((interest: Interest) => interest.name) || [];
+  const userSelectedInterests = userInterests?.interests?.map((interest: Interest) => interest.name) || [];
 
   // Initialize pending interests when userSelectedInterests changes
   useEffect(() => {
@@ -151,7 +151,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       // Remove interests that are no longer selected
       for (const interest of currentInterestNames) {
         if (!pendingInterestNames.has(interest)) {
-          const interestObj = allInterests?.find((i: Interest) => i.name === interest);
+          const interestObj = allInterests?.interests?.find((i: Interest) => i.name === interest);
           if (interestObj) {
             await apiRequest(`/api/users/${user.id}/interests/${interestObj.id}`, {
               method: 'DELETE'
@@ -163,7 +163,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       // Add new interests
       for (const interest of pendingInterestNames) {
         if (!currentInterestNames.has(interest)) {
-          const interestObj = allInterests?.find((i: Interest) => i.name === interest);
+          const interestObj = allInterests?.interests?.find((i: Interest) => i.name === interest);
           if (interestObj) {
             await apiRequest(`/api/users/${user.id}/interests`, {
               method: 'POST',
