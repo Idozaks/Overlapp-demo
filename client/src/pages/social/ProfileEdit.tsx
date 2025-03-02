@@ -31,6 +31,15 @@ export default function ProfileEditPage() {
     enabled: !!userId && !isNaN(userId)
   });
 
+  // Make sure all returns are inside the ProfileEditPage function
+  const [isLoading, setIsLoading] = useState(loadingUser);
+  const [userData, setUserData] = useState(user);
+
+  useEffect(() => {
+    setIsLoading(loadingUser);
+    setUserData(user);
+  }, [loadingUser, user]);
+
   if (!userId || isNaN(userId)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -43,7 +52,7 @@ export default function ProfileEditPage() {
     );
   }
 
-  if (loadingUser) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -51,7 +60,7 @@ export default function ProfileEditPage() {
     );
   }
 
-  if (!user?.user) {
+  if (!userData?.user && !isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card>
@@ -69,10 +78,12 @@ export default function ProfileEditPage() {
         <Card>
           <CardContent className="pt-6">
             <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
-            <ProfileEditForm 
-              user={user.user} 
-              onSuccess={() => setLocation(`/profile/${userId}`)}
-            />
+            {userData?.user && (
+              <ProfileEditForm 
+                user={userData.user} 
+                onSuccess={() => setLocation(`/profile/${userId}`)}
+              />
+            )}
           </CardContent>
         </Card>
       </div>
