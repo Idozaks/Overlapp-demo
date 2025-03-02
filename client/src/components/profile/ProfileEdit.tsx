@@ -20,7 +20,7 @@ import { apiRequest } from "@/lib/queryClient";
 import type { User, Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const profileUpdateSchema = z.object({
@@ -58,6 +58,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Group all state hooks at the top
   const [suggestedInterests, setSuggestedInterests] = useState<string[]>([]);
   const [isEnriching, setIsEnriching] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
@@ -87,8 +89,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const availableInterests = allInterests?.map((interest: Interest) => interest.name) || [];
   const userSelectedInterests = userInterests?.map((interest: Interest) => interest.name) || [];
 
-  // Initialize pending interests with current user interests
-  useState(() => {
+  // Initialize pending interests when userSelectedInterests changes
+  useEffect(() => {
     if (userSelectedInterests.length > 0) {
       setPendingInterests(new Set(userSelectedInterests));
     }
