@@ -696,35 +696,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .filter(s => s.length > 0);
         }
 
-        // Store AI-generated interests in the database
-        const storedSuggestions = await Promise.all(
-          suggestions.map(async (suggestion) => {
-            // Clean the suggestion string and create/get the interest
-            const cleanSuggestion = suggestion.replace(/[\[\]"]/g, '').trim();
-            if (cleanSuggestion) {
-              return await storage.getOrCreateAiInterest(cleanSuggestion);
-            }
-          })
-        );
+        // Clean suggestions without creating them in the database
+        suggestions = suggestions
+          .map(suggestion => suggestion.replace(/[\[\]"]/g, '').trim())
+          .filter(s => s.length > 0);
 
-        // Filter out any undefined values from failed creations
-        suggestions = storedSuggestions
-          .filter((s): s is Interest => s !== undefined)
-          .map(interest => interest.name);
+        // Filter out duplicates and existing interests
+        suggestions = Array.from(new Set(suggestions))
+          .filter(s => !interests.includes(s));
 
+        res.json({ suggestions });
       } catch (error) {
         log("Error parsing OpenAI response:", error instanceof Error ? error.message : String(error));
         suggestions = (completion.choices[0].message.content || "")
           .split("\n")
           .map(s => s.replace(/^[-*\d.]+\s*/, "").trim())
           .filter(s => s.length > 0);
+        res.json({ suggestions });
       }
-
-      // Filter out duplicates and existing interests using Array.from for better compatibility
-      suggestions = Array.from(new Set(suggestions))
-        .filter(s => !interests.includes(s));
-
-      res.json({ suggestions });
     } catch (error) {
       log("Interest enrichment error:", error instanceof Error ? error.message : String(error));
       res.status(500).json({
