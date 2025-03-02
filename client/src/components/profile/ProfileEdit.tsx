@@ -56,6 +56,10 @@ const RETAIL_PREFERENCES = [
   "Office Supplies", "Food & Beverage"
 ];
 
+const suggestedInterest = (interest: string) => {
+  return interest.replace(/[\[\]"]/g, '').trim();
+};
+
 export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -134,7 +138,7 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ interests }) 
+        body: JSON.stringify({ interests })
       });
 
       if (!response.ok) {
@@ -334,19 +338,19 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
           </div>
 
           {suggestedInterests.length > 0 && (
-            <div className="mt-4">
-              <FormLabel className="text-sm text-muted-foreground">
+            <div className="mt-4 p-4 border rounded-lg bg-secondary/10">
+              <FormLabel className="text-sm text-muted-foreground mb-2 block">
                 {t("profile.aiSuggestions")}
               </FormLabel>
               <div className="flex flex-wrap gap-2 mt-2">
                 {suggestedInterests.map((interest, index) => (
                   <Badge
                     key={`suggestion-${index}`}
-                    variant={form.watch("preferences.interests")?.includes(interest) ? "default" : "outline"}
-                    className="cursor-pointer bg-secondary/50"
-                    onClick={() => toggleInterest(interest)}
+                    variant={form.watch("preferences.interests")?.includes(suggestedInterest(interest)) ? "default" : "outline"}
+                    className="cursor-pointer hover:bg-primary/20 transition-colors"
+                    onClick={() => toggleInterest(suggestedInterest(interest))}
                   >
-                    {interest}
+                    {suggestedInterest(interest)}
                   </Badge>
                 ))}
               </div>

@@ -15,22 +15,34 @@ export async function enrichInterests(interests: string[]): Promise<EnrichIntere
       messages: [
         {
           role: "system",
-          content: "You are an expert at identifying related interests and hobbies. For each interest provided, suggest 2-3 related or more specific interests. Provide output as a JSON array of strings."
+          content: "You are an expert at identifying related interests and hobbies. For each interest provided, suggest 2-3 very specific and related interests or sub-categories. Keep suggestions concise and focused."
         },
         {
           role: "user",
-          content: `Please suggest related interests for: ${interests.join(", ")}. For example, if given "Water Sports", suggest specific activities like "Scuba Diving", "Surfing", "Jet Skiing". Return only the array of suggestions without the original interests.`
+          content: `For each of these interests, suggest 2-3 specific related interests or sub-categories: ${interests.join(", ")}. 
+          For example: 
+          - Photography → Street Photography, Nature Photography, Portrait Photography
+          - Sports → Basketball, Soccer, Tennis
+          - Gaming → Strategy Games, RPGs, eSports
+          Return only an array of new suggestions in this exact format: {"suggestions": ["suggestion1", "suggestion2", "suggestion3"]}`
         }
       ],
       response_format: { type: "json_object" }
     });
 
     const content = response.choices[0].message.content;
-    const parsed = JSON.parse(content || "{}");
+    if (!content) {
+      throw new Error("No content received from OpenAI");
+    }
+
+    const parsed = JSON.parse(content);
 
     // Filter out duplicates and original interests
     const suggestions = Array.isArray(parsed.suggestions) 
-      ? parsed.suggestions.filter((s: string) => !interests.includes(s))
+      ? parsed.suggestions
+          .filter((s: string) => !interests.includes(s))
+          .map((s: string) => s.trim())
+          .filter((s: string) => s.length > 0)
       : [];
 
     log("[OpenAI] Generated suggestions:", suggestions);
