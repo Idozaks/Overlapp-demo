@@ -91,6 +91,7 @@ export const interests = pgTable("interests", {
   category: text("category").notNull(), 
   description: text("description"),
   iconUrl: text("icon_url"),
+  isAiGenerated: text("is_ai_generated").default("false"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -111,7 +112,6 @@ export const userInterests = pgTable("user_interests", {
   interestId: integer("interest_id").references(() => interests.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
-
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -156,6 +156,7 @@ export const insertInterestSchema = createInsertSchema(interests).pick({
   category: true,
   description: true,
   iconUrl: true,
+  isAiGenerated: true,
 });
 
 export const insertInterestContentSchema = createInsertSchema(interestContent).pick({
