@@ -641,6 +641,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .map(s => s.trim())
             .filter(s => s.length > 0);
         }
+
+        // Store AI-generated interests in the database
+        const storedSuggestions = await Promise.all(
+          suggestions.map(async (suggestion) => {
+            // Clean the suggestion string and create/get the interest
+            const cleanSuggestion = suggestion.replace(/[\[\]"]/g, '').trim();
+            if (cleanSuggestion) {
+              return await storage.getOrCreateAiInterest(cleanSuggestion);
+            }
+          })
+        );
+
+        // Filter out any undefined values from failed creations
+        suggestions = storedSuggestions
+          .filter((s): s is Interest => s !== undefined)
+          .map(interest => interest.name);
+
       } catch (error) {
         log("Error parsing OpenAI response:", error instanceof Error ? error.message : String(error));
         suggestions = (completion.choices[0].message.content || "")
@@ -782,3 +799,9 @@ const SYNTHETIC_USERS = [
     }
   }
 ];
+
+//Needed Type Definition (Assuming)
+interface Interest {
+  id: number;
+  name: string;
+}

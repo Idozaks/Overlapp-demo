@@ -67,6 +67,8 @@ export interface IStorage {
   addUserInterest(userId: number, interestId: number): Promise<void>;
   removeUserInterest(userId: number, interestId: number): Promise<void>;
   addInterestContent(content: InsertInterestContent): Promise<InterestContent>;
+  addAiGeneratedInterest(name: string): Promise<Interest>;
+  getOrCreateAiInterest(name: string): Promise<Interest>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -548,6 +550,44 @@ export class DatabaseStorage implements IStorage {
       .values(content)
       .returning();
     return newContent;
+  }
+
+  async addAiGeneratedInterest(name: string): Promise<Interest> {
+    try {
+      const [interest] = await db
+        .insert(interests)
+        .values({
+          name,
+          category: 'AI_GENERATED',
+          description: `AI-suggested interest based on user preferences`,
+          isAiGenerated: true
+        })
+        .returning();
+      return interest;
+    } catch (error) {
+      log("Error creating AI interest:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getOrCreateAiInterest(name: string): Promise<Interest> {
+    try {
+      // First try to find existing interest
+      const [existingInterest] = await db
+        .select()
+        .from(interests)
+        .where(eq(interests.name, name));
+
+      if (existingInterest) {
+        return existingInterest;
+      }
+
+      // If not found, create new AI-generated interest
+      return await this.addAiGeneratedInterest(name);
+    } catch (error) {
+      log("Error in getOrCreateAiInterest:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
   }
 }
 
