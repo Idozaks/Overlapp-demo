@@ -343,9 +343,10 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
-                  className="text-sm font-medium"
+                  className="text-sm font-medium hover:bg-primary/10"
                   onClick={() => setShowAiThinking(!showAiThinking)}
                 >
                   {showAiThinking ? "Hide AI Analysis" : "Show AI Analysis"}
