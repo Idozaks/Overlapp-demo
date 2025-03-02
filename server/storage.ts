@@ -69,6 +69,7 @@ export interface IStorage {
   addInterestContent(content: InsertInterestContent): Promise<InterestContent>;
   addAiGeneratedInterest(name: string): Promise<Interest>;
   getOrCreateAiInterest(name: string): Promise<Interest>;
+  deleteInterest(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -586,6 +587,20 @@ export class DatabaseStorage implements IStorage {
       return await this.addAiGeneratedInterest(name);
     } catch (error) {
       log("Error in getOrCreateAiInterest:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async deleteInterest(id: number): Promise<void> {
+    try {
+      // First delete all user-interest relationships
+      await db.delete(userInterests).where(eq(userInterests.interestId, id));
+
+      // Then delete the interest itself
+      await db.delete(interests).where(eq(interests.id, id));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log("Error deleting interest:", errorMessage);
       throw error;
     }
   }
