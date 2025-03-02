@@ -10,7 +10,7 @@ export const users = pgTable("users", {
   avatar: text("avatar_url"),
   bio: text("bio"),
   preferences: jsonb("preferences").$type<{
-    interests: number[]; // Changed to array of interest IDs
+    interests: string[]; 
     retailPreferences: string[];
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -65,8 +65,8 @@ export const transactions = pgTable("transactions", {
   toWalletId: integer("to_wallet_id").references(() => wallets.id),
   nftId: integer("nft_id").references(() => nfts.id),
   amount: text("amount"),
-  type: text("type").notNull(), // 'MINT', 'TRANSFER', 'SALE'
-  status: text("status").notNull(), // 'PENDING', 'COMPLETED', 'FAILED'
+  type: text("type").notNull(), 
+  status: text("status").notNull(), 
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -85,11 +85,10 @@ export const likes = pgTable("likes", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// New tables for interests management
 export const interests = pgTable("interests", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
-  category: text("category").notNull(), // 'HOBBY', 'SHOPPING'
+  category: text("category").notNull(), 
   description: text("description"),
   iconUrl: text("icon_url"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -102,7 +101,7 @@ export const interestContent = pgTable("interest_content", {
   description: text("description"),
   url: text("url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
-  type: text("type").notNull(), // 'ARTICLE', 'SITE', 'VIDEO', etc.
+  type: text("type").notNull(), 
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -114,7 +113,6 @@ export const userInterests = pgTable("user_interests", {
 });
 
 
-// Insert Schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -153,7 +151,6 @@ export const insertTransactionSchema = createInsertSchema(transactions).pick({
   status: true,
 });
 
-// New insert schemas
 export const insertInterestSchema = createInsertSchema(interests).pick({
   name: true,
   category: true,
@@ -175,14 +172,12 @@ export const insertUserInterestSchema = createInsertSchema(userInterests).pick({
   interestId: true,
 });
 
-// Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type InsertNFT = z.infer<typeof insertNFTSchema>;
 export type InsertWallet = z.infer<typeof insertWalletSchema>;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 
-// New types
 export type InsertInterest = z.infer<typeof insertInterestSchema>;
 export type InsertInterestContent = z.infer<typeof insertInterestContentSchema>;
 export type InsertUserInterest = z.infer<typeof insertUserInterestSchema>;
@@ -200,7 +195,6 @@ export type InterestContent = typeof interestContent.$inferSelect;
 export type UserInterest = typeof userInterests.$inferSelect;
 
 
-// Combined Types
 export type PostWithUser = Post & { user: User };
 export type NFTWithCreator = NFT & { creator: User };
 export type TransactionWithDetails = Transaction & {
@@ -209,6 +203,5 @@ export type TransactionWithDetails = Transaction & {
   toWallet?: Wallet;
 };
 
-// Additional combined types
 export type InterestWithContent = Interest & { content: InterestContent[] };
 export type UserWithInterests = User & { interests: Interest[] };
