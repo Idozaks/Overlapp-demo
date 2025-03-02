@@ -131,7 +131,10 @@ export default function ProfileEditForm({ user, onSuccess }: ProfileEditFormProp
     mutationFn: async (interests: string[]) => {
       const response = await apiRequest('/api/interests/enrich', {
         method: 'POST',
-        body: { interests }
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ interests }) 
       });
 
       if (!response.ok) {
