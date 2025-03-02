@@ -145,11 +145,52 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       // Then update interests
       const currentInterestNames = new Set(userSelectedInterests);
       const pendingInterestNames = pendingInterests;
+      const interestNames = Array.from(pendingInterests);
+      let newInterests = [];
+
+      // If there are AI suggested interests in the pending list, create them first
+      for (const interest of interestNames) {
+        const existingInterest = allInterests?.interests?.find(i => i.name === interest);
+        if (!existingInterest && aiGeneratedInterests.has(interest)) {
+          try {
+            // Create the new AI-generated interest
+            const response = await apiRequest('/api/interests', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                name: interest,
+                category: 'AI_GENERATED',
+                description: 'AI-suggested interest based on user preferences',
+                isAiGenerated: true
+              })
+            });
+            const newInterest = await response.json();
+            newInterests.push(newInterest);
+          } catch (error) {
+            console.error('Error creating new interest:', error);
+            toast({
+              title: t("profile.error"),
+              description: t("profile.errorCreatingInterest", { interest }),
+              variant: "destructive"
+            });
+            // Skip this interest but continue with others
+            continue;
+          }
+        }
+      }
+
+      // Update the interests list with any newly created interests
+      const allAvailableInterests = [
+        ...(allInterests?.interests || []),
+        ...newInterests
+      ];
 
       // Remove interests that are no longer selected
       for (const interest of currentInterestNames) {
         if (!pendingInterestNames.has(interest)) {
-          const interestObj = allInterests?.interests?.find((i: Interest) => i.name === interest);
+          const interestObj = allAvailableInterests.find(i => i.name === interest);
           if (interestObj) {
             await apiRequest(`/api/users/${user.id}/interests/${interestObj.id}`, {
               method: 'DELETE'
@@ -161,7 +202,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       // Add new interests
       for (const interest of pendingInterestNames) {
         if (!currentInterestNames.has(interest)) {
-          const interestObj = allInterests?.interests?.find((i: Interest) => i.name === interest);
+          const interestObj = allAvailableInterests.find(i => i.name === interest);
           if (interestObj) {
             await apiRequest(`/api/users/${user.id}/interests`, {
               method: 'POST',
