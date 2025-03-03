@@ -18,8 +18,8 @@ export default function Header() {
 
   return (
     <header className="flex items-center justify-between p-4 border-b">
-      <Link href="/" className="flex items-center"> {/* Replaced text logo with image */}
-        <img src="/logo.png" alt="Overlapp Logo" className="h-10" />
+      <Link href="/" className="flex items-center"> 
+        <img src="/overlapp-logo.png" alt="Overlapp Logo" className="h-12" />
       </Link>
 
       <NavigationMenu>
