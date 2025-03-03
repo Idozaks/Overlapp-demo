@@ -21,7 +21,17 @@ export default function Hero() {
           className="max-w-3xl"
         >
           <div className="flex items-center mb-8">
-            <img src="/overlapp-logo.png" alt="Overlapp Logo" className="h-16 mr-4" />
+            <img 
+              src="/overlapp-logo.png" 
+              alt="Overlapp Logo" 
+              className="h-16 mr-4"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.src = "/client/public/overlapp-logo.png";
+              }}
+            />
+            <h3 className="text-2xl font-bold text-primary">Overlapp</h3>
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
