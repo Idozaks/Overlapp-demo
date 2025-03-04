@@ -97,10 +97,13 @@ export function setupAuth(app: Express) {
       }
       
       // Regular user authentication - convert to lowercase for case-insensitive comparison
-      const user = await storage.getUserByUsername(username.toLowerCase());
-
+      const lowercaseUsername = username.toLowerCase();
+      const user = await storage.getUserByUsername(lowercaseUsername);
+      
+      log(`[AUTH] Looking up user: ${lowercaseUsername}`);
+      
       if (!user) {
-        log(`[AUTH] Invalid credentials for user: ${username}`);
+        log(`[AUTH] User not found: ${lowercaseUsername}`);
         return done(null, false, { message: "Invalid username or password" });
       }
 

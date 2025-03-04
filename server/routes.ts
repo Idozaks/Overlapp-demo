@@ -105,17 +105,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/login", (req: Request, res: Response, next: NextFunction) => {
+    // Convert username to lowercase before authentication
+    if (req.body.username) {
+      req.body.username = req.body.username.toLowerCase();
+    }
+    
     passport.authenticate("local", (err: any, user: User | false, info: { message?: string }) => {
       if (err) {
+        log("Login error:", err instanceof Error ? err.message : String(err));
         return res.status(500).json({ message: "Internal server error" });
       }
       if (!user) {
+        log(`Login failed for username: ${req.body.username}`);
         return res.status(401).json({ message: info?.message || "Invalid credentials" });
       }
       req.login(user, (err) => {
         if (err) {
+          log("Session error:", err instanceof Error ? err.message : String(err));
           return res.status(500).json({ message: "Error during login" });
         }
+        log(`User logged in successfully: ${user.username}`);
         return res.json(user);
       });
     })(req, res, next);
