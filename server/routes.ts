@@ -77,7 +77,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { username, password, ...rest } = result.data;
-      const existingUser = await storage.getUserByUsername(username);
+      // Convert username to lowercase for case-insensitive check
+      const lowercaseUsername = username.toLowerCase();
+      const existingUser = await storage.getUserByUsername(lowercaseUsername);
 
       if (existingUser) {
         return res.status(400).json({ message: "Username already exists" });
@@ -86,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hashedPassword = await hashPassword(password);
       const user = await storage.createUser({
         ...rest,
-        username,
+        username: lowercaseUsername, // Store username in lowercase
         password: hashedPassword,
       });
 
@@ -506,16 +508,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username and password are required" });
       }
 
-      // Check if user already exists
-      const existingUser = await storage.getUserByUsername(username);
+      // Convert username to lowercase and check if user already exists
+      const lowercaseUsername = username.toLowerCase();
+      const existingUser = await storage.getUserByUsername(lowercaseUsername);
       if (existingUser) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
-      // Create admin user
+      // Create admin user with lowercase username
       const hashedPassword = await hashPassword(password);
       const user = await storage.createUser({
-        username,
+        username: lowercaseUsername,
         password: hashedPassword,
         displayName: displayName || username,
         isAdmin: true,
@@ -560,8 +563,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = parseInt(req.params.id);
       const { username, password } = req.body;
+      // Convert username to lowercase for consistency
+      const lowercaseUsername = username.toLowerCase();
       const hashedPassword = await hashPassword(password);
-      await storage.updateUserCredentials(userId, username, hashedPassword);
+      await storage.updateUserCredentials(userId, lowercaseUsername, hashedPassword);
       res.status(200).json({ message: "Credentials updated successfully" });
     } catch (error) {
       log("Error updating credentials:", String(error));
