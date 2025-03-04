@@ -496,6 +496,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin user creation endpoint
+  app.post("/api/admin/create", async (req: Request, res: Response) => {
+    try {
+      const { username, password, displayName } = req.body;
+      
+      // Validate required fields
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      // Create admin user
+      const hashedPassword = await hashPassword(password);
+      const user = await storage.createUser({
+        username,
+        password: hashedPassword,
+        displayName: displayName || username,
+        isAdmin: true,
+      });
+
+      log(`Admin user created: ${username}`);
+      res.status(201).json({ message: "Admin user created successfully", user });
+    } catch (error) {
+      log("Error creating admin user:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to create admin user" });
+    }
+  });
+
   // Admin routes for user management
   app.delete("/api/admin/users", async (req: Request, res: Response) => {
     // TODO: Re-enable auth check after testing
