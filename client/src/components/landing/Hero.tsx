@@ -20,10 +20,6 @@ export default function Hero() {
           transition={{ duration: 0.8 }}
           className="max-w-3xl"
         >
-          <div className="flex items-center mb-8">
-            <img src="/overlapp-logo.png" alt="Overlapp Logo" className="h-16 mr-4" />
-          </div>
-          
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             {t('common.landing.identity.title')},
             <span className="text-primary block mt-2">
