@@ -598,11 +598,11 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               {showAiThinking && (
                 <div className="p-4 rounded-lg bg-primary/5 text-sm space-y-2">
                   <p className="font-medium text-primary">AI Analysis Process:</p>
-                  <p>Based on your selected interests, our AI analyzes patterns and relationships to suggest related activities and sub-categories that might interest you.</p>
+                  <p>Based on your selected interests, our AI analyzes patterns and relationships to suggest related activities and sub-categories that might interest you. For example:</p>
                   <ul className="list-disc list-inside space-y-1 ml-2">
                     {Array.from(pendingInterests).map((interest, idx) => (
                       <li key={idx} className="text-muted-foreground">
-                        Analyzing "{interest}" for specialized sub-categories and related activities
+                        From "{interest}" → Looking for specific activities, related hobbies, and specialized sub-categories
                       </li>
                     ))}
                   </ul>
@@ -614,38 +614,23 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <Sparkles className="h-4 w-4 text-primary" />
                   <p className="font-medium">{t("profile.aiSuggestedInterests")}</p>
                 </div>
+                <div className="flex flex-wrap gap-2">
+                  {suggestedInterests.map((interest, index) => {
+                    const cleanInterest = suggestedInterest(interest);
+                    const isSelected = pendingInterests.has(cleanInterest);
 
-                <div className="space-y-4">
-                  {suggestedInterests.map((group, groupIndex) => (
-                    <div key={`group-${groupIndex}`} className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{group.parentInterest}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2 ml-6">
-                        {group.suggestions.map((interest, index) => {
-                          const cleanInterest = suggestedInterest(interest);
-                          const isSelected = pendingInterests.has(cleanInterest);
-
-                          return (
-                            <Badge
-                              key={`suggestion-${groupIndex}-${index}`}
-                              variant={isSelected ? "default" : "outline"}
-                              className={cn(
-                                "cursor-pointer hover:bg-primary/20 transition-colors",
-                                isSelected ? "bg-primary/90" : "hover:bg-primary/10",
-                                "border-primary/50"
-                              )}
-                              onClick={() => toggleInterest(cleanInterest, true)}
-                            >
-                              <Sparkles className="h-3 w-3 mr-1 inline-block" />
-                              {cleanInterest}
-                            </Badge>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+                    return (
+                      <Badge
+                        key={`suggestion-${index}`}
+                        variant={isSelected ? "default" : "outline"}
+                        className="cursor-pointer hover:bg-primary/20 transition-colors"
+                        onClick={() => toggleInterest(cleanInterest, true)}
+                      >
+                        <Sparkles className="h-3 w-3 mr-1 inline-block" />
+                        {cleanInterest}
+                      </Badge>
+                    );
+                  })}
                 </div>
               </div>
             </div>
