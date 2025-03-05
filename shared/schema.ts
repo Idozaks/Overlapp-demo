@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, boolean, jsonb, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, jsonb, timestamp, integer, decimal, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7,43 +7,15 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   displayName: text("display_name"),
-  avatar: text("avatar"),
+  avatar: text("avatar_url"),
   bio: text("bio"),
   isAdmin: boolean("is_admin").default(false),
-  preferences: jsonb("preferences"),
+  preferences: jsonb("preferences").$type<{
+    retailPreferences: string[];
+    systemPrompt?: string;
+  }>(),
   createdAt: timestamp("created_at").defaultNow(),
 });
-
-export type UserType = typeof users.$inferSelect;
-export type NewUserType = typeof users.$inferInsert;
-
-export const events = pgTable("events", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description"),
-  startTime: timestamp("start_time").notNull(),
-  endTime: timestamp("end_time"),
-  location: text("location"),
-  visibility: text("visibility").default("public"),
-  creatorId: integer("creator_id").notNull(),
-  tags: jsonb("tags"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at"),
-});
-
-export type EventType = typeof events.$inferSelect;
-export type NewEventType = typeof events.$inferInsert;
-
-export const eventAttendees = pgTable("event_attendees", {
-  id: serial("id").primaryKey(),
-  eventId: integer("event_id").notNull(),
-  userId: integer("user_id").notNull(),
-  status: text("status").default("pending"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export type EventAttendeeType = typeof eventAttendees.$inferSelect;
-export type NewEventAttendeeType = typeof eventAttendees.$inferInsert;
 
 export const connections = pgTable("connections", {
   id: serial("id").primaryKey(),

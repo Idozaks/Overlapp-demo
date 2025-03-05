@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import type { User } from "@shared/schema";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertPostSchema, events, eventAttendees } from "@shared/schema";
+import { insertUserSchema, insertPostSchema } from "@shared/schema";
 import { log } from "./vite";
 import express from "express";
 import { setupAuth } from "./auth";
@@ -14,7 +14,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import OpenAI from "openai";
-import { eq, and } from 'drizzle-orm';
 
 const scryptAsync = promisify(scrypt);
 
@@ -110,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (req.body.username) {
       req.body.username = req.body.username.toLowerCase();
     }
-
+    
     passport.authenticate("local", (err: any, user: User | false, info: { message?: string }) => {
       if (err) {
         log("Login error:", err instanceof Error ? err.message : String(err));
@@ -512,7 +511,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/create", async (req: Request, res: Response) => {
     try {
       const { username, password, displayName } = req.body;
-
+      
       // Validate required fields
       if (!username || !password) {
         return res.status(400).json({ message: "Username and password are required" });
@@ -960,91 +959,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       log("Error removing user interest:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Unable to remove user interest" });
-    }
-  });
-
-  // Add Events routes here.  This is a placeholder and needs to be fleshed out based on your events schema and storage implementation.
-  app.post('/api/events', async (req: Request, res: Response) => {
-    try {
-      // Implement event creation logic here.  This will likely involve validating the request body against your events schema,
-      // creating a new event in your database using the `storage` object, and returning the newly created event data.
-      const newEvent = await storage.createEvent(req.body);
-      res.status(201).json(newEvent);
-    } catch (error) {
-      log("Error creating event:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to create event" });
-    }
-  });
-
-
-  app.get('/api/events', async (req: Request, res: Response) => {
-    try {
-      const allEvents = await storage.getAllEvents();
-      res.json({ events: allEvents });
-    } catch (error) {
-      log("Error fetching events:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to fetch events" });
-    }
-  });
-
-  app.get('/api/events/:id', async (req: Request, res: Response) => {
-    try {
-      const eventId = parseInt(req.params.id);
-      if (isNaN(eventId)) {
-        return res.status(400).json({ message: "Invalid event ID" });
-      }
-      const event = await storage.getEvent(eventId);
-      if (!event) {
-        return res.status(404).json({ message: "Event not found" });
-      }
-      res.json({ event });
-    } catch (error) {
-      log("Error fetching event:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to fetch event" });
-    }
-  });
-
-  app.post('/api/events/:eventId/attendees', async (req: Request, res: Response) => {
-    try {
-      const eventId = parseInt(req.params.eventId);
-      const userId = parseInt(req.body.userId);
-      if (isNaN(eventId) || isNaN(userId)) {
-        return res.status(400).json({ message: "Invalid event or user ID" });
-      }
-      await storage.addEventAttendee(eventId, userId);
-      res.status(201).json({ message: "Attendee added successfully" });
-    } catch (error) {
-      log("Error adding attendee:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to add attendee" });
-    }
-  });
-
-  app.delete('/api/events/:eventId/attendees/:userId', async (req: Request, res: Response) => {
-    try {
-      const eventId = parseInt(req.params.eventId);
-      const userId = parseInt(req.params.userId);
-      if (isNaN(eventId) || isNaN(userId)) {
-        return res.status(400).json({ message: "Invalid event or user ID" });
-      }
-      await storage.removeEventAttendee(eventId, userId);
-      res.status(200).json({ message: "Attendee removed successfully" });
-    } catch (error) {
-      log("Error removing attendee:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to remove attendee" });
-    }
-  });
-
-  app.get('/api/events/:eventId/attendees', async (req: Request, res: Response) => {
-    try {
-      const eventId = parseInt(req.params.eventId);
-      if (isNaN(eventId)) {
-        return res.status(400).json({ message: "Invalid event ID" });
-      }
-      const attendees = await storage.getEventAttendees(eventId);
-      res.json({ attendees });
-    } catch (error) {
-      log("Error fetching attendees:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to fetch attendees" });
     }
   });
 
