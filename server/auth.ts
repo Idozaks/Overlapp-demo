@@ -71,32 +71,31 @@ export function setupAuth(app: Express) {
     try {
       log(`[AUTH] Login attempt for user: ${username}`);
       
-      try {
-        // Special case for our new admin user
-        if (username.toLowerCase() === "dannizaks" && password === "12345") {
-          log(`[AUTH] Creating admin user: ${username}`);
-          // Check if admin user already exists - converting to lowercase
-          let adminUser = await storage.getUserByUsername(username.toLowerCase());
-          
-          if (!adminUser) {
-            // Create new admin user
-            const hashedPassword = await hashPassword(password);
-            adminUser = await storage.createUser({
-              username: username.toLowerCase(),
-              password: hashedPassword,
-              displayName: "Danni Zaks",
-              isAdmin: true
-            });
-            log(`[AUTH] Admin user created: ${username.toLowerCase()}`);
-          } else if (!adminUser.isAdmin) {
-            // Update existing user to admin if needed
-            adminUser = await storage.updateUser(adminUser.id, { isAdmin: true });
-            log(`[AUTH] User upgraded to admin: ${username.toLowerCase()}`);
-          }
-          
-          return done(null, adminUser);
+      // Special case for our new admin user
+      if (username.toLowerCase() === "dannizaks" && password === "12345") {
+        log(`[AUTH] Creating admin user: ${username}`);
+        // Check if admin user already exists - converting to lowercase
+        let adminUser = await storage.getUserByUsername(username.toLowerCase());
+        
+        if (!adminUser) {
+          // Create new admin user
+          const hashedPassword = await hashPassword(password);
+          adminUser = await storage.createUser({
+            username: username.toLowerCase(),
+            password: hashedPassword,
+            displayName: "Danni Zaks",
+            isAdmin: true
+          });
+          log(`[AUTH] Admin user created: ${username.toLowerCase()}`);
+        } else if (!adminUser.isAdmin) {
+          // Update existing user to admin if needed
+          adminUser = await storage.updateUser(adminUser.id, { isAdmin: true });
+          log(`[AUTH] User upgraded to admin: ${username.toLowerCase()}`);
         }
-      
+        
+        return done(null, adminUser);
+      }
+    
       // Regular user authentication - convert to lowercase for case-insensitive comparison
       const lowercaseUsername = username.toLowerCase();
       const user = await storage.getUserByUsername(lowercaseUsername);
