@@ -37,7 +37,7 @@ export default function VennDiagram() {
   }, [controls]);
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 pb-32 bg-gray-50">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -122,9 +122,12 @@ export default function VennDiagram() {
   .venn-text-overlay {
     position: absolute;
     top: auto;
-    bottom: 10%;
+    bottom: -80px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
+    width: 100%;
+    display: flex;
+    justify-content: center;
   }
 `}</style>
