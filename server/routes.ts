@@ -701,6 +701,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add PATCH endpoint to update interest
+  app.patch("/api/interests/:id", async (req: Request, res: Response) => {
+    try {
+      // Check if user is authenticated and is admin
+      if (!req.isAuthenticated() || !req.user?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized. Admin access required." });
+      }
+
+      const interestId = Number(req.params.id);
+      if (isNaN(interestId)) {
+        return res.status(400).json({ message: "Invalid interest ID" });
+      }
+
+      const { name } = req.body;
+      if (!name || typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ message: "Valid name is required" });
+      }
+
+      // Check if interest exists
+      const interest = await storage.getInterest(interestId);
+      if (!interest) {
+        return res.status(404).json({ message: `Interest with ID ${interestId} not found` });
+      }
+
+      // Check if the new name already exists (but not for this interest)
+      const existingInterest = await storage.getInterestByName(name);
+      if (existingInterest && existingInterest.id !== interestId) {
+        return res.status(409).json({ message: `An interest with the name "${name}" already exists` });
+      }
+
+      // Update the interest
+      const updatedInterest = await storage.updateInterest(interestId, { name });
+      res.status(200).json({ interest: updatedInterest, message: "Interest updated successfully" });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log("Error updating interest:", errorMessage);
+      res.status(500).json({ 
+        message: "Failed to update interest", 
+        error: errorMessage
+      });
+    }
+  });
+
   app.post("/api/interests", async (req: Request, res: Response) => {
     try {
       const { name, category, description, isAiGenerated } = req.body;
