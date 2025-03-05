@@ -198,7 +198,7 @@ export default function Hero() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={isRTL ? handleNextSlide : handlePrevSlide}
+            onClick={isRTL ? handlePrevSlide : handleNextSlide}
             className="rounded-full hover:bg-background/80 backdrop-blur-sm"
           >
             <ArrowRight className={`w-4 h-4 ${!isRTL ? "rotate-180" : ""}`} />
@@ -219,7 +219,7 @@ export default function Hero() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={isRTL ? handlePrevSlide : handleNextSlide}
+            onClick={isRTL ? handleNextSlide : handlePrevSlide}
             className="rounded-full hover:bg-background/80 backdrop-blur-sm"
           >
             <ArrowRight className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
