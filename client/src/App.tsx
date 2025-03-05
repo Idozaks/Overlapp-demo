@@ -124,7 +124,7 @@ function Header() {
               <img src="/logo.png" alt="Overlapp Logo" className="h-16 transition-all hover:scale-105 shadow-sm hover:shadow-accent rounded-lg" />
             </a>
           </div>
-          
+
           {/* Mobile Menu */}
           <div className="lg:hidden">
             <Drawer>
@@ -140,9 +140,6 @@ function Header() {
                 <div className="p-4">
                   <NavigationLinks />
                 </div>
-                <DrawerFooter className="pt-2">
-                  <LanguageSwitcher />
-                </DrawerFooter>
               </DrawerContent>
             </Drawer>
           </div>
@@ -153,9 +150,9 @@ function Header() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden lg:block">
-              <LanguageSwitcher />
-            </div>
+            {/* Language Switcher - Now visible in both mobile and desktop */}
+            <LanguageSwitcher />
+
             {user ? (
               <div className="flex items-center gap-4">
                 <DropdownMenu>
