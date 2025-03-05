@@ -15,7 +15,6 @@ import Profile from "@/pages/social/Profile";
 import ProfileEdit from "@/pages/social/ProfileEdit";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import InterestManager from "@/pages/admin/InterestManager";
-import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,7 +56,6 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/signup" component={Signup} />
-      <Route path="/onboarding" component={OnboardingFlow} />
       <Route path="/demo" component={Demo} />
       <Route path="/retailer/:id" component={RetailerDetails} />
       <Route path="/contact" component={Contact} />

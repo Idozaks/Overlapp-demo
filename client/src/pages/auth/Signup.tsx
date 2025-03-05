@@ -76,7 +76,7 @@ export default function AuthPage() {
   const onRegister = async (data: RegisterFormData) => {
     try {
       await registerMutation.mutateAsync(data);
-      navigate("/onboarding"); 
+      navigate("/");
     } catch (error) {
       // Error is handled by the mutation
     }
