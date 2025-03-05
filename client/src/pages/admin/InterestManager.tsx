@@ -27,9 +27,6 @@ export default function InterestManager() {
     mutationFn: async () => {
       const response = await apiRequest('/api/interests', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
           name: newInterest,
           category: newCategory,
