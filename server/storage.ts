@@ -636,7 +636,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(interests.id, id))
       .returning();
     return result[0];
-  },
+  }
 }
 
 export const storage = new DatabaseStorage();
