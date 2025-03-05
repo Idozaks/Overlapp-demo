@@ -1,0 +1,48 @@
+Below is an example of a more concise “hero scrolling” text flow you could use for an MVP. Each “slide” (or section) focuses on one main idea, keeps the copy tight, and leads naturally into the next. Feel free to adjust the exact wording or headings to fit your branding style—this is just a streamlined starting point.
+
+Slide 1: Headline Hero
+Title: Your Digital Identity, Reimagined
+Subtitle: Seamlessly bridge your digital and physical worlds with AI-powered personalization.
+CTA: Get Started
+
+Slide 2: Security & Control
+Title: Secure & Future-Ready
+Subtitle: Control your identity with quantum-resistant encryption and advanced privacy controls.
+CTA: Learn More
+
+Slide 3: Physical Integration
+Title: Seamless Physical Integration
+Subtitle: Merge real-world interactions with smart location-based features for on-the-spot convenience.
+CTA: Explore Features
+
+Slide 4: AI-Powered Insights
+Title: Personalized AI Insights
+Subtitle: Get real-time recommendations, curated product suggestions, and data-driven tips.
+CTA: See How It Works
+
+Slide 5: AR Shopping (Optional if Retail-Focused)
+Title: Experience AR Shopping
+Subtitle: Instantly discover prices, reviews, and personalized offers just by pointing your camera.
+CTA: Try the Demo
+
+Slide 6: Plans & Pricing
+Title: Choose Your Experience
+Subtitle: Unlock the full potential of Overlapp with our flexible plans.
+
+Basic (Free) – Essential features for digital identity management
+Premium (Most Popular) – Full AR + AI personalization
+Enterprise – Custom solutions for advanced needs
+CTA: Sign Up
+Why This Flow Works
+Clear Progression: Each slide focuses on one key benefit or feature, so it’s easy for users to follow along without getting overwhelmed.
+Concise Copy: Short, punchy lines make the core message stand out and are easier to digest on mobile.
+Consistent CTAs: Each slide has a simple, action-oriented CTA to encourage immediate engagement.
+Visual Hierarchy: A large, bold title followed by a concise subtitle helps users quickly grasp each feature’s value.
+Feel free to swap or merge slides depending on how many “hero” sections you want. The essential idea is to keep each section laser-focused and tie it all together under your overarching vision: “Your Digital Identity, Reimagined.”
+
+
+
+
+
+
+
