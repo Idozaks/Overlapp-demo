@@ -6,66 +6,78 @@ import { ArrowRight, Shield, ShoppingBag, Brain, Globe, CreditCard } from "lucid
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 
-const slides = [
-  {
-    id: 1,
-    title: "Your Digital Identity, Reimagined",
-    subtitle: "Seamlessly bridge your digital and physical worlds with AI-powered personalization.",
-    cta: "Get Started",
-    icon: <Globe className="w-8 h-8" />,
-    route: "/signup"
-  },
-  {
-    id: 2,
-    title: "Secure & Future-Ready",
-    subtitle: "Control your identity with quantum-resistant encryption and advanced privacy controls.",
-    cta: "Learn More",
-    icon: <Shield className="w-8 h-8" />,
-    route: "/features"
-  },
-  {
-    id: 3,
-    title: "Seamless Physical Integration",
-    subtitle: "Merge real-world interactions with smart location-based features for on-the-spot convenience.",
-    cta: "Explore Features",
-    icon: <Globe className="w-8 h-8" />,
-    route: "/features"
-  },
-  {
-    id: 4,
-    title: "Personalized AI Insights",
-    subtitle: "Get real-time recommendations, curated product suggestions, and data-driven tips.",
-    cta: "See How It Works",
-    icon: <Brain className="w-8 h-8" />,
-    route: "/demo"
-  },
-  {
-    id: 5,
-    title: "Experience AR Shopping",
-    subtitle: "Instantly discover prices, reviews, and personalized offers just by pointing your camera.",
-    cta: "Try the Demo",
-    icon: <ShoppingBag className="w-8 h-8" />,
-    route: "/demo"
-  },
-  {
-    id: 6,
-    title: "Choose Your Experience",
-    subtitle: "Unlock the full potential of Overlapp with our flexible plans.",
-    cta: "Sign Up",
-    icon: <CreditCard className="w-8 h-8" />,
-    route: "/signup",
-    pricing: [
-      { name: "Basic", description: "Essential features for digital identity management", price: "Free" },
-      { name: "Premium", description: "Full AR + AI personalization", price: "Premium" },
-      { name: "Enterprise", description: "Custom solutions for advanced needs", price: "Custom" }
-    ]
-  }
-];
-
 export default function Hero() {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    {
+      id: 1,
+      titleKey: "landing.hero.slide1.title",
+      subtitleKey: "landing.hero.slide1.subtitle",
+      ctaKey: "landing.hero.slide1.cta",
+      icon: <Globe className="w-8 h-8" />,
+      route: "/signup"
+    },
+    {
+      id: 2,
+      titleKey: "landing.hero.slide2.title",
+      subtitleKey: "landing.hero.slide2.subtitle",
+      ctaKey: "landing.hero.slide2.cta",
+      icon: <Shield className="w-8 h-8" />,
+      route: "/features"
+    },
+    {
+      id: 3,
+      titleKey: "landing.hero.slide3.title",
+      subtitleKey: "landing.hero.slide3.subtitle",
+      ctaKey: "landing.hero.slide3.cta",
+      icon: <Globe className="w-8 h-8" />,
+      route: "/features"
+    },
+    {
+      id: 4,
+      titleKey: "landing.hero.slide4.title",
+      subtitleKey: "landing.hero.slide4.subtitle",
+      ctaKey: "landing.hero.slide4.cta",
+      icon: <Brain className="w-8 h-8" />,
+      route: "/demo"
+    },
+    {
+      id: 5,
+      titleKey: "landing.hero.slide5.title",
+      subtitleKey: "landing.hero.slide5.subtitle",
+      ctaKey: "landing.hero.slide5.cta",
+      icon: <ShoppingBag className="w-8 h-8" />,
+      route: "/demo"
+    },
+    {
+      id: 6,
+      titleKey: "landing.hero.slide6.title",
+      subtitleKey: "landing.hero.slide6.subtitle",
+      ctaKey: "landing.hero.slide6.cta",
+      icon: <CreditCard className="w-8 h-8" />,
+      route: "/signup",
+      pricing: [
+        { 
+          nameKey: "landing.pricing.basic.name",
+          descriptionKey: "landing.pricing.basic.description",
+          priceKey: "landing.pricing.basic.price"
+        },
+        { 
+          nameKey: "landing.pricing.premium.name",
+          descriptionKey: "landing.pricing.premium.description",
+          priceKey: "landing.pricing.premium.price"
+        },
+        { 
+          nameKey: "landing.pricing.enterprise.name",
+          descriptionKey: "landing.pricing.enterprise.description",
+          priceKey: "landing.pricing.enterprise.price"
+        }
+      ]
+    }
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -100,7 +112,7 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                {slides[currentSlide].title}
+                {t(slides[currentSlide].titleKey)}
               </motion.h1>
             </div>
 
@@ -110,7 +122,7 @@ export default function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              {slides[currentSlide].subtitle}
+              {t(slides[currentSlide].subtitleKey)}
             </motion.p>
 
             {currentSlide === 5 ? (
@@ -121,10 +133,10 @@ export default function Hero() {
                 transition={{ delay: 0.4 }}
               >
                 {slides[5].pricing.map((plan, index) => (
-                  <div key={plan.name} className="p-4 rounded-lg bg-background/50 backdrop-blur-sm">
-                    <h3 className="font-semibold mb-2">{plan.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{plan.description}</p>
-                    <p className="font-bold">{plan.price}</p>
+                  <div key={index} className="p-4 rounded-lg bg-background/50 backdrop-blur-sm">
+                    <h3 className="font-semibold mb-2">{t(plan.nameKey)}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">{t(plan.descriptionKey)}</p>
+                    <p className="font-bold">{t(plan.priceKey)}</p>
                   </div>
                 ))}
               </motion.div>
@@ -140,7 +152,7 @@ export default function Hero() {
                 onClick={() => handleCTAClick(slides[currentSlide].route)}
                 className="gap-2"
               >
-                {slides[currentSlide].cta}
+                {t(slides[currentSlide].ctaKey)}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </motion.div>
