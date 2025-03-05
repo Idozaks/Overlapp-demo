@@ -8,6 +8,8 @@
       "signup": "Sign Up",
       "interactions": "Real-time Interactions"
     },
+    "real_time": "Real-time Synchronization",
+    "real_time_description": "Stay synchronized across all your devices and physical locations instantly",
     "updating": "Updating...",
     "landing": {
       "hero": {

@@ -59,6 +59,12 @@ export default function PhygitalAI() {
             <h3 className="text-xl font-semibold mb-2">{t('landing.ai_world.personalization.title')}</h3>
             <p className="text-muted-foreground">{t('landing.ai_world.personalization.description')}</p>
           </Card>
+
+          <Card className="p-6">
+            <RefreshCw className="w-12 h-12 mb-4 text-primary" />
+            <h3 className="text-xl font-semibold mb-2">{t('common.landing.real_time')}</h3>
+            <p className="text-muted-foreground">{t('common.landing.real_time_description')}</p>
+          </Card>
         </div>
       </div>
     </section>
