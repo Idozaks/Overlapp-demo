@@ -71,30 +71,31 @@ export function setupAuth(app: Express) {
     try {
       log(`[AUTH] Login attempt for user: ${username}`);
       
-      // Special case for our new admin user
-      if (username.toLowerCase() === "dannizaks" && password === "12345") {
-        log(`[AUTH] Creating admin user: ${username}`);
-        // Check if admin user already exists - converting to lowercase
-        let adminUser = await storage.getUserByUsername(username.toLowerCase());
-        
-        if (!adminUser) {
-          // Create new admin user
-          const hashedPassword = await hashPassword(password);
-          adminUser = await storage.createUser({
-            username: username.toLowerCase(),
-            password: hashedPassword,
-            displayName: "Danni Zaks",
-            isAdmin: true
-          });
-          log(`[AUTH] Admin user created: ${username.toLowerCase()}`);
-        } else if (!adminUser.isAdmin) {
-          // Update existing user to admin if needed
-          adminUser = await storage.updateUser(adminUser.id, { isAdmin: true });
-          log(`[AUTH] User upgraded to admin: ${username.toLowerCase()}`);
+      try {
+        // Special case for our new admin user
+        if (username.toLowerCase() === "dannizaks" && password === "12345") {
+          log(`[AUTH] Creating admin user: ${username}`);
+          // Check if admin user already exists - converting to lowercase
+          let adminUser = await storage.getUserByUsername(username.toLowerCase());
+          
+          if (!adminUser) {
+            // Create new admin user
+            const hashedPassword = await hashPassword(password);
+            adminUser = await storage.createUser({
+              username: username.toLowerCase(),
+              password: hashedPassword,
+              displayName: "Danni Zaks",
+              isAdmin: true
+            });
+            log(`[AUTH] Admin user created: ${username.toLowerCase()}`);
+          } else if (!adminUser.isAdmin) {
+            // Update existing user to admin if needed
+            adminUser = await storage.updateUser(adminUser.id, { isAdmin: true });
+            log(`[AUTH] User upgraded to admin: ${username.toLowerCase()}`);
+          }
+          
+          return done(null, adminUser);
         }
-        
-        return done(null, adminUser);
-      }
       
       // Regular user authentication - convert to lowercase for case-insensitive comparison
       const lowercaseUsername = username.toLowerCase();
@@ -151,24 +152,30 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
-      if (err) {
-        log(`[AUTH] Login error: ${err.message}`);
-        return res.status(500).json({ message: "Login failed" });
-      }
-      if (!user) {
-        log(`[AUTH] Login failed: ${info?.message || 'Invalid credentials'}`);
-        return res.status(401).json({ message: info?.message || "Invalid credentials" });
-      }
-      req.login(user, (err) => {
+    try {
+      passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
         if (err) {
-          log(`[AUTH] Login session error: ${err.message}`);
-          return res.status(500).json({ message: "Error establishing session" });
+          log(`[AUTH] Login error: ${err.message}`);
+          return res.status(500).json({ message: "Login failed", error: err.message });
         }
-        log(`[AUTH] Login successful: ${user.username}`);
-        res.json(user);
-      });
-    })(req, res, next);
+        if (!user) {
+          log(`[AUTH] Login failed: ${info?.message || 'Invalid credentials'}`);
+          return res.status(401).json({ message: info?.message || "Invalid credentials" });
+        }
+        req.login(user, (err) => {
+          if (err) {
+            log(`[AUTH] Login session error: ${err.message}`);
+            return res.status(500).json({ message: "Error establishing session" });
+          }
+          log(`[AUTH] Login successful: ${user.username}`);
+          res.json(user);
+        });
+      })(req, res, next);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log(`[AUTH] Unexpected login error: ${errorMessage}`);
+      res.status(500).json({ message: "Login failed due to an unexpected error", error: errorMessage });
+    }
   });
 
   app.post("/api/logout", (req, res) => {
