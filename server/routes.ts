@@ -830,7 +830,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = Number(req.params.id);
       if (isNaN(userId)) {
-        return res.status(400).json{ message: "Invalid user ID" });
+        return res.status(400).json({ message: "Invalid user ID" });
       }
 
       const user = await storage.getUser(userId);
