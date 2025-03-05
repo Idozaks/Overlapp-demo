@@ -12,7 +12,6 @@ export const users = pgTable("users", {
   isAdmin: boolean("is_admin").default(false),
   preferences: jsonb("preferences").$type<{
     retailPreferences: string[];
-    systemPrompt?: string;
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
 });

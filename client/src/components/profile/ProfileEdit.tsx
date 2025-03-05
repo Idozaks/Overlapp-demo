@@ -15,37 +15,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, Settings, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { User, Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
-const CATEGORY_EMOJIS: { [key: string]: string } = {
-  'Sports & Fitness': '🏃‍♂️',
-  'Arts & Culture': '🎨',
-  'Technology': '💻',
-  'Food & Dining': '🍳',
-  'Travel': '✈️',
-  'Music': '🎵',
-  'Reading & Literature': '📚',
-  'Gaming': '🎮',
-  'Nature & Outdoors': '🌲',
-  'Science': '🔬',
-  'Fashion': '👗',
-  'Photography': '📸',
-  'Movies & TV': '🎬',
-  'Health & Wellness': '🧘‍♀️',
-  'DIY & Crafts': '🛠️',
-  'Business': '💼',
-  'Pets & Animals': '🐾',
-  'Social Causes': '🤝',
-  'Education': '📚',
-  'AI_GENERATED': '🤖',
-  'Uncategorized': '📌'
-};
+interface InterestSuggestion {
+  name: string;
+  emoji: string;
+}
 
 const profileUpdateSchema = z.object({
   displayName: z.string()
@@ -57,10 +38,7 @@ const profileUpdateSchema = z.object({
     .or(z.literal("")),
   avatar: z.union([z.string().url({ message: "Please enter a valid URL" }), z.instanceof(File)]).optional().or(z.literal("")),
   preferences: z.object({
-    retailPreferences: z.array(z.string()),
-    systemPrompt: z.string()
-      .max(1000, { message: "System prompt must be less than 1000 characters" })
-      .optional()
+    retailPreferences: z.array(z.string())
   }).optional()
 });
 
@@ -86,13 +64,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [suggestedInterests, setSuggestedInterests] = useState<string[]>([]);
+  const [suggestedInterests, setSuggestedInterests] = useState<InterestSuggestion[]>([]);
   const [isEnriching, setIsEnriching] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
   const [aiGeneratedInterests, setAiGeneratedInterests] = useState<Set<string>>(new Set());
   const [pendingInterests, setPendingInterests] = useState<Set<string>>(new Set());
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
-  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
+  const [interestEmojis, setInterestEmojis] = useState<Map<string, string>>(new Map());
 
   const { data: allInterests } = useQuery<{ interests: Interest[] }>({
     queryKey: ['/api/interests'],
@@ -119,18 +96,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     }
   }, [JSON.stringify(userSelectedInterests)]);
 
-  const groupedInterests = useMemo(() => {
-    if (!allInterests?.interests) return {};
-    return allInterests.interests.reduce((acc: { [key: string]: Interest[] }, interest) => {
-      const category = interest.category || 'Uncategorized';
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(interest);
-      return acc;
-    }, {});
-  }, [allInterests?.interests]);
-
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
@@ -138,8 +103,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       bio: user.bio || "",
       avatar: user.avatar || "",
       preferences: {
-        retailPreferences: user.preferences?.retailPreferences || [],
-        systemPrompt: user.preferences?.systemPrompt || "You are a helpful assistant that suggests related interests based on a user's current interests. Keep suggestions concise and relevant."
+        retailPreferences: user.preferences?.retailPreferences || []
       }
     }
   });
@@ -204,7 +168,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             }
 
             const newInterest = await response.json();
-            if (newInterest.interest) {
+            if (newInterest.interest) { 
               newInterests.push(newInterest.interest);
             } else {
               newInterests.push(newInterest);
@@ -281,9 +245,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     mutationFn: async (interests: string[]) => {
       const response = await apiRequest('/api/interests/enrich', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ interests })
       });
 
@@ -294,7 +255,26 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return response.json();
     },
     onSuccess: (data) => {
+      console.log('Received enriched interests:', data); // Debug log
+      if (!data.suggestions || !Array.isArray(data.suggestions)) {
+        console.error('Invalid suggestions format:', data);
+        toast({
+          title: t("profile.enrichError"),
+          description: "Invalid response format from AI",
+          variant: "destructive"
+        });
+        return;
+      }
+
       setSuggestedInterests(data.suggestions);
+      const newEmojiMap = new Map(interestEmojis);
+      data.suggestions.forEach((suggestion: InterestSuggestion) => {
+        if (suggestion.name && suggestion.emoji) {
+          newEmojiMap.set(suggestion.name, suggestion.emoji);
+        }
+      });
+      setInterestEmojis(newEmojiMap);
+
       toast({
         title: t("profile.enrichSuccess"),
         description: t("profile.enrichSuccessMessage")
@@ -358,44 +338,13 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     form.setValue("preferences.retailPreferences", newPreferences, { shouldValidate: true });
   };
 
-  const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(category)) {
-        newSet.delete(category);
-      } else {
-        newSet.add(category);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleEntireCategory = (category: string, interests: Interest[]) => {
-    const interestNames = interests.map(i => i.name);
-    const allSelected = interestNames.every(name => pendingInterests.has(name));
-
-    setPendingInterests(prev => {
-      const newSet = new Set(prev);
-      if (allSelected) {
-        // Remove all interests in this category
-        interestNames.forEach(name => newSet.delete(name));
-      } else {
-        // Add all interests in this category
-        interestNames.forEach(name => newSet.add(name));
-      }
-      return newSet;
-    });
-  };
-
-
   const onSubmit = async (data: ProfileUpdateData) => {
     const cleanData = {
       ...data,
       bio: data.bio || undefined,
       avatar: data.avatar || undefined,
       preferences: {
-        retailPreferences: data.preferences?.retailPreferences || [],
-        systemPrompt: data.preferences?.systemPrompt || undefined
+        retailPreferences: data.preferences?.retailPreferences || []
       }
     };
     await updateMutation.mutateAsync(cleanData);
@@ -515,69 +464,28 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               ) : (
                 <Sparkles className="h-4 w-4 text-primary" />
               )}
-              {t("profile.discoverMore")}
+              Discover More Interests with AI
             </Button>
           </div>
 
-          <div className="space-y-2">
-            {Object.entries(groupedInterests).map(([category, categoryInterests]) => {
-              const interestNames = categoryInterests.map(i => i.name);
-              const allSelected = interestNames.every(name => pendingInterests.has(name));
-              const someSelected = interestNames.some(name => pendingInterests.has(name));
-
-              return (
-                <div key={category} className="border rounded-lg overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => toggleCategory(category)}
-                    className="w-full flex items-center justify-between p-3 bg-secondary/10 hover:bg-secondary/20 transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      {expandedCategories.has(category) ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                      <span className="font-medium">
-                        {CATEGORY_EMOJIS[category] || '📌'} {category}
-                      </span>
-                      <Badge
-                        variant={allSelected ? "default" : someSelected ? "secondary" : "outline"}
-                        className="cursor-pointer ml-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleEntireCategory(category, categoryInterests);
-                        }}
-                      >
-                        {categoryInterests.length} interests
-                      </Badge>
-                    </div>
-                  </button>
-
-                  {expandedCategories.has(category) && (
-                    <div className="p-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                      {categoryInterests.map(interest => (
-                        <Badge
-                          key={interest.id}
-                          variant={pendingInterests.has(interest.name) ? "default" : "outline"}
-                          className={cn(
-                            "cursor-pointer transition-all",
-                            pendingInterests.has(interest.name) ? "bg-primary/90" : "hover:bg-primary/10",
-                            aiGeneratedInterests.has(interest.name) && "border-primary/50 bg-primary/5"
-                          )}
-                          onClick={() => toggleInterest(interest.name)}
-                        >
-                          {aiGeneratedInterests.has(interest.name) && (
-                            <Sparkles className="h-3 w-3 mr-1 inline-block text-primary" />
-                          )}
-                          {interest.name}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="flex flex-wrap gap-2">
+            {[...availableInterests, ...Array.from(aiGeneratedInterests)].map((interest, idx) => (
+              <Badge
+                key={`available-${interest}-${idx}`}
+                variant={pendingInterests.has(interest) ? "default" : "outline"}
+                className={cn(
+                  "cursor-pointer transition-all",
+                  pendingInterests.has(interest) ? "bg-primary/90" : "hover:bg-primary/10",
+                  aiGeneratedInterests.has(interest) && "border-primary/50 bg-primary/5"
+                )}
+                onClick={() => toggleInterest(interest)}
+              >
+                {aiGeneratedInterests.has(interest) && interestEmojis.get(interest) && (
+                  <span className="mr-1">{interestEmojis.get(interest)}</span>
+                )}
+                {interest}
+              </Badge>
+            ))}
           </div>
 
           {suggestedInterests.length > 0 && (
@@ -612,22 +520,27 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               <div className="p-4 border rounded-lg bg-secondary/5">
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <p className="font-medium">{t("profile.aiSuggestedInterests")}</p>
+                  <p className="font-medium">AI-Suggested Interests</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {suggestedInterests.map((interest, index) => {
-                    const cleanInterest = suggestedInterest(interest);
-                    const isSelected = pendingInterests.has(cleanInterest);
+                  {suggestedInterests.map((suggestion, idx) => {
+                    const isSelected = pendingInterests.has(suggestion.name);
+                    console.log('Rendering suggestion:', suggestion); // Debug log
 
                     return (
                       <Badge
-                        key={`suggestion-${index}`}
+                        key={`suggestion-${suggestion.name}-${idx}`}
                         variant={isSelected ? "default" : "outline"}
-                        className="cursor-pointer hover:bg-primary/20 transition-colors"
-                        onClick={() => toggleInterest(cleanInterest, true)}
+                        className={cn(
+                          "cursor-pointer hover:bg-primary/20 transition-colors",
+                          "flex items-center gap-1"
+                        )}
+                        onClick={() => toggleInterest(suggestion.name, true)}
                       >
-                        <Sparkles className="h-3 w-3 mr-1 inline-block" />
-                        {cleanInterest}
+                        {suggestion.emoji && (
+                          <span className="inline-block">{suggestion.emoji}</span>
+                        )}
+                        <span>{suggestion.name}</span>
                       </Badge>
                     );
                   })}
@@ -635,32 +548,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               </div>
             </div>
           )}
-        </div>
-
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="preferences.systemPrompt"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel>AI Assistant System Prompt</FormLabel>
-                  <Settings className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder="Customize how the AI assistant generates interest suggestions..."
-                    className="h-32"
-                  />
-                </FormControl>
-                <FormDescription>
-                  Customize the AI's behavior when suggesting new interests. This prompt guides how the AI interprets your interests and generates suggestions.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         <div className="space-y-4">
