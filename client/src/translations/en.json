@@ -97,6 +97,46 @@
             "title": "AI-Powered Identity Analysis",
             "description": "Advanced machine learning algorithms analyze and verify digital-physical identity connections in real-time"
           },
+
+  "events": {
+    "title": "Events",
+    "create": "Create Event",
+    "create_title": "Create a New Event",
+    "create_description": "Fill in the details to create your event. Click create when you're done.",
+    "attendees": "attendees",
+    "rsvp": "RSVP",
+    "my_events_empty": "You haven't created or joined any events yet",
+    "create_first": "Create Your First Event",
+    "discover_coming_soon": "Personalized event discovery coming soon!",
+    "no_results": "No events found",
+    "search": "Search events by title, description, or tags",
+    "tabs": {
+      "upcoming": "Upcoming",
+      "my_events": "My Events",
+      "discover": "Discover"
+    },
+    "form": {
+      "title": "Event Title",
+      "title_placeholder": "Give your event a name",
+      "description": "Description",
+      "description_placeholder": "What's this event about?",
+      "date": "Date",
+      "time": "Time",
+      "location": "Location",
+      "location_placeholder": "Where is the event taking place?",
+      "tags": "Tags",
+      "tags_placeholder": "Add comma-separated tags (e.g., tech, networking)",
+      "visibility": "Event Visibility",
+      "visibility_public": "Public",
+      "visibility_private": "Private",
+      "visibility_invite": "Invite Only",
+      "create_button": "Create Event"
+    }
+  },
+  "navigation": {
+    "events": "Events"
+  }
+
           "digital_twin": {
             "title": "Digital Twin Technology",
             "description": "Create and maintain secure digital representations of physical identities with real-time synchronization"
