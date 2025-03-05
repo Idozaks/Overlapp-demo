@@ -749,10 +749,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/interests/enrich", async (req: Request, res: Response) => {
     try {
-      const { interests } = req.body;
+      const { interests, userId } = req.body;
 
       if (!Array.isArray(interests) || interests.length === 0) {
         return res.status(400).json({ message: "Invalid interests format" });
+      }
+
+      // Get user's system prompt if available
+      let systemPrompt = "You are a helpful assistant that suggests related interests based on a user's current interests. Keep suggestions concise and relevant.";
+
+      if (userId) {
+        const user = await storage.getUser(userId);
+        if (user?.preferences?.systemPrompt) {
+          systemPrompt = user.preferences.systemPrompt;
+        }
       }
 
       const prompt = `Given these interests: ${interests.join(", ")}\n\n` +
@@ -766,7 +776,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant that suggests related interests based on a user's current interests. Keep suggestions concise and relevant."
+            content: systemPrompt
           },
           {
             role: "user",
@@ -789,12 +799,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .filter(s => s.length > 0);
         }
 
-        // Clean suggestions without creating them in the database
         suggestions = suggestions
           .map(suggestion => suggestion.replace(/[\[\]"]/g, '').trim())
           .filter(s => s.length > 0);
 
-        // Filter out duplicates and existing interests
         suggestions = Array.from(new Set(suggestions))
           .filter(s => !interests.includes(s));
 
@@ -813,6 +821,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to enrich interests",
         error: error instanceof Error ? error.message : String(error)
       });
+    }
+  });
+
+  // Add an endpoint to update system prompt
+  app.patch("/api/users/:id/preferences", async (req: Request, res: Response) => {
+    try {
+      const userId = Number(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const { systemPrompt } = req.body;
+      if (typeof systemPrompt !== 'string') {
+        return res.status(400).json({ message: "Invalid system prompt format" });
+      }
+
+      // Update user preferences
+      const updatedPreferences = {
+        ...user.preferences,
+        systemPrompt
+      };
+
+      await storage.updateUser(userId, { preferences: updatedPreferences });
+      res.json({ message: "Preferences updated successfully", preferences: updatedPreferences });
+    } catch (error) {
+      log("Error updating preferences:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to update preferences" });
     }
   });
 
