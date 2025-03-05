@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, Settings } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { User, Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +33,10 @@ const profileUpdateSchema = z.object({
     .or(z.literal("")),
   avatar: z.union([z.string().url({ message: "Please enter a valid URL" }), z.instanceof(File)]).optional().or(z.literal("")),
   preferences: z.object({
-    retailPreferences: z.array(z.string())
+    retailPreferences: z.array(z.string()),
+    systemPrompt: z.string()
+      .max(1000, { message: "System prompt must be less than 1000 characters" })
+      .optional()
   }).optional()
 });
 
@@ -59,14 +62,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // All state hooks at the top
   const [suggestedInterests, setSuggestedInterests] = useState<string[]>([]);
   const [isEnriching, setIsEnriching] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
   const [aiGeneratedInterests, setAiGeneratedInterests] = useState<Set<string>>(new Set());
   const [pendingInterests, setPendingInterests] = useState<Set<string>>(new Set());
 
-  // Fetch all available interests
   const { data: allInterests } = useQuery<{ interests: Interest[] }>({
     queryKey: ['/api/interests'],
     queryFn: async () => {
@@ -75,7 +76,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     }
   });
 
-  // Fetch user's current interests
   const { data: userInterests } = useQuery<{ interests: Interest[] }>({
     queryKey: [`/api/users/${user.id}/interests`],
     queryFn: async () => {
@@ -87,12 +87,11 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const availableInterests = allInterests?.interests?.map((interest: Interest) => interest.name) || [];
   const userSelectedInterests = userInterests?.interests?.map((interest: Interest) => interest.name) || [];
 
-  // Initialize pending interests when userSelectedInterests changes
   useEffect(() => {
     if (userSelectedInterests.length > 0) {
       setPendingInterests(new Set(userSelectedInterests));
     }
-  }, [JSON.stringify(userSelectedInterests)]); // Use JSON.stringify to avoid infinite loop
+  }, [JSON.stringify(userSelectedInterests)]);
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -101,7 +100,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       bio: user.bio || "",
       avatar: user.avatar || "",
       preferences: {
-        retailPreferences: user.preferences?.retailPreferences || []
+        retailPreferences: user.preferences?.retailPreferences || [],
+        systemPrompt: user.preferences?.systemPrompt || "You are a helpful assistant that suggests related interests based on a user's current interests. Keep suggestions concise and relevant."
       }
     }
   });
@@ -112,7 +112,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         throw new Error("Invalid user ID");
       }
 
-      // First update user profile
       let body;
       const requestOptions: RequestInit = {
         method: "PATCH"
@@ -142,18 +141,15 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         throw new Error("Invalid response from server");
       }
 
-      // Then update interests
       const currentInterestNames = new Set(userSelectedInterests);
       const pendingInterestNames = pendingInterests;
       const interestNames = Array.from(pendingInterests);
       let newInterests = [];
 
-      // If there are AI suggested interests in the pending list, create them first
       for (const interest of interestNames) {
         const existingInterest = allInterests?.interests?.find(i => i.name === interest);
         if (!existingInterest && aiGeneratedInterests.has(interest)) {
           try {
-            // Create the new AI-generated interest
             const response = await apiRequest('/api/interests', {
               method: 'POST',
               body: JSON.stringify({
@@ -170,7 +166,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             }
 
             const newInterest = await response.json();
-            if (newInterest.interest) { // Handle case where interest already exists
+            if (newInterest.interest) { 
               newInterests.push(newInterest.interest);
             } else {
               newInterests.push(newInterest);
@@ -186,19 +182,16 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               }),
               variant: "destructive"
             });
-            // Skip this interest but continue with others
             continue;
           }
         }
       }
 
-      // Update the interests list with any newly created interests
       const allAvailableInterests = [
         ...(allInterests?.interests || []),
         ...newInterests
       ];
 
-      // Remove interests that are no longer selected
       for (const interest of currentInterestNames) {
         if (!pendingInterestNames.has(interest)) {
           const interestObj = allAvailableInterests.find(i => i.name === interest);
@@ -210,7 +203,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         }
       }
 
-      // Add new interests
       for (const interest of pendingInterestNames) {
         if (!currentInterestNames.has(interest)) {
           const interestObj = allAvailableInterests.find(i => i.name === interest);
@@ -264,7 +256,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return response.json();
     },
     onSuccess: (data) => {
-      // Only update local state, don't create interests in DB yet
       setSuggestedInterests(data.suggestions);
       toast({
         title: t("profile.enrichSuccess"),
@@ -335,7 +326,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       bio: data.bio || undefined,
       avatar: data.avatar || undefined,
       preferences: {
-        retailPreferences: data.preferences?.retailPreferences || []
+        retailPreferences: data.preferences?.retailPreferences || [],
+        systemPrompt: data.preferences?.systemPrompt || undefined
       }
     };
     await updateMutation.mutateAsync(cleanData);
@@ -534,6 +526,32 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               </div>
             </div>
           )}
+        </div>
+
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="preferences.systemPrompt"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center justify-between">
+                  <FormLabel>AI Assistant System Prompt</FormLabel>
+                  <Settings className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Customize how the AI assistant generates interest suggestions..."
+                    className="h-32"
+                  />
+                </FormControl>
+                <FormDescription>
+                  Customize the AI's behavior when suggesting new interests. This prompt guides how the AI interprets your interests and generates suggestions.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="space-y-4">
