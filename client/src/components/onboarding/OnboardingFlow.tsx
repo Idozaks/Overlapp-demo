@@ -28,12 +28,21 @@ import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-const onboardingSchema = z.object({
+// Separate schema for each step
+const personalInfoSchema = z.object({
   displayName: z.string().min(1, "Display name is required"),
-  bio: z.string().max(500),
+  bio: z.string().max(500).optional(),
+});
+
+const interestsSchema = z.object({
   interests: z.array(z.string()).min(1, "Select at least one interest"),
+});
+
+const retailPreferencesSchema = z.object({
   retailPreferences: z.array(z.string()).optional(),
 });
+
+const onboardingSchema = personalInfoSchema.merge(interestsSchema).merge(retailPreferencesSchema);
 
 type OnboardingData = z.infer<typeof onboardingSchema>;
 
@@ -94,10 +103,32 @@ export default function OnboardingFlow() {
   });
 
   const onSubmit = async (data: OnboardingData) => {
+    // Validate current step
+    let isValid = false;
+    try {
+      if (step === 0) {
+        await personalInfoSchema.parseAsync(data);
+        isValid = true;
+      } else if (step === 1) {
+        await interestsSchema.parseAsync({ interests: selectedInterests });
+        isValid = true;
+      } else if (step === 2) {
+        await retailPreferencesSchema.parseAsync(data);
+        isValid = true;
+      }
+    } catch (error) {
+      isValid = false;
+    }
+
+    if (!isValid) {
+      return;
+    }
+
     if (step < 2) {
       setStep(step + 1);
       return;
     }
+
     await onboardingMutation.mutateAsync({
       ...data,
       interests: selectedInterests,
@@ -215,7 +246,7 @@ export default function OnboardingFlow() {
                     variant="outline"
                     onClick={() => setStep(step - 1)}
                   >
-                    Back
+                    {t("profile.onboarding.back")}
                   </Button>
                 )}
                 <Button
@@ -223,7 +254,9 @@ export default function OnboardingFlow() {
                   className="ml-auto"
                   disabled={onboardingMutation.isPending}
                 >
-                  {step === steps.length - 1 ? "Complete" : "Next"}
+                  {step === steps.length - 1 
+                    ? t("profile.onboarding.complete")
+                    : t("profile.onboarding.next")}
                 </Button>
               </div>
             </form>
