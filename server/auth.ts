@@ -98,31 +98,25 @@ export function setupAuth(app: Express) {
       
       // Regular user authentication - convert to lowercase for case-insensitive comparison
       const lowercaseUsername = username.toLowerCase();
+      const user = await storage.getUserByUsername(lowercaseUsername);
       
-      try {
-        const user = await storage.getUserByUsername(lowercaseUsername);
-        
-        log(`[AUTH] Looking up user: ${lowercaseUsername}`);
-        
-        if (!user) {
-          log(`[AUTH] User not found: ${lowercaseUsername}`);
-          return done(null, false, { message: "Invalid username or password" });
-        }
+      log(`[AUTH] Looking up user: ${lowercaseUsername}`);
+      
+      if (!user) {
+        log(`[AUTH] User not found: ${lowercaseUsername}`);
+        return done(null, false, { message: "Invalid username or password" });
+      }
 
-        if (!(await comparePasswords(password, user.password))) {
-          log(`[AUTH] Invalid password for user: ${username}`);
-          return done(null, false, { message: "Invalid username or password" });
-        }
+      if (!(await comparePasswords(password, user.password))) {
+        log(`[AUTH] Invalid password for user: ${username}`);
+        return done(null, false, { message: "Invalid username or password" });
+      }
 
       log(`[AUTH] Successful login for user: ${username}`);
-        return done(null, user);
-      } catch (dbError) {
-        log(`[AUTH] Database error during login: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
-        return done(null, false, { message: "Database error occurred" });
-      }
+      return done(null, user);
     } catch (error) {
       log(`[AUTH] Error during login: ${error instanceof Error ? error.message : String(error)}`);
-      return done(null, false, { message: "Authentication error" });
+      return done(error);
     }
   }));
   app.post("/api/register", async (req, res) => {
@@ -157,39 +151,24 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    try {
-      passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
+    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
+      if (err) {
+        log(`[AUTH] Login error: ${err.message}`);
+        return res.status(500).json({ message: "Login failed" });
+      }
+      if (!user) {
+        log(`[AUTH] Login failed: ${info?.message || 'Invalid credentials'}`);
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
+      }
+      req.login(user, (err) => {
         if (err) {
-          log(`[AUTH] Login error: ${err.message}`);
-          return res.status(500).json({ 
-            message: "Login failed", 
-            error: err.message,
-            stack: err.stack
-          });
+          log(`[AUTH] Login session error: ${err.message}`);
+          return res.status(500).json({ message: "Error establishing session" });
         }
-        if (!user) {
-          log(`[AUTH] Login failed: ${info?.message || 'Invalid credentials'}`);
-          return res.status(401).json({ message: info?.message || "Invalid credentials" });
-        }
-        req.login(user, (loginErr) => {
-          if (loginErr) {
-            log(`[AUTH] Login session error: ${loginErr.message}`);
-            return res.status(500).json({ 
-              message: "Error establishing session", 
-              error: loginErr.message 
-            });
-          }
-          log(`[AUTH] Login successful: ${user.username}`);
-          res.json(user);
-        });
-      })(req, res, next);
-    } catch (error) {
-      log(`[AUTH] Unexpected login error: ${error instanceof Error ? error.message : String(error)}`);
-      return res.status(500).json({ 
-        message: "Unexpected error during login",
-        error: error instanceof Error ? error.message : String(error)
+        log(`[AUTH] Login successful: ${user.username}`);
+        res.json(user);
       });
-    }
+    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res) => {
