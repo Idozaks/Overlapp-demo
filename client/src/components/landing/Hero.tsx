@@ -8,9 +8,10 @@ import { useState, useEffect, useCallback } from "react";
 import { HiSparkles, HiLockClosed, HiGlobeAlt, HiCube, HiShoppingBag, HiStar } from "react-icons/hi2";
 
 export default function Hero() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [, navigate] = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const isRTL = i18n.dir() === 'rtl';
 
   const slides = [
     {
@@ -99,9 +100,9 @@ export default function Hero() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 8000); // 8 seconds
+    }, 8000);
     return () => clearInterval(interval);
-  }, [currentSlide]); // Reset timer when currentSlide changes
+  }, [currentSlide]);
 
   const handleCTAClick = (route: string) => {
     navigate(route);
@@ -129,7 +130,6 @@ export default function Hero() {
             transition={{ duration: 0.5 }}
             className="max-w-3xl"
           >
-            {/* Hero Icon with Gradient Background */}
             <motion.div
               className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm`}
               initial={{ scale: 0.8, opacity: 0 }}
@@ -180,7 +180,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="mb-24" // Increased bottom margin
+              className="mb-24"
             >
               <Button
                 size="lg"
@@ -194,14 +194,14 @@ export default function Hero() {
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4"> {/* Increased bottom position */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
-            onClick={handlePrevSlide}
+            onClick={isRTL ? handleNextSlide : handlePrevSlide}
             className="rounded-full hover:bg-background/80 backdrop-blur-sm"
           >
-            <ArrowRight className="w-4 h-4 rotate-180" />
+            <ArrowRight className={`w-4 h-4 ${!isRTL ? "rotate-180" : ""}`} />
           </Button>
 
           <div className="flex gap-2">
@@ -219,10 +219,10 @@ export default function Hero() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleNextSlide}
+            onClick={isRTL ? handlePrevSlide : handleNextSlide}
             className="rounded-full hover:bg-background/80 backdrop-blur-sm"
           >
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
           </Button>
         </div>
       </div>
