@@ -23,6 +23,30 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
+const CATEGORY_EMOJIS: { [key: string]: string } = {
+  'Sports & Fitness': '🏃‍♂️',
+  'Arts & Culture': '🎨',
+  'Technology': '💻',
+  'Food & Dining': '🍳',
+  'Travel': '✈️',
+  'Music': '🎵',
+  'Reading & Literature': '📚',
+  'Gaming': '🎮',
+  'Nature & Outdoors': '🌲',
+  'Science': '🔬',
+  'Fashion': '👗',
+  'Photography': '📸',
+  'Movies & TV': '🎬',
+  'Health & Wellness': '🧘‍♀️',
+  'DIY & Crafts': '🛠️',
+  'Business': '💼',
+  'Pets & Animals': '🐾',
+  'Social Causes': '🤝',
+  'Education': '📚',
+  'AI_GENERATED': '🤖',
+  'Uncategorized': '📌'
+};
+
 const profileUpdateSchema = z.object({
   displayName: z.string()
     .min(2, { message: "Display name must be at least 2 characters" })
@@ -514,7 +538,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                       ) : (
                         <ChevronRight className="h-4 w-4" />
                       )}
-                      <span className="font-medium">{category}</span>
+                      <span className="font-medium">
+                        {CATEGORY_EMOJIS[category] || '📌'} {category}
+                      </span>
                       <Badge
                         variant={allSelected ? "default" : someSelected ? "secondary" : "outline"}
                         className="cursor-pointer ml-2"
