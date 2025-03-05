@@ -121,8 +121,7 @@ function Header() {
           {/* Logo */}
           <div className="flex items-center mr-4">
             <a href="/" className="flex items-center">
-              <img src="/logo.png" alt="Overlapp Logo" className="h-8 mr-2" />
-              <span className="font-semibold text-lg hidden sm:inline-block">Overlapp</span>
+              <img src="/logo.png" alt="Overlapp Logo" className="h-8" />
             </a>
           </div>
           
