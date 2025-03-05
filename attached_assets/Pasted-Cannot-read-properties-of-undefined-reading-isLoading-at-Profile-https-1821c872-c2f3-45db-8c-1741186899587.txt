@@ -1,0 +1,36 @@
+Cannot read properties of undefined (reading 'isLoading')
+at Profile (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/pages/social/Profile.tsx:113:52)
+at renderWithHooks (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:11548:26)
+at updateFunctionComponent (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:14582:28)
+at beginWork (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:15924:22)
+at HTMLUnknownElement.callCallback2 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:3674:22)
+at Object.invokeGuardedCallbackDev (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:3699:24)
+at invokeGuardedCallback (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:3733:39)
+at beginWork$1 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:19765:15)
+at performUnitOfWork (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:19198:20)
+at workLoopSync (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:19137:13)
+Cannot read properties of undefined (reading 'isLoading')
+at Profile (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/pages/social/Profile.tsx:113:52)
+at renderWithHooks (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:11548:26)
+at updateFunctionComponent (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:14582:28)
+at beginWork (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:15924:22)
+at HTMLUnknownElement.callCallback2 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:3674:22)
+at Object.invokeGuardedCallbackDev (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:3699:24)
+at invokeGuardedCallback (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:3733:39)
+at beginWork$1 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:19765:15)
+at performUnitOfWork (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:19198:20)
+at workLoopSync (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TRNWTHID.js?v=865c0536:19137:13)
+The above error occurred in the <Profile> component:
+
+    at Profile (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/pages/social/Profile.tsx:32:18)
+    at Route (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=865c0536:323:16)
+    at Switch (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=865c0536:379:17)
+    at Router (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=Mmo_xry_B4c2EhUBs6ccc:69:20)
+    at main
+    at div
+    at AuthProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-auth.tsx:26:32)
+    at QueryClientProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=865c0536:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
