@@ -15,12 +15,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, Settings } from "lucide-react";
+import { Loader2, Sparkles, Settings, ChevronDown, ChevronRight } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { User, Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 const profileUpdateSchema = z.object({
@@ -67,6 +67,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const [showAiThinking, setShowAiThinking] = useState(false);
   const [aiGeneratedInterests, setAiGeneratedInterests] = useState<Set<string>>(new Set());
   const [pendingInterests, setPendingInterests] = useState<Set<string>>(new Set());
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
 
   const { data: allInterests } = useQuery<{ interests: Interest[] }>({
     queryKey: ['/api/interests'],
@@ -92,6 +94,18 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       setPendingInterests(new Set(userSelectedInterests));
     }
   }, [JSON.stringify(userSelectedInterests)]);
+
+  const groupedInterests = useMemo(() => {
+    if (!allInterests?.interests) return {};
+    return allInterests.interests.reduce((acc: { [key: string]: Interest[] }, interest) => {
+      const category = interest.category || 'Uncategorized';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(interest);
+      return acc;
+    }, {});
+  }, [allInterests?.interests]);
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
@@ -166,7 +180,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             }
 
             const newInterest = await response.json();
-            if (newInterest.interest) { 
+            if (newInterest.interest) {
               newInterests.push(newInterest.interest);
             } else {
               newInterests.push(newInterest);
@@ -320,6 +334,36 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     form.setValue("preferences.retailPreferences", newPreferences, { shouldValidate: true });
   };
 
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleEntireCategory = (category: string, interests: Interest[]) => {
+    const interestNames = interests.map(i => i.name);
+    const allSelected = interestNames.every(name => pendingInterests.has(name));
+
+    setPendingInterests(prev => {
+      const newSet = new Set(prev);
+      if (allSelected) {
+        // Remove all interests in this category
+        interestNames.forEach(name => newSet.delete(name));
+      } else {
+        // Add all interests in this category
+        interestNames.forEach(name => newSet.add(name));
+      }
+      return newSet;
+    });
+  };
+
+
   const onSubmit = async (data: ProfileUpdateData) => {
     const cleanData = {
       ...data,
@@ -447,28 +491,67 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               ) : (
                 <Sparkles className="h-4 w-4 text-primary" />
               )}
-              Discover More Interests with AI
+              {t("profile.discoverMore")}
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {[...availableInterests, ...Array.from(aiGeneratedInterests)].map(interest => (
-              <Badge
-                key={interest}
-                variant={pendingInterests.has(interest) ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer transition-all",
-                  pendingInterests.has(interest) ? "bg-primary/90" : "hover:bg-primary/10",
-                  aiGeneratedInterests.has(interest) && "border-primary/50 bg-primary/5"
-                )}
-                onClick={() => toggleInterest(interest)}
-              >
-                {aiGeneratedInterests.has(interest) && (
-                  <Sparkles className="h-3 w-3 mr-1 inline-block text-primary" />
-                )}
-                {interest}
-              </Badge>
-            ))}
+          <div className="space-y-2">
+            {Object.entries(groupedInterests).map(([category, categoryInterests]) => {
+              const interestNames = categoryInterests.map(i => i.name);
+              const allSelected = interestNames.every(name => pendingInterests.has(name));
+              const someSelected = interestNames.some(name => pendingInterests.has(name));
+
+              return (
+                <div key={category} className="border rounded-lg overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleCategory(category)}
+                    className="w-full flex items-center justify-between p-3 bg-secondary/10 hover:bg-secondary/20 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      {expandedCategories.has(category) ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                      <span className="font-medium">{category}</span>
+                      <Badge
+                        variant={allSelected ? "default" : someSelected ? "secondary" : "outline"}
+                        className="cursor-pointer ml-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleEntireCategory(category, categoryInterests);
+                        }}
+                      >
+                        {categoryInterests.length} interests
+                      </Badge>
+                    </div>
+                  </button>
+
+                  {expandedCategories.has(category) && (
+                    <div className="p-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                      {categoryInterests.map(interest => (
+                        <Badge
+                          key={interest.id}
+                          variant={pendingInterests.has(interest.name) ? "default" : "outline"}
+                          className={cn(
+                            "cursor-pointer transition-all",
+                            pendingInterests.has(interest.name) ? "bg-primary/90" : "hover:bg-primary/10",
+                            aiGeneratedInterests.has(interest.name) && "border-primary/50 bg-primary/5"
+                          )}
+                          onClick={() => toggleInterest(interest.name)}
+                        >
+                          {aiGeneratedInterests.has(interest.name) && (
+                            <Sparkles className="h-3 w-3 mr-1 inline-block text-primary" />
+                          )}
+                          {interest.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {suggestedInterests.length > 0 && (
