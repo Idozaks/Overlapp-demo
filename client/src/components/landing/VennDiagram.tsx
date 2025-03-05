@@ -88,15 +88,6 @@ export default function VennDiagram() {
               );
             })}
           </svg>
-
-          <div className="absolute inset-0 flex items-center justify-center venn-text-overlay"> {/* Added class for styling */}
-            <Card className="p-6 bg-white/90 backdrop-blur-sm max-w-xs">
-              <h3 className="text-xl font-semibold mb-2">Overlapp</h3>
-              <p className="text-gray-600">
-                {t('common.landing.features.physical.description')}
-              </p>
-            </Card>
-          </div>
         </motion.div>
 
         <motion.div 
