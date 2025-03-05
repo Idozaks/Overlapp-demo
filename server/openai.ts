@@ -5,7 +5,10 @@ import { log } from "./vite";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 interface EnrichInterestsResponse {
-  suggestions: string[];
+  suggestions: Array<{
+    name: string;
+    emoji: string;
+  }>;
 }
 
 export async function enrichInterests(interests: string[]): Promise<EnrichInterestsResponse> {
@@ -15,16 +18,15 @@ export async function enrichInterests(interests: string[]): Promise<EnrichIntere
       messages: [
         {
           role: "system",
-          content: "You are an expert at identifying related interests and hobbies. For each interest provided, suggest 2-3 very specific and related interests or sub-categories. Keep suggestions concise and focused."
+          content: "You are an expert at identifying related interests and hobbies. For each interest provided, suggest 2-3 very specific and related interests or sub-categories, and provide a fitting emoji for each suggestion. Keep suggestions concise and focused."
         },
         {
           role: "user",
-          content: `For each of these interests, suggest 2-3 specific related interests or sub-categories: ${interests.join(", ")}. 
+          content: `For each of these interests, suggest 2-3 specific related interests or sub-categories with appropriate emojis: ${interests.join(", ")}. 
           For example: 
-          - Photography → Street Photography, Nature Photography, Portrait Photography
-          - Sports → Basketball, Soccer, Tennis
-          - Gaming → Strategy Games, RPGs, eSports
-          Return only an array of new suggestions in this exact format: {"suggestions": ["suggestion1", "suggestion2", "suggestion3"]}`
+          - Photography → {"name": "Street Photography", "emoji": "🏙️"}, {"name": "Nature Photography", "emoji": "🌲"}, {"name": "Portrait Photography", "emoji": "👤"}
+          - Sports → {"name": "Basketball", "emoji": "🏀"}, {"name": "Soccer", "emoji": "⚽"}, {"name": "Tennis", "emoji": "🎾"}
+          Return only an array of new suggestions in this exact format: {"suggestions": [{"name": "suggestion1", "emoji": "emoji1"}, {"name": "suggestion2", "emoji": "emoji2"}]}`
         }
       ],
       response_format: { type: "json_object" }
@@ -40,9 +42,12 @@ export async function enrichInterests(interests: string[]): Promise<EnrichIntere
     // Filter out duplicates and original interests
     const suggestions = Array.isArray(parsed.suggestions) 
       ? parsed.suggestions
-          .filter((s: string) => !interests.includes(s))
-          .map((s: string) => s.trim())
-          .filter((s: string) => s.length > 0)
+          .filter((s: { name: string }) => !interests.includes(s.name))
+          .map((s: { name: string, emoji: string }) => ({
+            name: s.name.trim(),
+            emoji: s.emoji.trim()
+          }))
+          .filter((s: { name: string }) => s.name.length > 0)
       : [];
 
     log("[OpenAI] Generated suggestions:", suggestions);
