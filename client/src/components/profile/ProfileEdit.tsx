@@ -255,12 +255,26 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return response.json();
     },
     onSuccess: (data) => {
+      console.log('Received enriched interests:', data); // Debug log
+      if (!data.suggestions || !Array.isArray(data.suggestions)) {
+        console.error('Invalid suggestions format:', data);
+        toast({
+          title: t("profile.enrichError"),
+          description: "Invalid response format from AI",
+          variant: "destructive"
+        });
+        return;
+      }
+
       setSuggestedInterests(data.suggestions);
       const newEmojiMap = new Map(interestEmojis);
       data.suggestions.forEach((suggestion: InterestSuggestion) => {
-        newEmojiMap.set(suggestion.name, suggestion.emoji);
+        if (suggestion.name && suggestion.emoji) {
+          newEmojiMap.set(suggestion.name, suggestion.emoji);
+        }
       });
       setInterestEmojis(newEmojiMap);
+
       toast({
         title: t("profile.enrichSuccess"),
         description: t("profile.enrichSuccessMessage")
@@ -455,9 +469,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {[...availableInterests, ...Array.from(aiGeneratedInterests)].map(interest => (
+            {[...availableInterests, ...Array.from(aiGeneratedInterests)].map((interest, idx) => (
               <Badge
-                key={interest}
+                key={`available-${interest}-${idx}`}
                 variant={pendingInterests.has(interest) ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer transition-all",
@@ -509,18 +523,24 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <p className="font-medium">AI-Suggested Interests</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {suggestedInterests.map((suggestion, index) => {
+                  {suggestedInterests.map((suggestion, idx) => {
                     const isSelected = pendingInterests.has(suggestion.name);
+                    console.log('Rendering suggestion:', suggestion); // Debug log
 
                     return (
                       <Badge
-                        key={`suggestion-${index}`}
+                        key={`suggestion-${suggestion.name}-${idx}`}
                         variant={isSelected ? "default" : "outline"}
-                        className="cursor-pointer hover:bg-primary/20 transition-colors"
+                        className={cn(
+                          "cursor-pointer hover:bg-primary/20 transition-colors",
+                          "flex items-center gap-1"
+                        )}
                         onClick={() => toggleInterest(suggestion.name, true)}
                       >
-                        <span className="mr-1">{suggestion.emoji}</span>
-                        {suggestion.name}
+                        {suggestion.emoji && (
+                          <span className="inline-block">{suggestion.emoji}</span>
+                        )}
+                        <span>{suggestion.name}</span>
                       </Badge>
                     );
                   })}
