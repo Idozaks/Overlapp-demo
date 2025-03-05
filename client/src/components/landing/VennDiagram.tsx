@@ -37,7 +37,7 @@ export default function VennDiagram() {
   }, [controls]);
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 pb-48 bg-gray-50">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -88,15 +88,6 @@ export default function VennDiagram() {
               );
             })}
           </svg>
-
-          <div className="absolute inset-0 flex items-center justify-center venn-text-overlay"> {/* Added class for styling */}
-            <Card className="p-6 bg-white/90 backdrop-blur-sm max-w-xs">
-              <h3 className="text-xl font-semibold mb-2">Overlapp</h3>
-              <p className="text-gray-600">
-                {t('common.landing.features.physical.description')}
-              </p>
-            </Card>
-          </div>
         </motion.div>
 
         <motion.div 
@@ -122,9 +113,12 @@ export default function VennDiagram() {
   .venn-text-overlay {
     position: absolute;
     top: auto;
-    bottom: 10%;
+    bottom: -120px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
+    width: 100%;
+    display: flex;
+    justify-content: center;
   }
 `}</style>
