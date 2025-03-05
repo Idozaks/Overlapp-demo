@@ -628,7 +628,7 @@ export class DatabaseStorage implements IStorage {
   async getInterestByName(name: string): Promise<Interest | undefined> {
     const result = await db.select().from(interests).where(eq(interests.name, name));
     return result[0];
-  },
+  }
 
   async updateInterest(id: number, data: Partial<InsertInterest>): Promise<Interest> {
     const result = await db.update(interests)
