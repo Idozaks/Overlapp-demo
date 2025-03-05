@@ -105,29 +105,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/login", (req: Request, res: Response, next: NextFunction) => {
-    // Convert username to lowercase before authentication
-    if (req.body.username) {
-      req.body.username = req.body.username.toLowerCase();
-    }
-    
-    passport.authenticate("local", (err: any, user: User | false, info: { message?: string }) => {
-      if (err) {
-        log("Login error:", err instanceof Error ? err.message : String(err));
-        return res.status(500).json({ message: "Internal server error" });
+    try {
+      // Convert username to lowercase before authentication
+      if (req.body.username) {
+        req.body.username = req.body.username.toLowerCase();
       }
-      if (!user) {
-        log(`Login failed for username: ${req.body.username}`);
-        return res.status(401).json({ message: info?.message || "Invalid credentials" });
-      }
-      req.login(user, (err) => {
+      
+      passport.authenticate("local", (err: any, user: User | false, info: { message?: string }) => {
         if (err) {
-          log("Session error:", err instanceof Error ? err.message : String(err));
-          return res.status(500).json({ message: "Error during login" });
+          log("Login error:", err instanceof Error ? err.message : String(err));
+          return res.status(500).json({ message: "Internal server error", error: err.message });
         }
-        log(`User logged in successfully: ${user.username}`);
-        return res.json(user);
-      });
-    })(req, res, next);
+        if (!user) {
+          log(`Login failed for username: ${req.body.username}`);
+          return res.status(401).json({ message: info?.message || "Invalid credentials" });
+        }
+        req.login(user, (loginErr) => {
+          if (loginErr) {
+            log("Session error:", loginErr instanceof Error ? loginErr.message : String(loginErr));
+            return res.status(500).json({ message: "Error during login", error: loginErr.message });
+          }
+          log(`User logged in successfully: ${user.username}`);
+          return res.json(user);
+        });
+      })(req, res, next);
+    } catch (error) {
+      log("Unexpected login error:", error instanceof Error ? error.message : String(error));
+      return res.status(500).json({ message: "Unexpected error during login", error: String(error) });
+    }
   });
 
   app.post("/api/logout", (req: Request, res: Response) => {

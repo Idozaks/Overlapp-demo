@@ -98,25 +98,31 @@ export function setupAuth(app: Express) {
       
       // Regular user authentication - convert to lowercase for case-insensitive comparison
       const lowercaseUsername = username.toLowerCase();
-      const user = await storage.getUserByUsername(lowercaseUsername);
       
-      log(`[AUTH] Looking up user: ${lowercaseUsername}`);
-      
-      if (!user) {
-        log(`[AUTH] User not found: ${lowercaseUsername}`);
-        return done(null, false, { message: "Invalid username or password" });
-      }
+      try {
+        const user = await storage.getUserByUsername(lowercaseUsername);
+        
+        log(`[AUTH] Looking up user: ${lowercaseUsername}`);
+        
+        if (!user) {
+          log(`[AUTH] User not found: ${lowercaseUsername}`);
+          return done(null, false, { message: "Invalid username or password" });
+        }
 
-      if (!(await comparePasswords(password, user.password))) {
-        log(`[AUTH] Invalid password for user: ${username}`);
-        return done(null, false, { message: "Invalid username or password" });
-      }
+        if (!(await comparePasswords(password, user.password))) {
+          log(`[AUTH] Invalid password for user: ${username}`);
+          return done(null, false, { message: "Invalid username or password" });
+        }
 
       log(`[AUTH] Successful login for user: ${username}`);
-      return done(null, user);
+        return done(null, user);
+      } catch (dbError) {
+        log(`[AUTH] Database error during login: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
+        return done(null, false, { message: "Database error occurred" });
+      }
     } catch (error) {
       log(`[AUTH] Error during login: ${error instanceof Error ? error.message : String(error)}`);
-      return done(error);
+      return done(null, false, { message: "Authentication error" });
     }
   }));
   app.post("/api/register", async (req, res) => {
