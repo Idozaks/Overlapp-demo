@@ -180,9 +180,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             console.error('Error creating interest:', errorMessage);
             toast({
               title: t("profile.error"),
-              description: t("profile.errorCreatingInterest", { 
+              description: t("profile.errorCreatingInterest", {
                 interest,
-                error: errorMessage 
+                error: errorMessage
               }),
               variant: "destructive"
             });
@@ -290,6 +290,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return;
     }
     setIsEnriching(true);
+    setShowAiThinking(true);
     await enrichInterestsMutation.mutateAsync(Array.from(pendingInterests));
     setIsEnriching(false);
   };
@@ -447,12 +448,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               size="sm"
               onClick={handleEnrichInterests}
               disabled={isEnriching}
-              className="gap-2"
+              className="gap-2 bg-primary/5 hover:bg-primary/10 border-primary/20"
             >
               {isEnriching ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Sparkles className="h-4 w-4" />
+                <Sparkles className="h-4 w-4 text-primary" />
               )}
               Discover More Interests with AI
             </Button>
@@ -464,7 +465,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 key={interest}
                 variant={pendingInterests.has(interest) ? "default" : "outline"}
                 className={cn(
-                  "cursor-pointer",
+                  "cursor-pointer transition-all",
+                  pendingInterests.has(interest) ? "bg-primary/90" : "hover:bg-primary/10",
                   aiGeneratedInterests.has(interest) && "border-primary/50 bg-primary/5"
                 )}
                 onClick={() => toggleInterest(interest)}
