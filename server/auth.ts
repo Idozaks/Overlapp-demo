@@ -157,24 +157,39 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
-      if (err) {
-        log(`[AUTH] Login error: ${err.message}`);
-        return res.status(500).json({ message: "Login failed" });
-      }
-      if (!user) {
-        log(`[AUTH] Login failed: ${info?.message || 'Invalid credentials'}`);
-        return res.status(401).json({ message: info?.message || "Invalid credentials" });
-      }
-      req.login(user, (err) => {
+    try {
+      passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
         if (err) {
-          log(`[AUTH] Login session error: ${err.message}`);
-          return res.status(500).json({ message: "Error establishing session" });
+          log(`[AUTH] Login error: ${err.message}`);
+          return res.status(500).json({ 
+            message: "Login failed", 
+            error: err.message,
+            stack: err.stack
+          });
         }
-        log(`[AUTH] Login successful: ${user.username}`);
-        res.json(user);
+        if (!user) {
+          log(`[AUTH] Login failed: ${info?.message || 'Invalid credentials'}`);
+          return res.status(401).json({ message: info?.message || "Invalid credentials" });
+        }
+        req.login(user, (loginErr) => {
+          if (loginErr) {
+            log(`[AUTH] Login session error: ${loginErr.message}`);
+            return res.status(500).json({ 
+              message: "Error establishing session", 
+              error: loginErr.message 
+            });
+          }
+          log(`[AUTH] Login successful: ${user.username}`);
+          res.json(user);
+        });
+      })(req, res, next);
+    } catch (error) {
+      log(`[AUTH] Unexpected login error: ${error instanceof Error ? error.message : String(error)}`);
+      return res.status(500).json({ 
+        message: "Unexpected error during login",
+        error: error instanceof Error ? error.message : String(error)
       });
-    })(req, res, next);
+    }
   });
 
   app.post("/api/logout", (req, res) => {

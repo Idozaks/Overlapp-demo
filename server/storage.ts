@@ -136,8 +136,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+    try {
+      const [user] = await db.select({
+        id: users.id,
+        username: users.username,
+        password: users.password,
+        displayName: users.displayName,
+        bio: users.bio,
+        avatar: users.avatar,
+        preferences: users.preferences,
+        isAdmin: users.isAdmin,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }).from(users).where(eq(users.username, username));
+      
+      return user;
+    } catch (error) {
+      log(`Error in getUserByUsername: ${error instanceof Error ? error.message : String(error)}`);
+      throw error;
+    }
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
