@@ -41,7 +41,6 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import HeroVennDiagram from "./HeroVennDiagram";
 
 export default function Hero() {
