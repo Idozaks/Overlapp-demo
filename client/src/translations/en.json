@@ -181,6 +181,19 @@
     "updateSuccess": "Profile Updated",
     "updateSuccessMessage": "Your profile has been successfully updated",
     "updateError": "Update Failed",
-    "updateErrorMessage": "Failed to update profile. Please try again."
+    "updateErrorMessage": "Failed to update profile. Please try again.",
+    "personalInfo": "Personal Information",
+    "selectInterestsFirst": "Select interests that match your preferences",
+    "selectRetailPreferences": "Choose your shopping preferences to get personalized recommendations",
+    "onboarding": {
+      "welcome": "Welcome to Overlapp",
+      "step1": "Let's set up your profile",
+      "step2": "What interests you?",
+      "step3": "Shopping preferences",
+      "next": "Next",
+      "back": "Back",
+      "complete": "Complete Setup",
+      "skip": "Skip for now"
+    }
   }
 }
