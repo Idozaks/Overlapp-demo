@@ -93,6 +93,11 @@ export const interests = pgTable("interests", {
   description: text("description"),
   iconUrl: text("icon_url"),
   isAiGenerated: boolean("is_ai_generated").default(false),
+  minisiteTitle: text("minisite_title"),
+  minisiteDescription: text("minisite_description"),
+  minisiteTheme: text("minisite_theme"),
+  minisiteLayout: text("minisite_layout").default("standard"),
+  minisiteEnabled: boolean("minisite_enabled").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -111,6 +116,17 @@ export const userInterests = pgTable("user_interests", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   interestId: integer("interest_id").references(() => interests.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const minisiteImages = pgTable("minisite_images", {
+  id: serial("id").primaryKey(),
+  interestId: integer("interest_id").references(() => interests.id),
+  imageUrl: text("image_url").notNull(),
+  prompt: text("prompt"),
+  altText: text("alt_text"),
+  position: integer("position").default(0),
+  isAiGenerated: boolean("is_ai_generated").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -159,6 +175,11 @@ export const insertInterestSchema = createInsertSchema(interests).pick({
   description: true,
   iconUrl: true,
   isAiGenerated: true,
+  minisiteTitle: true,
+  minisiteDescription: true,
+  minisiteTheme: true,
+  minisiteLayout: true,
+  minisiteEnabled: true,
 });
 
 export const insertInterestContentSchema = createInsertSchema(interestContent).pick({
@@ -175,6 +196,15 @@ export const insertUserInterestSchema = createInsertSchema(userInterests).pick({
   interestId: true,
 });
 
+export const insertMinisiteImageSchema = createInsertSchema(minisiteImages).pick({
+  interestId: true,
+  imageUrl: true,
+  prompt: true,
+  altText: true,
+  position: true,
+  isAiGenerated: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type InsertNFT = z.infer<typeof insertNFTSchema>;
@@ -184,6 +214,7 @@ export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 export type InsertInterest = z.infer<typeof insertInterestSchema>;
 export type InsertInterestContent = z.infer<typeof insertInterestContentSchema>;
 export type InsertUserInterest = z.infer<typeof insertUserInterestSchema>;
+export type InsertMinisiteImage = z.infer<typeof insertMinisiteImageSchema>;
 
 export type User = typeof users.$inferSelect;
 export type Post = typeof posts.$inferSelect;
@@ -196,7 +227,7 @@ export type Transaction = typeof transactions.$inferSelect;
 export type Interest = typeof interests.$inferSelect;
 export type InterestContent = typeof interestContent.$inferSelect;
 export type UserInterest = typeof userInterests.$inferSelect;
-
+export type MinisiteImage = typeof minisiteImages.$inferSelect;
 
 export type PostWithUser = Post & { user: User };
 export type NFTWithCreator = NFT & { creator: User };
@@ -206,5 +237,8 @@ export type TransactionWithDetails = Transaction & {
   toWallet?: Wallet;
 };
 
-export type InterestWithContent = Interest & { content: InterestContent[] };
+export type InterestWithContent = Interest & { 
+  content: InterestContent[];
+  minisiteImages: MinisiteImage[];
+};
 export type UserWithInterests = User & { interests: Interest[] };
