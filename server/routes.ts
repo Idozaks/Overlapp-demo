@@ -834,7 +834,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const user = await storage.getUser(userId);
       if (!user) {
-        return res.status(404).json({ message: "User not found" });}
+        return res.status(404).json({ message: "User not found" });
+      }
 
       const { systemPrompt } = req.body;
       if (typeof systemPrompt !== 'string') {
@@ -958,104 +959,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       log("Error removing user interest:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Unable to remove user interest" });
-    }
-  });
-
-  // In the registerRoutes function, after existing interest routes
-
-  // Add minisite routes
-  app.patch("/api/interests/:id/minisite", async (req: Request, res: Response) => {
-    try {
-      const interestId = Number(req.params.id);
-      if (isNaN(interestId)) {
-        return res.status(400).json({ message: "Invalid interest ID" });
-      }
-
-      const { minisiteTitle, minisiteDescription, minisiteTheme, minisiteLayout, minisiteEnabled } = req.body;
-
-      const updatedInterest = await storage.updateInterestMinisite(interestId, {
-        minisiteTitle,
-        minisiteDescription,
-        minisiteTheme,
-        minisiteLayout,
-        minisiteEnabled
-      });
-
-      res.json({ interest: updatedInterest });
-    } catch (error) {
-      log("Error updating minisite:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to update minisite" });
-    }
-  });
-
-  app.post("/api/interests/:id/minisite/images", async (req: Request, res: Response) => {
-    try {
-      const interestId = Number(req.params.id);
-      if (isNaN(interestId)) {
-        return res.status(400).json({ message: "Invalid interest ID" });
-      }
-
-      const { prompt } = req.body;
-      if (!prompt) {
-        return res.status(400).json({ message: "Image prompt is required" });
-      }
-
-      // Generate image using DALL-E
-      const imageResponse = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: prompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-        response_format: "url",
-      });
-
-      const imageUrl = imageResponse.data[0].url;
-
-      // Save image metadata to database
-      const minisiteImage = await storage.createMinisiteImage({
-        interestId,
-        imageUrl,
-        prompt,
-        altText: prompt,
-        position: 0,
-        isAiGenerated: true,
-      });
-
-      res.status(201).json({ image: minisiteImage });
-    } catch (error) {
-      log("Error generating minisite image:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to generate minisite image" });
-    }
-  });
-
-  app.get("/api/interests/:id/minisite/images", async (req: Request, res: Response) => {
-    try {
-      const interestId = Number(req.params.id);
-      if (isNaN(interestId)) {
-        return res.status(400).json({ message: "Invalid interest ID" });
-      }
-
-      const images = await storage.getMinisiteImages(interestId);
-      res.json({ images });
-    } catch (error) {
-      log("Error fetching minisite images:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to fetch minisite images" });
-    }
-  });
-
-  app.delete("/api/interests/:interestId/minisite/images/:imageId", async (req: Request, res: Response) => {
-    try {
-      const imageId = Number(req.params.imageId);
-      if (isNaN(imageId)) {
-        return res.status(400).json({ message: "Invalid image ID" });
-      }
-
-      await storage.deleteMinisiteImage(imageId);
-      res.status(204).send();
-    } catch (error) {
-      log("Error deleting minisite image:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to delete minisite image" });
     }
   });
 
