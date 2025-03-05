@@ -1,4 +1,4 @@
-import { users, posts, comments, connections, likes, wallets, nfts, transactions, interests, interestContent, userInterests, type Interest, type InterestContent, type UserInterest, type InsertInterest, type InsertInterestContent, type InsertUserInterest } from "@shared/schema";
+import { users, posts, comments, connections, likes, wallets, nfts, transactions, interests, interestContent, userInterests, minisiteImages, type Interest, type InterestContent, type UserInterest, type InsertInterest, type InsertInterestContent, type InsertUserInterest, type MinisiteImage, type InsertMinisiteImage } from "@shared/schema";
 import { type User, type InsertUser, type Post, type Comment, type Connection, type Wallet, type NFT, type Transaction, type InsertNFT, type InsertWallet } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, inArray, or, sql } from "drizzle-orm";
@@ -12,9 +12,6 @@ const storageLog = (operation: string, details: any) => {
   const timestamp = new Date().toISOString();
   log(`[STORAGE] ${timestamp} - ${operation}:`, JSON.stringify(details, null, 2));
 };
-
-import { interests, type Interest, type InsertInterest } from "@shared/schema";
-import { eq } from "drizzle-orm";
 
 // Add to the IStorage interface
 export interface IStorage {
@@ -76,6 +73,21 @@ export interface IStorage {
   deleteInterest(id: number): Promise<void>;
   createInterest(interest: InsertInterest): Promise<Interest>;
   getInterestByName(name: string): Promise<Interest | undefined>;
+
+  // Add new minisite methods
+  createMinisiteImage(image: InsertMinisiteImage): Promise<MinisiteImage>;
+  getMinisiteImages(interestId: number): Promise<MinisiteImage[]>;
+  updateInterestMinisite(
+    id: number,
+    data: {
+      minisiteTitle?: string;
+      minisiteDescription?: string;
+      minisiteTheme?: string;
+      minisiteLayout?: string;
+      minisiteEnabled?: boolean;
+    }
+  ): Promise<Interest>;
+  deleteMinisiteImage(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -634,6 +646,61 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       log("Error getting interest by name:", errorMessage);
+      throw error;
+    }
+  }
+
+  async createMinisiteImage(image: InsertMinisiteImage): Promise<MinisiteImage> {
+    try {
+      const [newImage] = await db
+        .insert(minisiteImages)
+        .values(image)
+        .returning();
+      return newImage;
+    } catch (error) {
+      log("Error creating minisite image:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getMinisiteImages(interestId: number): Promise<MinisiteImage[]> {
+    return await db
+      .select()
+      .from(minisiteImages)
+      .where(eq(minisiteImages.interestId, interestId))
+      .orderBy(minisiteImages.position);
+  }
+
+  async updateInterestMinisite(
+    id: number,
+    data: {
+      minisiteTitle?: string;
+      minisiteDescription?: string;
+      minisiteTheme?: string;
+      minisiteLayout?: string;
+      minisiteEnabled?: boolean;
+    }
+  ): Promise<Interest> {
+    try {
+      const [updated] = await db
+        .update(interests)
+        .set(data)
+        .where(eq(interests.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      log("Error updating interest minisite:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async deleteMinisiteImage(id: number): Promise<void> {
+    try {
+      await db
+        .delete(minisiteImages)
+        .where(eq(minisiteImages.id, id));
+    } catch (error) {
+      log("Error deleting minisite image:", error instanceof Error ? error.message : String(error));
       throw error;
     }
   }
