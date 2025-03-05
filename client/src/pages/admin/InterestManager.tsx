@@ -9,6 +9,30 @@ import { apiRequest } from "@/lib/queryClient";
 import type { Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 
+const CATEGORY_EMOJIS: { [key: string]: string } = {
+  'Sports & Fitness': '🏃‍♂️',
+  'Arts & Culture': '🎨',
+  'Technology': '💻',
+  'Food & Dining': '🍳',
+  'Travel': '✈️',
+  'Music': '🎵',
+  'Reading & Literature': '📚',
+  'Gaming': '🎮',
+  'Nature & Outdoors': '🌲',
+  'Science': '🔬',
+  'Fashion': '👗',
+  'Photography': '📸',
+  'Movies & TV': '🎬',
+  'Health & Wellness': '🧘‍♀️',
+  'DIY & Crafts': '🛠️',
+  'Business': '💼',
+  'Pets & Animals': '🐾',
+  'Social Causes': '🤝',
+  'Education': '📚',
+  'AI_GENERATED': '🤖',
+  'Uncategorized': '📌'
+};
+
 export default function InterestManager() {
   const [newInterest, setNewInterest] = useState("");
   const [newCategory, setNewCategory] = useState("");
@@ -171,7 +195,9 @@ export default function InterestManager() {
                         ) : (
                           <ChevronRight className="w-4 h-4" />
                         )}
-                        <span className="font-medium">{category}</span>
+                        <span className="font-medium">
+                          {CATEGORY_EMOJIS[category] || '📌'} {category}
+                        </span>
                         <span className="text-sm text-muted-foreground">
                           ({categoryInterests.length} interests)
                         </span>
