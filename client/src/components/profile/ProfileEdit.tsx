@@ -612,7 +612,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               <div className="p-4 border rounded-lg bg-secondary/5">
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <p className="font-medium">{t("profile.aiSuggestedInterests")}</p>
+                  <p className="font-medium">AI-Suggested Interests</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {suggestedInterests.map((interest, index) => {

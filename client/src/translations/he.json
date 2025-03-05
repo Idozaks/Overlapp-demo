@@ -130,7 +130,6 @@
     "updateError": "העדכון נכשל",
     "updateErrorMessage": "עדכון הפרופיל נכשל. אנא נסה שוב.",
     "about": "אודות",
-    "interests": "תחומי עניין",
-    "aiSuggestedInterests": "תחומי עניין מוצעים על ידי בינה מלאכותית"
+    "interests": "תחומי עניין"
   }
 }

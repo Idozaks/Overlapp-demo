@@ -76,7 +76,6 @@ export interface IStorage {
   deleteInterest(id: number): Promise<void>;
   createInterest(interest: InsertInterest): Promise<Interest>;
   getInterestByName(name: string): Promise<Interest | undefined>;
-  updateInterest(id: number, data: Partial<InsertInterest>): Promise<Interest>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -626,16 +625,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getInterestByName(name: string): Promise<Interest | undefined> {
-    const result = await db.select().from(interests).where(eq(interests.name, name));
-    return result[0];
-  }
-
-  async updateInterest(id: number, data: Partial<InsertInterest>): Promise<Interest> {
-    const result = await db.update(interests)
-      .set(data)
-      .where(eq(interests.id, id))
-      .returning();
-    return result[0];
+    try {
+      const [interest] = await db
+        .select()
+        .from(interests)
+        .where(eq(interests.name, name));
+      return interest;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log("Error getting interest by name:", errorMessage);
+      throw error;
+    }
   }
 }
 

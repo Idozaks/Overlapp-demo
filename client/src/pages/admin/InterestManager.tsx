@@ -1,10 +1,9 @@
-
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, Trash2, ChevronRight, ChevronDown, Pencil, Check, X } from "lucide-react";
+import { Loader2, Plus, Trash2, ChevronRight, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Interest } from "@shared/schema";
@@ -38,8 +37,6 @@ export default function InterestManager() {
   const [newInterest, setNewInterest] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
-  const [editingInterest, setEditingInterest] = useState<{ id: number, name: string } | null>(null);
-  const [editedName, setEditedName] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -92,7 +89,7 @@ export default function InterestManager() {
     onError: (error: Error) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to add interest",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -107,7 +104,6 @@ export default function InterestManager() {
         const error = await response.json();
         throw new Error(error.message || 'Failed to delete interest');
       }
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/interests'] });
@@ -119,37 +115,7 @@ export default function InterestManager() {
     onError: (error: Error) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to delete interest",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const updateInterestMutation = useMutation({
-    mutationFn: async ({ id, name }: { id: number, name: string }) => {
-      const response = await apiRequest(`/api/interests/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ name })
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update interest');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/interests'] });
-      setEditingInterest(null);
-      setEditedName("");
-      toast({
-        title: "Success",
-        description: "Interest updated successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update interest",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -167,25 +133,9 @@ export default function InterestManager() {
     });
   };
 
-  const handleEditStart = (interest: Interest) => {
-    setEditingInterest({ id: interest.id, name: interest.name });
-    setEditedName(interest.name);
-  };
-
-  const handleEditCancel = () => {
-    setEditingInterest(null);
-    setEditedName("");
-  };
-
-  const handleEditSave = () => {
-    if (editingInterest && editedName.trim()) {
-      updateInterestMutation.mutate({ id: editingInterest.id, name: editedName.trim() });
-    }
-  };
-
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center py-8">
         <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     );
@@ -230,103 +180,62 @@ export default function InterestManager() {
               Add Interest
             </Button>
 
-            <div className="space-y-4 mt-6">
-              <h3 className="text-lg font-medium">Interest Categories</h3>
-              {Object.entries(groupedInterests).map(([category, categoryInterests]) => (
-                <div key={category} className="border rounded-lg">
-                  <button
-                    className="flex justify-between items-center w-full p-3 hover:bg-secondary/10 transition-colors"
-                    onClick={() => toggleCategory(category)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span>{CATEGORY_EMOJIS[category] || '📌'}</span>
-                      <span className="font-medium">{category}</span>
-                      <Badge variant="outline" className="ml-2">
-                        {categoryInterests.length}
-                      </Badge>
-                    </div>
-                    <div>
-                      {expandedCategories.has(category) ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
-                    </div>
-                  </button>
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Current Interests</h3>
+              <div className="space-y-4">
+                {Object.entries(groupedInterests).map(([category, categoryInterests]) => (
+                  <div key={category} className="border rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => toggleCategory(category)}
+                      className="w-full flex items-center justify-between p-3 bg-secondary/10 hover:bg-secondary/20 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        {expandedCategories.has(category) ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" />
+                        )}
+                        <span className="font-medium">
+                          {CATEGORY_EMOJIS[category] || '📌'} {category}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          ({categoryInterests.length} interests)
+                        </span>
+                      </div>
+                    </button>
 
-                  {expandedCategories.has(category) && (
-                    <div className="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {categoryInterests.map((interest) => (
-                        <div
-                          key={interest.id}
-                          className="flex items-center justify-between p-2 border rounded-lg bg-card"
-                        >
-                          {editingInterest && editingInterest.id === interest.id ? (
-                            <div className="flex-1 flex items-center space-x-2">
-                              <Input
-                                value={editedName}
-                                onChange={(e) => setEditedName(e.target.value)}
-                                autoFocus
-                                className="flex-1"
-                              />
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                onClick={handleEditSave}
-                                disabled={updateInterestMutation.isPending}
-                              >
-                                {updateInterestMutation.isPending ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Check className="w-4 h-4 text-green-500" />
-                                )}
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                onClick={handleEditCancel}
-                                disabled={updateInterestMutation.isPending}
-                              >
-                                <X className="w-4 h-4 text-red-500" />
-                              </Button>
+                    {expandedCategories.has(category) && (
+                      <div className="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {categoryInterests.map((interest) => (
+                          <div
+                            key={interest.id}
+                            className="flex items-center justify-between p-2 border rounded-lg bg-card"
+                          >
+                            <div className="space-y-1">
+                              <p className="font-medium">{interest.name}</p>
+                              <Badge variant="secondary" className="text-xs">
+                                {interest.category}
+                              </Badge>
                             </div>
-                          ) : (
-                            <>
-                              <div className="space-y-1">
-                                <p className="font-medium">{interest.name}</p>
-                                <Badge variant="secondary" className="text-xs">
-                                  {interest.category}
-                                </Badge>
-                              </div>
-                              <div className="flex space-x-1">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleEditStart(interest)}
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => deleteInterestMutation.mutate(interest.id)}
-                                  disabled={deleteInterestMutation.isPending}
-                                >
-                                  {deleteInterestMutation.isPending && deleteInterestMutation.variables === interest.id ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    <Trash2 className="w-4 h-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => deleteInterestMutation.mutate(interest.id)}
+                              disabled={deleteInterestMutation.isPending}
+                            >
+                              {deleteInterestMutation.isPending && deleteInterestMutation.variables === interest.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </CardContent>
