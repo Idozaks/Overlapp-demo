@@ -34,6 +34,44 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+async function enrichInterests(interests: string[]): Promise<{ suggestions: { parentInterest: string; suggestions: string[]; }[] }> {
+  // Get user's system prompt if available
+  let systemPrompt = "You are a helpful assistant that suggests related interests based on a user's current interests. Keep suggestions concise and relevant.";
+
+
+  const prompt = `Given these interests: ${interests.join(", ")}\n\n` +
+    "For each interest, suggest 2-3 related or more specific interests. Organize the suggestions by parent interest. " +
+    "Format the response as a JSON array of objects. Each object should have a 'parentInterest' property (string) and a 'suggestions' property (array of strings). For example: [{\"parentInterest\":\"Sports\",\"suggestions\":[\"Basketball\",\"Soccer\",\"Tennis\"]},{\"parentInterest\":\"Technology\",\"suggestions\":[\"AI\",\"Software\",\"Hardware\"]}]";
+
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "system",
+        content: systemPrompt
+      },
+      {
+        role: "user",
+        content: prompt
+      }
+    ],
+    temperature: 0.7,
+    max_tokens: 200
+  });
+
+  let suggestions: { parentInterest: string; suggestions: string[]; }[] = [];
+  try {
+    const content = completion.choices[0].message.content || "[]";
+    suggestions = JSON.parse(content);
+  } catch (error) {
+    log("Error parsing OpenAI response:", error instanceof Error ? error.message : String(error));
+    suggestions = []; // Handle parsing errors gracefully
+  }
+  return { suggestions };
+}
+
+
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.json());
 
@@ -110,6 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.body.username = req.body.username.toLowerCase();
     }
     
+
     passport.authenticate("local", (err: any, user: User | false, info: { message?: string }) => {
       if (err) {
         log("Login error:", err instanceof Error ? err.message : String(err));
@@ -512,6 +551,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, password, displayName } = req.body;
       
+
       // Validate required fields
       if (!username || !password) {
         return res.status(400).json({ message: "Username and password are required" });
@@ -765,56 +805,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const prompt = `Given these interests: ${interests.join(", ")}\n\n` +
-        "For each interest, suggest 2-3 related or more specific interests. " +
-        "Format the response as a simple array of strings, including only the new suggestions. " +
-        "The suggestions should be specific and related to the original interests. " +
-        "For example, if 'Sports' is given, suggest specific sports or related activities.";
+      const enrichResponse = await enrichInterests(interests);
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 200
-      });
+      // Process each suggestion and create interests with proper categorization
+      const processedSuggestions = [];
 
-      let suggestions: string[] = [];
-      try {
-        const content = completion.choices[0].message.content || "[]";
-        if (content.startsWith("[") && content.endsWith("]")) {
-          suggestions = JSON.parse(content);
-        } else {
-          suggestions = content
-            .split(",")
-            .map(s => s.trim())
-            .filter(s => s.length > 0);
+      for (const group of enrichResponse.suggestions) {
+        const parentInterest = await storage.getInterestByName(group.parentInterest);
+
+        if (!parentInterest) {
+          continue; // Skip if parent interest doesn't exist
         }
 
-        suggestions = suggestions
-          .map(suggestion => suggestion.replace(/[\[\]"]/g, '').trim())
-          .filter(s => s.length > 0);
+        const suggestions = [];
+        for (const suggestion of group.suggestions) {
+          let existingInterest = await storage.getInterestByName(suggestion);
 
-        suggestions = Array.from(new Set(suggestions))
-          .filter(s => !interests.includes(s));
+          if (!existingInterest) {
+            try {
+              // Create new interest with parent's category and relationship
+              const newInterest = await storage.createInterest({
+                name: suggestion,
+                category: parentInterest.category, // Use parent's category
+                description: `Sub-interest of ${group.parentInterest}`,
+                isAiGenerated: true,
+                parentInterestId: parentInterest.id // Store the relationship
+              });
+              suggestions.push(suggestion);
+            } catch (error) {
+              log("Error creating interest:", error instanceof Error ? error.message : String(error));
+              continue;
+            }
+          } else {
+            suggestions.push(suggestion);
+          }
+        }
 
-        res.json({ suggestions });
-      } catch (error) {
-        log("Error parsing OpenAI response:", error instanceof Error ? error.message : String(error));
-        suggestions = (completion.choices[0].message.content || "")
-          .split("\n")
-          .map(s => s.replace(/^[-*\d.]+\s*/, "").trim())
-          .filter(s => s.length > 0);
-        res.json({ suggestions });
+        if (suggestions.length > 0) {
+          processedSuggestions.push({
+            parentInterest: group.parentInterest,
+            suggestions
+          });
+        }
       }
+
+      res.json({ suggestions: processedSuggestions });
     } catch (error) {
       log("Interest enrichment error:", error instanceof Error ? error.message : String(error));
       res.status(500).json({
@@ -1028,4 +1063,8 @@ const SYNTHETIC_USERS = [
 interface Interest {
   id: number;
   name: string;
+  category?: string;
+  description?: string;
+  isAiGenerated?: boolean;
+  parentInterestId?: number;
 }
