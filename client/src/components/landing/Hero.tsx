@@ -14,66 +14,66 @@ export default function Hero() {
   const slides = [
     {
       id: 1,
-      titleKey: "landing.hero.slide1.title",
-      subtitleKey: "landing.hero.slide1.subtitle",
-      ctaKey: "landing.hero.slide1.cta",
+      titleKey: "common.landing.hero.slide1.title",
+      subtitleKey: "common.landing.hero.slide1.subtitle",
+      ctaKey: "common.landing.hero.slide1.cta",
       icon: <Globe className="w-8 h-8" />,
       route: "/signup"
     },
     {
       id: 2,
-      titleKey: "landing.hero.slide2.title",
-      subtitleKey: "landing.hero.slide2.subtitle",
-      ctaKey: "landing.hero.slide2.cta",
+      titleKey: "common.landing.hero.slide2.title",
+      subtitleKey: "common.landing.hero.slide2.subtitle",
+      ctaKey: "common.landing.hero.slide2.cta",
       icon: <Shield className="w-8 h-8" />,
       route: "/features"
     },
     {
       id: 3,
-      titleKey: "landing.hero.slide3.title",
-      subtitleKey: "landing.hero.slide3.subtitle",
-      ctaKey: "landing.hero.slide3.cta",
+      titleKey: "common.landing.hero.slide3.title",
+      subtitleKey: "common.landing.hero.slide3.subtitle",
+      ctaKey: "common.landing.hero.slide3.cta",
       icon: <Globe className="w-8 h-8" />,
       route: "/features"
     },
     {
       id: 4,
-      titleKey: "landing.hero.slide4.title",
-      subtitleKey: "landing.hero.slide4.subtitle",
-      ctaKey: "landing.hero.slide4.cta",
+      titleKey: "common.landing.hero.slide4.title",
+      subtitleKey: "common.landing.hero.slide4.subtitle",
+      ctaKey: "common.landing.hero.slide4.cta",
       icon: <Brain className="w-8 h-8" />,
       route: "/demo"
     },
     {
       id: 5,
-      titleKey: "landing.hero.slide5.title",
-      subtitleKey: "landing.hero.slide5.subtitle",
-      ctaKey: "landing.hero.slide5.cta",
+      titleKey: "common.landing.hero.slide5.title",
+      subtitleKey: "common.landing.hero.slide5.subtitle",
+      ctaKey: "common.landing.hero.slide5.cta",
       icon: <ShoppingBag className="w-8 h-8" />,
       route: "/demo"
     },
     {
       id: 6,
-      titleKey: "landing.hero.slide6.title",
-      subtitleKey: "landing.hero.slide6.subtitle",
-      ctaKey: "landing.hero.slide6.cta",
+      titleKey: "common.landing.hero.slide6.title",
+      subtitleKey: "common.landing.hero.slide6.subtitle",
+      ctaKey: "common.landing.hero.slide6.cta",
       icon: <CreditCard className="w-8 h-8" />,
       route: "/signup",
       pricing: [
         { 
-          nameKey: "landing.pricing.basic.name",
-          descriptionKey: "landing.pricing.basic.description",
-          priceKey: "landing.pricing.basic.price"
+          nameKey: "common.landing.pricing.basic.name",
+          descriptionKey: "common.landing.pricing.basic.description",
+          priceKey: "common.landing.pricing.basic.price"
         },
         { 
-          nameKey: "landing.pricing.premium.name",
-          descriptionKey: "landing.pricing.premium.description",
-          priceKey: "landing.pricing.premium.price"
+          nameKey: "common.landing.pricing.premium.name",
+          descriptionKey: "common.landing.pricing.premium.description",
+          priceKey: "common.landing.pricing.premium.price"
         },
         { 
-          nameKey: "landing.pricing.enterprise.name",
-          descriptionKey: "landing.pricing.enterprise.description",
-          priceKey: "landing.pricing.enterprise.price"
+          nameKey: "common.landing.pricing.enterprise.name",
+          descriptionKey: "common.landing.pricing.enterprise.description",
+          priceKey: "common.landing.pricing.enterprise.price"
         }
       ]
     }
