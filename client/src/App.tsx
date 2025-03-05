@@ -48,6 +48,10 @@ import {
   Shield
 } from "lucide-react";
 import "./lib/i18n";
+import Events from "@/pages/social/Events";
+import EventCreate from "@/pages/social/EventCreate";
+import EventDetail from "@/pages/social/EventDetail";
+
 
 function Router() {
   const { user } = useAuth();
@@ -64,6 +68,9 @@ function Router() {
       <Route path="/profile/:id" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/wallet" component={WalletDashboard} />
+      <Route path="/events" component={Events} />
+      <Route path="/events/create" component={EventCreate} />
+      <Route path="/events/:id" component={EventDetail} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
       <Route component={NotFound} />
     </Switch>
@@ -94,6 +101,10 @@ function Header() {
             <WalletIcon className="w-4 h-4" />
             Wallet
           </a>
+          <a href="/events" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
+            <CompassIcon className="w-4 h-4" />
+            Events
+          </a>
           {user.isAdmin && (
             <a href="/admin/interests" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
               <Shield className="w-4 h-4" />
@@ -118,13 +129,6 @@ function Header() {
     <header className="p-4 border-b">
       <div className="container mx-auto">
         <div className="flex justify-between items-center">
-          {/* Logo */}
-          <div className="flex items-center mr-4">
-            <a href="/" className="flex items-center">
-              <img src="/logo.png" alt="Overlapp Logo" className="h-16 transition-all hover:scale-105 shadow-sm hover:shadow-accent rounded-lg" />
-            </a>
-          </div>
-          
           {/* Mobile Menu */}
           <div className="lg:hidden">
             <Drawer>
