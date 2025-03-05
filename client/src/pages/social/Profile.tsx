@@ -34,17 +34,17 @@ export default function Profile() {
     enabled: !!userId && !isNaN(userId)
   });
 
-  const { data: followers } = useQuery<{ followers: User[] }>({
+  const { data: followers = {followers: []} } = useQuery<{ followers: User[] }>({
     queryKey: [`/api/users/${userId}/followers`],
     enabled: !!userId && !isNaN(userId)
   });
 
-  const { data: following } = useQuery<{ following: User[] }>({
+  const { data: following = {following: []} } = useQuery<{ following: User[] }>({
     queryKey: [`/api/users/${userId}/following`],
     enabled: !!userId && !isNaN(userId)
   });
 
-  const { data: userInterests } = useQuery<{ interests: Interest[] }>({
+  const { data: userInterests = {interests: []} } = useQuery<{ interests: Interest[] }>({
     queryKey: [`/api/users/${userId}/interests`],
     queryFn: async () => {
       const response = await apiRequest(`/api/users/${userId}/interests`);
