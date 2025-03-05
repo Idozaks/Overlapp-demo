@@ -73,17 +73,17 @@ export default function Hero() {
       gradientColors: "from-yellow-500/20 via-yellow-500/10 to-transparent",
       route: "/signup",
       pricing: [
-        { 
+        {
           nameKey: "common.landing.pricing.basic.name",
           descriptionKey: "common.landing.pricing.basic.description",
           priceKey: "common.landing.pricing.basic.price"
         },
-        { 
+        {
           nameKey: "common.landing.pricing.premium.name",
           descriptionKey: "common.landing.pricing.premium.description",
           priceKey: "common.landing.pricing.premium.price"
         },
-        { 
+        {
           nameKey: "common.landing.pricing.enterprise.name",
           descriptionKey: "common.landing.pricing.enterprise.description",
           priceKey: "common.landing.pricing.enterprise.price"
@@ -130,7 +130,7 @@ export default function Hero() {
             className="max-w-3xl"
           >
             {/* Hero Icon with Gradient Background */}
-            <motion.div 
+            <motion.div
               className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -141,7 +141,7 @@ export default function Hero() {
               </div>
             </motion.div>
 
-            <motion.h1 
+            <motion.h1
               className="text-4xl md:text-6xl font-bold mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -150,7 +150,7 @@ export default function Hero() {
               {t(slides[currentSlide].titleKey)}
             </motion.h1>
 
-            <motion.p 
+            <motion.p
               className="text-xl md:text-2xl text-muted-foreground mb-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -160,7 +160,7 @@ export default function Hero() {
             </motion.p>
 
             {currentSlide === 5 ? (
-              <motion.div 
+              <motion.div
                 className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -180,6 +180,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
+              className="mb-24" // Increased bottom margin
             >
               <Button
                 size="lg"
@@ -193,7 +194,7 @@ export default function Hero() {
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4">
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4"> {/* Increased bottom position */}
           <Button
             variant="ghost"
             size="icon"
