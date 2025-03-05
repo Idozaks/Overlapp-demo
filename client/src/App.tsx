@@ -48,7 +48,6 @@ import {
   Shield
 } from "lucide-react";
 import "./lib/i18n";
-import EventsPage from '@/components/events/EventsPage'; //Added import statement
 
 function Router() {
   const { user } = useAuth();
