@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Brain, Globe, MapPin, Sparkles, Layers, Shield } from "lucide-react";
+import { Brain, Globe, MapPin, Sparkles, Layers, Shield, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export default function PhygitalAI() {
