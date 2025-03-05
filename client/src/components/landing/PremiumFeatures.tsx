@@ -11,12 +11,18 @@ import { Check, Crown, Zap } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 
+const FEATURES = {
+  basic: ["identity.basic", "ar.limited", "recommendations.standard", "retail.basic"],
+  premium: ["identity.advanced", "ar.full", "ai.personalization", "retail.priority", "events.exclusive", "support.premium"],
+  enterprise: ["solutions.custom", "analytics.advanced", "support.dedicated", "integrations.custom", "access.api", "sla.guarantees"]
+};
+
 export default function PremiumFeatures() {
   const [, navigate] = useLocation();
   const { t } = useTranslation();
 
   const handlePlanClick = (planName: string) => {
-    if (planName === "Enterprise") {
+    if (planName === t('common.landing.pricing.enterprise.name')) {
       navigate("/contact");
     } else {
       navigate("/signup");
@@ -59,32 +65,29 @@ export default function PremiumFeatures() {
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="bg-primary text-primary-foreground text-sm font-medium px-3 py-1 rounded-full flex items-center gap-1">
                       <Crown className="w-4 h-4" />
-                      {t('common.landing.pricing.plans.premium.popular')}
+                      {t('common.landing.pricing.premium.popular')}
                     </span>
                   </div>
                 )}
 
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>{t(`common.landing.pricing.plans.${plan}.name`)}</span>
+                    <span>{t(`common.landing.pricing.${plan}.name`)}</span>
                     {plan === 'premium' && <Zap className="w-5 h-5 text-primary" />}
                   </CardTitle>
                   <div className="mt-2">
                     <span className="text-3xl font-bold">
-                      {t(`common.landing.pricing.plans.${plan}.price`)}
+                      {t(`common.landing.pricing.${plan}.price`)}
                     </span>
-                    {t(`common.landing.pricing.plans.${plan}.price`) !== "Custom" && 
-                      <span className="text-gray-600 ml-1">/month</span>
-                    }
                   </div>
                 </CardHeader>
 
                 <CardContent>
                   <ul className="space-y-3">
-                    {t(`common.landing.pricing.plans.${plan}.features`, { returnObjects: true }).map((feature: string, featureIndex: number) => (
+                    {FEATURES[plan as keyof typeof FEATURES].map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-center gap-2">
                         <Check className="w-5 h-5 text-primary" />
-                        <span className="text-gray-600">{feature}</span>
+                        <span className="text-gray-600">{t(`common.landing.pricing.features.${feature}`)}</span>
                       </li>
                     ))}
                   </ul>
@@ -94,9 +97,9 @@ export default function PremiumFeatures() {
                   <Button
                     className="w-full"
                     variant={plan === 'premium' ? "default" : "outline"}
-                    onClick={() => handlePlanClick(t(`common.landing.pricing.plans.${plan}.name`))}
+                    onClick={() => handlePlanClick(t(`common.landing.pricing.${plan}.name`))}
                   >
-                    {t(`common.landing.pricing.plans.${plan}.price`) === "Custom" 
+                    {plan === 'enterprise' 
                       ? t('common.nav.contact') 
                       : t('common.nav.signup')}
                   </Button>
