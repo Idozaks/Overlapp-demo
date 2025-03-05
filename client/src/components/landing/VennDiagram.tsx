@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import p5 from 'p5';
@@ -36,7 +35,7 @@ export default function VennDiagram() {
   const p5ContainerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
   const { t } = useTranslation();
-  
+
   useEffect(() => {
     // Only create the p5 instance once
     if (!p5InstanceRef.current && p5ContainerRef.current) {
@@ -86,7 +85,7 @@ export default function VennDiagram() {
           const centerX = p.width / 2;
           const centerY = p.height / 2;
           const radius = Math.min(p.width, p.height) * 0.25;
-          
+
           circles.forEach((circle, index) => {
             const angle = (index * 2 * Math.PI) / 3;
             circle.x = centerX + radius * Math.cos(angle);
@@ -95,72 +94,83 @@ export default function VennDiagram() {
         };
 
         p.setup = () => {
-          const canvasWidth = p5ContainerRef.current?.clientWidth || 600;
-          const canvasHeight = 500;
-          p.createCanvas(canvasWidth, canvasHeight);
-          p.textAlign(p.CENTER, p.CENTER);
-          setInitialPositions();
+          const container = p5ContainerRef.current;
+          if (!container) return;
+
+          // Create canvas to fill container
+          const canvas = p.createCanvas(container.offsetWidth, 500);
+          canvas.parent(container);
+
+          // Initialize circle positions
+          circles[0].x = p.width * 0.65; // AI Analytics (right)
+          circles[0].y = p.height * 0.4;
+
+          circles[1].x = p.width * 0.35; // Digital Identity (left)
+          circles[1].y = p.height * 0.65;
+
+          circles[2].x = p.width * 0.35; // Physical Integration (top-left)
+          circles[2].y = p.height * 0.25;
         };
 
         p.draw = () => {
           p.clear();
-          
+
           // Draw circles with blend mode
           p.push();
           p.blendMode(p.MULTIPLY);
-          
+
           // Draw circles
           circles.forEach(circle => {
             p.noStroke();
             p.fill(circle.color);
             p.ellipse(circle.x, circle.y, circle.r * 2);
           });
-          
+
           p.pop();
-          
+
           // Find intersections
           const intersections = findIntersections(circles);
-          
+
           // Draw labels for circles
           circles.forEach(circle => {
-            p.fill(80, 80, 100);
+            p.fill(80, 73, 98);
             p.textSize(16);
             p.textStyle(p.BOLD);
             p.text(circle.label, circle.x, circle.y);
           });
-          
+
           // Draw intersection text
           intersections.forEach(intersection => {
             if (intersection.circles.length === 2) {
               const c1 = intersection.circles[0];
               const c2 = intersection.circles[1];
-              
+
               // Calculate the midpoint of the intersection
               const midX = (c1.x + c2.x) / 2;
               const midY = (c1.y + c2.y) / 2;
-              
+
               // Calculate the angle of the intersection
               const angle = Math.atan2(c2.y - c1.y, c2.x - c1.x);
-              
+
               p.push();
               p.translate(midX, midY);
               p.rotate(angle);
-              
+
               p.fill(50, 50, 70);
               p.textSize(14);
               p.textStyle(p.BOLD);
-              
+
               const label = getIntersectionLabel(c1.id, c2.id);
               p.text(label, 0, 0);
-              
+
               p.pop();
             } else if (intersection.circles.length === 3) {
               // Center of all three circles
               const centerX = (circles[0].x + circles[1].x + circles[2].x) / 3;
               const centerY = (circles[0].y + circles[1].y + circles[2].y) / 3;
-              
-              p.fill(40, 40, 60);
-              p.textSize(16);
+
+              p.fill(50, 50, 70);
+              p.textSize(18);
               p.textStyle(p.BOLD);
               p.text("Overlapp", centerX, centerY);
             }
@@ -170,15 +180,15 @@ export default function VennDiagram() {
         // Find all intersections between circles
         const findIntersections = (circles: Circle[]) => {
           const intersections: { circles: Circle[] }[] = [];
-          
+
           // Check each pair of circles
           for (let i = 0; i < circles.length; i++) {
             for (let j = i + 1; j < circles.length; j++) {
               const c1 = circles[i];
               const c2 = circles[j];
-              
+
               const distance = p.dist(c1.x, c1.y, c2.x, c2.y);
-              
+
               // If circles overlap
               if (distance < c1.r + c2.r) {
                 intersections.push({
@@ -187,40 +197,40 @@ export default function VennDiagram() {
               }
             }
           }
-          
+
           // Check if all three circles intersect
           const c1 = circles[0];
           const c2 = circles[1];
           const c3 = circles[2];
-          
+
           const d12 = p.dist(c1.x, c1.y, c2.x, c2.y);
           const d23 = p.dist(c2.x, c2.y, c3.x, c3.y);
           const d31 = p.dist(c3.x, c3.y, c1.x, c1.y);
-          
+
           if (d12 < c1.r + c2.r && d23 < c2.r + c3.r && d31 < c3.r + c1.r) {
             // Find the centroid
             const centerX = (c1.x + c2.x + c3.x) / 3;
             const centerY = (c1.y + c2.y + c3.y) / 3;
-            
+
             // Check if the centroid is inside all three circles
             const inC1 = p.dist(centerX, centerY, c1.x, c1.y) < c1.r;
             const inC2 = p.dist(centerX, centerY, c2.x, c2.y) < c2.r;
             const inC3 = p.dist(centerX, centerY, c3.x, c3.y) < c3.r;
-            
+
             if (inC1 && inC2 && inC3) {
               intersections.push({
                 circles: [c1, c2, c3]
               });
             }
           }
-          
+
           return intersections;
         };
 
         // Get an appropriate label for the intersection
         const getIntersectionLabel = (id1: string, id2: string) => {
           const pair = [id1, id2].sort().join('-');
-          
+
           switch (pair) {
             case 'ai-digital':
               return "Smart Analytics";
@@ -315,6 +325,26 @@ export default function VennDiagram() {
     };
   }, [t]);
 
+  const drawIntersectionText = (p: p5, circle1: Circle, circle2: Circle, text: string, angleOffset: number = 0) => {
+    // Calculate midpoint between circles
+    const midX = (circle1.x + circle2.x) / 2;
+    const midY = (circle1.y + circle2.y) / 2;
+
+    // Calculate angle between circles
+    const angle = Math.atan2(circle2.y - circle1.y, circle2.x - circle1.x) + p.radians(angleOffset);
+
+    p.push();
+    p.translate(midX, midY);
+    p.rotate(angle);
+    p.fill(80, 73, 98);
+    p.textSize(14);
+    p.textStyle(p.NORMAL);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(text, 0, 0);
+    p.pop();
+  };
+
+
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -326,7 +356,7 @@ export default function VennDiagram() {
             {t('common.landing.features.subtitle')}
           </p>
         </div>
-        
+
         <div className="relative">
           <div 
             ref={p5ContainerRef} 
