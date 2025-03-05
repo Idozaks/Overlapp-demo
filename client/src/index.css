@@ -92,6 +92,15 @@
   @apply flex-1 flex items-center justify-between px-2 md:px-4 overflow-x-hidden;
 }
 
+/* Logo styling and animation */
+header img {
+  @apply filter drop-shadow-sm transition-all duration-300;
+}
+
+header a:hover img {
+  @apply drop-shadow-md;
+}
+
 .mobile-nav-items {
   @apply flex items-center gap-2 md:gap-4 flex-wrap;
 }
