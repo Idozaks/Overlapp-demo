@@ -2,9 +2,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import AnimatedGradient from "@/components/ui/AnimatedGradient";
-import { ArrowRight, Shield, ShoppingBag, Brain, Globe, CreditCard } from "lucide-react";
+import { ArrowRight, Shield, ShoppingBag, Cloud, Globe, CreditCard } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect, useCallback } from "react";
+import { HiSparkles, HiLockClosed, HiGlobeAlt, HiCube, HiShoppingBag, HiStar } from "react-icons/hi2";
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -18,7 +19,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide1.subtitle",
       ctaKey: "common.landing.hero.slide1.cta",
       icon: <Globe className="w-8 h-8" />,
-      emoji: "🌟",
+      heroIcon: <HiSparkles className="w-8 h-8 text-primary" />,
       route: "/signup"
     },
     {
@@ -27,7 +28,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide2.subtitle",
       ctaKey: "common.landing.hero.slide2.cta",
       icon: <Shield className="w-8 h-8" />,
-      emoji: "🔒",
+      heroIcon: <HiLockClosed className="w-8 h-8 text-primary" />,
       route: "/features"
     },
     {
@@ -36,7 +37,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide3.subtitle",
       ctaKey: "common.landing.hero.slide3.cta",
       icon: <Globe className="w-8 h-8" />,
-      emoji: "🌍",
+      heroIcon: <HiGlobeAlt className="w-8 h-8 text-primary" />,
       route: "/features"
     },
     {
@@ -44,8 +45,8 @@ export default function Hero() {
       titleKey: "common.landing.hero.slide4.title",
       subtitleKey: "common.landing.hero.slide4.subtitle",
       ctaKey: "common.landing.hero.slide4.cta",
-      icon: <Brain className="w-8 h-8" />,
-      emoji: "🧠",
+      icon: <Cloud className="w-8 h-8" />,
+      heroIcon: <HiCube className="w-8 h-8 text-primary" />,
       route: "/demo"
     },
     {
@@ -54,7 +55,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide5.subtitle",
       ctaKey: "common.landing.hero.slide5.cta",
       icon: <ShoppingBag className="w-8 h-8" />,
-      emoji: "🛍️",
+      heroIcon: <HiShoppingBag className="w-8 h-8 text-primary" />,
       route: "/demo"
     },
     {
@@ -63,7 +64,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide6.subtitle",
       ctaKey: "common.landing.hero.slide6.cta",
       icon: <CreditCard className="w-8 h-8" />,
-      emoji: "✨",
+      heroIcon: <HiStar className="w-8 h-8 text-primary" />,
       route: "/signup",
       pricing: [
         { 
@@ -131,7 +132,7 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                {t(slides[currentSlide].titleKey)} {slides[currentSlide].emoji}
+                {t(slides[currentSlide].titleKey)} {slides[currentSlide].heroIcon}
               </motion.h1>
             </div>
 
