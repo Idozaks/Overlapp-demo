@@ -19,7 +19,8 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide1.subtitle",
       ctaKey: "common.landing.hero.slide1.cta",
       icon: <Globe className="w-8 h-8" />,
-      heroIcon: <HiSparkles className="w-8 h-8 text-primary" />,
+      heroIcon: <HiSparkles className="w-16 h-16" />,
+      gradientColors: "from-primary/20 via-primary/10 to-transparent",
       route: "/signup"
     },
     {
@@ -28,7 +29,8 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide2.subtitle",
       ctaKey: "common.landing.hero.slide2.cta",
       icon: <Shield className="w-8 h-8" />,
-      heroIcon: <HiLockClosed className="w-8 h-8 text-primary" />,
+      heroIcon: <HiLockClosed className="w-16 h-16" />,
+      gradientColors: "from-blue-500/20 via-blue-500/10 to-transparent",
       route: "/features"
     },
     {
@@ -37,7 +39,8 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide3.subtitle",
       ctaKey: "common.landing.hero.slide3.cta",
       icon: <Globe className="w-8 h-8" />,
-      heroIcon: <HiGlobeAlt className="w-8 h-8 text-primary" />,
+      heroIcon: <HiGlobeAlt className="w-16 h-16" />,
+      gradientColors: "from-green-500/20 via-green-500/10 to-transparent",
       route: "/features"
     },
     {
@@ -46,7 +49,8 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide4.subtitle",
       ctaKey: "common.landing.hero.slide4.cta",
       icon: <Cloud className="w-8 h-8" />,
-      heroIcon: <HiCube className="w-8 h-8 text-primary" />,
+      heroIcon: <HiCube className="w-16 h-16" />,
+      gradientColors: "from-purple-500/20 via-purple-500/10 to-transparent",
       route: "/demo"
     },
     {
@@ -55,7 +59,8 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide5.subtitle",
       ctaKey: "common.landing.hero.slide5.cta",
       icon: <ShoppingBag className="w-8 h-8" />,
-      heroIcon: <HiShoppingBag className="w-8 h-8 text-primary" />,
+      heroIcon: <HiShoppingBag className="w-16 h-16" />,
+      gradientColors: "from-pink-500/20 via-pink-500/10 to-transparent",
       route: "/demo"
     },
     {
@@ -64,7 +69,8 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide6.subtitle",
       ctaKey: "common.landing.hero.slide6.cta",
       icon: <CreditCard className="w-8 h-8" />,
-      heroIcon: <HiStar className="w-8 h-8 text-primary" />,
+      heroIcon: <HiStar className="w-16 h-16" />,
+      gradientColors: "from-yellow-500/20 via-yellow-500/10 to-transparent",
       route: "/signup",
       pricing: [
         { 
@@ -93,8 +99,7 @@ export default function Hero() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 8000); // Increased to 8 seconds
-
+    }, 8000); // 8 seconds
     return () => clearInterval(interval);
   }, [currentSlide]); // Reset timer when currentSlide changes
 
@@ -124,17 +129,26 @@ export default function Hero() {
             transition={{ duration: 0.5 }}
             className="max-w-3xl"
           >
-            <div className="flex items-center gap-4 mb-6">
-              {slides[currentSlide].icon}
-              <motion.h1 
-                className="text-4xl md:text-6xl font-bold flex items-center gap-3"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                {t(slides[currentSlide].titleKey)} {slides[currentSlide].heroIcon}
-              </motion.h1>
-            </div>
+            {/* Hero Icon with Gradient Background */}
+            <motion.div 
+              className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm`}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div className="w-full h-full flex items-center justify-center text-primary">
+                {slides[currentSlide].heroIcon}
+              </div>
+            </motion.div>
+
+            <motion.h1 
+              className="text-4xl md:text-6xl font-bold mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              {t(slides[currentSlide].titleKey)}
+            </motion.h1>
 
             <motion.p 
               className="text-xl md:text-2xl text-muted-foreground mb-8"
@@ -153,7 +167,7 @@ export default function Hero() {
                 transition={{ delay: 0.4 }}
               >
                 {slides[5].pricing.map((plan, index) => (
-                  <div key={index} className="p-4 rounded-lg bg-background/50 backdrop-blur-sm">
+                  <div key={index} className="p-6 rounded-lg bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-sm border border-primary/10 hover:border-primary/20 transition-all">
                     <h3 className="font-semibold mb-2">{t(plan.nameKey)}</h3>
                     <p className="text-sm text-muted-foreground mb-2">{t(plan.descriptionKey)}</p>
                     <p className="font-bold">{t(plan.priceKey)}</p>
@@ -184,7 +198,7 @@ export default function Hero() {
             variant="ghost"
             size="icon"
             onClick={handlePrevSlide}
-            className="rounded-full"
+            className="rounded-full hover:bg-background/80 backdrop-blur-sm"
           >
             <ArrowRight className="w-4 h-4 rotate-180" />
           </Button>
@@ -205,7 +219,7 @@ export default function Hero() {
             variant="ghost"
             size="icon"
             onClick={handleNextSlide}
-            className="rounded-full"
+            className="rounded-full hover:bg-background/80 backdrop-blur-sm"
           >
             <ArrowRight className="w-4 h-4" />
           </Button>
