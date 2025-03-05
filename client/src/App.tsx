@@ -118,6 +118,13 @@ function Header() {
     <header className="p-4 border-b">
       <div className="container mx-auto">
         <div className="flex justify-between items-center">
+          {/* Logo */}
+          <div className="flex items-center mr-4">
+            <a href="/" className="flex items-center">
+              <img src="/logo.png" alt="Overlapp Logo" className="h-16 transition-all hover:scale-105 shadow-sm hover:shadow-accent rounded-lg" />
+            </a>
+          </div>
+          
           {/* Mobile Menu */}
           <div className="lg:hidden">
             <Drawer>
