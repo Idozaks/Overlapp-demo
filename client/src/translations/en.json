@@ -10,6 +10,55 @@
     },
     "updating": "Updating...",
     "landing": {
+      "hero": {
+        "slide1": {
+          "title": "Your Digital Identity, Reimagined",
+          "subtitle": "Seamlessly bridge your digital and physical worlds with AI-powered personalization.",
+          "cta": "Get Started"
+        },
+        "slide2": {
+          "title": "Secure & Future-Ready",
+          "subtitle": "Control your identity with quantum-resistant encryption and advanced privacy controls.",
+          "cta": "Learn More"
+        },
+        "slide3": {
+          "title": "Seamless Physical Integration",
+          "subtitle": "Merge real-world interactions with smart location-based features for on-the-spot convenience.",
+          "cta": "Explore Features"
+        },
+        "slide4": {
+          "title": "Personalized AI Insights",
+          "subtitle": "Get real-time recommendations, curated product suggestions, and data-driven tips.",
+          "cta": "See How It Works"
+        },
+        "slide5": {
+          "title": "Experience AR Shopping",
+          "subtitle": "Instantly discover prices, reviews, and personalized offers just by pointing your camera.",
+          "cta": "Try the Demo"
+        },
+        "slide6": {
+          "title": "Choose Your Experience",
+          "subtitle": "Unlock the full potential of Overlapp with our flexible plans.",
+          "cta": "Sign Up"
+        }
+      },
+      "pricing": {
+        "basic": {
+          "name": "Basic",
+          "description": "Essential features for digital identity management",
+          "price": "Free"
+        },
+        "premium": {
+          "name": "Premium",
+          "description": "Full AR + AI personalization",
+          "price": "$9.99/mo"
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "description": "Custom solutions for advanced needs",
+          "price": "Custom"
+        }
+      },
       "identity": {
         "title": "Your Digital Identity",
         "subtitle": "Reimagined"
@@ -51,7 +100,7 @@
             "description": "Create and maintain secure digital representations of physical identities with real-time synchronization"
           },
           "verification": {
-            "title": "Secure Identity Verification", 
+            "title": "Secure Identity Verification",
             "description": "Blockchain-backed verification ensures the authenticity and security of phygital identities"
           },
           "global_network": {
@@ -114,47 +163,6 @@
         "navigation": {
           "title": "Smart Navigation",
           "description": "Get guided to products you'll love with AR navigation overlays in stores"
-        }
-      },
-      "pricing": {
-        "title": "Choose Your Experience",
-        "subtitle": "Unlock the full potential of your digital identity with our premium features",
-        "plans": {
-          "basic": {
-            "name": "Basic",
-            "price": "Free",
-            "features": [
-              "Basic digital identity management",
-              "Limited AR experiences",
-              "Standard recommendations",
-              "Basic retail integrations"
-            ]
-          },
-          "premium": {
-            "name": "Premium",
-            "price": "$9.99/mo",
-            "popular": "Most Popular",
-            "features": [
-              "Advanced identity controls",
-              "Full AR capabilities",
-              "AI-powered personalization",
-              "Priority retail offers",
-              "Exclusive events access",
-              "24/7 premium support"
-            ]
-          },
-          "enterprise": {
-            "name": "Enterprise",
-            "price": "Custom",
-            "features": [
-              "Custom identity solutions",
-              "Advanced analytics",
-              "Dedicated support team",
-              "Custom integrations",
-              "API access",
-              "SLA guarantees"
-            ]
-          }
         }
       }
     }
