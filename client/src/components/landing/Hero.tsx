@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight, Shield, ShoppingBag, Brain, Globe, CreditCard } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -18,6 +18,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide1.subtitle",
       ctaKey: "common.landing.hero.slide1.cta",
       icon: <Globe className="w-8 h-8" />,
+      emoji: "🌟",
       route: "/signup"
     },
     {
@@ -26,6 +27,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide2.subtitle",
       ctaKey: "common.landing.hero.slide2.cta",
       icon: <Shield className="w-8 h-8" />,
+      emoji: "🔒",
       route: "/features"
     },
     {
@@ -34,6 +36,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide3.subtitle",
       ctaKey: "common.landing.hero.slide3.cta",
       icon: <Globe className="w-8 h-8" />,
+      emoji: "🌍",
       route: "/features"
     },
     {
@@ -42,6 +45,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide4.subtitle",
       ctaKey: "common.landing.hero.slide4.cta",
       icon: <Brain className="w-8 h-8" />,
+      emoji: "🧠",
       route: "/demo"
     },
     {
@@ -50,6 +54,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide5.subtitle",
       ctaKey: "common.landing.hero.slide5.cta",
       icon: <ShoppingBag className="w-8 h-8" />,
+      emoji: "🛍️",
       route: "/demo"
     },
     {
@@ -58,6 +63,7 @@ export default function Hero() {
       subtitleKey: "common.landing.hero.slide6.subtitle",
       ctaKey: "common.landing.hero.slide6.cta",
       icon: <CreditCard className="w-8 h-8" />,
+      emoji: "✨",
       route: "/signup",
       pricing: [
         { 
@@ -79,15 +85,28 @@ export default function Hero() {
     }
   ];
 
+  const handleSlideChange = useCallback((index: number) => {
+    setCurrentSlide(index);
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 8000); // Increased to 8 seconds
+
     return () => clearInterval(interval);
-  }, []);
+  }, [currentSlide]); // Reset timer when currentSlide changes
 
   const handleCTAClick = (route: string) => {
     navigate(route);
+  };
+
+  const handlePrevSlide = () => {
+    handleSlideChange((currentSlide - 1 + slides.length) % slides.length);
+  };
+
+  const handleNextSlide = () => {
+    handleSlideChange((currentSlide + 1) % slides.length);
   };
 
   return (
@@ -107,12 +126,12 @@ export default function Hero() {
             <div className="flex items-center gap-4 mb-6">
               {slides[currentSlide].icon}
               <motion.h1 
-                className="text-4xl md:text-6xl font-bold"
+                className="text-4xl md:text-6xl font-bold flex items-center gap-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                {t(slides[currentSlide].titleKey)}
+                {t(slides[currentSlide].titleKey)} {slides[currentSlide].emoji}
               </motion.h1>
             </div>
 
@@ -159,16 +178,36 @@ export default function Hero() {
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                currentSlide === index ? "bg-primary w-4" : "bg-primary/30"
-              }`}
-            />
-          ))}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handlePrevSlide}
+            className="rounded-full"
+          >
+            <ArrowRight className="w-4 h-4 rotate-180" />
+          </Button>
+
+          <div className="flex gap-2">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handleSlideChange(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  currentSlide === index ? "bg-primary w-4" : "bg-primary/30"
+                }`}
+              />
+            ))}
+          </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleNextSlide}
+            className="rounded-full"
+          >
+            <ArrowRight className="w-4 h-4" />
+          </Button>
         </div>
       </div>
     </div>
