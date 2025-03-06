@@ -7,8 +7,11 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   displayName: text("display_name"),
-  avatar: text("avatar"), // Using consistent column name
+  avatar: text("avatar"),
   bio: text("bio"),
+  age: integer("age"),
+  occupation: text("occupation"),
+  location: text("location"),
   isAdmin: boolean("is_admin").default(false),
   preferences: jsonb("preferences").$type<{
     interests: string[];
@@ -120,6 +123,9 @@ export const insertUserSchema = createInsertSchema(users).pick({
   displayName: true,
   avatar: true,
   bio: true,
+  age: true,
+  occupation: true,
+  location: true,
   isAdmin: true,
   preferences: true,
 });
