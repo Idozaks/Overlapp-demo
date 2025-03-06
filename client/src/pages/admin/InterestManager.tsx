@@ -1,42 +1,17 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, Trash2, ChevronRight, ChevronDown } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 
-const CATEGORY_EMOJIS: { [key: string]: string } = {
-  'Sports & Fitness': '🏃‍♂️',
-  'Arts & Culture': '🎨',
-  'Technology': '💻',
-  'Food & Dining': '🍳',
-  'Travel': '✈️',
-  'Music': '🎵',
-  'Reading & Literature': '📚',
-  'Gaming': '🎮',
-  'Nature & Outdoors': '🌲',
-  'Science': '🔬',
-  'Fashion': '👗',
-  'Photography': '📸',
-  'Movies & TV': '🎬',
-  'Health & Wellness': '🧘‍♀️',
-  'DIY & Crafts': '🛠️',
-  'Business': '💼',
-  'Pets & Animals': '🐾',
-  'Social Causes': '🤝',
-  'Education': '📚',
-  'AI_GENERATED': '🤖',
-  'Uncategorized': '📌'
-};
-
 export default function InterestManager() {
   const [newInterest, setNewInterest] = useState("");
   const [newCategory, setNewCategory] = useState("");
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -47,19 +22,6 @@ export default function InterestManager() {
       return response.json();
     }
   });
-
-  // Group interests by category
-  const groupedInterests = useMemo(() => {
-    if (!interests?.interests) return {};
-    return interests.interests.reduce((acc: { [key: string]: Interest[] }, interest) => {
-      const category = interest.category || 'Uncategorized';
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(interest);
-      return acc;
-    }, {});
-  }, [interests?.interests]);
 
   const addInterestMutation = useMutation({
     mutationFn: async () => {
@@ -121,18 +83,6 @@ export default function InterestManager() {
     },
   });
 
-  const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(category)) {
-        newSet.delete(category);
-      } else {
-        newSet.add(category);
-      }
-      return newSet;
-    });
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -182,57 +132,28 @@ export default function InterestManager() {
 
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-4">Current Interests</h3>
-              <div className="space-y-4">
-                {Object.entries(groupedInterests).map(([category, categoryInterests]) => (
-                  <div key={category} className="border rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => toggleCategory(category)}
-                      className="w-full flex items-center justify-between p-3 bg-secondary/10 hover:bg-secondary/20 transition-colors"
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {interests?.interests.map((interest) => (
+                  <div
+                    key={interest.id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
+                    <div className="space-y-1">
+                      <p className="font-medium">{interest.name}</p>
+                      <Badge variant="secondary">{interest.category}</Badge>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deleteInterestMutation.mutate(interest.id)}
+                      disabled={deleteInterestMutation.isPending}
                     >
-                      <div className="flex items-center gap-2">
-                        {expandedCategories.has(category) ? (
-                          <ChevronDown className="w-4 h-4" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4" />
-                        )}
-                        <span className="font-medium">
-                          {CATEGORY_EMOJIS[category] || '📌'} {category}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          ({categoryInterests.length} interests)
-                        </span>
-                      </div>
-                    </button>
-
-                    {expandedCategories.has(category) && (
-                      <div className="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {categoryInterests.map((interest) => (
-                          <div
-                            key={interest.id}
-                            className="flex items-center justify-between p-2 border rounded-lg bg-card"
-                          >
-                            <div className="space-y-1">
-                              <p className="font-medium">{interest.name}</p>
-                              <Badge variant="secondary" className="text-xs">
-                                {interest.category}
-                              </Badge>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => deleteInterestMutation.mutate(interest.id)}
-                              disabled={deleteInterestMutation.isPending}
-                            >
-                              {deleteInterestMutation.isPending && deleteInterestMutation.variables === interest.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                      {deleteInterestMutation.isPending && deleteInterestMutation.variables === interest.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </Button>
                   </div>
                 ))}
               </div>

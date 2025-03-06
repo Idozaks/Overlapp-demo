@@ -95,7 +95,7 @@ export function setupAuth(app: Express) {
         
         return done(null, adminUser);
       }
-      
+    
       // Regular user authentication - convert to lowercase for case-insensitive comparison
       const lowercaseUsername = username.toLowerCase();
       const user = await storage.getUserByUsername(lowercaseUsername);
@@ -151,24 +151,30 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
-      if (err) {
-        log(`[AUTH] Login error: ${err.message}`);
-        return res.status(500).json({ message: "Login failed" });
-      }
-      if (!user) {
-        log(`[AUTH] Login failed: ${info?.message || 'Invalid credentials'}`);
-        return res.status(401).json({ message: info?.message || "Invalid credentials" });
-      }
-      req.login(user, (err) => {
+    try {
+      passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
         if (err) {
-          log(`[AUTH] Login session error: ${err.message}`);
-          return res.status(500).json({ message: "Error establishing session" });
+          log(`[AUTH] Login error: ${err.message}`);
+          return res.status(500).json({ message: "Login failed", error: err.message });
         }
-        log(`[AUTH] Login successful: ${user.username}`);
-        res.json(user);
-      });
-    })(req, res, next);
+        if (!user) {
+          log(`[AUTH] Login failed: ${info?.message || 'Invalid credentials'}`);
+          return res.status(401).json({ message: info?.message || "Invalid credentials" });
+        }
+        req.login(user, (err) => {
+          if (err) {
+            log(`[AUTH] Login session error: ${err.message}`);
+            return res.status(500).json({ message: "Error establishing session" });
+          }
+          log(`[AUTH] Login successful: ${user.username}`);
+          res.json(user);
+        });
+      })(req, res, next);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log(`[AUTH] Unexpected login error: ${errorMessage}`);
+      res.status(500).json({ message: "Login failed due to an unexpected error", error: errorMessage });
+    }
   });
 
   app.post("/api/logout", (req, res) => {

@@ -120,17 +120,11 @@
     "avatar": "תמונת פרופיל",
     "avatarDescription": "הזן את כתובת ה-URL של תמונת הפרופיל שלך",
     "interests": "תחומי עניין",
-    "discoverMore": "גלה עוד",
-    "selectInterestsFirst": "יש לבחור תחומי עניין תחילה",
-    "enrichError": "שגיאה בהעשרת תחומי עניין",
     "retailPreferences": "העדפות קניות",
     "updateProfile": "עדכן פרופיל",
     "updateSuccess": "הפרופיל עודכן",
     "updateSuccessMessage": "הפרופיל שלך עודכן בהצלחה",
     "updateError": "העדכון נכשל",
-    "updateErrorMessage": "עדכון הפרופיל נכשל. אנא נסה שוב.",
-    "about": "אודות",
-    "interests": "תחומי עניין",
-    "aiSuggestedInterests": "תחומי עניין מוצעים על ידי בינה מלאכותית"
+    "updateErrorMessage": "עדכון הפרופיל נכשל. אנא נסה שוב."
   }
 }

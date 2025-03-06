@@ -34,17 +34,17 @@ export default function Profile() {
     enabled: !!userId && !isNaN(userId)
   });
 
-  const { data: followers = {followers: []} } = useQuery<{ followers: User[] }>({
+  const { data: followers } = useQuery<{ followers: User[] }>({
     queryKey: [`/api/users/${userId}/followers`],
     enabled: !!userId && !isNaN(userId)
   });
 
-  const { data: following = {following: []} } = useQuery<{ following: User[] }>({
+  const { data: following } = useQuery<{ following: User[] }>({
     queryKey: [`/api/users/${userId}/following`],
     enabled: !!userId && !isNaN(userId)
   });
 
-  const { data: userInterests = {interests: []} } = useQuery<{ interests: Interest[] }>({
+  const { data: userInterests } = useQuery<{ interests: Interest[] }>({
     queryKey: [`/api/users/${userId}/interests`],
     queryFn: async () => {
       const response = await apiRequest(`/api/users/${userId}/interests`);
@@ -104,7 +104,7 @@ export default function Profile() {
   }
 
   // Handle loading state
-  if (loadingUser || loadingPosts || userInterests.isLoading) {
+  if (loadingUser || loadingPosts) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin" />
