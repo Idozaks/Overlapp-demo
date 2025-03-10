@@ -99,7 +99,7 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                {t(slides[currentSlide].title)}
+                {t(slides[currentSlide].title, slides[currentSlide].title)}
               </motion.h1>
 
               <motion.p
@@ -108,7 +108,7 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                {t(slides[currentSlide].description)}
+                {t(slides[currentSlide].description, slides[currentSlide].description)}
               </motion.p>
             </motion.div>
           </AnimatePresence>
@@ -121,12 +121,12 @@ export default function Hero() {
           >
             <Button size="lg" asChild>
               <Link to={user ? "/explore" : "/register"}>
-                {t("common.landing.get_started")}
+                {t("common.landing.get_started", "Get Started")}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link to="/about">{t("common.landing.learn_more")}</Link>
+              <Link to="/about">{t("common.landing.learn_more", "Learn More")}</Link>
             </Button>
           </motion.div>
 
