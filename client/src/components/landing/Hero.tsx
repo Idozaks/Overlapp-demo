@@ -174,7 +174,7 @@ export default function Hero() {
                     <span className="text-5xl">👤</span>
                     <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-pink-100/50 rounded-full mx-1"></div>
                     <span className="text-5xl">📝</span>
-                    <span className="text-3xl absolute top-0 -right-10">🪪</span>🧠</span>
+                    <span className="text-3xl absolute top-0 -right-10">🪪</span>
                   </>
                 ) : currentSlide === 1 ? (
                   <>
