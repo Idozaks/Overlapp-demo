@@ -5,6 +5,8 @@ import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect, useCallback } from "react";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from 'your-carousel-library'; // Replace 'your-carousel-library' with the actual import path
+
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -146,108 +148,124 @@ export default function Hero() {
           Overlap - Your way to truly connect with what interests you!
         </motion.h1>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-3xl"
-          >
-            <motion.div
-              className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm flex items-center justify-center`}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="flex justify-center items-center"
-            >
-              <div 
-                className="flex flex-row items-center justify-between px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 min-w-[180px]"
-                aria-label={currentSlide === 0 ? "Shopping and AI technology overlap" : 
-                           currentSlide === 1 ? "Mobile search technology overlap" :
-                           currentSlide === 2 ? "Partnership and AI overlap" :
-                           "Search and innovation overlap"}
-              >
-                {currentSlide === 0 ? (
-                  <>
-                    <span className="text-5xl">👤</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-pink-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">📝</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-pink-100/50 to-amber-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🪪</span>
-                  </>
-                ) : currentSlide === 1 ? (
-                  <>
-                    <span className="text-5xl">🧩</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-purple-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">❤️</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-purple-100/50 to-pink-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">✨</span>
-                  </>
-                ) : currentSlide === 2 ? (
-                  <>
-                    <span className="text-5xl">👋</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-blue-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🔄</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-indigo-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🔗</span>
-                  </>
-                ) : currentSlide === 3 ? (
-                  <>
-                    <span className="text-5xl">🛒</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-yellow-100/50 to-blue-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🧠</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-teal-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🛍️</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-5xl">🏪</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-purple-100/50 to-green-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">📱</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-violet-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🔮</span>
-                  </>
-                )}
-              </div>
-            </motion.div>
+        <Carousel 
+          className="relative w-full max-w-5xl mx-auto"
+          opts={{
+            align: "center",
+            loop: true,
+          }}
+          value={currentSlide}
+          onValueChange={(value) => setCurrentSlide(value)}
+        >
+          <CarouselContent>
+            {slides.map((slide, index) => (
+              <CarouselItem key={index} className="flex flex-col items-center justify-center">
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.5 }}
+                  className="max-w-3xl"
+                >
+                  <motion.div
+                    className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex items-center justify-center`}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="flex justify-center items-center"
+                  >
+                    <div 
+                      className="flex flex-row items-center justify-between px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 min-w-[180px]"
+                      aria-label={index === 0 ? "Shopping and AI technology overlap" : 
+                                 index === 1 ? "Mobile search technology overlap" :
+                                 index === 2 ? "Partnership and AI overlap" :
+                                 "Search and innovation overlap"}
+                    >
+                      {index === 0 ? (
+                        <>
+                          <span className="text-5xl">👤</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-pink-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">📝</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-pink-100/50 to-amber-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">🪪</span>
+                        </>
+                      ) : index === 1 ? (
+                        <>
+                          <span className="text-5xl">🧩</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-purple-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">❤️</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-purple-100/50 to-pink-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">✨</span>
+                        </>
+                      ) : index === 2 ? (
+                        <>
+                          <span className="text-5xl">👋</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-blue-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">🔄</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-indigo-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">🔗</span>
+                        </>
+                      ) : index === 3 ? (
+                        <>
+                          <span className="text-5xl">🛒</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-yellow-100/50 to-blue-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">🧠</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-teal-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">🛍️</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-5xl">🏪</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-purple-100/50 to-green-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">📱</span>
+                          <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-violet-100/50 rounded-full mx-1"></div>
+                          <span className="text-5xl">🔮</span>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
 
-            <motion.h2
-              className="text-4xl md:text-6xl font-bold mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              {slides[currentSlide].title}
-            </motion.h2>
+                  <motion.h2
+                    className="text-4xl md:text-6xl font-bold mb-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    {slide.title}
+                  </motion.h2>
 
-            <motion.p
-              className="text-xl md:text-2xl text-muted-foreground mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              {slides[currentSlide].subtitle}
-            </motion.p>
+                  <motion.p
+                    className="text-xl md:text-2xl text-muted-foreground mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    {slide.subtitle}
+                  </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="mb-24"
-            >
-              <Button
-                size="lg"
-                onClick={() => handleCTAClick(slides[currentSlide].route)}
-                className="gap-2"
-              >
-                {slides[currentSlide].ctaText}
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </motion.div>
-          </motion.div>
-        </AnimatePresence>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mb-24"
+                  >
+                    <Button
+                      size="lg"
+                      onClick={() => handleCTAClick(slide.route)}
+                      className="gap-2"
+                    >
+                      {slide.ctaText}
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </motion.div>
+                </motion.div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious onClick={() => handleSlideChange(currentSlide > 0 ? currentSlide - 1 : slides.length - 1)} className="left-2 md:left-4 lg:left-10" />
+          <CarouselNext onClick={() => handleSlideChange((currentSlide + 1) % slides.length)} className="right-2 md:right-4 lg:right-10" />
+        </Carousel>
 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4">
           <div className="flex gap-2">
