@@ -15,7 +15,7 @@ export default function Hero() {
   const slides = [
     {
       id: 1,
-      title: "Create your digital persona!",
+      title: "✨ Create your digital persona!",
       subtitle: "Express yourself authentically and let AI enrich your profile to discover perfect matches in all areas of life.",
       ctaText: "Get Started",
       icon: <HiSparkles className="w-16 h-16" />,
@@ -24,7 +24,7 @@ export default function Hero() {
     },
     {
       id: 2,
-      title: "Find precise matches",
+      title: "🎯 Find precise matches",
       subtitle: "Build a profile that truly represents you and find matches that align with your authentic interests.",
       ctaText: "Discover More",
       icon: <HiUserGroup className="w-16 h-16" />,
@@ -33,7 +33,7 @@ export default function Hero() {
     },
     {
       id: 3,
-      title: "Connect real preferences",
+      title: "🤝 Connect real preferences",
       subtitle: "Meet someone new? Perform a quick overlap check and discover common interests in seconds!",
       ctaText: "Try Demo",
       icon: <HiGlobeAlt className="w-16 h-16" />,
@@ -42,7 +42,7 @@ export default function Hero() {
     },
     {
       id: 4,
-      title: "Self-expression and AI enrichment",
+      title: "🎨 Self-expression and AI enrichment",
       subtitle: "Enter restaurants and stores to instantly find products that match your preferences.",
       ctaText: "See How It Works",
       icon: <HiShoppingBag className="w-16 h-16" />,
@@ -58,7 +58,7 @@ export default function Hero() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 8000);
+    }, 20000); // Increased from 8000 to 20000 (2.5x)
     return () => clearInterval(interval);
   }, [slides.length]);
 
