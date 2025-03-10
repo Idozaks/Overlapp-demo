@@ -2,94 +2,52 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import AnimatedGradient from "@/components/ui/AnimatedGradient";
-import { ArrowRight, Shield, ShoppingBag, Cloud, Globe, CreditCard } from "lucide-react";
+import { ArrowRight, Users, Sparkles, Store, Navigation } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect, useCallback } from "react";
-import { HiSparkles, HiLockClosed, HiGlobeAlt, HiCube, HiShoppingBag, HiStar } from "react-icons/hi2";
+import { HiSparkles, HiUserGroup, HiGlobeAlt, HiShoppingBag } from "react-icons/hi2";
 
 export default function Hero() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const isRTL = i18n.dir() === 'rtl';
 
   const slides = [
     {
       id: 1,
-      titleKey: "common.landing.hero.slide1.title",
-      subtitleKey: "common.landing.hero.slide1.subtitle",
-      ctaKey: "common.landing.hero.slide1.cta",
-      icon: <Globe className="w-8 h-8" />,
-      heroIcon: <HiSparkles className="w-16 h-16" />,
+      title: "Create your digital persona!",
+      subtitle: "Express yourself authentically and let AI enrich your profile to discover perfect matches in all areas of life.",
+      ctaText: "Get Started",
+      icon: <HiSparkles className="w-16 h-16" />,
       gradientColors: "from-primary/20 via-primary/10 to-transparent",
       route: "/signup"
     },
     {
       id: 2,
-      titleKey: "common.landing.hero.slide2.title",
-      subtitleKey: "common.landing.hero.slide2.subtitle",
-      ctaKey: "common.landing.hero.slide2.cta",
-      icon: <Shield className="w-8 h-8" />,
-      heroIcon: <HiLockClosed className="w-16 h-16" />,
+      title: "Find precise matches",
+      subtitle: "Build a profile that truly represents you and find matches that align with your authentic interests.",
+      ctaText: "Discover More",
+      icon: <HiUserGroup className="w-16 h-16" />,
       gradientColors: "from-blue-500/20 via-blue-500/10 to-transparent",
       route: "/features"
     },
     {
       id: 3,
-      titleKey: "common.landing.hero.slide3.title",
-      subtitleKey: "common.landing.hero.slide3.subtitle",
-      ctaKey: "common.landing.hero.slide3.cta",
-      icon: <Globe className="w-8 h-8" />,
-      heroIcon: <HiGlobeAlt className="w-16 h-16" />,
+      title: "Connect real preferences",
+      subtitle: "Meet someone new? Perform a quick overlap check and discover common interests in seconds!",
+      ctaText: "Try Demo",
+      icon: <HiGlobeAlt className="w-16 h-16" />,
       gradientColors: "from-green-500/20 via-green-500/10 to-transparent",
-      route: "/features"
+      route: "/demo"
     },
     {
       id: 4,
-      titleKey: "common.landing.hero.slide4.title",
-      subtitleKey: "common.landing.hero.slide4.subtitle",
-      ctaKey: "common.landing.hero.slide4.cta",
-      icon: <Cloud className="w-8 h-8" />,
-      heroIcon: <HiCube className="w-16 h-16" />,
+      title: "Self-expression and AI enrichment",
+      subtitle: "Enter restaurants and stores to instantly find products that match your preferences.",
+      ctaText: "See How It Works",
+      icon: <HiShoppingBag className="w-16 h-16" />,
       gradientColors: "from-purple-500/20 via-purple-500/10 to-transparent",
       route: "/demo"
-    },
-    {
-      id: 5,
-      titleKey: "common.landing.hero.slide5.title",
-      subtitleKey: "common.landing.hero.slide5.subtitle",
-      ctaKey: "common.landing.hero.slide5.cta",
-      icon: <ShoppingBag className="w-8 h-8" />,
-      heroIcon: <HiShoppingBag className="w-16 h-16" />,
-      gradientColors: "from-pink-500/20 via-pink-500/10 to-transparent",
-      route: "/demo"
-    },
-    {
-      id: 6,
-      titleKey: "common.landing.hero.slide6.title",
-      subtitleKey: "common.landing.hero.slide6.subtitle",
-      ctaKey: "common.landing.hero.slide6.cta",
-      icon: <CreditCard className="w-8 h-8" />,
-      heroIcon: <HiStar className="w-16 h-16" />,
-      gradientColors: "from-yellow-500/20 via-yellow-500/10 to-transparent",
-      route: "/signup",
-      pricing: [
-        {
-          nameKey: "common.landing.pricing.basic.name",
-          descriptionKey: "common.landing.pricing.basic.description",
-          priceKey: "common.landing.pricing.basic.price"
-        },
-        {
-          nameKey: "common.landing.pricing.premium.name",
-          descriptionKey: "common.landing.pricing.premium.description",
-          priceKey: "common.landing.pricing.premium.price"
-        },
-        {
-          nameKey: "common.landing.pricing.enterprise.name",
-          descriptionKey: "common.landing.pricing.enterprise.description",
-          priceKey: "common.landing.pricing.enterprise.price"
-        }
-      ]
     }
   ];
 
@@ -102,18 +60,10 @@ export default function Hero() {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, [currentSlide]);
+  }, [slides.length]);
 
   const handleCTAClick = (route: string) => {
     navigate(route);
-  };
-
-  const handlePrevSlide = () => {
-    handleSlideChange((currentSlide - 1 + slides.length) % slides.length);
-  };
-
-  const handleNextSlide = () => {
-    handleSlideChange((currentSlide + 1) % slides.length);
   };
 
   return (
@@ -137,7 +87,7 @@ export default function Hero() {
               transition={{ delay: 0.1 }}
             >
               <div className="w-full h-full flex items-center justify-center text-primary">
-                {slides[currentSlide].heroIcon}
+                {slides[currentSlide].icon}
               </div>
             </motion.div>
 
@@ -147,7 +97,7 @@ export default function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              {t(slides[currentSlide].titleKey)}
+              {slides[currentSlide].title}
             </motion.h1>
 
             <motion.p
@@ -156,30 +106,13 @@ export default function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              {t(slides[currentSlide].subtitleKey)}
+              {slides[currentSlide].subtitle}
             </motion.p>
-
-            {currentSlide === 5 ? (
-              <motion.div
-                className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                {slides[5].pricing.map((plan, index) => (
-                  <div key={index} className="p-6 rounded-lg bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-sm border border-primary/10 hover:border-primary/20 transition-all">
-                    <h3 className="font-semibold mb-2">{t(plan.nameKey)}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{t(plan.descriptionKey)}</p>
-                    <p className="font-bold">{t(plan.priceKey)}</p>
-                  </div>
-                ))}
-              </motion.div>
-            ) : null}
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.4 }}
               className="mb-24"
             >
               <Button
@@ -187,7 +120,7 @@ export default function Hero() {
                 onClick={() => handleCTAClick(slides[currentSlide].route)}
                 className="gap-2"
               >
-                {t(slides[currentSlide].ctaKey)}
+                {slides[currentSlide].ctaText}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </motion.div>
@@ -195,15 +128,6 @@ export default function Hero() {
         </AnimatePresence>
 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={isRTL ? handlePrevSlide : handleNextSlide}
-            className="rounded-full hover:bg-background/80 backdrop-blur-sm"
-          >
-            <ArrowRight className={`w-4 h-4 ${!isRTL ? "rotate-180" : ""}`} />
-          </Button>
-
           <div className="flex gap-2">
             {slides.map((_, index) => (
               <button
@@ -215,15 +139,6 @@ export default function Hero() {
               />
             ))}
           </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={isRTL ? handleNextSlide : handlePrevSlide}
-            className="rounded-full hover:bg-background/80 backdrop-blur-sm"
-          >
-            <ArrowRight className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
-          </Button>
         </div>
       </div>
     </div>
