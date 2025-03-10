@@ -12,6 +12,7 @@ export default function Hero() {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [api, setApi] = useState<any>(null);
 
   const slides = [
     {
@@ -78,14 +79,18 @@ export default function Hero() {
 
   const handleSlideChange = useCallback((index: number) => {
     setCurrentSlide(index);
-  }, []);
+    if (api) {
+      api.scrollTo(index);
+    }
+  }, [api]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      const nextSlide = (currentSlide + 1) % slides.length;
+      handleSlideChange(nextSlide);
     }, 20000); // 20 seconds per slide
     return () => clearInterval(interval);
-  }, [slides.length]);
+  }, [currentSlide, handleSlideChange, slides.length]);
 
   const handleCTAClick = (route: string) => {
     navigate(route);
@@ -155,9 +160,7 @@ export default function Hero() {
             loop: true,
           }}
           setApi={(api) => {
-            api.on("select", () => {
-              setCurrentSlide(api.selectedScrollSnap());
-            });
+            setApi(api);
           }}
         >
           <CarouselContent>
@@ -262,7 +265,7 @@ export default function Hero() {
                   >
                     <Button
                       size="lg"
-                      onClick={() => handleCTAClick(slide.route)}
+                      onClick={() => window.location.href = "https://overlapp.replit.app/signup"}
                       className="gap-2"
                     >
                       {slide.ctaText}
