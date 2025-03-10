@@ -224,7 +224,7 @@ export default function Hero() {
                           <div className="w-12 h-6 bg-gradient-to-r from-purple-100/50 to-green-100/50 rounded-full mx-1"></div>
                           <span className="text-5xl">📱</span>
                           <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-violet-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">🔮</span>
+                          <span className="text-5xl">💼</span>🔮</span>
                         </>
                       )}
                     </div>
