@@ -76,39 +76,32 @@ function Header() {
 
   const NavigationLinks = () => (
     <nav className="flex flex-col lg:flex-row gap-6">
-      <a href="/" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-        <HomeIcon className="w-4 h-4" />
+      <a href="/" className="text-foreground hover:text-primary whitespace-nowrap">
         Home
       </a>
       {user ? (
         <>
-          <a href="/social" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-            <UsersIcon className="w-4 h-4" />
+          <a href="/social" className="text-foreground hover:text-primary whitespace-nowrap">
             Social
           </a>
-          <a href="/social/explore" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-            <CompassIcon className="w-4 h-4" />
+          <a href="/social/explore" className="text-foreground hover:text-primary whitespace-nowrap">
             Explore
           </a>
-          <a href="/wallet" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-            <WalletIcon className="w-4 h-4" />
+          <a href="/wallet" className="text-foreground hover:text-primary whitespace-nowrap">
             Wallet
           </a>
           {user.isAdmin && (
-            <a href="/admin/interests" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-              <Shield className="w-4 h-4" />
+            <a href="/admin/interests" className="text-foreground hover:text-primary whitespace-nowrap">
               Manage Interests
             </a>
           )}
         </>
       ) : (
-        <a href="/demo" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-          <PlayIcon className="w-4 h-4" />
+        <a href="/demo" className="text-foreground hover:text-primary whitespace-nowrap">
           Demo
         </a>
       )}
-      <a href="/contact" className="text-foreground hover:text-primary flex items-center gap-2 whitespace-nowrap">
-        <MailIcon className="w-4 h-4" />
+      <a href="/contact" className="text-foreground hover:text-primary whitespace-nowrap">
         Contact
       </a>
     </nav>

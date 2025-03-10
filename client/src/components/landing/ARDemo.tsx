@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Phone, Navigation, Tag, Search } from "lucide-react";
+
 import { useTranslation } from "react-i18next";
 
 export default function ARDemo() {
