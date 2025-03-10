@@ -161,11 +161,29 @@ export default function Hero() {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-              <span className="text-5xl">
-                {currentSlide === 0 ? "👤" : 
-                 currentSlide === 1 ? "📱" : 
-                 currentSlide === 2 ? "🤝" : "🔍"}
-              </span>
+              <div className="flex flex-row gap-2 text-5xl">
+                {currentSlide === 0 ? (
+                  <>
+                    <span>🛍️</span>
+                    <span>🧠</span>
+                  </>
+                ) : currentSlide === 1 ? (
+                  <>
+                    <span>📱</span>
+                    <span>🔍</span>
+                  </>
+                ) : currentSlide === 2 ? (
+                  <>
+                    <span>🤝</span>
+                    <span>🤖</span>
+                  </>
+                ) : (
+                  <>
+                    <span>🔍</span>
+                    <span>💡</span>
+                  </>
+                )}
+              </div>
             </motion.div>
 
             <motion.h2
