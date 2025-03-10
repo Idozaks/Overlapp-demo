@@ -156,12 +156,16 @@ export default function Hero() {
             className="max-w-3xl"
           >
             <motion.div
-              className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm`}
+              className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm flex items-center justify-center`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-              {/*Removed Icon*/}
+              <span className="text-5xl">
+                {currentSlide === 0 ? "🛍️" : 
+                 currentSlide === 1 ? "📱" : 
+                 currentSlide === 2 ? "🤝" : "🔍"}
+              </span>
             </motion.div>
 
             <motion.h2
