@@ -171,27 +171,38 @@ export default function Hero() {
               >
                 {currentSlide === 0 ? (
                   <>
-                    <span className="text-5xl">🛍️</span>
+                    <span className="text-5xl">👤</span>
                     <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-pink-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🧠</span>
+                    <span className="text-5xl">📝</span>
+                    <span className="text-3xl absolute top-0 -right-10">🪪</span>🧠</span>
                   </>
                 ) : currentSlide === 1 ? (
                   <>
-                    <span className="text-5xl">📱</span>
+                    <span className="text-5xl">🧩</span>
                     <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-purple-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🔍</span>
+                    <span className="text-5xl">❤️</span>
+                    <span className="text-3xl absolute top-0 -right-10">✨</span>
                   </>
                 ) : currentSlide === 2 ? (
                   <>
-                    <span className="text-5xl">🤝</span>
+                    <span className="text-5xl">👋</span>
                     <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-blue-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🤖</span>
+                    <span className="text-5xl">🔄</span>
+                    <span className="text-3xl absolute top-0 -right-10">🔗</span>
+                  </>
+                ) : currentSlide === 3 ? (
+                  <>
+                    <span className="text-5xl">🛒</span>
+                    <div className="w-12 h-6 bg-gradient-to-r from-yellow-100/50 to-blue-100/50 rounded-full mx-1"></div>
+                    <span className="text-5xl">🧠</span>
+                    <span className="text-3xl absolute top-0 -right-10">🛍️</span>
                   </>
                 ) : (
                   <>
-                    <span className="text-5xl">🔍</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-yellow-100/50 to-blue-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">💡</span>
+                    <span className="text-5xl">🏪</span>
+                    <div className="w-12 h-6 bg-gradient-to-r from-purple-100/50 to-green-100/50 rounded-full mx-1"></div>
+                    <span className="text-5xl">📱</span>
+                    <span className="text-3xl absolute top-0 -right-10">🔮</span>
                   </>
                 )}
               </div>
