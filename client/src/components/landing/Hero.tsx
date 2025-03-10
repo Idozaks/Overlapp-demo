@@ -265,7 +265,7 @@ export default function Hero() {
                   >
                     <Button
                       size="lg"
-                      onClick={() => handleCTAClick(slide.route)}
+                      onClick={() => window.location.href = "https://overlapp.replit.app/signup"}
                       className="gap-2"
                     >
                       {slide.ctaText}
