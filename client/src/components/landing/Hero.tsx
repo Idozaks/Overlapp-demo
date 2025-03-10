@@ -15,24 +15,28 @@ export default function Hero() {
 
   const slides = [
     {
-      title: "common.landing.hero.title_1",
-      description: "common.landing.hero.description_1",
+      title: t("common.landing.hero.title_1"), // Replaced placeholder with actual translation
+      description: t("common.landing.hero.description_1"), // Replaced placeholder with actual translation
       gradientColors: "from-pink-500 to-orange-400",
+      cta: t("common.landing.hero.cta_1") //Added a CTA translation key (assuming it exists)
     },
     {
-      title: "common.landing.hero.title_2",
-      description: "common.landing.hero.description_2",
+      title: t("common.landing.hero.title_2"), // Replaced placeholder with actual translation
+      description: t("common.landing.hero.description_2"), // Replaced placeholder with actual translation
       gradientColors: "from-blue-500 to-teal-400",
+      cta: t("common.landing.hero.cta_2") //Added a CTA translation key (assuming it exists)
     },
     {
-      title: "common.landing.hero.title_3",
-      description: "common.landing.hero.description_3",
+      title: t("common.landing.hero.title_3"), // Replaced placeholder with actual translation
+      description: t("common.landing.hero.description_3"), // Replaced placeholder with actual translation
       gradientColors: "from-purple-500 to-indigo-400",
+      cta: t("common.landing.hero.cta_3") //Added a CTA translation key (assuming it exists)
     },
     {
-      title: "common.landing.hero.title_4",
-      description: "common.landing.hero.description_4",
+      title: t("common.landing.hero.title_4"), // Replaced placeholder with actual translation
+      description: t("common.landing.hero.description_4"), // Replaced placeholder with actual translation
       gradientColors: "from-amber-500 to-red-400",
+      cta: t("common.landing.hero.cta_4") //Added a CTA translation key (assuming it exists)
     },
   ];
 
@@ -99,7 +103,7 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                {t(slides[currentSlide].title, slides[currentSlide].title)}
+                {slides[currentSlide].title}
               </motion.h1>
 
               <motion.p
@@ -108,7 +112,7 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                {t(slides[currentSlide].description, slides[currentSlide].description)}
+                {slides[currentSlide].description}
               </motion.p>
             </motion.div>
           </AnimatePresence>
