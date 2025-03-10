@@ -5,7 +5,7 @@ import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect, useCallback } from "react";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from 'your-carousel-library'; // Replace 'your-carousel-library' with the actual import path
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 
 
 export default function Hero() {
@@ -157,6 +157,8 @@ export default function Hero() {
           value={currentSlide}
           onValueChange={(value) => setCurrentSlide(value)}
         >
+          <CarouselPrevious className="hidden sm:flex -left-12" />
+          <CarouselNext className="hidden sm:flex -right-12" />
           <CarouselContent>
             {slides.map((slide, index) => (
               <CarouselItem key={index} className="flex flex-col items-center justify-center">
@@ -169,11 +171,10 @@ export default function Hero() {
                   className="max-w-3xl"
                 >
                   <motion.div
-                    className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex items-center justify-center`}
+                    className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center`}
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="flex justify-center items-center"
                   >
                     <div 
                       className="flex flex-row items-center justify-between px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 min-w-[180px]"
