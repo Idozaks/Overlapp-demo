@@ -160,27 +160,38 @@ export default function Hero() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
+              className="flex justify-center items-center"
             >
-              <div className="flex flex-row gap-2 text-5xl">
+              <div 
+                className="flex flex-row items-center justify-between px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 min-w-[180px]"
+                aria-label={currentSlide === 0 ? "Shopping and AI technology overlap" : 
+                           currentSlide === 1 ? "Mobile search technology overlap" :
+                           currentSlide === 2 ? "Partnership and AI overlap" :
+                           "Search and innovation overlap"}
+              >
                 {currentSlide === 0 ? (
                   <>
-                    <span>🛍️</span>
-                    <span>🧠</span>
+                    <span className="text-5xl">🛍️</span>
+                    <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-pink-100/50 rounded-full mx-1"></div>
+                    <span className="text-5xl">🧠</span>
                   </>
                 ) : currentSlide === 1 ? (
                   <>
-                    <span>📱</span>
-                    <span>🔍</span>
+                    <span className="text-5xl">📱</span>
+                    <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-purple-100/50 rounded-full mx-1"></div>
+                    <span className="text-5xl">🔍</span>
                   </>
                 ) : currentSlide === 2 ? (
                   <>
-                    <span>🤝</span>
-                    <span>🤖</span>
+                    <span className="text-5xl">🤝</span>
+                    <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-blue-100/50 rounded-full mx-1"></div>
+                    <span className="text-5xl">🤖</span>
                   </>
                 ) : (
                   <>
-                    <span>🔍</span>
-                    <span>💡</span>
+                    <span className="text-5xl">🔍</span>
+                    <div className="w-12 h-6 bg-gradient-to-r from-yellow-100/50 to-blue-100/50 rounded-full mx-1"></div>
+                    <span className="text-5xl">💡</span>
                   </>
                 )}
               </div>
