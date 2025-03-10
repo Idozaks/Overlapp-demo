@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
@@ -73,13 +72,13 @@ const slides: VennEmojiSlide[] = [
 
 export default function VennEmojis({ currentSlide = 0 }: { currentSlide?: number }) {
   const [activeSlide, setActiveSlide] = useState(currentSlide);
-  
+
   useEffect(() => {
     setActiveSlide(currentSlide);
   }, [currentSlide]);
 
   const slide = slides[activeSlide % slides.length];
-  
+
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto">
@@ -97,7 +96,7 @@ export default function VennEmojis({ currentSlide = 0 }: { currentSlide?: number
             <span className="text-xs md:text-sm mt-1 font-medium text-white drop-shadow-md">{slide.label1}</span>
           </div>
         </motion.div>
-        
+
         {/* Right Circle */}
         <motion.div 
           className={`absolute top-1/4 right-0 w-40 h-40 md:w-48 md:h-48 rounded-full 
@@ -112,18 +111,18 @@ export default function VennEmojis({ currentSlide = 0 }: { currentSlide?: number
             <span className="text-xs md:text-sm mt-1 font-medium text-white drop-shadow-md">{slide.label2}</span>
           </div>
         </motion.div>
-        
+
         {/* Intersection */}
         <motion.div 
-          className={`absolute top-1/3 left-1/2 transform -translate-x-1/2 w-28 h-28 md:w-36 md:h-36 rounded-full 
+          className={`absolute top-1/3 left-1/2 transform -translate-x-1/2 w-16 h-16 md:w-24 md:h-24 rounded-full
                     bg-gradient-to-br ${slide.colors.intersection} flex items-center justify-center z-20
                     border-2 border-white/50 backdrop-blur-sm shadow-xl`}
           initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+          animate={{ scale: 1, opacity: 0.7 }} // Increased opacity
           transition={{ delay: 0.3 }}
         >
           <div className="flex flex-col items-center">
-            <span className="text-4xl md:text-5xl drop-shadow-lg">{slide.fusionEmoji}</span>
+            <span className="text-3xl md:text-4xl drop-shadow-lg">{slide.fusionEmoji}</span>
             <span className="text-xs md:text-sm mt-1 font-medium text-white drop-shadow-md text-center">{slide.fusionLabel}</span>
           </div>
         </motion.div>
