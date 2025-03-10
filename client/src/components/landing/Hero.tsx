@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 
 
