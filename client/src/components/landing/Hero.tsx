@@ -2,10 +2,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import AnimatedGradient from "@/components/ui/AnimatedGradient";
-import { ArrowRight, Users, Sparkles, Store, Navigation } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect, useCallback } from "react";
-import { HiSparkles, HiUserGroup, HiGlobeAlt, HiShoppingBag, HiBolt } from "react-icons/hi2";
+import { 
+  HiUserCircle, 
+  HiMagnifyingGlass, 
+  HiUserGroup, 
+  HiShoppingBag, 
+  HiQueueList 
+} from "react-icons/hi2";
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -15,48 +21,68 @@ export default function Hero() {
   const slides = [
     {
       id: 1,
-      title: "✨ Create your digital persona!",
-      subtitle: "Express yourself authentically and let AI enrich your profile to discover perfect matches in all areas of life.",
+      title: "👤 Create a digital profile in seconds",
+      subtitle: "Quick and easy setup to express your true interests and preferences",
       ctaText: "Get Started",
-      icon: <HiSparkles className="w-16 h-16" />,
+      icon: <HiUserCircle className="w-16 h-16" />,
       gradientColors: "from-primary/20 via-primary/10 to-transparent",
-      route: "/signup"
+      route: "/signup",
+      animation: {
+        type: "profile",
+        duration: 2
+      }
     },
     {
       id: 2,
-      title: "⚡ Instant Interest Matching!",
-      subtitle: "Find real people with similar interests in seconds! Our smart matching system connects you instantly with like-minded individuals.",
-      ctaText: "Try It Now",
-      icon: <HiBolt className="w-16 h-16" />,
-      gradientColors: "from-yellow-500/20 via-yellow-500/10 to-transparent",
-      route: "/demo"
+      title: "🎯 Find the most accurate matches",
+      subtitle: "Discover precise matches in all areas of life that align with your interests",
+      ctaText: "Explore Matches",
+      icon: <HiMagnifyingGlass className="w-16 h-16" />,
+      gradientColors: "from-blue-500/20 via-blue-500/10 to-transparent",
+      route: "/demo",
+      animation: {
+        type: "matching",
+        duration: 2.5
+      }
     },
     {
       id: 3,
-      title: "🎯 Find precise matches",
-      subtitle: "Build a profile that truly represents you and find matches that align with your authentic interests.",
-      ctaText: "Discover More",
+      title: "🤝 Quick overlap check with new people",
+      subtitle: "Meeting someone new? Find your common interests in seconds!",
+      ctaText: "Try It Now",
       icon: <HiUserGroup className="w-16 h-16" />,
-      gradientColors: "from-blue-500/20 via-blue-500/10 to-transparent",
-      route: "/features"
+      gradientColors: "from-green-500/20 via-green-500/10 to-transparent",
+      route: "/demo",
+      animation: {
+        type: "overlap",
+        duration: 1.5
+      }
     },
     {
       id: 4,
-      title: "🤝 Connect real preferences",
-      subtitle: "Meet someone new? Perform a quick overlap check and discover common interests in seconds!",
-      ctaText: "Try Demo",
-      icon: <HiGlobeAlt className="w-16 h-16" />,
-      gradientColors: "from-green-500/20 via-green-500/10 to-transparent",
-      route: "/demo"
-    },
-    {
-      id: 5,
-      title: "🎨 Self-expression and AI enrichment",
-      subtitle: "Enter restaurants and stores to instantly find products that match your preferences.",
+      title: "🛍️ Smart online shopping experience",
+      subtitle: "Online stores will show you exactly what matches your interests - no more guesswork!",
       ctaText: "See How It Works",
       icon: <HiShoppingBag className="w-16 h-16" />,
       gradientColors: "from-purple-500/20 via-purple-500/10 to-transparent",
-      route: "/demo"
+      route: "/demo",
+      animation: {
+        type: "online-store",
+        duration: 2
+      }
+    },
+    {
+      id: 5,
+      title: "📍 Smart physical shopping",
+      subtitle: "Get personalized recommendations in stores and restaurants instantly",
+      ctaText: "Learn More",
+      icon: <HiQueueList className="w-16 h-16" />,
+      gradientColors: "from-yellow-500/20 via-yellow-500/10 to-transparent",
+      route: "/demo",
+      animation: {
+        type: "physical-store",
+        duration: 2
+      }
     }
   ];
 
@@ -67,7 +93,7 @@ export default function Hero() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 20000); // Increased from 8000 to 20000 (2.5x)
+    }, 20000); // 20 seconds per slide
     return () => clearInterval(interval);
   }, [slides.length]);
 
@@ -75,11 +101,63 @@ export default function Hero() {
     navigate(route);
   };
 
+  // Animation variants for each slide type
+  const getAnimationVariants = (type: string) => {
+    switch (type) {
+      case "profile":
+        return {
+          animate: {
+            scale: [1, 1.1, 1],
+            rotate: [0, 5, -5, 0],
+            transition: { repeat: Infinity, duration: 2 }
+          }
+        };
+      case "matching":
+        return {
+          animate: {
+            x: [0, 20, -20, 0],
+            transition: { repeat: Infinity, duration: 2.5 }
+          }
+        };
+      case "overlap":
+        return {
+          animate: {
+            scale: [1, 1.2, 1],
+            transition: { repeat: Infinity, duration: 1.5 }
+          }
+        };
+      case "online-store":
+        return {
+          animate: {
+            y: [0, -10, 0],
+            transition: { repeat: Infinity, duration: 2 }
+          }
+        };
+      case "physical-store":
+        return {
+          animate: {
+            rotate: [0, 360],
+            transition: { repeat: Infinity, duration: 2 }
+          }
+        };
+      default:
+        return {};
+    }
+  };
+
   return (
     <div className="relative min-h-[90vh] flex items-center overflow-hidden">
       <AnimatedGradient />
 
       <div className="container mx-auto px-4 relative z-10">
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl md:text-5xl font-bold text-center mb-16"
+        >
+          Overlap - Your way to truly connect with what interests you!
+        </motion.h1>
+
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -95,19 +173,23 @@ export default function Hero() {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-              <div className="w-full h-full flex items-center justify-center text-primary">
+              <motion.div
+                className="w-full h-full flex items-center justify-center text-primary"
+                variants={getAnimationVariants(slides[currentSlide].animation.type)}
+                animate="animate"
+              >
                 {slides[currentSlide].icon}
-              </div>
+              </motion.div>
             </motion.div>
 
-            <motion.h1
+            <motion.h2
               className="text-4xl md:text-6xl font-bold mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
               {slides[currentSlide].title}
-            </motion.h1>
+            </motion.h2>
 
             <motion.p
               className="text-xl md:text-2xl text-muted-foreground mb-8"
