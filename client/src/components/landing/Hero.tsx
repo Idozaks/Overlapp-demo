@@ -163,7 +163,7 @@ export default function Hero() {
             transition={{ duration: 0.5 }}
             className="max-w-3xl"
           >
-            <div className="w-48 h-48 mb-8"> {/* Replaced motion.div with div */}
+            <div className="w-56 h-56 md:w-64 md:h-64 mb-8"> {/* Increased size for better visibility */}
               <VennEmojis currentSlide={currentSlide} slides={slides} />
             </div>
 
