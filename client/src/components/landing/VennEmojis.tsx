@@ -94,7 +94,7 @@ export default function VennEmojis({ currentSlide = 0 }: { currentSlide?: number
         >
           <div className="flex flex-col items-center">
             <span className="text-4xl md:text-5xl">{slide.emoji1}</span>
-            <span className="text-xs md:text-sm mt-1 font-medium text-gray-800">{slide.label1}</span>
+            <span className="text-xs md:text-sm mt-1 font-medium text-white drop-shadow-md">{slide.label1}</span>
           </div>
         </motion.div>
         
@@ -109,7 +109,7 @@ export default function VennEmojis({ currentSlide = 0 }: { currentSlide?: number
         >
           <div className="flex flex-col items-center">
             <span className="text-4xl md:text-5xl">{slide.emoji2}</span>
-            <span className="text-xs md:text-sm mt-1 font-medium text-gray-800">{slide.label2}</span>
+            <span className="text-xs md:text-sm mt-1 font-medium text-white drop-shadow-md">{slide.label2}</span>
           </div>
         </motion.div>
         
@@ -117,14 +117,14 @@ export default function VennEmojis({ currentSlide = 0 }: { currentSlide?: number
         <motion.div 
           className={`absolute top-1/3 left-1/2 transform -translate-x-1/2 w-28 h-28 md:w-36 md:h-36 rounded-full 
                     bg-gradient-to-br ${slide.colors.intersection} flex items-center justify-center z-20
-                    border-2 border-white/30 backdrop-blur-sm shadow-lg`}
+                    border-2 border-white/50 backdrop-blur-sm shadow-xl`}
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
           <div className="flex flex-col items-center">
-            <span className="text-4xl md:text-5xl">{slide.fusionEmoji}</span>
-            <span className="text-xs md:text-sm mt-1 font-medium text-gray-800 text-center">{slide.fusionLabel}</span>
+            <span className="text-4xl md:text-5xl drop-shadow-lg">{slide.fusionEmoji}</span>
+            <span className="text-xs md:text-sm mt-1 font-medium text-white drop-shadow-md text-center">{slide.fusionLabel}</span>
           </div>
         </motion.div>
       </div>
