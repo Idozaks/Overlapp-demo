@@ -5,6 +5,8 @@ import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect, useCallback } from "react";
+import VennEmojis from "./VennEmojis"; // Added import for VennEmojis component
+
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -22,7 +24,8 @@ export default function Hero() {
       animation: {
         type: "profile",
         duration: 2
-      }
+      },
+      emojis: ["🛍️", "🧠", "🤖"] // Added emojis for slide 1
     },
     {
       id: 2,
@@ -34,7 +37,8 @@ export default function Hero() {
       animation: {
         type: "matching",
         duration: 2.5
-      }
+      },
+      emojis: ["📱", "🔍", "🔎"] // Added emojis for slide 2
     },
     {
       id: 3,
@@ -46,7 +50,8 @@ export default function Hero() {
       animation: {
         type: "overlap",
         duration: 1.5
-      }
+      },
+      emojis: ["🤝", "🤖", "🫂"] // Added emojis for slide 3
     },
     {
       id: 4,
@@ -58,7 +63,9 @@ export default function Hero() {
       animation: {
         type: "online-store",
         duration: 2
-      }
+      },
+      emojis: ["🛒", "💻", "🛍️"] // Added emojis for slide 4
+
     },
     {
       id: 5,
@@ -70,7 +77,8 @@ export default function Hero() {
       animation: {
         type: "physical-store",
         duration: 2
-      }
+      },
+      emojis: ["📍", "🚶", "🛍️"] // Added emojis for slide 5
     }
   ];
 
@@ -155,47 +163,9 @@ export default function Hero() {
             transition={{ duration: 0.5 }}
             className="max-w-3xl"
           >
-            <motion.div
-              className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm flex items-center justify-center`}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="flex justify-center items-center"
-            >
-              <div 
-                className="flex flex-row items-center justify-between px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 min-w-[180px]"
-                aria-label={currentSlide === 0 ? "Shopping and AI technology overlap" : 
-                           currentSlide === 1 ? "Mobile search technology overlap" :
-                           currentSlide === 2 ? "Partnership and AI overlap" :
-                           "Search and innovation overlap"}
-              >
-                {currentSlide === 0 ? (
-                  <>
-                    <span className="text-5xl">🛍️</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-pink-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🧠</span>
-                  </>
-                ) : currentSlide === 1 ? (
-                  <>
-                    <span className="text-5xl">📱</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-purple-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🔍</span>
-                  </>
-                ) : currentSlide === 2 ? (
-                  <>
-                    <span className="text-5xl">🤝</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-blue-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">🤖</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-5xl">🔍</span>
-                    <div className="w-12 h-6 bg-gradient-to-r from-yellow-100/50 to-blue-100/50 rounded-full mx-1"></div>
-                    <span className="text-5xl">💡</span>
-                  </>
-                )}
-              </div>
-            </motion.div>
+            <div className="w-48 h-48 mb-8"> {/* Replaced motion.div with div */}
+              <VennEmojis currentSlide={currentSlide} slides={slides} />
+            </div>
 
             <motion.h2
               className="text-4xl md:text-6xl font-bold mb-6"
