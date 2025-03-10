@@ -5,7 +5,7 @@ import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import React, { useState, useEffect, useCallback } from "react";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
 
 export default function Hero() {
@@ -160,8 +160,6 @@ export default function Hero() {
             });
           }}
         >
-          <CarouselPrevious className="hidden sm:flex -left-12" />
-          <CarouselNext className="hidden sm:flex -right-12" />
           <CarouselContent>
             {slides.map((slide, index) => (
               <CarouselItem key={index} className="flex flex-col items-center justify-center">
@@ -275,8 +273,6 @@ export default function Hero() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious onClick={() => handleSlideChange(currentSlide > 0 ? currentSlide - 1 : slides.length - 1)} className="left-2 md:left-4 lg:left-10" />
-          <CarouselNext onClick={() => handleSlideChange((currentSlide + 1) % slides.length)} className="right-2 md:right-4 lg:right-10" />
         </Carousel>
 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4">
