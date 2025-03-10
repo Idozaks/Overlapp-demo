@@ -5,13 +5,6 @@ import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect, useCallback } from "react";
-import { 
-  HiUserCircle, 
-  HiMagnifyingGlass, 
-  HiUserGroup, 
-  HiShoppingBag, 
-  HiQueueList 
-} from "react-icons/hi2";
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -21,10 +14,9 @@ export default function Hero() {
   const slides = [
     {
       id: 1,
-      title: "👤 Create a digital profile in seconds",
+      title: "Create a digital profile in seconds",
       subtitle: "Quick and easy setup to express your true interests and preferences",
       ctaText: "Get Started",
-      icon: <HiUserCircle className="w-16 h-16" />,
       gradientColors: "from-primary/20 via-primary/10 to-transparent",
       route: "/signup",
       animation: {
@@ -34,10 +26,9 @@ export default function Hero() {
     },
     {
       id: 2,
-      title: "🎯 Find the most accurate matches",
+      title: "Find the most accurate matches",
       subtitle: "Discover precise matches in all areas of life that align with your interests",
       ctaText: "Explore Matches",
-      icon: <HiMagnifyingGlass className="w-16 h-16" />,
       gradientColors: "from-blue-500/20 via-blue-500/10 to-transparent",
       route: "/demo",
       animation: {
@@ -47,10 +38,9 @@ export default function Hero() {
     },
     {
       id: 3,
-      title: "🤝 Quick overlap check with new people",
+      title: "Quick overlap check with new people",
       subtitle: "Meeting someone new? Find your common interests in seconds!",
       ctaText: "Try It Now",
-      icon: <HiUserGroup className="w-16 h-16" />,
       gradientColors: "from-green-500/20 via-green-500/10 to-transparent",
       route: "/demo",
       animation: {
@@ -60,10 +50,9 @@ export default function Hero() {
     },
     {
       id: 4,
-      title: "🛍️ Smart online shopping experience",
+      title: "Smart online shopping experience",
       subtitle: "Online stores will show you exactly what matches your interests - no more guesswork!",
       ctaText: "See How It Works",
-      icon: <HiShoppingBag className="w-16 h-16" />,
       gradientColors: "from-purple-500/20 via-purple-500/10 to-transparent",
       route: "/demo",
       animation: {
@@ -73,10 +62,9 @@ export default function Hero() {
     },
     {
       id: 5,
-      title: "📍 Smart physical shopping",
+      title: "Smart physical shopping",
       subtitle: "Get personalized recommendations in stores and restaurants instantly",
       ctaText: "Learn More",
-      icon: <HiQueueList className="w-16 h-16" />,
       gradientColors: "from-yellow-500/20 via-yellow-500/10 to-transparent",
       route: "/demo",
       animation: {
@@ -168,18 +156,16 @@ export default function Hero() {
             className="max-w-3xl"
           >
             <motion.div
-              className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm`}
+              className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm flex items-center justify-center`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-              <motion.div
-                className="w-full h-full flex items-center justify-center text-primary"
-                variants={getAnimationVariants(slides[currentSlide].animation.type)}
-                animate="animate"
-              >
-                {slides[currentSlide].icon}
-              </motion.div>
+              <span className="text-5xl">
+                {currentSlide === 0 ? "🛍️" : 
+                 currentSlide === 1 ? "📱" : 
+                 currentSlide === 2 ? "🤝" : "🔍"}
+              </span>
             </motion.div>
 
             <motion.h2
