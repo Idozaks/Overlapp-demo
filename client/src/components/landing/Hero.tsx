@@ -162,7 +162,7 @@ export default function Hero() {
               transition={{ delay: 0.1 }}
             >
               <span className="text-5xl">
-                {currentSlide === 0 ? "🛍️" : 
+                {currentSlide === 0 ? "👤" : 
                  currentSlide === 1 ? "📱" : 
                  currentSlide === 2 ? "🤝" : "🔍"}
               </span>
