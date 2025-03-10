@@ -118,7 +118,7 @@ export default function VennEmojis({ currentSlide = 0 }: { currentSlide?: number
                     bg-gradient-to-br ${slide.colors.intersection} flex items-center justify-center z-20
                     border-2 border-white/50 backdrop-blur-sm shadow-xl`}
           initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.7 }} {/* Increased opacity */}
+          animate={{ scale: 1, opacity: 0.7 }} // Increased opacity
           transition={{ delay: 0.3 }}
         >
           <div className="flex flex-col items-center">
