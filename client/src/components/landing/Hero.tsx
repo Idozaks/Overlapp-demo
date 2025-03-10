@@ -154,8 +154,11 @@ export default function Hero() {
             align: "center",
             loop: true,
           }}
-          value={currentSlide}
-          onValueChange={(value) => setCurrentSlide(value)}
+          setApi={(api) => {
+            api.on("select", () => {
+              setCurrentSlide(api.selectedScrollSnap());
+            });
+          }}
         >
           <CarouselPrevious className="hidden sm:flex -left-12" />
           <CarouselNext className="hidden sm:flex -right-12" />
