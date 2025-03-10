@@ -5,6 +5,8 @@ import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect, useCallback } from "react";
+import VennEmojis from "./VennEmojis"; // Added import for VennEmojis component
+
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -22,7 +24,8 @@ export default function Hero() {
       animation: {
         type: "profile",
         duration: 2
-      }
+      },
+      emojis: ["🛍️", "🧠", "🤖"] // Added emojis for slide 1
     },
     {
       id: 2,
@@ -34,7 +37,8 @@ export default function Hero() {
       animation: {
         type: "matching",
         duration: 2.5
-      }
+      },
+      emojis: ["📱", "🔍", "🔎"] // Added emojis for slide 2
     },
     {
       id: 3,
@@ -46,7 +50,8 @@ export default function Hero() {
       animation: {
         type: "overlap",
         duration: 1.5
-      }
+      },
+      emojis: ["🤝", "🤖", "🫂"] // Added emojis for slide 3
     },
     {
       id: 4,
@@ -58,7 +63,9 @@ export default function Hero() {
       animation: {
         type: "online-store",
         duration: 2
-      }
+      },
+      emojis: ["🛒", "💻", "🛍️"] // Added emojis for slide 4
+
     },
     {
       id: 5,
@@ -70,7 +77,8 @@ export default function Hero() {
       animation: {
         type: "physical-store",
         duration: 2
-      }
+      },
+      emojis: ["📍", "🚶", "🛍️"] // Added emojis for slide 5
     }
   ];
 
@@ -155,36 +163,9 @@ export default function Hero() {
             transition={{ duration: 0.5 }}
             className="max-w-3xl"
           >
-            <motion.div
-              className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slides[currentSlide].gradientColors} p-6 mb-8 backdrop-blur-sm flex items-center justify-center`}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-            >
-              <div className="flex flex-row gap-2 text-5xl">
-                {currentSlide === 0 ? (
-                  <>
-                    <span>🛍️</span>
-                    <span>🧠</span>
-                  </>
-                ) : currentSlide === 1 ? (
-                  <>
-                    <span>📱</span>
-                    <span>🔍</span>
-                  </>
-                ) : currentSlide === 2 ? (
-                  <>
-                    <span>🤝</span>
-                    <span>🤖</span>
-                  </>
-                ) : (
-                  <>
-                    <span>🔍</span>
-                    <span>💡</span>
-                  </>
-                )}
-              </div>
-            </motion.div>
+            <div className="w-48 h-48 mb-8"> {/* Replaced motion.div with div */}
+              <VennEmojis currentSlide={currentSlide} slides={slides} />
+            </div>
 
             <motion.h2
               className="text-4xl md:text-6xl font-bold mb-6"
