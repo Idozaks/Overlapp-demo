@@ -5,7 +5,7 @@ import AnimatedGradient from "@/components/ui/AnimatedGradient";
 import { ArrowRight, Users, Sparkles, Store, Navigation } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect, useCallback } from "react";
-import { HiSparkles, HiUserGroup, HiGlobeAlt, HiShoppingBag } from "react-icons/hi2";
+import { HiSparkles, HiUserGroup, HiGlobeAlt, HiShoppingBag, HiBolt } from "react-icons/hi2";
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -24,6 +24,15 @@ export default function Hero() {
     },
     {
       id: 2,
+      title: "⚡ Instant Interest Matching!",
+      subtitle: "Find real people with similar interests in seconds! Our smart matching system connects you instantly with like-minded individuals.",
+      ctaText: "Try It Now",
+      icon: <HiBolt className="w-16 h-16" />,
+      gradientColors: "from-yellow-500/20 via-yellow-500/10 to-transparent",
+      route: "/demo"
+    },
+    {
+      id: 3,
       title: "🎯 Find precise matches",
       subtitle: "Build a profile that truly represents you and find matches that align with your authentic interests.",
       ctaText: "Discover More",
@@ -32,7 +41,7 @@ export default function Hero() {
       route: "/features"
     },
     {
-      id: 3,
+      id: 4,
       title: "🤝 Connect real preferences",
       subtitle: "Meet someone new? Perform a quick overlap check and discover common interests in seconds!",
       ctaText: "Try Demo",
@@ -41,7 +50,7 @@ export default function Hero() {
       route: "/demo"
     },
     {
-      id: 4,
+      id: 5,
       title: "🎨 Self-expression and AI enrichment",
       subtitle: "Enter restaurants and stores to instantly find products that match your preferences.",
       ctaText: "See How It Works",
