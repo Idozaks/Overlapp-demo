@@ -42,10 +42,18 @@ interface GraphNode {
   y?: number;
 }
 
+// This interface is used for creating our links initially
 interface GraphLink {
-  source: string | {id: string; x: number; y: number};
-  target: string | {id: string; x: number; y: number};
+  source: string;
+  target: string;
   strength?: number;
+}
+
+// Runtime interface for link objects after force-graph processing
+interface RuntimeLinkObject {
+  source: string | { id: string; x: number; y: number };
+  target: string | { id: string; x: number; y: number };
+  [key: string]: any;
 }
 
 // Define color palette for different interest categories
@@ -213,8 +221,17 @@ export default function InterestsMap() {
     const connectedLinks = new Set<string>();
     
     graphData.links.forEach(link => {
-      const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
-      const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+      // Force graph may have converted our strings to objects
+      let sourceId: string = link.source as string;
+      let targetId: string = link.target as string;
+      
+      // If the graph has processed these into objects, get the IDs
+      if (typeof link.source === 'object' && link.source !== null) {
+        sourceId = (link.source as any).id;
+      }
+      if (typeof link.target === 'object' && link.target !== null) {
+        targetId = (link.target as any).id;
+      }
       
       if (sourceId === node.id) {
         connectedNodes.add(targetId);
@@ -301,6 +318,7 @@ export default function InterestsMap() {
 
   const linkCanvasObject = (link: any, ctx: CanvasRenderingContext2D) => {
     // Get source and target nodes
+    // Force graph may convert our string IDs to objects with coordinates
     const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
     const targetId = typeof link.target === 'object' ? link.target.id : link.target;
     const linkId = `${sourceId}-${targetId}`;
@@ -312,11 +330,18 @@ export default function InterestsMap() {
     ctx.strokeStyle = isHighlighted ? '#666' : 'rgba(180, 180, 180, 0.2)';
     ctx.lineWidth = isHighlighted ? 0.8 : 0.5;
     
-    // Safely get coordinates
-    const sourceX = typeof link.source === 'object' ? (link.source.x || 0) : 0;
-    const sourceY = typeof link.source === 'object' ? (link.source.y || 0) : 0;
-    const targetX = typeof link.target === 'object' ? (link.target.x || 0) : 0;
-    const targetY = typeof link.target === 'object' ? (link.target.y || 0) : 0;
+    // Get coordinates from the objects that ForceGraph2D creates
+    const sourceObj = typeof link.source === 'object' ? link.source : null;
+    const targetObj = typeof link.target === 'object' ? link.target : null;
+    
+    // Skip if we don't have objects with coordinates
+    if (!sourceObj || !targetObj) return;
+    
+    // Get coordinates
+    const sourceX = sourceObj.x || 0;
+    const sourceY = sourceObj.y || 0;
+    const targetX = targetObj.x || 0;
+    const targetY = targetObj.y || 0;
     
     // Draw line
     ctx.beginPath();
@@ -458,7 +483,7 @@ export default function InterestsMap() {
         <div className="lg:col-span-3 bg-card rounded-lg border shadow-sm overflow-hidden" style={{ height: '75vh' }}>
           {graphData.nodes.length > 0 && (
             <ForceGraph2D
-              graphData={graphData}
+              graphData={graphData as any}
               nodeCanvasObject={nodeCanvasObject}
               linkCanvasObject={linkCanvasObject}
               onNodeClick={handleNodeClick}
