@@ -6,7 +6,11 @@
       "demo": "Demo",
       "contact": "Contact",
       "signup": "Sign Up",
-      "interactions": "Real-time Interactions"
+      "interactions": "Real-time Interactions",
+      "engage": "Engage",
+      "engage_with_another_persona": "Engage with another persona",
+      "engage_online_with_websites": "Engage online with websites",
+      "engage_offline": "Engage offline"
     },
     "real_time": "Real-time Synchronization",
     "real_time_description": "Stay synchronized across all your devices and physical locations instantly",
@@ -182,5 +186,56 @@
     "updateSuccessMessage": "Your profile has been successfully updated",
     "updateError": "Update Failed",
     "updateErrorMessage": "Failed to update profile. Please try again."
+  },
+  "engage": {
+    "title": "Ways to Engage",
+    "description": "Choose how you'd like to leverage your digital profile",
+    "start": "Get Started",
+    "engage_with_another_persona": "Engage with another persona",
+    "engage_with_another_persona_desc": "Connect with people",
+    "engage_online_with_websites": "Engage online with websites",
+    "engage_online_with_websites_desc": "Personalized web experiences",
+    "engage_offline": "Engage offline",
+    "engage_offline_desc": "Real-world connections",
+    "persona": {
+      "title": "Engage with Another Persona",
+      "card_title": "Find Someone to Connect With",
+      "card_description": "Discover shared interests with another person",
+      "by_username": "Username",
+      "show_qr": "My QR Code",
+      "scan_qr": "Scan QR",
+      "enter_username": "Enter username to connect",
+      "find_persona": "Find Persona",
+      "your_qr_code": "Your QR Code will appear here",
+      "qr_description": "Let others scan your QR code to connect with you instantly",
+      "camera_placeholder": "Camera access required",
+      "start_scanning": "Start Scanning",
+      "scan_description": "Scan someone's QR code to connect with them"
+    },
+    "online": {
+      "title": "Engage Online with Websites",
+      "description": "Get personalized content from websites based on your profile",
+      "enter_website": "Enter Website URL",
+      "website_description": "Analyze how a website matches your interests",
+      "analyze": "Analyze",
+      "share_profile": "Share Your Profile",
+      "share_description": "Create a link to share your digital persona with websites",
+      "create_share_link": "Create Share Link",
+      "recent_websites": "Recently Visited Websites",
+      "no_recent_websites": "No recent websites visited yet"
+    },
+    "offline": {
+      "title": "Engage Offline",
+      "description": "Discover places and products that match your preferences in the real world",
+      "scan_location": "Scan Current Location",
+      "scan_description": "Find nearby places that match your preferences",
+      "scan_nearby": "Scan Nearby Places",
+      "categories": "Browse by Category",
+      "restaurants": "Restaurants",
+      "retail_stores": "Retail Stores",
+      "explore": "Explore",
+      "coming_soon": "More features coming soon!",
+      "coming_soon_description": "We're constantly adding new ways to enhance your offline experience."
+    }
   }
 }
