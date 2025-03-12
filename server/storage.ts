@@ -68,6 +68,7 @@ export interface IStorage {
   getInterest(id: number): Promise<Interest | undefined>;
   getInterestContent(interestId: number): Promise<InterestContent[]>;
   getUserInterests(userId: number): Promise<Interest[]>;
+  getUsersWithInterest(interestId: number): Promise<User[]>;
   addUserInterest(userId: number, interestId: number): Promise<void>;
   removeUserInterest(userId: number, interestId: number): Promise<void>;
   addInterestContent(content: InsertInterestContent): Promise<InterestContent>;
@@ -560,6 +561,18 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userInterests.userId, userId));
 
     return result.map(({ interest }) => interest);
+  }
+  
+  async getUsersWithInterest(interestId: number): Promise<User[]> {
+    const result = await db
+      .select({
+        user: users
+      })
+      .from(users)
+      .innerJoin(userInterests, eq(userInterests.userId, users.id))
+      .where(eq(userInterests.interestId, interestId));
+
+    return result.map(({ user }) => user);
   }
 
   async addUserInterest(userId: number, interestId: number): Promise<void> {
