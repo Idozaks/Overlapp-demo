@@ -38,11 +38,13 @@ interface GraphNode {
   userId?: number;
   interestId?: number;
   category?: string;
+  x?: number;
+  y?: number;
 }
 
 interface GraphLink {
-  source: string;
-  target: string;
+  source: string | {id: string; x: number; y: number};
+  target: string | {id: string; x: number; y: number};
   strength?: number;
 }
 
@@ -250,6 +252,10 @@ export default function InterestsMap() {
     ctx.font = `${fontSize}px Sans-Serif`;
     const textWidth = ctx.measureText(label).width;
     const bckgDimensions = [textWidth, fontSize].map(n => n + 8); // Add padding
+    
+    // Ensure node has x and y coordinates (they should be added by force graph)
+    const nodeX = node.x || 0;
+    const nodeY = node.y || 0;
 
     // Node color based on type and highlight status
     let color = node.type === 'user' ? '#1E88E5' : (node.color || '#4CAF50');
@@ -265,11 +271,11 @@ export default function InterestsMap() {
     if (node.type === 'interest') {
       // Interest nodes are squares
       const size = Math.sqrt(node.val) * 5 + 2; // Scale based on popularity
-      ctx.rect(node.x - size/2, node.y - size/2, size, size);
+      ctx.rect(nodeX - size/2, nodeY - size/2, size, size);
     } else {
       // User nodes are circles
       const size = 5; // Constant size for users
-      ctx.arc(node.x, node.y, size, 0, 2 * Math.PI, false);
+      ctx.arc(nodeX, nodeY, size, 0, 2 * Math.PI, false);
     }
     
     ctx.fill();
@@ -279,8 +285,8 @@ export default function InterestsMap() {
       // Add a background rectangle for the text
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.fillRect(
-        node.x - bckgDimensions[0] / 2,
-        node.y - bckgDimensions[1] / 2 - 10,
+        nodeX - bckgDimensions[0] / 2,
+        nodeY - bckgDimensions[1] / 2 - 10,
         bckgDimensions[0],
         bckgDimensions[1]
       );
@@ -289,7 +295,7 @@ export default function InterestsMap() {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = node.type === 'interest' ? '#000' : '#1A237E';
-      ctx.fillText(label, node.x, node.y - 10);
+      ctx.fillText(label, nodeX, nodeY - 10);
     }
   };
 
@@ -306,10 +312,16 @@ export default function InterestsMap() {
     ctx.strokeStyle = isHighlighted ? '#666' : 'rgba(180, 180, 180, 0.2)';
     ctx.lineWidth = isHighlighted ? 0.8 : 0.5;
     
+    // Safely get coordinates
+    const sourceX = typeof link.source === 'object' ? (link.source.x || 0) : 0;
+    const sourceY = typeof link.source === 'object' ? (link.source.y || 0) : 0;
+    const targetX = typeof link.target === 'object' ? (link.target.x || 0) : 0;
+    const targetY = typeof link.target === 'object' ? (link.target.y || 0) : 0;
+    
     // Draw line
     ctx.beginPath();
-    ctx.moveTo(link.source.x, link.source.y);
-    ctx.lineTo(link.target.x, link.target.y);
+    ctx.moveTo(sourceX, sourceY);
+    ctx.lineTo(targetX, targetY);
     ctx.stroke();
   };
 

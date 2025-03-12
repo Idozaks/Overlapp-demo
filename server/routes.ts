@@ -644,6 +644,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Unable to fetch recommendations" });
     }
   });
+  
+  // Endpoints for the interests map visualization
+  app.get("/api/users/with-interests", async (req: Request, res: Response) => {
+    try {
+      const users = await storage.getAllUsers();
+      const usersWithInterests = await Promise.all(
+        users.map(async (user) => {
+          const interests = await storage.getUserInterests(user.id);
+          return {
+            ...user,
+            interests: interests.map(interest => interest.name),
+          };
+        })
+      );
+      res.json({ users: usersWithInterests });
+    } catch (error) {
+      log("Error fetching users with interests:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ error: "Failed to fetch users with interests" });
+    }
+  });
+  
+  app.get("/api/interests/with-users", async (req: Request, res: Response) => {
+    try {
+      const allInterests = await storage.getInterests();
+      const interestsWithUsers = await Promise.all(
+        allInterests.map(async (interest) => {
+          // For each interest, find all users who have this interest
+          const usersWithInterest = await storage.getUsersWithInterest(interest.id);
+          return {
+            ...interest,
+            users: usersWithInterest.map(user => user.id),
+          };
+        })
+      );
+      res.json({ interests: interestsWithUsers });
+    } catch (error) {
+      log("Error fetching interests with users:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ error: "Failed to fetch interests with users" });
+    }
+  });
 
   // Add new endpoint to get all interests
   app.get("/api/interests", async (req: Request, res: Response) => {
