@@ -47,7 +47,9 @@ import {
   LogOut, 
   Menu,
   Shield,
-  ShoppingBag // Add this import
+  ShoppingBag,
+  Network, // For Interests Map
+  Share2 // For connections
 } from "lucide-react";
 import "./lib/i18n";
 
@@ -66,6 +68,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/social" component={SocialHub} />
       <Route path="/social/explore" component={ExploreUsers} />
+      <Route path="/social/interests-map" component={InterestsMap} />
       <Route path="/profile/:id" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/wallet" component={WalletDashboard} />
@@ -82,33 +85,44 @@ function Header() {
 
   const NavigationLinks = () => (
     <nav className="flex flex-col lg:flex-row gap-6">
-      <a href="/" className="text-foreground hover:text-primary whitespace-nowrap">
-        Home
+      <a href="/" className="text-foreground hover:text-primary whitespace-nowrap flex items-center gap-1">
+        <HomeIcon className="w-4 h-4" />
+        <span>Home</span>
       </a>
       {user ? (
         <>
-          <a href="/social" className="text-foreground hover:text-primary whitespace-nowrap">
-            Social
+          <a href="/social" className="text-foreground hover:text-primary whitespace-nowrap flex items-center gap-1">
+            <UsersIcon className="w-4 h-4" />
+            <span>Social</span>
           </a>
-          <a href="/social/explore" className="text-foreground hover:text-primary whitespace-nowrap">
-            Explore
+          <a href="/social/explore" className="text-foreground hover:text-primary whitespace-nowrap flex items-center gap-1">
+            <CompassIcon className="w-4 h-4" />
+            <span>Explore</span>
           </a>
-          <a href="/wallet" className="text-foreground hover:text-primary whitespace-nowrap">
-            Wallet
+          <a href="/social/interests-map" className="text-foreground hover:text-primary whitespace-nowrap flex items-center gap-1">
+            <Network className="w-4 h-4" />
+            <span>Interests Map</span>
+          </a>
+          <a href="/wallet" className="text-foreground hover:text-primary whitespace-nowrap flex items-center gap-1">
+            <WalletIcon className="w-4 h-4" />
+            <span>Wallet</span>
           </a>
           {user.isAdmin && (
-            <a href="/admin/interests" className="text-foreground hover:text-primary whitespace-nowrap">
-              Manage Interests
+            <a href="/admin/interests" className="text-foreground hover:text-primary whitespace-nowrap flex items-center gap-1">
+              <Shield className="w-4 h-4" />
+              <span>Manage Interests</span>
             </a>
           )}
         </>
       ) : (
-        <a href="/demo" className="text-foreground hover:text-primary whitespace-nowrap">
-          Demo
+        <a href="/demo" className="text-foreground hover:text-primary whitespace-nowrap flex items-center gap-1">
+          <PlayIcon className="w-4 h-4" />
+          <span>Demo</span>
         </a>
       )}
-      <a href="/contact" className="text-foreground hover:text-primary whitespace-nowrap">
-        Contact
+      <a href="/contact" className="text-foreground hover:text-primary whitespace-nowrap flex items-center gap-1">
+        <MailIcon className="w-4 h-4" />
+        <span>Contact</span>
       </a>
     </nav>
   );
