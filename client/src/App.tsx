@@ -11,6 +11,7 @@ import RetailerDetails from "@/pages/RetailerDetails";
 import Contact from "@/pages/Contact";
 import SocialHub from "@/pages/social/SocialHub";
 import ExploreUsers from "@/pages/social/ExploreUsers";
+import InterestsMap from "@/pages/social/InterestsMap";
 import Profile from "@/pages/social/Profile";
 import ProfileEdit from "@/pages/social/ProfileEdit";
 import WalletDashboard from "@/pages/wallet/Dashboard";
