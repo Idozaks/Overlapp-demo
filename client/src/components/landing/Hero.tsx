@@ -6,7 +6,26 @@ import { ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import React, { useState, useEffect, useCallback } from "react";
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { Link } from 'wouter';
 
+
+const slides = [
+  {
+    title: "Create your personal digital profile!",
+    description: "Find precise matches in all areas of life.",
+    gradientColors: "from-blue-500 to-purple-500"
+  },
+  {
+    title: "Connect your real preferences",
+    description: "And find your appropriate matches.",
+    gradientColors: "from-green-500 to-teal-500"
+  },
+  {
+    title: "You know yourself best!",
+    description: "Create a digital profile that expresses your preferences, let AI enrich it, and then you can discover many areas that overlap with your interests.",
+    gradientColors: "from-amber-500 to-red-500"
+  }
+];
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -14,87 +33,14 @@ export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [api, setApi] = useState<any>(null);
 
-  const slides = [
-    {
-      id: 1,
-      title: "Create a digital profile in seconds",
-      subtitle: "Quick and easy setup to express your true interests and preferences",
-      ctaText: "Get Started",
-      gradientColors: "from-primary/20 via-primary/10 to-transparent",
-      route: "/signup",
-      animation: {
-        type: "profile",
-        duration: 2
-      }
-    },
-    {
-      id: 2,
-      title: "Find the most accurate matches",
-      subtitle: "Discover precise matches in all areas of life that align with your interests",
-      ctaText: "Explore Matches",
-      gradientColors: "from-blue-500/20 via-blue-500/10 to-transparent",
-      route: "/demo",
-      animation: {
-        type: "matching",
-        duration: 2.5
-      }
-    },
-    {
-      id: 3,
-      title: "Quick overlap check with new people",
-      subtitle: "Meeting someone new? Find your common interests in seconds!",
-      ctaText: "Try It Now",
-      gradientColors: "from-green-500/20 via-green-500/10 to-transparent",
-      route: "/demo",
-      animation: {
-        type: "overlap",
-        duration: 1.5
-      }
-    },
-    {
-      id: 4,
-      title: "Smart online shopping experience",
-      subtitle: "Online stores will show you exactly what matches your interests - no more guesswork!",
-      ctaText: "See How It Works",
-      gradientColors: "from-purple-500/20 via-purple-500/10 to-transparent",
-      route: "/demo",
-      animation: {
-        type: "online-store",
-        duration: 2
-      }
-    },
-    {
-      id: 5,
-      title: "Smart physical shopping",
-      subtitle: "Get personalized recommendations in stores and restaurants instantly",
-      ctaText: "Learn More",
-      gradientColors: "from-yellow-500/20 via-yellow-500/10 to-transparent",
-      route: "/demo",
-      animation: {
-        type: "physical-store",
-        duration: 2
-      }
-    }
-  ];
-
-  const handleSlideChange = useCallback((index: number) => {
-    setCurrentSlide(index);
-    if (api) {
-      api.scrollTo(index);
-    }
-  }, [api]);
-
   useEffect(() => {
     const interval = setInterval(() => {
-      const nextSlide = (currentSlide + 1) % slides.length;
-      handleSlideChange(nextSlide);
-    }, 20000); // 20 seconds per slide
-    return () => clearInterval(interval);
-  }, [currentSlide, handleSlideChange, slides.length]);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      api?.scrollNext();
+    }, 5000);
 
-  const handleCTAClick = (route: string) => {
-    navigate(route);
-  };
+    return () => clearInterval(interval);
+  }, [api]);
 
   // Animation variants for each slide type
   const getAnimationVariants = (type: string) => {
@@ -185,205 +131,38 @@ export default function Hero() {
                       aria-label={index === 0 ? "Shopping and AI technology overlap" : 
                                  index === 1 ? "Mobile search technology overlap" :
                                  index === 2 ? "Partnership and AI overlap" :
-                                 "Search and innovation overlap"}
-                    >
-                      {index === 0 ? (
-                        <>
-                          <span className="text-5xl">👤</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-pink-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">📝</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-pink-100/50 to-amber-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">🪪</span>
-                        </>
-                      ) : index === 1 ? (
-                        <>
-                          <span className="text-5xl">🧩</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-purple-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">❤️</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-purple-100/50 to-pink-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">✨</span>
-                        </>
-                      ) : index === 2 ? (
-                        <>
-                          <span className="text-5xl">👋</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-blue-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">🔄</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-indigo-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">🔗</span>
-                        </>
-                      ) : index === 3 ? (
-                        <>
-                          <span className="text-5xl">🛒</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-yellow-100/50 to-blue-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">🧠</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-blue-100/50 to-teal-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">🛍️</span>
-                        </>
-                      ) : index === 4 ? (
-                        <>
-                          <span className="text-5xl">🏪</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-purple-100/50 to-green-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">📱</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-green-100/50 to-violet-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">💼</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-5xl">🌟</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-amber-100/50 to-red-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">👤</span>
-                          <div className="w-12 h-6 bg-gradient-to-r from-red-100/50 to-pink-100/50 rounded-full mx-1"></div>
-                          <span className="text-5xl">📝</span>
-                        </>
-                      )}
-                    </div>
+                                 "Digital technology"}
+                    ></div>
                   </motion.div>
-
-                  <motion.h2
-                    className="text-4xl md:text-6xl font-bold mb-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    {slide.title}
-                  </motion.h2>
-
-                  <motion.p
-                    className="text-xl md:text-2xl text-muted-foreground mb-8"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {slide.subtitle}
-                  </motion.p>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="mb-24"
-                  >
-                    <Button
-                      size="lg"
-                      onClick={() => window.location.href = "https://overlapp.replit.app/signup"}
-                      className="gap-2"
-                    >
-                      {slide.ctaText}
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </motion.div>
+                  <h2 className="text-3xl font-bold mb-4">{slide.title}</h2>
+                  <p className="text-xl mb-8 opacity-80">{slide.description}</p>
                 </motion.div>
               </CarouselItem>
             ))}
           </CarouselContent>
         </Carousel>
 
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4">
-          <div className="flex gap-2">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => handleSlideChange(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  currentSlide === index ? "bg-primary w-4" : "bg-primary/30"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
-import { Link } from 'wouter';
-import { ArrowRight } from 'lucide-react';
-
-const slides = [
-  {
-    title: "Create your personal digital profile!",
-    description: "Find precise matches in all areas of life."
-  },
-  {
-    title: "Connect your real preferences",
-    description: "And find your appropriate matches."
-  },
-  {
-    title: "You know yourself best!",
-    description: "Create a digital profile that expresses your preferences, let AI enrich it, and then you can discover many areas that overlap with your interests."
-  }
-];
-
-export function Hero() {
-  const { t } = useTranslation();
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="relative overflow-hidden bg-background pt-10 min-h-[70vh] flex flex-col justify-center">
-      <div className="container px-4 md:px-6">
-        <div className="flex flex-col items-center text-center gap-4 md:gap-10">
-          <motion.div 
-            key={currentSlide}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-            className="space-y-4"
-          >
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
-              {slides[currentSlide].title}
-            </h1>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-              {slides[currentSlide].description}
-            </p>
-          </motion.div>
-
-          <div className="space-y-8 w-full max-w-md">
-            <div className="flex justify-center space-x-2">
-              {slides.map((_, index) => (
-                <button
-                  key={index}
-                  className={`w-3 h-3 rounded-full ${currentSlide === index ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-700'}`}
-                  onClick={() => setCurrentSlide(index)}
-                />
-              ))}
+        <div className="mt-12 text-center">
+          <h3 className="text-xl mb-6">What do you actually get from this?!</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="p-6 bg-white/5 backdrop-blur-md rounded-lg">
+              <ul className="list-disc pl-5">
+                <li>Easily discover common interests with anyone you meet</li>
+              </ul>
             </div>
-            
-            <h2 className="text-xl font-semibold text-center">
-              Meet a stranger on the street, perform an overlap check together in the app - and discover shared interests in seconds!
-            </h2>
-            
-            <div className="space-y-2">
-              <h3 className="font-medium text-lg">What you actually get:</h3>
-              <ul className="space-y-2 text-left">
-                <li className="flex items-start">
-                  <span className="mr-2">•</span>
-                  <span>Easily discover common interests with anyone you meet</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2">•</span>
-                  <span>Receive what truly interests you from websites</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2">•</span>
-                  <span>Enter physical stores and instantly find products that suit you (on the menu, in the catalog, or on the dynamic store map)</span>
-                </li>
+            <div className="p-6 bg-white/5 backdrop-blur-md rounded-lg">
+              <ul className="list-disc pl-5">
+                <li>Receive what truly interests you from websites</li>
+              </ul>
+            </div>
+            <div className="p-6 bg-white/5 backdrop-blur-md rounded-lg">
+              <ul className="list-disc pl-5">
+                <li>Enter physical stores and instantly find products that suit you</li>
               </ul>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg">
               <Link href="/register">
                 Get Started <ArrowRight className="ml-2 h-4 w-4" />
@@ -398,5 +177,3 @@ export function Hero() {
     </div>
   );
 }
-
-export default Hero;
