@@ -45,9 +45,13 @@ import {
   Settings, 
   LogOut, 
   Menu,
-  Shield
+  Shield,
+  ShoppingBag // Add this import
 } from "lucide-react";
 import "./lib/i18n";
+
+// Placeholder component - Replace with your actual component
+const ConnectedRetail = () => <div>Connected Retail Experience</div>;
 
 function Router() {
   const { user } = useAuth();
@@ -65,6 +69,7 @@ function Router() {
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/wallet" component={WalletDashboard} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
+      <Route path="/connected-retail" component={ConnectedRetail} /> {/* Added route */}
       <Route component={NotFound} />
     </Switch>
   );

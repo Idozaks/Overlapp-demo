@@ -110,6 +110,31 @@ export const interestContent = pgTable("interest_content", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const activities = pgTable("activities", {
+  id: serial("id").primaryKey(),
+  creatorId: integer("creator_id").references(() => users.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  location: jsonb("location").$type<{
+    latitude: number;
+    longitude: number;
+    placeName: string;
+  }>(),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time"),
+  maxParticipants: integer("max_participants"),
+  status: text("status").notNull().default("open"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const activityParticipants = pgTable("activity_participants", {
+  id: serial("id").primaryKey(),
+  activityId: integer("activity_id").references(() => activities.id),
+  userId: integer("user_id").references(() => users.id),
+  status: text("status").notNull().default("pending"),
+  joinedAt: timestamp("joined_at").defaultNow(),
+});
+
 export const userInterests = pgTable("user_interests", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
@@ -176,6 +201,23 @@ export const insertInterestContentSchema = createInsertSchema(interestContent).p
   type: true,
 });
 
+export const insertActivitySchema = createInsertSchema(activities).pick({
+  creatorId: true,
+  title: true,
+  description: true,
+  location: true,
+  startTime: true,
+  endTime: true,
+  maxParticipants: true,
+  status: true,
+});
+
+export const insertActivityParticipantSchema = createInsertSchema(activityParticipants).pick({
+  activityId: true,
+  userId: true,
+  status: true,
+});
+
 export const insertUserInterestSchema = createInsertSchema(userInterests).pick({
   userId: true,
   interestId: true,
@@ -213,4 +255,13 @@ export type TransactionWithDetails = Transaction & {
 };
 
 export type InterestWithContent = Interest & { content: InterestContent[] };
+export type Activity = typeof activities.$inferSelect;
+export type ActivityParticipant = typeof activityParticipants.$inferSelect;
+
+export type InsertActivity = z.infer<typeof insertActivitySchema>;
+export type InsertActivityParticipant = z.infer<typeof insertActivityParticipantSchema>;
+
+export type ActivityWithCreator = Activity & { creator: User };
+export type ActivityWithParticipants = Activity & { participants: User[] };
+
 export type UserWithInterests = User & { interests: Interest[] };
