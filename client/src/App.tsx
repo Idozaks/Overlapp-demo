@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, lazy } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -65,6 +65,10 @@ function Router() {
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/wallet" component={WalletDashboard} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
+      <Route path="/engage" component={lazy(() => import('./pages/engage/EngageIndex'))} />
+      <Route path="/engage/persona" component={lazy(() => import('./pages/engage/EngagePersona'))} />
+      <Route path="/engage/online" component={lazy(() => import('./pages/engage/EngageOnline'))} />
+      <Route path="/engage/offline" component={lazy(() => import('./pages/engage/EngageOffline'))} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -295,3 +295,108 @@ export default function Hero() {
     </div>
   );
 }
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { Link } from 'wouter';
+import { ArrowRight } from 'lucide-react';
+
+const slides = [
+  {
+    title: "Create your personal digital profile!",
+    description: "Find precise matches in all areas of life."
+  },
+  {
+    title: "Connect your real preferences",
+    description: "And find your appropriate matches."
+  },
+  {
+    title: "You know yourself best!",
+    description: "Create a digital profile that expresses your preferences, let AI enrich it, and then you can discover many areas that overlap with your interests."
+  }
+];
+
+export function Hero() {
+  const { t } = useTranslation();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative overflow-hidden bg-background pt-10 min-h-[70vh] flex flex-col justify-center">
+      <div className="container px-4 md:px-6">
+        <div className="flex flex-col items-center text-center gap-4 md:gap-10">
+          <motion.div 
+            key={currentSlide}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
+              {slides[currentSlide].title}
+            </h1>
+            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+              {slides[currentSlide].description}
+            </p>
+          </motion.div>
+
+          <div className="space-y-8 w-full max-w-md">
+            <div className="flex justify-center space-x-2">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-3 h-3 rounded-full ${currentSlide === index ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-700'}`}
+                  onClick={() => setCurrentSlide(index)}
+                />
+              ))}
+            </div>
+            
+            <h2 className="text-xl font-semibold text-center">
+              Meet a stranger on the street, perform an overlap check together in the app - and discover shared interests in seconds!
+            </h2>
+            
+            <div className="space-y-2">
+              <h3 className="font-medium text-lg">What you actually get:</h3>
+              <ul className="space-y-2 text-left">
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>Easily discover common interests with anyone you meet</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>Receive what truly interests you from websites</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>Enter physical stores and instantly find products that suit you (on the menu, in the catalog, or on the dynamic store map)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button asChild size="lg">
+              <Link href="/register">
+                Get Started <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/about">Learn More</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Hero;
