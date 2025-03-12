@@ -648,16 +648,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoints for the interests map visualization
   app.get("/api/users/with-interests", async (req: Request, res: Response) => {
     try {
+      log("Fetching users with interests");
       const users = await storage.getAllUsers();
+      log(`Retrieved ${users.length} users, processing interests`);
+      
       const usersWithInterests = await Promise.all(
         users.map(async (user) => {
-          const interests = await storage.getUserInterests(user.id);
-          return {
-            ...user,
-            interests: interests.map(interest => interest.name),
-          };
+          try {
+            const interests = await storage.getUserInterests(user.id);
+            return {
+              ...user,
+              interests: interests.map(interest => interest.name),
+            };
+          } catch (userError) {
+            log(`Error processing interests for user ${user.id}:`, String(userError));
+            // Return user with empty interests array on error
+            return {
+              ...user,
+              interests: [],
+            };
+          }
         })
       );
+      
+      log(`Successfully processed ${usersWithInterests.length} users with interests`);
       res.json({ users: usersWithInterests });
     } catch (error) {
       log("Error fetching users with interests:", error instanceof Error ? error.message : String(error));
@@ -667,17 +681,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/interests/with-users", async (req: Request, res: Response) => {
     try {
+      log("Fetching interests with users");
       const allInterests = await storage.getInterests();
+      log(`Retrieved ${allInterests.length} interests, processing user associations`);
+      
       const interestsWithUsers = await Promise.all(
         allInterests.map(async (interest) => {
-          // For each interest, find all users who have this interest
-          const usersWithInterest = await storage.getUsersWithInterest(interest.id);
-          return {
-            ...interest,
-            users: usersWithInterest.map(user => user.id),
-          };
+          try {
+            // For each interest, find all users who have this interest
+            const usersWithInterest = await storage.getUsersWithInterest(interest.id);
+            return {
+              ...interest,
+              users: usersWithInterest.map(user => user.id),
+            };
+          } catch (interestError) {
+            log(`Error processing users for interest ${interest.id} (${interest.name}):`, String(interestError));
+            // Return interest with empty users array on error
+            return {
+              ...interest,
+              users: [],
+            };
+          }
         })
       );
+      
+      log(`Successfully processed ${interestsWithUsers.length} interests with user associations`);
       res.json({ interests: interestsWithUsers });
     } catch (error) {
       log("Error fetching interests with users:", error instanceof Error ? error.message : String(error));
