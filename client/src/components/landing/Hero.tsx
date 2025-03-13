@@ -133,7 +133,7 @@ export default function Hero() {
                   {/* Scene 1: Personal Profile - User-centered animation */}
                   {slide.scene === "personal-profile" && (
                     <motion.div
-                      className={`w-56 h-56 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-4 mb-6 backdrop-blur-sm relative overflow-hidden flex items-center justify-center gradient-square`}
+                      className={`w-56 h-56 rounded-2xl p-4 mb-6 relative overflow-hidden flex items-center justify-center`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{
                         scale: 1,
@@ -141,7 +141,6 @@ export default function Hero() {
                       }}
                       whileHover={{
                         scale: 1.05,
-                        boxShadow: "0 0 15px rgba(255,255,255,0.3)",
                         transition: { duration: 0.3 }
                       }}
                       transition={{
@@ -165,72 +164,69 @@ export default function Hero() {
                         <User className="w-8 h-8 text-white" />
                       </motion.div>
 
-                      {/* Surrounding interest icons */}
+                      {/* Personal interests flowing to center - showing profile creation */}
                       <motion.div 
                         className="absolute top-4 right-4 bg-opacity-90 bg-purple-400 p-3 rounded-full"
-                        initial={{ y: -20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.6, duration: 0.5 }}
+                        initial={{ y: -50, x: 50, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        transition={{ 
+                          delay: 0.6, 
+                          duration: 0.7,
+                          type: "spring", 
+                          stiffness: 100 
+                        }}
                       >
                         <Music className="w-5 h-5 text-white" />
                       </motion.div>
 
                       <motion.div 
                         className="absolute bottom-4 right-4 bg-opacity-90 bg-pink-400 p-3 rounded-full"
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.8, duration: 0.5 }}
+                        initial={{ y: 50, x: 50, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        transition={{ 
+                          delay: 0.8, 
+                          duration: 0.7,
+                          type: "spring", 
+                          stiffness: 100 
+                        }}
                       >
                         <HeartIcon className="w-5 h-5 text-white" />
                       </motion.div>
 
                       <motion.div 
                         className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 1.0, duration: 0.5 }}
+                        initial={{ y: 50, x: -50, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        transition={{ 
+                          delay: 1.0, 
+                          duration: 0.7,
+                          type: "spring", 
+                          stiffness: 100 
+                        }}
                       >
                         <Video className="w-5 h-5 text-white" />
                       </motion.div>
 
                       <motion.div 
-                        className="absolute top-4 left-4 bg-opacity-90 bg-orange-400 p-3 rounded-full"
-                        initial={{ y: -20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 1.2, duration: 0.5 }}
+                        className="absolute top-4 left-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
+                        initial={{ y: -50, x: -50, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        transition={{ 
+                          delay: 1.2, 
+                          duration: 0.7,
+                          type: "spring", 
+                          stiffness: 100 
+                        }}
                       >
                         <Cpu className="w-5 h-5 text-white" />
                       </motion.div>
-
-                      {/* Connecting lines animation */}
-                      <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                        <motion.path
-                          d="M28 28 L28 28 L28 28 L28 28 Z"
-                          initial={{ pathLength: 0, opacity: 0 }}
-                          animate={{ 
-                            pathLength: 1, 
-                            opacity: [0, 0.8, 0.8, 0],
-                            d: ["M28 28 L28 28 L28 28 L28 28 Z", "M28 28 L56 56 L28 84 L0 56 Z"] 
-                          }}
-                          stroke="rgba(255,255,255,0.6)"
-                          strokeWidth={1.5}
-                          fill="none"
-                          transition={{ 
-                            duration: 2, 
-                            ease: "easeInOut",
-                            repeat: Infinity,
-                            repeatType: "reverse",
-                            repeatDelay: 1
-                          }}
-                        />
-                      </svg>
                     </motion.div>
                   )}
 
                   {/* Scene 2: Retail Experience - Interactive Smartphone and Store Animation */}
                   {slide.scene === "retail-experience" && (
                     <motion.div
-                      className={`w-56 h-56 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-4 mb-6 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
+                      className={`w-56 h-56 rounded-2xl p-4 mb-6 flex justify-center items-center relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{
                         scale: 1,
@@ -238,7 +234,6 @@ export default function Hero() {
                       }}
                       whileHover={{
                         scale: 1.05,
-                        boxShadow: "0 0 15px rgba(255,255,255,0.3)",
                         transition: { duration: 0.3 }
                       }}
                       transition={{
@@ -262,72 +257,69 @@ export default function Hero() {
                         <Store className="w-8 h-8 text-white" />
                       </motion.div>
 
-                      {/* Surrounding retail icons */}
+                      {/* Retail experience journey - showing discovery process */}
                       <motion.div 
                         className="absolute top-4 right-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.6, duration: 0.5 }}
+                        initial={{ y: -40, x: 40, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ 
+                          delay: 0.6, 
+                          duration: 0.6,
+                          type: "spring"
+                        }}
                       >
                         <Tag className="w-5 h-5 text-white" />
                       </motion.div>
 
                       <motion.div 
                         className="absolute bottom-4 right-4 bg-opacity-90 bg-blue-400 p-3 rounded-full"
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.8, duration: 0.5 }}
+                        initial={{ y: 0, x: 80, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ 
+                          delay: 0.8, 
+                          duration: 0.7,
+                          type: "spring" 
+                        }}
                       >
                         <Smartphone className="w-5 h-5 text-white" />
                       </motion.div>
 
                       <motion.div 
                         className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 1.0, duration: 0.5 }}
+                        initial={{ y: 40, x: -40, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ 
+                          delay: 1.0, 
+                          duration: 0.7,
+                          type: "spring" 
+                        }}
                       >
                         <ShoppingBag className="w-5 h-5 text-white" />
                       </motion.div>
 
                       <motion.div 
                         className="absolute top-4 left-4 bg-opacity-90 bg-red-400 p-3 rounded-full"
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 1.2, duration: 0.5 }}
+                        initial={{ y: -20, x: -60, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ 
+                          delay: 1.2, 
+                          duration: 0.6,
+                          type: "spring" 
+                        }}
                       >
                         <MapPin className="w-5 h-5 text-white" />
                       </motion.div>
-
-                      {/* Product discovery swirl animation */}
-                      <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-                        <motion.path
-                          d="M56 56 C56 56 56 56 56 56"
-                          initial={{ pathLength: 0, opacity: 0 }}
-                          animate={{ 
-                            pathLength: 1, 
-                            opacity: [0, 0.8, 0.8, 0],
-                            d: ["M56 56 C56 56 56 56 56 56", "M56 56 C75 35 35 20 56 30 C80 40 30 75 56 56"] 
-                          }}
-                          stroke="rgba(255,255,255,0.6)"
-                          strokeWidth={1.5}
-                          fill="none"
-                          transition={{ 
-                            duration: 3, 
-                            ease: "easeInOut",
-                            repeat: Infinity,
-                            repeatType: "reverse",
-                            repeatDelay: 0.5
-                          }}
-                        />
-                      </svg>
                     </motion.div>
                   )}
 
-                  {/* Scene 3: Business Networking - Interactive Business Connections */}
+                  {/* Scene 3: Business Networking - Connection Animation */}
                   {slide.scene === "business-networking" && (
                     <motion.div
-                      className={`w-56 h-56 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-4 mb-6 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
+                      className={`w-56 h-56 rounded-2xl p-4 mb-6 flex justify-center items-center relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{
                         scale: 1,
@@ -335,21 +327,20 @@ export default function Hero() {
                       }}
                       whileHover={{
                         scale: 1.05,
-                        boxShadow: "0 0 15px rgba(255,255,255,0.3)",
                         transition: { duration: 0.3 }
                       }}
                       transition={{
                         delay: 0.1
                       }}
                     >
-                      {/* Center networking icon */}
+                      {/* Center network icon */}
                       <motion.div
-                        className="absolute z-10 bg-amber-500 p-5 rounded-2xl flex items-center justify-center"
+                        className="absolute z-10 bg-indigo-500 p-5 rounded-2xl flex items-center justify-center"
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ 
                           scale: 1, 
                           opacity: 1,
-                          boxShadow: "0 0 20px rgba(245, 158, 11, 0.6)"
+                          boxShadow: "0 0 20px rgba(99, 102, 241, 0.6)"
                         }}
                         transition={{ 
                           delay: 0.2,
@@ -359,114 +350,84 @@ export default function Hero() {
                         <Network className="w-8 h-8 text-white" />
                       </motion.div>
 
-                      {/* Surrounding business networking icons */}
+                      {/* Networking connections forming - showing business connections */}
                       <motion.div 
                         className="absolute top-4 right-4 bg-opacity-90 bg-blue-400 p-3 rounded-full"
-                        initial={{ rotate: -45, opacity: 0 }}
-                        animate={{ rotate: 0, opacity: 1 }}
-                        transition={{ delay: 0.6, duration: 0.5 }}
+                        initial={{ x: 60, opacity: 0 }}
+                        animate={{ 
+                          x: 0, 
+                          opacity: 1,
+                          transition: {
+                            type: "spring",
+                            stiffness: 120
+                          }
+                        }}
+                        transition={{ delay: 0.6, duration: 0.7 }}
                       >
                         <Users className="w-5 h-5 text-white" />
                       </motion.div>
 
+                      {/* Line connecting network to users */}
+                      <motion.div
+                        className="absolute bg-blue-400 h-0.5"
+                        style={{ 
+                          top: "calc(50% - 1px)", 
+                          right: "calc(50% + 20px)",
+                          width: "0%",
+                          transformOrigin: "right"
+                        }}
+                        initial={{ width: "0%" }}
+                        animate={{ width: "30%" }}
+                        transition={{ delay: 1.3, duration: 0.4 }}
+                      />
+
                       <motion.div 
                         className="absolute bottom-4 right-4 bg-opacity-90 bg-purple-400 p-3 rounded-full"
-                        initial={{ rotate: 45, opacity: 0 }}
-                        animate={{ rotate: 0, opacity: 1 }}
-                        transition={{ delay: 0.8, duration: 0.5 }}
+                        initial={{ y: 60, opacity: 0 }}
+                        animate={{ 
+                          y: 0, 
+                          opacity: 1,
+                          transition: {
+                            type: "spring",
+                            stiffness: 120
+                          }
+                        }}
+                        transition={{ delay: 0.8, duration: 0.7 }}
                       >
                         <Building2 className="w-5 h-5 text-white" />
                       </motion.div>
 
                       <motion.div 
                         className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
-                        initial={{ rotate: 135, opacity: 0 }}
-                        animate={{ rotate: 0, opacity: 1 }}
-                        transition={{ delay: 1.0, duration: 0.5 }}
+                        initial={{ x: -60, opacity: 0 }}
+                        animate={{ 
+                          x: 0, 
+                          opacity: 1,
+                          transition: {
+                            type: "spring",
+                            stiffness: 120
+                          }
+                        }}
+                        transition={{ delay: 1.0, duration: 0.7 }}
                       >
                         <HeartHandshake className="w-5 h-5 text-white" />
                       </motion.div>
 
                       <motion.div 
                         className="absolute top-4 left-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
-                        initial={{ rotate: -135, opacity: 0 }}
-                        animate={{ rotate: 0, opacity: 1 }}
-                        transition={{ delay: 1.2, duration: 0.5 }}
+                        initial={{ y: -60, opacity: 0 }}
+                        animate={{ 
+                          y: 0, 
+                          opacity: 1,
+                          transition: {
+                            type: "spring",
+                            stiffness: 120
+                          }
+                        }}
+                        transition={{ delay: 1.2, duration: 0.7 }}
                       >
                         <Sparkles className="w-5 h-5 text-white" />
                       </motion.div>
-
-                      {/* Connection lines animation */}
-                      <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-                        <motion.line
-                          x1="56" y1="56" x2="56" y2="56"
-                          initial={{ opacity: 0 }}
-                          animate={{ 
-                            opacity: [0, 0.8, 0],
-                            x2: [56, 20, 56],
-                            y2: [56, 20, 56]
-                          }}
-                          stroke="rgba(255,255,255,0.6)"
-                          strokeWidth={1.5}
-                          transition={{ 
-                            duration: 2, 
-                            repeat: Infinity,
-                            repeatDelay: 0.5,
-                            delay: 1.5
-                          }}
-                        />
-                        <motion.line
-                          x1="56" y1="56" x2="56" y2="56"
-                          initial={{ opacity: 0 }}
-                          animate={{ 
-                            opacity: [0, 0.8, 0],
-                            x2: [56, 92, 56],
-                            y2: [56, 20, 56]
-                          }}
-                          stroke="rgba(255,255,255,0.6)"
-                          strokeWidth={1.5}
-                          transition={{ 
-                            duration: 2, 
-                            repeat: Infinity,
-                            repeatDelay: 0.5,
-                            delay: 2
-                          }}
-                        />
-                        <motion.line
-                          x1="56" y1="56" x2="56" y2="56"
-                          initial={{ opacity: 0 }}
-                          animate={{ 
-                            opacity: [0, 0.8, 0],
-                            x2: [56, 92, 56],
-                            y2: [56, 92, 56]
-                          }}
-                          stroke="rgba(255,255,255,0.6)"
-                          strokeWidth={1.5}
-                          transition={{ 
-                            duration: 2, 
-                            repeat: Infinity,
-                            repeatDelay: 0.5,
-                            delay: 2.5
-                          }}
-                        />
-                        <motion.line
-                          x1="56" y1="56" x2="56" y2="56"
-                          initial={{ opacity: 0 }}
-                          animate={{ 
-                            opacity: [0, 0.8, 0],
-                            x2: [56, 20, 56],
-                            y2: [56, 92, 56]
-                          }}
-                          stroke="rgba(255,255,255,0.6)"
-                          strokeWidth={1.5}
-                          transition={{ 
-                            duration: 2, 
-                            repeat: Infinity,
-                            repeatDelay: 0.5,
-                            delay: 3
-                          }}
-                        />
-                      </svg>
                     </motion.div>
                   )}
 
