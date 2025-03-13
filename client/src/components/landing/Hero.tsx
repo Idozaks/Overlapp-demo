@@ -243,8 +243,8 @@ export default function Hero() {
                                     key={i}
                                     className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
                                     style={{
-                                      top: `${25 + (i % 2) * 50}%`,
-                                      left: `${25 + Math.floor(i / 2) * 50}%`,
+                                      top: `${20 + (i % 2) * 60}%`,
+                                      left: `${20 + Math.floor(i / 2) * 60}%`,
                                       transform: "translate(-50%, -50%)"
                                     }}
                                     initial={{ opacity: 0 }}
