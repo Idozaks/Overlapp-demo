@@ -167,7 +167,7 @@ export default function Hero() {
                             className="absolute bg-white/20 backdrop-blur-md p-3 rounded-full"
                             initial={{ left: "-30%", top: "45%", opacity: 0 }}
                             animate={{ 
-                              left: ["-30%", "30%", "30%", "30%", "30%", "30%", "-30%"],
+                              left: ["-30%", "25%", "25%", "25%", "25%", "25%", "-30%"],
                               top: ["45%", "45%", "45%", "30%", "45%", "45%", "45%"],
                               opacity: [0, 1, 1, 1, 1, 1, 0],
                               scale: [0.8, 1, 1, 1.1, 1, 1, 0.8],
@@ -188,7 +188,7 @@ export default function Hero() {
                             className="absolute bg-white/20 backdrop-blur-md p-3 rounded-full"
                             initial={{ right: "-30%", top: "45%", opacity: 0 }}
                             animate={{ 
-                              right: ["-30%", "30%", "30%", "30%", "30%", "30%", "-30%"],
+                              right: ["-30%", "25%", "25%", "25%", "25%", "25%", "-30%"],
                               top: ["45%", "45%", "45%", "60%", "45%", "45%", "45%"],
                               opacity: [0, 1, 1, 1, 1, 1, 0],
                               scale: [0.8, 1, 1, 1.1, 1, 1, 0.8],
@@ -213,10 +213,10 @@ export default function Hero() {
                               opacity: [0, 0, 0, 0.7, 0]
                             }}
                             transition={{
-                              duration: 5,
+                              duration: 10, // Match animation duration with other elements
                               times: [0, 0.35, 0.45, 0.55, 0.65],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
@@ -234,10 +234,10 @@ export default function Hero() {
                               rotate: [0, 0, 0, 0, 20, -20, 0]
                             }}
                             transition={{
-                              duration: 5,
+                              duration: 10, // Match timing with other animations
                               times: [0, 0.45, 0.5, 0.6, 0.7, 0.85, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <div className="relative">
@@ -269,10 +269,10 @@ export default function Hero() {
                               y: [0, 0, 0, 0, 0, 0, -20, -40]
                             }}
                             transition={{
-                              duration: 5,
+                              duration: 10, // Match with other animations
                               times: [0, 0.5, 0.55, 0.6, 0.65, 0.7, 0.85, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <User size={32} className="text-white" />
@@ -289,10 +289,10 @@ export default function Hero() {
                               top: ["15%", "15%", "15%", "15%", "15%", "15%", "15%", "5%"]
                             }}
                             transition={{
-                              duration: 5,
+                              duration: 10, // Match with other animations
                               times: [0, 0.5, 0.55, 0.6, 0.65, 0.7, 0.85, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <div className="bg-white/20 backdrop-blur-md p-2 rounded-full">
@@ -310,10 +310,10 @@ export default function Hero() {
                               top: ["15%", "15%", "15%", "15%", "15%", "15%", "15%", "5%"]
                             }}
                             transition={{
-                              duration: 5,
+                              duration: 10, // Match with other animations
                               times: [0, 0.5, 0.55, 0.6, 0.65, 0.7, 0.85, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <div className="bg-white/20 backdrop-blur-md p-2 rounded-full">
@@ -358,10 +358,10 @@ export default function Hero() {
                               top: ["50%", "50%", "50%", "50%", "50%", "50%", "50%"],
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.1, 0.2, 0.4, 0.6, 0.8, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <Store size={32} className="text-white" />
@@ -379,10 +379,10 @@ export default function Hero() {
                               rotate: [0, 0, 0, 0, 0, 10, 0]
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.1, 0.25, 0.4, 0.7, 0.85, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <Smartphone size={28} className="text-white" />
@@ -397,10 +397,10 @@ export default function Hero() {
                               scale: [0, 0, 0, 0, 1.5, 0]
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.35, 0.4, 0.45, 0.55, 0.7],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <Zap size={30} className="text-white" />
