@@ -20,7 +20,9 @@ import {
   Video,
   Heart as HeartIcon,
   Cpu,
-  Network as NetworkIcon
+  Network as NetworkIcon,
+  User as UserIcon,
+  Network,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import React, { useState, useEffect, useCallback } from "react";
