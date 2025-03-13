@@ -10,7 +10,13 @@
       "engage": "Engage",
       "engage_with_another_persona": "Engage with another persona",
       "engage_online_with_websites": "Engage online with websites",
-      "engage_offline": "Engage offline"
+      "engage_offline": "Engage offline",
+      "social": "Social",
+      "profile": "Profile",
+      "explore": "Explore Users",
+      "wallet": "Wallet",
+      "settings": "Settings",
+      "logout": "Logout"
     },
     "real_time": "Real-time Synchronization",
     "real_time_description": "Stay synchronized across all your devices and physical locations instantly",
