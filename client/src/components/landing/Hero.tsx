@@ -655,10 +655,10 @@ export default function Hero() {
                               scale: [0, 0, 0, 0, 0, 0, 0, 1.5, 0]
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.1, 0.2, 0.4, 0.6, 0.7, 0.8, 0.9, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <div className="relative p-2 bg-white/10 backdrop-blur-md rounded-full">
