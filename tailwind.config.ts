@@ -6,6 +6,7 @@ export default {
   theme: {
     fontFamily: {
       sans: ['Montserrat', 'sans-serif'],
+      hebrew: ['Rubik', 'sans-serif'],
       mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
     },
     extend: {
