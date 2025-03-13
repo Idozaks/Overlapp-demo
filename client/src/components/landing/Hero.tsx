@@ -8,20 +8,20 @@ import { Link } from "wouter";
 
 const slides = [
   {
-    title: "Create your personal digital profile!",
-    description: "You know yourself best! Create a digital profile that expresses your preferences, let AI enrich it, and then you can discover many areas that overlap with your interests.",
+    title: "common.landing.hero.slide1.title",
+    description: "common.landing.hero.slide1.subtitle",
     gradientColors: "from-blue-500 to-purple-500",
     scene: "personal-profile"
   },
   {
-    title: "Find precise matches in all areas of life.",
-    description: "Connect your real preferences and find your appropriate matches.",
+    title: "common.landing.hero.slide2.title",
+    description: "common.landing.hero.slide2.subtitle",
     gradientColors: "from-green-500 to-teal-500",
     scene: "retail-experience"
   },
   {
-    title: "Create your digital persona",
-    description: "That allows you to find matches both online and offline.",
+    title: "common.landing.hero.slide3.title",
+    description: "common.landing.hero.slide3.subtitle",
     gradientColors: "from-amber-500 to-red-500",
     scene: "business-networking"
   }
@@ -61,7 +61,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {slides[currentSlide].title}
+            {t(slides[currentSlide].title)}
           </motion.h1>
           <motion.p
             key={`desc-${animationKey}-${currentSlide}`}
@@ -70,7 +70,7 @@ export default function Hero() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {slides[currentSlide].description}
+            {t(slides[currentSlide].description)}
           </motion.p>
 
           <motion.div
@@ -127,17 +127,17 @@ export default function Hero() {
           transition={{ duration: 0.5, delay: 0.6 }}
         >
           <p className="text-lg md:text-xl mb-6 font-medium">
-            Meet a stranger on the street, perform an overlap check together in the app - and discover shared interests in seconds!
+            {t('common.landing.hero.subtitle')} {/* Added translation key */}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
             <div className="p-4 rounded-lg bg-background/50 border border-border/50 shadow-sm">
-              <p className="text-md">Discover people with similar interests</p>
+              <p className="text-md">{t('common.landing.hero.subtitle1')}</p> {/* Added translation key */}
             </div>
             <div className="p-4 rounded-lg bg-background/50 border border-border/50 shadow-sm">
-              <p className="text-md">Visit websites and they will show you content truly tailored to you</p>
+              <p className="text-md">{t('common.landing.hero.subtitle2')}</p> {/* Added translation key */}
             </div>
             <div className="p-4 rounded-lg bg-background/50 border border-border/50 shadow-sm">
-              <p className="text-md">Enter a restaurant - scan the menu and immediately receive your favorite dishes!</p>
+              <p className="text-md">{t('common.landing.hero.subtitle3')}</p> {/* Added translation key */}
             </div>
           </div>
         </motion.div>
