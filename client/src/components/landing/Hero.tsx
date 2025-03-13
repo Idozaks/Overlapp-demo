@@ -365,7 +365,7 @@ export default function Hero() {
                         <div className="w-full h-full relative">
                           {/* Animation of business networking events unfolding */}
 
-                          {/* Business building 1 (appears first from top) */}
+                          {/* Top icon (Social/People) */}
                           <motion.div
                             className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
                             initial={{ opacity: 0, top: "-20%", left: "25%" }}
@@ -382,10 +382,10 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <Building2 size={26} className="text-white" />
+                            <Users size={26} className="text-white" />
                           </motion.div>
 
-                          {/* Business building 2 (appears second from right) */}
+                          {/* Right icon (Entertainment/Leisure) */}
                           <motion.div
                             className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
                             initial={{ opacity: 0, top: "20%", right: "-20%" }}
@@ -402,10 +402,10 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <Building2 size={24} className="text-white" />
+                            <Music size={24} className="text-white" />
                           </motion.div>
 
-                          {/* Business building 3 (appears third from bottom) */}
+                          {/* Bottom icon (Shopping/Retail) */}
                           <motion.div
                             className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
                             initial={{ opacity: 0, bottom: "-20%", left: "25%" }}
@@ -422,7 +422,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <Building2 size={26} className="text-white" />
+                            <ShoppingBag size={26} className="text-white" />
                           </motion.div>
 
                           {/* Person enters from center */}
@@ -497,7 +497,7 @@ export default function Hero() {
                             }}
                           />
 
-                          {/* Connection spark effects at each building */}
+                          {/* Connection spark effects at each interest icon */}
                           {[
                             { top: "20%", left: "25%", delay: 0.6 },
                             { top: "20%", right: "20%", delay: 0.65 },
