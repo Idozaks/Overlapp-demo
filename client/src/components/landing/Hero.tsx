@@ -424,10 +424,10 @@ export default function Hero() {
                                 rotate: [0, 0, 0, 0, 0, i % 2 === 0 ? 20 : -20, 0]
                               }}
                               transition={{
-                                duration: 6,
+                                duration: 10, // Match with other animations
                                 times: [0, 0.4, 0.45, 0.55, 0.65, 0.8, 1],
                                 repeat: Infinity,
-                                repeatDelay: 0.5,
+                                repeatDelay: 1.5, // Consistent pause time
                                 delay: i * 0.1
                               }}
                             >
@@ -449,10 +449,10 @@ export default function Hero() {
                               top: ["50%", "50%", "50%", "50%", "50%", "35%", "20%"],
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.4, 0.5, 0.6, 0.7, 0.85, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <div className="relative">
@@ -497,10 +497,10 @@ export default function Hero() {
                               left: ["25%", "25%", "25%", "25%", "25%", "25%", "25%", "25%"]
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <Building2 size={32} className="text-white" />
@@ -517,10 +517,10 @@ export default function Hero() {
                               right: ["-20%", "-20%", "20%", "20%", "20%", "20%", "20%", "20%"]
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.05, 0.15, 0.3, 0.5, 0.7, 0.9, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <Building2 size={28} className="text-white" />
@@ -537,10 +537,10 @@ export default function Hero() {
                               left: ["25%", "25%", "25%", "25%", "25%", "25%", "25%", "25%"]
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.05, 0.1, 0.2, 0.4, 0.6, 0.9, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <Building2 size={32} className="text-white" />
@@ -557,10 +557,10 @@ export default function Hero() {
                               top: ["50%", "50%", "50%", "50%", "50%", "50%", "50%", "50%"]
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.9, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
                             <User size={24} className="text-white" />
@@ -578,10 +578,10 @@ export default function Hero() {
                               top: ["50%", "50%", "50%", "50%", "50%", "35%", "35%", "35%"]
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.1, 0.2, 0.4, 0.5, 0.6, 0.9, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           />
                           
@@ -594,10 +594,10 @@ export default function Hero() {
                               opacity: [0, 0, 0, 0, 0, 0.6, 0.6, 0],
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.1, 0.2, 0.4, 0.55, 0.65, 0.9, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           />
                           
@@ -611,10 +611,10 @@ export default function Hero() {
                               top: ["50%", "50%", "50%", "50%", "50%", "50%", "50%", "50%"]
                             }}
                             transition={{
-                              duration: 6,
+                              duration: 10, // Match with other animations
                               times: [0, 0.1, 0.2, 0.4, 0.6, 0.7, 0.9, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Consistent pause time
                             }}
                           />
                           
@@ -634,10 +634,10 @@ export default function Hero() {
                                 scale: [0, 0, 0, 0, 0, 0, 1.5, 0],
                               }}
                               transition={{
-                                duration: 6,
+                                duration: 10, // Match with other animations
                                 times: [0, 0.1, 0.2, 0.4, 0.5, pos.delay - 0.05, pos.delay, pos.delay + 0.1],
                                 repeat: Infinity,
-                                repeatDelay: 0.5
+                                repeatDelay: 1.5 // Consistent pause time
                               }}
                             >
                               <div className="relative">
