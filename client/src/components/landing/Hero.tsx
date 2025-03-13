@@ -67,47 +67,42 @@ export default function Hero() {
   }, [api]);
 
   // Animated icon components with consistent but varied animations
-  const AnimatedIcon = ({ icon: Icon, delay = 0, color = "text-white", tooltipText, slideIndex, iconIndex }) => {
+  const AnimatedIcon = ({ icon: Icon, delay = 0, color = "text-white" }) => {
     return (
       <motion.div
-        className={`absolute p-2 bg-opacity-90 rounded-xl ${color} group relative`}
+        className={`absolute p-2 bg-opacity-90 rounded-xl ${color}`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay }}
       >
         <Icon className="w-6 h-6" />
-        {tooltipText && (
-          <div className="absolute pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 -bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm whitespace-nowrap z-50">
-            {tooltipText}
-          </div>
-        )}
       </motion.div>
     );
   };
 
   // Define icon sets for each slide
   const profileIcons = [
-    { icon: UserIcon, color: "text-white", tooltipText: "Profile Creation" },
-    { icon: HeartIcon, color: "text-pink-200", tooltipText: "Personal Preferences" },
-    { icon: Music, color: "text-blue-200", tooltipText: "Digital Identity" },
-    { icon: Video, color: "text-purple-200", tooltipText: "Interest Mapping" },
-    { icon: Cpu, color: "text-green-200", tooltipText: "Customization" }
+    { icon: UserIcon, color: "text-white" },
+    { icon: HeartIcon, color: "text-pink-200" },
+    { icon: Music, color: "text-blue-200" },
+    { icon: Video, color: "text-purple-200" },
+    { icon: Cpu, color: "text-green-200" }
   ];
 
   const retailIcons = [
-    { icon: ShoppingBag, color: "text-white", tooltipText: "Connect with Others" },
-    { icon: Tag, color: "text-yellow-200", tooltipText: "Find Common Interests" },
-    { icon: Store, color: "text-green-200", tooltipText: "Match Accuracy" },
-    { icon: Smartphone, color: "text-blue-200", tooltipText: "Discovery" },
-    { icon: MapPin, color: "text-red-200", tooltipText: "Real-time Matching" }
+    { icon: ShoppingBag, color: "text-white" },
+    { icon: Tag, color: "text-yellow-200" },
+    { icon: Store, color: "text-green-200" },
+    { icon: Smartphone, color: "text-blue-200" },
+    { icon: MapPin, color: "text-red-200" }
   ];
 
   const networkingIcons = [
-    { icon: Network, color: "text-white", tooltipText: "Self Expression" },
-    { icon: Users, color: "text-blue-200", tooltipText: "Personal Curation" },
-    { icon: Building2, color: "text-purple-200", tooltipText: "Control Your Data" },
-    { icon: HeartHandshake, color: "text-green-200", tooltipText: "Privacy Settings" },
-    { icon: Sparkles, color: "text-yellow-200", tooltipText: "Preference Management" }
+    { icon: Network, color: "text-white" },
+    { icon: Users, color: "text-blue-200" },
+    { icon: Building2, color: "text-purple-200" },
+    { icon: HeartHandshake, color: "text-green-200" },
+    { icon: Sparkles, color: "text-yellow-200" }
   ];
 
   return (
@@ -125,10 +120,10 @@ export default function Hero() {
           }}
         >
           <CarouselContent>
-            {slides.map((slide, slideIndex) => (
-              <CarouselItem key={slideIndex} className="flex flex-col items-center justify-center">
+            {slides.map((slide, index) => (
+              <CarouselItem key={index} className="flex flex-col items-center justify-center">
                 <motion.div
-                  key={slideIndex}
+                  key={index}
                   initial={{ opacity: 0, x: 100 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -100 }}
@@ -156,12 +151,12 @@ export default function Hero() {
                       <motion.div
                         className="absolute z-10 bg-blue-500 p-5 rounded-2xl flex items-center justify-center"
                         initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{
-                          scale: 1,
+                        animate={{ 
+                          scale: 1, 
                           opacity: 1,
                           boxShadow: "0 0 20px rgba(59, 130, 246, 0.6)"
                         }}
-                        transition={{
+                        transition={{ 
                           delay: 0.2,
                           duration: 0.8
                         }}
@@ -170,9 +165,61 @@ export default function Hero() {
                       </motion.div>
 
                       {/* Personal interests flowing to center - showing profile creation */}
-                      {profileIcons.map((iconProps, iconIndex) => (
-                        <AnimatedIcon {...iconProps} key={iconIndex} delay={0.6 + iconIndex * 0.2} slideIndex={slideIndex} iconIndex={iconIndex} />
-                      ))}
+                      <motion.div 
+                        className="absolute top-4 right-4 bg-opacity-90 bg-purple-400 p-3 rounded-full"
+                        initial={{ y: -50, x: 50, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        transition={{ 
+                          delay: 0.6, 
+                          duration: 0.7,
+                          type: "spring", 
+                          stiffness: 100 
+                        }}
+                      >
+                        <Music className="w-5 h-5 text-white" />
+                      </motion.div>
+
+                      <motion.div 
+                        className="absolute bottom-4 right-4 bg-opacity-90 bg-pink-400 p-3 rounded-full"
+                        initial={{ y: 50, x: 50, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        transition={{ 
+                          delay: 0.8, 
+                          duration: 0.7,
+                          type: "spring", 
+                          stiffness: 100 
+                        }}
+                      >
+                        <HeartIcon className="w-5 h-5 text-white" />
+                      </motion.div>
+
+                      <motion.div 
+                        className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
+                        initial={{ y: 50, x: -50, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        transition={{ 
+                          delay: 1.0, 
+                          duration: 0.7,
+                          type: "spring", 
+                          stiffness: 100 
+                        }}
+                      >
+                        <Video className="w-5 h-5 text-white" />
+                      </motion.div>
+
+                      <motion.div 
+                        className="absolute top-4 left-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
+                        initial={{ y: -50, x: -50, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        transition={{ 
+                          delay: 1.2, 
+                          duration: 0.7,
+                          type: "spring", 
+                          stiffness: 100 
+                        }}
+                      >
+                        <Cpu className="w-5 h-5 text-white" />
+                      </motion.div>
                     </motion.div>
                   )}
 
@@ -197,12 +244,12 @@ export default function Hero() {
                       <motion.div
                         className="absolute z-10 bg-teal-500 p-5 rounded-2xl flex items-center justify-center"
                         initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{
-                          scale: 1,
+                        animate={{ 
+                          scale: 1, 
                           opacity: 1,
                           boxShadow: "0 0 20px rgba(20, 184, 166, 0.6)"
                         }}
-                        transition={{
+                        transition={{ 
                           delay: 0.2,
                           duration: 0.8
                         }}
@@ -211,9 +258,61 @@ export default function Hero() {
                       </motion.div>
 
                       {/* Retail experience journey - showing discovery process */}
-                      {retailIcons.map((iconProps, iconIndex) => (
-                        <AnimatedIcon {...iconProps} key={iconIndex} delay={0.6 + iconIndex * 0.2} slideIndex={slideIndex} iconIndex={iconIndex} />
-                      ))}
+                      <motion.div 
+                        className="absolute top-4 right-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
+                        initial={{ y: -40, x: 40, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ 
+                          delay: 0.6, 
+                          duration: 0.6,
+                          type: "spring"
+                        }}
+                      >
+                        <Tag className="w-5 h-5 text-white" />
+                      </motion.div>
+
+                      <motion.div 
+                        className="absolute bottom-4 right-4 bg-opacity-90 bg-blue-400 p-3 rounded-full"
+                        initial={{ y: 0, x: 80, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ 
+                          delay: 0.8, 
+                          duration: 0.7,
+                          type: "spring" 
+                        }}
+                      >
+                        <Smartphone className="w-5 h-5 text-white" />
+                      </motion.div>
+
+                      <motion.div 
+                        className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
+                        initial={{ y: 40, x: -40, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ 
+                          delay: 1.0, 
+                          duration: 0.7,
+                          type: "spring" 
+                        }}
+                      >
+                        <ShoppingBag className="w-5 h-5 text-white" />
+                      </motion.div>
+
+                      <motion.div 
+                        className="absolute top-4 left-4 bg-opacity-90 bg-red-400 p-3 rounded-full"
+                        initial={{ y: -20, x: -60, opacity: 0 }}
+                        animate={{ y: 0, x: 0, opacity: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ 
+                          delay: 1.2, 
+                          duration: 0.6,
+                          type: "spring" 
+                        }}
+                      >
+                        <MapPin className="w-5 h-5 text-white" />
+                      </motion.div>
                     </motion.div>
                   )}
 
@@ -238,12 +337,12 @@ export default function Hero() {
                       <motion.div
                         className="absolute z-10 bg-indigo-500 p-5 rounded-2xl flex items-center justify-center"
                         initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{
-                          scale: 1,
+                        animate={{ 
+                          scale: 1, 
                           opacity: 1,
                           boxShadow: "0 0 20px rgba(99, 102, 241, 0.6)"
                         }}
-                        transition={{
+                        transition={{ 
                           delay: 0.2,
                           duration: 0.8
                         }}
@@ -252,9 +351,83 @@ export default function Hero() {
                       </motion.div>
 
                       {/* Networking connections forming - showing business connections */}
-                      {networkingIcons.map((iconProps, iconIndex) => (
-                        <AnimatedIcon {...iconProps} key={iconIndex} delay={0.6 + iconIndex * 0.2} slideIndex={slideIndex} iconIndex={iconIndex} />
-                      ))}
+                      <motion.div 
+                        className="absolute top-4 right-4 bg-opacity-90 bg-blue-400 p-3 rounded-full"
+                        initial={{ x: 60, opacity: 0 }}
+                        animate={{ 
+                          x: 0, 
+                          opacity: 1,
+                          transition: {
+                            type: "spring",
+                            stiffness: 120
+                          }
+                        }}
+                        transition={{ delay: 0.6, duration: 0.7 }}
+                      >
+                        <Users className="w-5 h-5 text-white" />
+                      </motion.div>
+
+                      {/* Line connecting network to users */}
+                      <motion.div
+                        className="absolute bg-blue-400 h-0.5"
+                        style={{ 
+                          top: "calc(50% - 1px)", 
+                          right: "calc(50% + 20px)",
+                          width: "0%",
+                          transformOrigin: "right"
+                        }}
+                        initial={{ width: "0%" }}
+                        animate={{ width: "30%" }}
+                        transition={{ delay: 1.3, duration: 0.4 }}
+                      />
+
+                      <motion.div 
+                        className="absolute bottom-4 right-4 bg-opacity-90 bg-purple-400 p-3 rounded-full"
+                        initial={{ y: 60, opacity: 0 }}
+                        animate={{ 
+                          y: 0, 
+                          opacity: 1,
+                          transition: {
+                            type: "spring",
+                            stiffness: 120
+                          }
+                        }}
+                        transition={{ delay: 0.8, duration: 0.7 }}
+                      >
+                        <Building2 className="w-5 h-5 text-white" />
+                      </motion.div>
+
+                      <motion.div 
+                        className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
+                        initial={{ x: -60, opacity: 0 }}
+                        animate={{ 
+                          x: 0, 
+                          opacity: 1,
+                          transition: {
+                            type: "spring",
+                            stiffness: 120
+                          }
+                        }}
+                        transition={{ delay: 1.0, duration: 0.7 }}
+                      >
+                        <HeartHandshake className="w-5 h-5 text-white" />
+                      </motion.div>
+
+                      <motion.div 
+                        className="absolute top-4 left-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
+                        initial={{ y: -60, opacity: 0 }}
+                        animate={{ 
+                          y: 0, 
+                          opacity: 1,
+                          transition: {
+                            type: "spring",
+                            stiffness: 120
+                          }
+                        }}
+                        transition={{ delay: 1.2, duration: 0.7 }}
+                      >
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </motion.div>
                     </motion.div>
                   )}
 
