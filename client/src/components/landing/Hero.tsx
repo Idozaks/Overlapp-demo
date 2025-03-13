@@ -49,6 +49,8 @@ export default function Hero() {
   const [, navigate] = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [api, setApi] = useState<any>(null);
+  // Always show animations for all scenes for testing
+  const [showAllAnimations, setShowAllAnimations] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -140,7 +142,7 @@ export default function Hero() {
                   className="max-w-3xl"
                 >
                   {/* Scene 1: Personal Profile - User + AI enhancing profile - Interactive Animation */}
-                  {slide.scene === "personal-profile" && (
+                  {(slide.scene === "personal-profile" || showAllAnimations) && (
                     <motion.div
                       className={`w-60 h-60 md:w-72 md:h-72 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
@@ -326,7 +328,7 @@ export default function Hero() {
                   )}
 
                   {/* Scene 2: Retail Experience - Interactive Smartphone and Store Animation */}
-                  {slide.scene === "retail-experience" && (
+                  {(slide.scene === "retail-experience" || showAllAnimations) && (
                     <motion.div
                       className={`w-60 h-60 md:w-72 md:h-72 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
