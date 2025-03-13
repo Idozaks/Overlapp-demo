@@ -54,7 +54,7 @@ export default function Hero() {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
       api?.scrollNext();
-    }, 5000);
+    }, 20000); // 20 seconds per slide for longer viewing time
 
     return () => clearInterval(interval);
   }, [api]);
@@ -174,10 +174,10 @@ export default function Hero() {
                               rotate: [0, 0, 0, 10, 0, 0, 0]
                             }}
                             transition={{
-                              duration: 5,
+                              duration: 10, // Doubled duration for smoother animation over 20-second slide
                               times: [0, 0.15, 0.3, 0.5, 0.7, 0.85, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Longer pause between animation cycles
                             }}
                           >
                             <User size={28} className="text-white" />
@@ -195,10 +195,10 @@ export default function Hero() {
                               rotate: [0, 0, 0, -10, 0, 0, 0]
                             }}
                             transition={{
-                              duration: 5,
+                              duration: 10, // Doubled duration for 20-second slides
                               times: [0, 0.15, 0.3, 0.5, 0.7, 0.85, 1],
                               repeat: Infinity,
-                              repeatDelay: 0.5
+                              repeatDelay: 1.5 // Longer pause between cycles
                             }}
                           >
                             <Smartphone size={28} className="text-white" />
