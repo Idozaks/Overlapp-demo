@@ -178,7 +178,7 @@ export default function Hero() {
                       {/* Personal Profile Icon Animation */}
                       {profileIcons.map((iconData, i) => {
                         // Calculate positions in a circle around the center
-                        const radius = 120; // Increased from 80 to give more space
+                        const radius = 80; // Reduced radius to bring icons closer
                         const angle = (i * (2 * Math.PI / profileIcons.length));
                         const x = radius * Math.cos(angle);
                         const y = radius * Math.sin(angle);
@@ -251,7 +251,7 @@ export default function Hero() {
                       {/* Retail Experience Icon Animation */}
                       {retailIcons.map((iconData, i) => {
                         // Calculate positions in a circle around the center
-                        const radius = 120; // Increased from 80 to give more space
+                        const radius = 80; // Reduced radius to bring icons closer
                         const angle = (i * (2 * Math.PI / retailIcons.length));
                         const x = radius * Math.cos(angle);
                         const y = radius * Math.sin(angle);
@@ -324,7 +324,7 @@ export default function Hero() {
                       {/* Business Networking Icon Animation */}
                       {networkingIcons.map((iconData, i) => {
                         // Calculate positions in a circle around the center
-                        const radius = 120; // Increased from 80 to give more space
+                        const radius = 80; // Reduced radius to bring icons closer
                         const angle = (i * (2 * Math.PI / networkingIcons.length));
                         const x = radius * Math.cos(angle);
                         const y = radius * Math.sin(angle);
@@ -360,7 +360,7 @@ export default function Hero() {
                   )}
 
                   <motion.h2
-                    className="text-3xl md:text-4xl font-bold mb-4 text-gray-800"
+                    className="text-3xl md:text-4xl font-bold mb-4 text-black" {/* Changed text color to black */}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
