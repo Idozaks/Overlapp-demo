@@ -194,8 +194,9 @@ export default function Hero() {
                               opacity: 0 
                             }}
                             animate={{ 
-                              x,
-                              y,
+                              // Adjust positioning to keep icons within boundaries
+                              x: Math.min(Math.max(x, -120), 120),
+                              y: Math.min(Math.max(y, -120), 120),
                               opacity: 1
                             }}
                             transition={{ 
@@ -266,8 +267,9 @@ export default function Hero() {
                               opacity: 0 
                             }}
                             animate={{ 
-                              x,
-                              y,
+                              // Adjust positioning to keep icons within boundaries
+                              x: Math.min(Math.max(x, -120), 120),
+                              y: Math.min(Math.max(y, -120), 120),
                               opacity: 1
                             }}
                             transition={{ 
@@ -338,8 +340,9 @@ export default function Hero() {
                               opacity: 0 
                             }}
                             animate={{ 
-                              x,
-                              y,
+                              // Adjust positioning to keep icons within boundaries
+                              x: Math.min(Math.max(x, -120), 120),
+                              y: Math.min(Math.max(y, -120), 120),
                               opacity: 1
                             }}
                             transition={{ 
