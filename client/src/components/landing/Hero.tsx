@@ -25,7 +25,7 @@ import {
   Network,
 } from "lucide-react";
 import { useLocation } from "wouter";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Link } from 'wouter';
 
@@ -56,6 +56,8 @@ export default function Hero() {
   const [, navigate] = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [api, setApi] = useState<any>(null);
+  const currentIndex = useRef(0);
+  const [animationKey, setAnimationKey] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -65,6 +67,13 @@ export default function Hero() {
 
     return () => clearInterval(interval);
   }, [api]);
+
+  const changeSlide = (index: number) => {
+    setCurrentSlide(index);
+    currentIndex.current = index;
+    // Reset animation state when slide changes
+    setAnimationKey(prevKey => prevKey + 1);
+  };
 
   // Animated icon components with consistent but varied animations
   const AnimatedIcon = ({ 
@@ -124,6 +133,7 @@ export default function Hero() {
           opts={{
             align: "center",
             loop: true,
+            onChange: changeSlide
           }}
           setApi={(api) => {
             setApi(api);
@@ -143,6 +153,7 @@ export default function Hero() {
                   {/* Scene 1: Personal Profile - User-centered animation */}
                   {slide.scene === "personal-profile" && (
                     <motion.div
+                      key={`profile-${animationKey}`}
                       className={`w-56 h-56 rounded-2xl p-4 mb-6 relative overflow-hidden flex items-center justify-center`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{
@@ -216,6 +227,7 @@ export default function Hero() {
                   {/* Scene 2: Retail Experience - Interactive Smartphone and Store Animation */}
                   {slide.scene === "retail-experience" && (
                     <motion.div
+                      key={`retail-${animationKey}`}
                       className={`w-56 h-56 rounded-2xl p-4 mb-6 flex justify-center items-center relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{
@@ -289,6 +301,7 @@ export default function Hero() {
                   {/* Scene 3: Business Networking - Connection Animation */}
                   {slide.scene === "business-networking" && (
                     <motion.div
+                      key={`network-${animationKey}`}
                       className={`w-56 h-56 rounded-2xl p-4 mb-6 flex justify-center items-center relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{
