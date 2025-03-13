@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useTranslation } from "@/hooks/useTranslation"; //Using the hook from original code
+import { useTranslation } from "react-i18next"; //Using the standard i18next hook
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
