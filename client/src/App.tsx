@@ -46,9 +46,12 @@ import {
   Settings, 
   LogOut, 
   Menu,
-  Shield
+  Shield,
+  InfoIcon // Assumed import; adjust if necessary
 } from "lucide-react";
 import "./lib/i18n";
+import About from "@/pages/About"; // Import the About component
+
 
 function Router() {
   const { user } = useAuth();
@@ -56,14 +59,15 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/about" component={About} />
       <Route path="/signup" component={Signup} />
       <Route path="/demo" component={Demo} />
       <Route path="/retailer/:id" component={RetailerDetails} />
       <Route path="/contact" component={Contact} />
       <Route path="/social" component={SocialHub} />
       <Route path="/social/explore" component={ExploreUsers} />
-      <Route path="/profile/:id" component={Profile} />
-      <Route path="/profile/:id/edit" component={ProfileEdit} />
+      <Route path="/profile/:id?" component={Profile} />
+      <Route path="/profile/edit" component={ProfileEdit} />
       <Route path="/wallet" component={WalletDashboard} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
       <Route path="/engage" component={lazy(() => import('./pages/engage/EngageIndex'))} />
@@ -109,6 +113,9 @@ function Header() {
       <a href="/contact" className="text-foreground hover:text-primary whitespace-nowrap">
         Contact
       </a>
+      <a href="/about" className="text-foreground hover:text-primary whitespace-nowrap">
+        About
+      </a> {/* Added About link */}
     </nav>
   );
 
