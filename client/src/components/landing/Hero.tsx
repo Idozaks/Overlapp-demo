@@ -2,7 +2,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import AnimatedGradient from "@/components/ui/AnimatedGradient";
-import { ArrowRight } from "lucide-react";
+import { 
+  ArrowRight, 
+  Smartphone, 
+  Users, 
+  ShoppingBag, 
+  Store, 
+  HeartHandshake,
+  User, 
+  Building2, 
+  Tag,
+  MapPin,
+  Search,
+  Zap,
+  Sparkles
+} from "lucide-react";
 import { useLocation } from "wouter";
 import React, { useState, useEffect, useCallback } from "react";
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
@@ -13,17 +27,20 @@ const slides = [
   {
     title: "Discover what truly connects you!",
     description: "Create a digital profile, let AI enhance it, and explore the many ways your interests align with others.",
-    gradientColors: "from-blue-500 to-purple-500"
+    gradientColors: "from-blue-500 to-purple-500",
+    scene: "personal-profile"
   },
   {
     title: "Turn your real preferences into real connections.",
     description: "Find meaningful matches effortlessly.",
-    gradientColors: "from-green-500 to-teal-500"
+    gradientColors: "from-green-500 to-teal-500",
+    scene: "retail-experience"
   },
   {
     title: "Build a profile that reflects you.",
     description: "Discover precise matches across every aspect of life.",
-    gradientColors: "from-amber-500 to-red-500"
+    gradientColors: "from-amber-500 to-red-500",
+    scene: "business-networking"
   }
 ];
 
@@ -122,36 +139,377 @@ export default function Hero() {
                   transition={{ duration: 0.5 }}
                   className="max-w-3xl"
                 >
-                  <motion.div
-                    className={`w-32 h-32 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square`}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ 
-                      scale: 1, 
-                      opacity: 1,
-                      y: [0, -3, 0], // Subtle floating animation (up/down 3px)
-                    }}
-                    whileHover={{ 
-                      scale: 1.05,
-                      boxShadow: "0 0 15px rgba(255,255,255,0.3)",
-                      transition: { duration: 0.3 }
-                    }}
-                    transition={{ 
-                      delay: 0.1,
-                      y: {
-                        repeat: Infinity,
-                        duration: 3,
-                        ease: "easeInOut"
-                      }
-                    }}
-                  >
-                    <div 
-                      className="flex flex-row items-center justify-between px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 min-w-[180px]"
-                      aria-label={index === 0 ? "Shopping and AI technology overlap" : 
-                                 index === 1 ? "Mobile search technology overlap" :
-                                 index === 2 ? "Partnership and AI overlap" :
-                                 "Digital technology"}
-                    ></div>
-                  </motion.div>
+                  {/* Scene 1: Personal Profile - User + AI enhancing profile */}
+                  {slide.scene === "personal-profile" && (
+                    <motion.div
+                      className={`w-60 h-60 md:w-72 md:h-72 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ 
+                        scale: 1, 
+                        opacity: 1,
+                        y: [0, -5, 0], // Subtle floating animation
+                      }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: "0 0 15px rgba(255,255,255,0.3)",
+                        transition: { duration: 0.3 }
+                      }}
+                      transition={{ 
+                        delay: 0.1,
+                        y: {
+                          repeat: Infinity,
+                          duration: 3,
+                          ease: "easeInOut"
+                        }
+                      }}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="relative flex flex-col items-center">
+                          {/* User icon */}
+                          <motion.div 
+                            className="bg-white/20 backdrop-blur-md p-3 rounded-full mb-3"
+                            animate={{ 
+                              y: [0, -8, 0],
+                              scale: [1, 1.05, 1]
+                            }}
+                            transition={{
+                              duration: 2.5,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          >
+                            <User size={32} className="text-white" />
+                          </motion.div>
+
+                          {/* AI enhancement visual */}
+                          <motion.div 
+                            className="absolute top-1 -right-10 bg-purple-300/30 backdrop-blur-md p-2 rounded-full"
+                            animate={{ 
+                              rotate: [0, 20, 0, -20, 0],
+                              scale: [1, 1.2, 1],
+                              x: [-5, 5, -5]
+                            }}
+                            transition={{
+                              duration: 4,
+                              repeat: Infinity
+                            }}
+                          >
+                            <Sparkles size={24} className="text-white" />
+                          </motion.div>
+
+                          {/* Connection lines */}
+                          <motion.div className="relative w-40 h-20 mt-3">
+                            <motion.div 
+                              className="absolute left-0 top-0 bg-white/20 backdrop-blur-md p-2 rounded-full"
+                              animate={{ 
+                                x: [0, 5, 0, -5, 0],
+                                y: [0, -5, 0, 5, 0]
+                              }}
+                              transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                repeatType: "reverse"
+                              }}
+                            >
+                              <HeartHandshake size={20} className="text-white" />
+                            </motion.div>
+                            
+                            <motion.div 
+                              className="absolute right-0 top-0 bg-white/20 backdrop-blur-md p-2 rounded-full"
+                              animate={{ 
+                                x: [0, -5, 0, 5, 0],
+                                y: [0, 5, 0, -5, 0]
+                              }}
+                              transition={{
+                                duration: 3.5,
+                                repeat: Infinity,
+                                repeatType: "reverse"
+                              }}
+                            >
+                              <Users size={20} className="text-white" />
+                            </motion.div>
+                            
+                            <motion.div 
+                              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-white/20 backdrop-blur-md p-2 rounded-full"
+                              animate={{ 
+                                y: [0, -5, 0, 5, 0]
+                              }}
+                              transition={{
+                                duration: 2.5,
+                                repeat: Infinity
+                              }}
+                            >
+                              <Search size={20} className="text-white" />
+                            </motion.div>
+                          </motion.div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Scene 2: Retail Experience - Smartphone and store with tags */}
+                  {slide.scene === "retail-experience" && (
+                    <motion.div
+                      className={`w-60 h-60 md:w-72 md:h-72 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ 
+                        scale: 1, 
+                        opacity: 1,
+                        y: [0, -5, 0], // Subtle floating animation
+                      }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: "0 0 15px rgba(255,255,255,0.3)",
+                        transition: { duration: 0.3 }
+                      }}
+                      transition={{ 
+                        delay: 0.1,
+                        y: {
+                          repeat: Infinity,
+                          duration: 3,
+                          ease: "easeInOut"
+                        }
+                      }}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="relative flex items-center justify-center">
+                          {/* Store */}
+                          <motion.div 
+                            className="bg-white/20 backdrop-blur-md p-3 rounded-xl absolute -left-12"
+                            animate={{ 
+                              y: [0, -5, 0],
+                              scale: [1, 1.05, 1]
+                            }}
+                            transition={{
+                              duration: 3,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          >
+                            <Store size={32} className="text-white" />
+                          </motion.div>
+
+                          {/* Phone in center */}
+                          <motion.div 
+                            className="bg-white/30 backdrop-blur-md p-4 rounded-xl"
+                            animate={{ 
+                              rotate: [0, 2, 0, -2, 0],
+                              scale: [1, 1.1, 1]
+                            }}
+                            transition={{
+                              duration: 4,
+                              repeat: Infinity
+                            }}
+                          >
+                            <Smartphone size={36} className="text-white" />
+                          </motion.div>
+
+                          {/* Product tags */}
+                          <motion.div 
+                            className="bg-white/20 backdrop-blur-md p-2 rounded-full absolute -right-8 top-0"
+                            animate={{ 
+                              x: [0, 5, 0, -5, 0],
+                              y: [0, -3, 0, 3, 0],
+                              rotate: [0, 10, 0, -10, 0]
+                            }}
+                            transition={{
+                              duration: 3,
+                              repeat: Infinity
+                            }}
+                          >
+                            <Tag size={20} className="text-white" />
+                          </motion.div>
+
+                          <motion.div 
+                            className="bg-white/20 backdrop-blur-md p-2 rounded-full absolute -right-4 -bottom-8"
+                            animate={{ 
+                              x: [0, -3, 0, 3, 0],
+                              y: [0, 5, 0, -5, 0],
+                              rotate: [0, -10, 0, 10, 0]
+                            }}
+                            transition={{
+                              duration: 2.5,
+                              repeat: Infinity
+                            }}
+                          >
+                            <ShoppingBag size={20} className="text-white" />
+                          </motion.div>
+
+                          {/* Energy/connection between phone and store */}
+                          <motion.div 
+                            className="absolute left-0 top-1/2 transform -translate-y-1/2"
+                            animate={{ 
+                              opacity: [0, 0.8, 0],
+                              scale: [0.8, 1.2, 0.8]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity
+                            }}
+                          >
+                            <Zap size={16} className="text-white" />
+                          </motion.div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Scene 3: Business Networking - Person to business connections */}
+                  {slide.scene === "business-networking" && (
+                    <motion.div
+                      className={`w-60 h-60 md:w-72 md:h-72 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ 
+                        scale: 1, 
+                        opacity: 1,
+                        y: [0, -5, 0], // Subtle floating animation
+                      }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: "0 0 15px rgba(255,255,255,0.3)",
+                        transition: { duration: 0.3 }
+                      }}
+                      transition={{ 
+                        delay: 0.1,
+                        y: {
+                          repeat: Infinity,
+                          duration: 3,
+                          ease: "easeInOut"
+                        }
+                      }}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="relative w-full h-full flex flex-col items-center justify-center">
+                          {/* Business buildings */}
+                          <div className="flex space-x-12 mb-6">
+                            <motion.div 
+                              className="bg-white/20 backdrop-blur-md p-2 rounded-lg"
+                              animate={{ 
+                                y: [0, -4, 0],
+                                rotate: [0, 2, 0, -2, 0]
+                              }}
+                              transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                            >
+                              <Building2 size={24} className="text-white" />
+                            </motion.div>
+                            
+                            <motion.div 
+                              className="bg-white/20 backdrop-blur-md p-2 rounded-lg"
+                              animate={{ 
+                                y: [0, -6, 0],
+                                rotate: [0, -2, 0, 2, 0]
+                              }}
+                              transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                            >
+                              <Building2 size={30} className="text-white" />
+                            </motion.div>
+                          </div>
+
+                          {/* Person in center */}
+                          <motion.div 
+                            className="bg-white/30 backdrop-blur-md p-3 rounded-full mb-6"
+                            animate={{ 
+                              scale: [1, 1.1, 1],
+                              y: [0, 3, 0]
+                            }}
+                            transition={{
+                              duration: 3,
+                              repeat: Infinity
+                            }}
+                          >
+                            <User size={28} className="text-white" />
+                          </motion.div>
+
+                          {/* Connection lines */}
+                          <motion.svg 
+                            width="140" 
+                            height="100" 
+                            viewBox="0 0 140 100" 
+                            className="absolute"
+                          >
+                            {/* Line to left building */}
+                            <motion.path
+                              d="M 70,40 L 30,20"
+                              stroke="white"
+                              strokeWidth="1.5"
+                              fill="none"
+                              strokeDasharray="5,5"
+                              initial={{ pathLength: 0, opacity: 0 }}
+                              animate={{ 
+                                pathLength: [0, 1], 
+                                opacity: [0, 0.6, 0.6, 0]
+                              }}
+                              transition={{ 
+                                duration: 2, 
+                                repeat: Infinity,
+                                repeatDelay: 1
+                              }}
+                            />
+                            
+                            {/* Line to right building */}
+                            <motion.path
+                              d="M 70,40 L 110,20"
+                              stroke="white"
+                              strokeWidth="1.5"
+                              fill="none"
+                              strokeDasharray="5,5"
+                              initial={{ pathLength: 0, opacity: 0 }}
+                              animate={{ 
+                                pathLength: [0, 1], 
+                                opacity: [0, 0.6, 0.6, 0]
+                              }}
+                              transition={{ 
+                                duration: 2, 
+                                repeat: Infinity,
+                                repeatDelay: 0.5,
+                                delay: 0.5
+                              }}
+                            />
+                          </motion.svg>
+
+                          {/* Location pins */}
+                          <div className="flex space-x-24 mt-2">
+                            <motion.div 
+                              className="bg-white/20 backdrop-blur-md p-1 rounded-full"
+                              animate={{ 
+                                y: [0, 3, 0, -3, 0],
+                                scale: [1, 1.2, 1]
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity
+                              }}
+                            >
+                              <MapPin size={18} className="text-white" />
+                            </motion.div>
+                            
+                            <motion.div 
+                              className="bg-white/20 backdrop-blur-md p-1 rounded-full"
+                              animate={{ 
+                                y: [0, -3, 0, 3, 0],
+                                scale: [1, 1.2, 1]
+                              }}
+                              transition={{
+                                duration: 2.5,
+                                repeat: Infinity,
+                                delay: 0.5
+                              }}
+                            >
+                              <MapPin size={18} className="text-white" />
+                            </motion.div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
                   <motion.h2 
                     className="text-3xl font-bold mb-4"
                     initial={{ opacity: 0, y: 50 }}
