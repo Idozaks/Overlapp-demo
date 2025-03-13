@@ -178,7 +178,7 @@ export default function Hero() {
                       {/* Personal Profile Icon Animation */}
                       {profileIcons.map((iconData, i) => {
                         // Calculate positions in a circle around the center
-                        const radius = 120; // Increased from 80 to give more space
+                        const radius = 80; // Keep the closer radius
                         const angle = (i * (2 * Math.PI / profileIcons.length));
                         const x = radius * Math.cos(angle);
                         const y = radius * Math.sin(angle);
@@ -194,9 +194,9 @@ export default function Hero() {
                               opacity: 0 
                             }}
                             animate={{ 
-                              // Adjust positioning to keep icons within boundaries
-                              x: Math.min(Math.max(x, -100), 100),
-                              y: Math.min(Math.max(y, -100), 100),
+                              // Position exactly based on the calculated coordinates from the center
+                              x: x,
+                              y: y,
                               opacity: 1
                             }}
                             transition={{ 
@@ -251,7 +251,7 @@ export default function Hero() {
                       {/* Retail Experience Icon Animation */}
                       {retailIcons.map((iconData, i) => {
                         // Calculate positions in a circle around the center
-                        const radius = 120; // Increased from 80 to give more space
+                        const radius = 80; // Keep the closer radius
                         const angle = (i * (2 * Math.PI / retailIcons.length));
                         const x = radius * Math.cos(angle);
                         const y = radius * Math.sin(angle);
@@ -267,9 +267,9 @@ export default function Hero() {
                               opacity: 0 
                             }}
                             animate={{ 
-                              // Adjust positioning to keep icons within boundaries
-                              x: Math.min(Math.max(x, -100), 100),
-                              y: Math.min(Math.max(y, -100), 100),
+                              // Position exactly based on the calculated coordinates from the center
+                              x: x,
+                              y: y,
                               opacity: 1
                             }}
                             transition={{ 
@@ -324,7 +324,7 @@ export default function Hero() {
                       {/* Business Networking Icon Animation */}
                       {networkingIcons.map((iconData, i) => {
                         // Calculate positions in a circle around the center
-                        const radius = 120; // Increased from 80 to give more space
+                        const radius = 80; // Keep the closer radius
                         const angle = (i * (2 * Math.PI / networkingIcons.length));
                         const x = radius * Math.cos(angle);
                         const y = radius * Math.sin(angle);
@@ -340,9 +340,9 @@ export default function Hero() {
                               opacity: 0 
                             }}
                             animate={{ 
-                              // Adjust positioning to keep icons within boundaries
-                              x: Math.min(Math.max(x, -100), 100),
-                              y: Math.min(Math.max(y, -100), 100),
+                              // Position exactly based on the calculated coordinates from the center
+                              x: x,
+                              y: y,
                               opacity: 1
                             }}
                             transition={{ 
