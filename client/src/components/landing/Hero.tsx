@@ -69,12 +69,12 @@ export default function Hero() {
   }, [api]);
 
   // Animated icon components with consistent but varied animations
-  const AnimatedIcon = ({ icon: Icon, delay = 0, color = "text-white", tooltip }) => {
+  const AnimatedIcon = ({ icon: Icon, delay = 0, color = "text-white", tooltip, className = "" }) => {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
           <motion.div
-            className={`absolute p-2 bg-opacity-90 rounded-xl ${color}`}
+            className={`p-2 bg-opacity-90 rounded-xl ${color} ${className}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay }}
@@ -257,6 +257,18 @@ export default function Hero() {
                       >
                         <Network className="w-8 h-8 text-white" />
                       </motion.div>
+                      
+                      {/* Surrounding icons with tooltips */}
+                      <TooltipProvider>
+                      <AnimatedIcon icon={Users} delay={0.6} color="bg-blue-400" tooltip="Connections" 
+                        className="absolute top-2 left-2" />
+                      <AnimatedIcon icon={Building2} delay={0.8} color="bg-purple-400" tooltip="Companies" 
+                        className="absolute top-2 right-2" />
+                      <AnimatedIcon icon={HeartHandshake} delay={1.0} color="bg-green-400" tooltip="Collaborations" 
+                        className="absolute bottom-2 left-2" />
+                      <AnimatedIcon icon={Sparkles} delay={1.2} color="bg-yellow-400" tooltip="Opportunities" 
+                        className="absolute bottom-2 right-2" />
+                      </TooltipProvider>
 
                       <TooltipProvider>
                       <AnimatedIcon icon={Users} delay={0.6} color="bg-blue-400" tooltip="Connections" />
