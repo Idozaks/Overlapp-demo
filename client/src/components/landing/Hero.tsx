@@ -260,10 +260,10 @@ export default function Hero() {
                       
                       {/* Surrounding icons with tooltips - positioned in a fan layout */}
                       <TooltipProvider>
-                      <AnimatedIcon icon={Music} delay={0.6} color="bg-purple-400" tooltip="Music" 
-                        className="absolute left-[-80px] top-[50%] translate-y-[-50%]" />
-                      <AnimatedIcon icon={Cpu} delay={1.2} color="bg-yellow-400" tooltip="Tech" 
-                        className="absolute right-[-80px] top-[50%] translate-y-[-50%]" />
+                      <AnimatedIcon icon={Tag} delay={0.6} color="bg-yellow-400" tooltip="Deals" 
+                        className="absolute left-[-60px] top-[50%] translate-y-[-50%]" />
+                      <AnimatedIcon icon={MapPin} delay={1.2} color="bg-red-400" tooltip="Location" 
+                        className="absolute right-[-60px] top-[50%] translate-y-[-50%]" />
                       </TooltipProvider>
 
                       <TooltipProvider>
