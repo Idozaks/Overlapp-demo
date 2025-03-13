@@ -178,10 +178,10 @@ export default function Hero() {
                       {/* Personal Profile Icon Animation */}
                       {profileIcons.map((iconData, i) => {
                         // Calculate positions in a circle around the center
-                        const radius = 80; // Keep the closer radius
+                        const radius = 120; // Increased radius for better spacing
                         const angle = (i * (2 * Math.PI / profileIcons.length));
-                        const x = radius * Math.cos(angle);
-                        const y = radius * Math.sin(angle);
+                        const x = radius * Math.cos(angle) - 80; // Move center 80px left
+                        const y = radius * Math.sin(angle) - 80; // Move center 80px up
 
                         return (
                           <motion.div
@@ -251,10 +251,10 @@ export default function Hero() {
                       {/* Retail Experience Icon Animation */}
                       {retailIcons.map((iconData, i) => {
                         // Calculate positions in a circle around the center
-                        const radius = 80; // Keep the closer radius
+                        const radius = 120; // Increased radius for better spacing
                         const angle = (i * (2 * Math.PI / retailIcons.length));
-                        const x = radius * Math.cos(angle);
-                        const y = radius * Math.sin(angle);
+                        const x = radius * Math.cos(angle) - 80; // Move center 80px left
+                        const y = radius * Math.sin(angle) - 80; // Move center 80px up
 
                         return (
                           <motion.div
@@ -324,10 +324,10 @@ export default function Hero() {
                       {/* Business Networking Icon Animation */}
                       {networkingIcons.map((iconData, i) => {
                         // Calculate positions in a circle around the center
-                        const radius = 80; // Keep the closer radius
+                        const radius = 120; // Increased radius for better spacing
                         const angle = (i * (2 * Math.PI / networkingIcons.length));
-                        const x = radius * Math.cos(angle);
-                        const y = radius * Math.sin(angle);
+                        const x = radius * Math.cos(angle) - 80; // Move center 80px left
+                        const y = radius * Math.sin(angle) - 80; // Move center 80px up
 
                         return (
                           <motion.div
