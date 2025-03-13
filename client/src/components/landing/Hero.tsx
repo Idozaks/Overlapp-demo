@@ -15,7 +15,12 @@ import {
   MapPin,
   Search,
   Zap,
-  Sparkles
+  Sparkles,
+  Music,
+  Video,
+  Heart as HeartIcon,
+  Cpu,
+  Network as NetworkIcon
 } from "lucide-react";
 import { useLocation } from "wouter";
 import React, { useState, useEffect, useCallback } from "react";
@@ -141,111 +146,96 @@ export default function Hero() {
                 >
                   {/* Scene 1: Personal Profile - User + AI enhancing profile - Interactive Animation */}
                   {slide.scene === "personal-profile" && (
-                    <motion.div
-                      className={`w-48 h-48 md:w-56 md:h-56 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-4 mb-6 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ 
-                        scale: 1, 
-                        opacity: 1,
-                      }}
-                      whileHover={{ 
-                        scale: 1.05,
-                        boxShadow: "0 0 15px rgba(255,255,255,0.3)",
-                        transition: { duration: 0.3 }
-                      }}
-                      transition={{ 
-                        delay: 0.1
-                      }}
-                    >
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-full h-full relative">
-                          {/* Center connection icon */}
-                          <motion.div 
-                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
-                            style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
-                            initial={{ opacity: 0 }}
-                            animate={{ 
-                              opacity: 1,
-                              scale: [0.8, 1.2, 1],
-                            }}
-                            transition={{ duration: 1.5, delay: 0.5 }}
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M9 10h.01M15 10h.01M12 2a8 8 0 0 0-8 8c0 1.892.402 3.13 1.5 4.5L12 22l6.5-7.5c1.098-1.37 1.5-2.608 1.5-4.5a8 8 0 0 0-8-8z"></path>
-                            </svg>
-                          </motion.div>
+                      <motion.div
+                        className={`w-48 h-48 md:w-56 md:h-56 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-4 mb-6 backdrop-blur-sm relative overflow-hidden flex items-center justify-center gradient-square`}
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ 
+                          scale: 1, 
+                          opacity: 1,
+                        }}
+                        whileHover={{ 
+                          scale: 1.05,
+                          boxShadow: "0 0 15px rgba(255,255,255,0.3)",
+                          transition: { duration: 0.3 }
+                        }}
+                        transition={{ 
+                          delay: 0.1
+                        }}
+                      >
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-full h-full relative">
+                            {/* Center connection icon */}
+                            <motion.div 
+                              className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                              style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+                              initial={{ opacity: 0 }}
+                              animate={{ 
+                                opacity: 1,
+                                scale: [0.8, 1.2, 1],
+                              }}
+                              transition={{ duration: 1.5, delay: 0.5 }}
+                            >
+                              <NetworkIcon size={24} className="text-white"/>
+                            </motion.div>
 
-                          {/* Left icon - User */}
-                          <motion.div 
-                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
-                            style={{ top: "50%", left: "25%", transform: "translate(-50%, -50%)" }}
-                            initial={{ opacity: 0 }}
-                            animate={{ 
-                              opacity: 1,
-                              y: [5, -5, 5],
-                            }}
-                            transition={{ duration: 3, repeat: Infinity, delay: 0.3 }}
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                              <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                          </motion.div>
+                            {/* Left icon - User */}
+                            <motion.div 
+                              className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                              style={{ top: "25%", left: "25%", transform: "translate(-50%, -50%)" }}
+                              initial={{ opacity: 0 }}
+                              animate={{ 
+                                opacity: 1,
+                                y: [5, -5, 5],
+                              }}
+                              transition={{ duration: 3, repeat: Infinity, delay: 0.3 }}
+                            >
+                              <Music size={20} className="text-white" />
+                            </motion.div>
 
-                          {/* Right icon - AI */}
-                          <motion.div 
-                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
-                            style={{ top: "50%", left: "75%", transform: "translate(-50%, -50%)" }}
-                            initial={{ opacity: 0 }}
-                            animate={{ 
-                              opacity: 1,
-                              y: [-5, 5, -5],
-                            }}
-                            transition={{ duration: 3, repeat: Infinity, delay: 0.6 }}
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2"></path>
-                              <path d="M10 10v12"></path>
-                              <path d="M14 10v12"></path>
-                              <path d="M2 10h20"></path>
-                              <path d="M5 16h14"></path>
-                            </svg>
-                          </motion.div>
+                            {/* Right icon - AI */}
+                            <motion.div 
+                              className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                              style={{ top: "75%", left: "75%", transform: "translate(-50%, -50%)" }}
+                              initial={{ opacity: 0 }}
+                              animate={{ 
+                                opacity: 1,
+                                y: [-5, 5, -5],
+                              }}
+                              transition={{ duration: 3, repeat: Infinity, delay: 0.6 }}
+                            >
+                              <Video size={20} className="text-white" />
+                            </motion.div>
 
-                          {/* Top icon - Heart/Preferences */}
-                          <motion.div 
-                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
-                            style={{ top: "25%", left: "50%", transform: "translate(-50%, -50%)" }}
-                            initial={{ opacity: 0 }}
-                            animate={{ 
-                              opacity: 1,
-                              scale: [1, 1.2, 1],
-                            }}
-                            transition={{ duration: 2, repeat: Infinity, delay: 0.9 }}
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                          </motion.div>
+                            {/* Top icon - Heart/Preferences */}
+                            <motion.div 
+                              className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                              style={{ top: "25%", right: "25%", transform: "translate(-50%, -50%)" }}
+                              initial={{ opacity: 0 }}
+                              animate={{ 
+                                opacity: 1,
+                                scale: [1, 1.2, 1],
+                              }}
+                              transition={{ duration: 2, repeat: Infinity, delay: 0.9 }}
+                            >
+                              <HeartIcon size={20} className="text-white" />
+                            </motion.div>
 
-                          {/* Bottom icon - Match/Discover */}
-                          <motion.div 
-                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
-                            style={{ top: "75%", left: "50%", transform: "translate(-50%, -50%)" }}
-                            initial={{ opacity: 0 }}
-                            animate={{ 
-                              opacity: 1,
-                              scale: [1, 1.2, 1],
-                            }}
-                            transition={{ duration: 2, repeat: Infinity, delay: 1.2 }}
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                            </svg>
-                          </motion.div>
+                            {/* Bottom icon - Match/Discover */}
+                            <motion.div 
+                              className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                              style={{ top: "75%", right: "25%", transform: "translate(-50%, -50%)" }}
+                              initial={{ opacity: 0 }}
+                              animate={{ 
+                                opacity: 1,
+                                scale: [1, 1.2, 1],
+                              }}
+                              transition={{ duration: 2, repeat: Infinity, delay: 1.2 }}
+                            >
+                              <Cpu size={20} className="text-white" />
+                            </motion.div>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
+                      </motion.div>
                   )}
 
                   {/* Scene 2: Retail Experience - Interactive Smartphone and Store Animation */}
