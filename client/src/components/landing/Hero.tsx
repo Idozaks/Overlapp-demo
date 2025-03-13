@@ -191,10 +191,9 @@ export default function Hero() {
                               initial={{ opacity: 0 }}
                               animate={{
                                 opacity: 1,
-                                scale: [1, 1.2, 1],
-                                rotate: [0, 360, 0],
+                                rotate: 0
                               }}
-                              transition={{ duration: 3, repeat: Infinity, delay: 0.3 + i * 0.3 }}
+                              transition={{ duration: 0.5 }}
                             >
                               <Icon size={20} className="text-white" />
                             </motion.div>
