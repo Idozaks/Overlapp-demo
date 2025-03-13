@@ -166,40 +166,103 @@ export default function Hero() {
                     >
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-full relative">
-                          {/* Center connection icon */}
-                          <motion.div
-                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
-                            style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
-                            initial={{ opacity: 0 }}
-                            animate={{
-                              opacity: 1,
-                              scale: [0.8, 1.2, 1],
-                            }}
-                            transition={{ duration: 1.5, delay: 0.5 }}
-                          >
-                            <NetworkIcon size={24} className="text-white" />
-                          </motion.div>
+                          {/* Calculate icon dimensions */}
+                          {(() => {
+                            const iconSize = 20; // Size of surrounding icons
+                            const centralIconSize = 32; // Size of central icon
+                            const padding = 20; // Padding around icons
+                            const containerSize = Math.max(centralIconSize + padding * 2, iconSize * 4 + padding * 3);
 
-                          {/* Icons around the center */}
-                          {[HeartIcon, Music, Video, Cpu].map((Icon, i) => (
-                            <motion.div
-                              key={i}
-                              className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
-                              style={{
-                                top: `${25 + (i % 2) * 50}%`,
-                                left: `${25 + Math.floor(i / 2) * 50}%`,
-                                transform: "translate(-50%, -50%)"
-                              }}
-                              initial={{ opacity: 0 }}
-                              animate={{
-                                opacity: 1,
-                                rotate: 0
-                              }}
-                              transition={{ duration: 0.5 }}
-                            >
-                              <Icon size={20} className="text-white" />
-                            </motion.div>
-                          ))}
+                            // Different animations based on current slide
+                            const getAnimationForSlide = (slideIndex: number, iconIndex: number) => {
+                              switch (slideIndex) {
+                                case 0: // "Discover what truly connects you"
+                                  return {
+                                    opacity: 1,
+                                    scale: [0.9, 1.1, 1],
+                                    y: [0, -5, 0]
+                                  };
+                                case 1: // "Turn your real preferences into connections"
+                                  return {
+                                    opacity: 1,
+                                    scale: 1,
+                                    x: iconIndex % 2 === 0 ? [0, 5, 0] : [0, -5, 0]
+                                  };
+                                case 2: // "Build a profile that reflects you"
+                                  return {
+                                    opacity: 1,
+                                    scale: [1, 1.05, 1],
+                                    rotate: 0
+                                  };
+                                default:
+                                  return { opacity: 1, rotate: 0 };
+                              }
+                            };
+
+                            // Central icon animation based on slide
+                            const getCentralAnimation = (slideIndex: number) => {
+                              switch (slideIndex) {
+                                case 0: // "Discover connections"
+                                  return {
+                                    opacity: 1, 
+                                    scale: 1,
+                                    rotate: [0, 5, -5, 0]
+                                  };
+                                case 1: // "Preferences to connections"
+                                  return {
+                                    opacity: 1, 
+                                    scale: [1, 1.1, 1],
+                                    rotate: 0
+                                  };
+                                case 2: // "Build profile"
+                                  return {
+                                    opacity: 1, 
+                                    scale: 1,
+                                    boxShadow: ["0px 0px 0px rgba(255,255,255,0.3)", "0px 0px 15px rgba(255,255,255,0.5)", "0px 0px 0px rgba(255,255,255,0.3)"]
+                                  };
+                                default:
+                                  return { opacity: 1, scale: 1 };
+                              }
+                            };
+
+                            return (
+                              <div style={{ width: `${containerSize}px`, height: `${containerSize}px` }} className="relative">
+                                {/* Main central icon */}
+                                <motion.div
+                                  className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary/30 rounded-3xl backdrop-blur-sm flex items-center justify-center z-10"
+                                  initial={{ opacity: 0, scale: 0.5 }}
+                                  animate={getCentralAnimation(currentSlide)}
+                                  transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+                                >
+                                  <NetworkIcon size={centralIconSize} className="text-white" />
+                                </motion.div>
+
+                                {/* Icons around the center */}
+                                {[HeartIcon, Music, Video, Cpu].map((Icon, i) => (
+                                  <motion.div
+                                    key={i}
+                                    className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                                    style={{
+                                      top: `${25 + (i % 2) * 50}%`,
+                                      left: `${25 + Math.floor(i / 2) * 50}%`,
+                                      transform: "translate(-50%, -50%)"
+                                    }}
+                                    initial={{ opacity: 0 }}
+                                    animate={getAnimationForSlide(currentSlide, i)}
+                                    transition={{ 
+                                      duration: 1.5, 
+                                      repeat: Infinity, 
+                                      repeatType: "reverse", 
+                                      ease: "easeInOut",
+                                      delay: i * 0.2
+                                    }}
+                                  >
+                                    <Icon size={iconSize} className="text-white" />
+                                  </motion.div>
+                                ))}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </motion.div>
@@ -621,7 +684,7 @@ export default function Hero() {
                   >
                     <ArrowRight className="h-4 w-4" />
                   </motion.span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 opacity-0 group-hover:opacity-100 transform -translate-x-full group-hover:translate-x-full transition-all duration-1000" />
+                  <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 opacity-0 group-hover:opacity-100 transform -translate-x-full group-hover:translate-x-full transition-all duration1000" />
                 </Link>
               </Button>
             </motion.div>
