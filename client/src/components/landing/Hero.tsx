@@ -238,28 +238,49 @@ export default function Hero() {
                                 </motion.div>
 
                                 {/* Icons around the center */}
-                                {[HeartIcon, Music, Video, Cpu].map((Icon, i) => (
-                                  <motion.div
-                                    key={i}
-                                    className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
-                                    style={{
-                                      top: `${20 + (i % 2) * 60}%`,
-                                      left: `${20 + Math.floor(i / 2) * 60}%`,
-                                      transform: "translate(-50%, -50%)"
-                                    }}
-                                    initial={{ opacity: 0 }}
-                                    animate={getAnimationForSlide(currentSlide, i)}
-                                    transition={{ 
-                                      duration: 1.5, 
-                                      repeat: Infinity, 
-                                      repeatType: "reverse", 
-                                      ease: "easeInOut",
-                                      delay: i * 0.2
-                                    }}
-                                  >
-                                    <Icon size={iconSize} className="text-white" />
-                                  </motion.div>
-                                ))}
+                                {/* Center blue icon */}
+                                <motion.div
+                                  className="absolute bg-blue-500 backdrop-blur-md p-2 rounded-lg"
+                                  style={{
+                                    top: `50%`,
+                                    left: `50%`,
+                                    transform: "translate(-50%, -50%)"
+                                  }}
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  transition={{ duration: 0.5 }}
+                                >
+                                  <HeartIcon size={iconSize * 0.8} className="text-white" />
+                                </motion.div>
+                                
+                                {/* Surrounding icons */}
+                                {[Music, Video, Cpu, HeartIcon].slice(0, 4).map((Icon, i) => {
+                                  // Calculate positions in a circle around the center
+                                  const angle = (i * Math.PI / 2) + (Math.PI / 4); // Distribute evenly at 45°, 135°, 225°, 315°
+                                  const distance = 40; // Distance from center (percentage)
+                                  return (
+                                    <motion.div
+                                      key={i}
+                                      className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                                      style={{
+                                        top: `${50 + Math.sin(angle) * distance}%`,
+                                        left: `${50 + Math.cos(angle) * distance}%`,
+                                        transform: "translate(-50%, -50%)"
+                                      }}
+                                      initial={{ opacity: 0 }}
+                                      animate={getAnimationForSlide(currentSlide, i)}
+                                      transition={{ 
+                                        duration: 1.5, 
+                                        repeat: Infinity, 
+                                        repeatType: "reverse", 
+                                        ease: "easeInOut",
+                                        delay: i * 0.2
+                                      }}
+                                    >
+                                      <Icon size={iconSize} className="text-white" />
+                                    </motion.div>
+                                  );
+                                })}
                               </div>
                             );
                           })()}
