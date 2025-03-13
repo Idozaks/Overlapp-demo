@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global font settings */
+@layer base {
+  html {
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  body {
+    font-family: 'Montserrat', sans-serif;
+  }
+}
+
 /* Hero Section Animations */
 @layer utilities {
   /* Color hue-shift animation for gradient squares */
