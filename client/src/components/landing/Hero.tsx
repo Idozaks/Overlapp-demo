@@ -261,9 +261,9 @@ export default function Hero() {
                       {/* Surrounding icons with tooltips - positioned in a fan layout */}
                       <TooltipProvider>
                       <AnimatedIcon icon={Tag} delay={0.6} color="bg-yellow-400" tooltip="Deals" 
-                        className="absolute left-[-60px] top-[50%] translate-y-[-50%]" />
+                        className="absolute left-[-60px] top-[50%] translate-y-[-50%] z-10" />
                       <AnimatedIcon icon={MapPin} delay={1.2} color="bg-red-400" tooltip="Location" 
-                        className="absolute right-[-60px] top-[50%] translate-y-[-50%]" />
+                        className="absolute right-[-60px] top-[50%] translate-y-[-50%] z-10" />
                       </TooltipProvider>
 
                       <TooltipProvider>
