@@ -142,7 +142,7 @@ export default function Hero() {
                   {/* Scene 1: Personal Profile - User + AI enhancing profile - Interactive Animation */}
                   {slide.scene === "personal-profile" && (
                     <motion.div
-                      className={`w-60 h-60 md:w-72 md:h-72 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
+                      className={`w-48 h-48 md:w-56 md:h-56 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-4 mb-6 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ 
                         scale: 1, 
@@ -180,7 +180,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Longer pause between animation cycles
                             }}
                           >
-                            <User size={28} className="text-white" />
+                            <User size={24} className="text-white" />
                           </motion.div>
                           
                           {/* Second user (enters from right with phone) */}
@@ -201,7 +201,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Longer pause between cycles
                             }}
                           >
-                            <Smartphone size={28} className="text-white" />
+                            <Smartphone size={24} className="text-white" />
                           </motion.div>
                           
                           {/* Connection effect when they "meet" */}
@@ -219,8 +219,8 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
-                              <HeartHandshake size={30} className="text-white" />
+                            <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                              <HeartHandshake size={24} className="text-white" />
                             </div>
                           </motion.div>
                           
@@ -241,7 +241,7 @@ export default function Hero() {
                             }}
                           >
                             <div className="relative">
-                              <Sparkles size={40} className="text-white" />
+                              <Sparkles size={30} className="text-white" />
                               <motion.div
                                 className="absolute inset-0"
                                 animate={{
@@ -254,14 +254,14 @@ export default function Hero() {
                                   ease: "easeInOut"
                                 }}
                               >
-                                <Zap size={40} className="text-white" />
+                                <Zap size={30} className="text-white" />
                               </motion.div>
                             </div>
                           </motion.div>
 
                           {/* Profile creation result */}
                           <motion.div
-                            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md p-4 rounded-xl"
+                            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md p-3 rounded-xl"
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ 
                               scale: [0, 0, 0, 0, 0, 1, 1, 0],
@@ -275,7 +275,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <User size={32} className="text-white" />
+                            <User size={26} className="text-white" />
                           </motion.div>
                           
                           {/* "Match" icons that appear after profile is created */}
@@ -296,7 +296,7 @@ export default function Hero() {
                             }}
                           >
                             <div className="bg-white/20 backdrop-blur-md p-2 rounded-full">
-                              <Search size={20} className="text-white" />
+                              <Search size={16} className="text-white" />
                             </div>
                           </motion.div>
                           
@@ -317,7 +317,7 @@ export default function Hero() {
                             }}
                           >
                             <div className="bg-white/20 backdrop-blur-md p-2 rounded-full">
-                              <Users size={20} className="text-white" />
+                              <Users size={16} className="text-white" />
                             </div>
                           </motion.div>
                         </div>
@@ -328,7 +328,7 @@ export default function Hero() {
                   {/* Scene 2: Retail Experience - Interactive Smartphone and Store Animation */}
                   {slide.scene === "retail-experience" && (
                     <motion.div
-                      className={`w-60 h-60 md:w-72 md:h-72 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
+                      className={`w-48 h-48 md:w-56 md:h-56 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-4 mb-6 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ 
                         scale: 1, 
@@ -349,7 +349,7 @@ export default function Hero() {
                           
                           {/* Store appears first */}
                           <motion.div 
-                            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md p-4 rounded-lg"
+                            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md p-3 rounded-lg"
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ 
                               opacity: [0, 1, 1, 1, 1, 1, 0.5],
@@ -364,7 +364,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <Store size={32} className="text-white" />
+                            <Store size={26} className="text-white" />
                           </motion.div>
                           
                           {/* Person with phone enters from right */}
@@ -385,7 +385,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <Smartphone size={28} className="text-white" />
+                            <Smartphone size={24} className="text-white" />
                           </motion.div>
                           
                           {/* Connection signal between phone and store */}
@@ -403,7 +403,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <Zap size={30} className="text-white" />
+                            <Zap size={26} className="text-white" />
                           </motion.div>
                           
                           {/* Products/Tags appear and move from store to person */}
@@ -432,8 +432,8 @@ export default function Hero() {
                               }}
                             >
                               {i % 2 === 0 ? 
-                                <Tag size={16} className="text-white" /> : 
-                                <ShoppingBag size={16} className="text-white" />
+                                <Tag size={14} className="text-white" /> : 
+                                <ShoppingBag size={14} className="text-white" />
                               }
                             </motion.div>
                           ))}
@@ -456,7 +456,7 @@ export default function Hero() {
                             }}
                           >
                             <div className="relative">
-                              <Sparkles size={24} className="text-white" />
+                              <Sparkles size={20} className="text-white" />
                             </div>
                           </motion.div>
                         </div>
@@ -467,7 +467,7 @@ export default function Hero() {
                   {/* Scene 3: Business Networking - Interactive Business Connections */}
                   {slide.scene === "business-networking" && (
                     <motion.div
-                      className={`w-60 h-60 md:w-72 md:h-72 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
+                      className={`w-48 h-48 md:w-56 md:h-56 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-4 mb-6 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ 
                         scale: 1, 
@@ -503,7 +503,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <Building2 size={32} className="text-white" />
+                            <Building2 size={26} className="text-white" />
                           </motion.div>
                           
                           {/* Business building 2 (appears second from right) */}
@@ -523,7 +523,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <Building2 size={28} className="text-white" />
+                            <Building2 size={24} className="text-white" />
                           </motion.div>
                           
                           {/* Business building 3 (appears third from bottom) */}
@@ -543,7 +543,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <Building2 size={32} className="text-white" />
+                            <Building2 size={26} className="text-white" />
                           </motion.div>
                           
                           {/* Person enters from center */}
@@ -563,7 +563,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           >
-                            <User size={24} className="text-white" />
+                            <User size={20} className="text-white" />
                           </motion.div>
                           
                           {/* Connection lines appear sequentially */}
@@ -641,7 +641,7 @@ export default function Hero() {
                               }}
                             >
                               <div className="relative">
-                                <Sparkles size={16} className="text-white" />
+                                <Sparkles size={14} className="text-white" />
                               </div>
                             </motion.div>
                           ))}
@@ -662,7 +662,7 @@ export default function Hero() {
                             }}
                           >
                             <div className="relative p-2 bg-white/10 backdrop-blur-md rounded-full">
-                              <HeartHandshake size={30} className="text-white" />
+                              <HeartHandshake size={24} className="text-white" />
                             </div>
                           </motion.div>
                         </div>
