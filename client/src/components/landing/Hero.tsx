@@ -157,168 +157,91 @@ export default function Hero() {
                         delay: 0.1
                       }}
                     >
-                      {/* Interactive animation showing profile creation and AI enhancement */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-full relative">
-                          {/* Animation sequence for profile creation and AI assistance */}
-                          
-                          {/* First user (enters from left) */}
+                          {/* Center connection icon */}
                           <motion.div 
-                            className="absolute bg-white/20 backdrop-blur-md p-3 rounded-full"
-                            initial={{ left: "-30%", top: "45%", opacity: 0 }}
+                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                            style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+                            initial={{ opacity: 0 }}
                             animate={{ 
-                              left: ["-30%", "25%", "25%", "25%", "25%", "25%", "-30%"],
-                              top: ["45%", "45%", "45%", "30%", "45%", "45%", "45%"],
-                              opacity: [0, 1, 1, 1, 1, 1, 0],
-                              scale: [0.8, 1, 1, 1.1, 1, 1, 0.8],
-                              rotate: [0, 0, 0, 10, 0, 0, 0]
+                              opacity: 1,
+                              scale: [0.8, 1.2, 1],
                             }}
-                            transition={{
-                              duration: 10, // Doubled duration for smoother animation over 20-second slide
-                              times: [0, 0.15, 0.3, 0.5, 0.7, 0.85, 1],
-                              repeat: Infinity,
-                              repeatDelay: 1.5 // Longer pause between animation cycles
-                            }}
+                            transition={{ duration: 1.5, delay: 0.5 }}
                           >
-                            <User size={24} className="text-white" />
-                          </motion.div>
-                          
-                          {/* Second user (enters from right with phone) */}
-                          <motion.div 
-                            className="absolute bg-white/20 backdrop-blur-md p-3 rounded-full"
-                            initial={{ right: "-30%", top: "45%", opacity: 0 }}
-                            animate={{ 
-                              right: ["-30%", "25%", "25%", "25%", "25%", "25%", "-30%"],
-                              top: ["45%", "45%", "45%", "60%", "45%", "45%", "45%"],
-                              opacity: [0, 1, 1, 1, 1, 1, 0],
-                              scale: [0.8, 1, 1, 1.1, 1, 1, 0.8],
-                              rotate: [0, 0, 0, -10, 0, 0, 0]
-                            }}
-                            transition={{
-                              duration: 10, // Doubled duration for 20-second slides
-                              times: [0, 0.15, 0.3, 0.5, 0.7, 0.85, 1],
-                              repeat: Infinity,
-                              repeatDelay: 1.5 // Longer pause between cycles
-                            }}
-                          >
-                            <Smartphone size={24} className="text-white" />
-                          </motion.div>
-                          
-                          {/* Connection effect when they "meet" */}
-                          <motion.div
-                            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ 
-                              scale: [0, 0, 0, 1.5, 0],
-                              opacity: [0, 0, 0, 0.7, 0]
-                            }}
-                            transition={{
-                              duration: 10, // Match animation duration with other elements
-                              times: [0, 0.35, 0.45, 0.55, 0.65],
-                              repeat: Infinity,
-                              repeatDelay: 1.5 // Consistent pause time
-                            }}
-                          >
-                            <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
-                              <HeartHandshake size={24} className="text-white" />
-                            </div>
-                          </motion.div>
-                          
-                          {/* AI magic appears after connection */}
-                          <motion.div
-                            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ 
-                              scale: [0, 0, 0, 0, 1.2, 1, 0],
-                              opacity: [0, 0, 0, 0, 1, 1, 0],
-                              rotate: [0, 0, 0, 0, 20, -20, 0]
-                            }}
-                            transition={{
-                              duration: 10, // Match timing with other animations
-                              times: [0, 0.45, 0.5, 0.6, 0.7, 0.85, 1],
-                              repeat: Infinity,
-                              repeatDelay: 1.5 // Consistent pause time
-                            }}
-                          >
-                            <div className="relative">
-                              <Sparkles size={30} className="text-white" />
-                              <motion.div
-                                className="absolute inset-0"
-                                animate={{
-                                  scale: [1, 1.5, 1],
-                                  opacity: [0.5, 1, 0.5]
-                                }}
-                                transition={{
-                                  duration: 2,
-                                  repeat: Infinity,
-                                  ease: "easeInOut"
-                                }}
-                              >
-                                <Zap size={30} className="text-white" />
-                              </motion.div>
-                            </div>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M9 10h.01M15 10h.01M12 2a8 8 0 0 0-8 8c0 1.892.402 3.13 1.5 4.5L12 22l6.5-7.5c1.098-1.37 1.5-2.608 1.5-4.5a8 8 0 0 0-8-8z"></path>
+                            </svg>
                           </motion.div>
 
-                          {/* Profile creation result */}
-                          <motion.div
-                            className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md p-3 rounded-xl"
-                            initial={{ scale: 0, opacity: 0 }}
+                          {/* Left icon - User */}
+                          <motion.div 
+                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                            style={{ top: "50%", left: "25%", transform: "translate(-50%, -50%)" }}
+                            initial={{ opacity: 0 }}
                             animate={{ 
-                              scale: [0, 0, 0, 0, 0, 1, 1, 0],
-                              opacity: [0, 0, 0, 0, 0, 1, 1, 0],
-                              y: [0, 0, 0, 0, 0, 0, -20, -40]
+                              opacity: 1,
+                              y: [5, -5, 5],
                             }}
-                            transition={{
-                              duration: 10, // Match with other animations
-                              times: [0, 0.5, 0.55, 0.6, 0.65, 0.7, 0.85, 1],
-                              repeat: Infinity,
-                              repeatDelay: 1.5 // Consistent pause time
-                            }}
+                            transition={{ duration: 3, repeat: Infinity, delay: 0.3 }}
                           >
-                            <User size={26} className="text-white" />
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                              <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
                           </motion.div>
-                          
-                          {/* "Match" icons that appear after profile is created */}
-                          <motion.div
-                            className="absolute"
-                            initial={{ opacity: 0, left: "30%", top: "15%" }}
+
+                          {/* Right icon - AI */}
+                          <motion.div 
+                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                            style={{ top: "50%", left: "75%", transform: "translate(-50%, -50%)" }}
+                            initial={{ opacity: 0 }}
                             animate={{ 
-                              opacity: [0, 0, 0, 0, 0, 0, 1, 0],
-                              scale: [0, 0, 0, 0, 0, 0, 1, 0],
-                              left: ["30%", "30%", "30%", "30%", "30%", "30%", "30%", "20%"],
-                              top: ["15%", "15%", "15%", "15%", "15%", "15%", "15%", "5%"]
+                              opacity: 1,
+                              y: [-5, 5, -5],
                             }}
-                            transition={{
-                              duration: 10, // Match with other animations
-                              times: [0, 0.5, 0.55, 0.6, 0.65, 0.7, 0.85, 1],
-                              repeat: Infinity,
-                              repeatDelay: 1.5 // Consistent pause time
-                            }}
+                            transition={{ duration: 3, repeat: Infinity, delay: 0.6 }}
                           >
-                            <div className="bg-white/20 backdrop-blur-md p-2 rounded-full">
-                              <Search size={16} className="text-white" />
-                            </div>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2"></path>
+                              <path d="M10 10v12"></path>
+                              <path d="M14 10v12"></path>
+                              <path d="M2 10h20"></path>
+                              <path d="M5 16h14"></path>
+                            </svg>
                           </motion.div>
-                          
-                          <motion.div
-                            className="absolute"
-                            initial={{ opacity: 0, right: "30%", top: "15%" }}
+
+                          {/* Top icon - Heart/Preferences */}
+                          <motion.div 
+                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                            style={{ top: "25%", left: "50%", transform: "translate(-50%, -50%)" }}
+                            initial={{ opacity: 0 }}
                             animate={{ 
-                              opacity: [0, 0, 0, 0, 0, 0, 1, 0],
-                              scale: [0, 0, 0, 0, 0, 0, 1, 0],
-                              right: ["30%", "30%", "30%", "30%", "30%", "30%", "30%", "20%"],
-                              top: ["15%", "15%", "15%", "15%", "15%", "15%", "15%", "5%"]
+                              opacity: 1,
+                              scale: [1, 1.2, 1],
                             }}
-                            transition={{
-                              duration: 10, // Match with other animations
-                              times: [0, 0.5, 0.55, 0.6, 0.65, 0.7, 0.85, 1],
-                              repeat: Infinity,
-                              repeatDelay: 1.5 // Consistent pause time
-                            }}
+                            transition={{ duration: 2, repeat: Infinity, delay: 0.9 }}
                           >
-                            <div className="bg-white/20 backdrop-blur-md p-2 rounded-full">
-                              <Users size={16} className="text-white" />
-                            </div>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                          </motion.div>
+
+                          {/* Bottom icon - Match/Discover */}
+                          <motion.div 
+                            className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
+                            style={{ top: "75%", left: "50%", transform: "translate(-50%, -50%)" }}
+                            initial={{ opacity: 0 }}
+                            animate={{ 
+                              opacity: 1,
+                              scale: [1, 1.2, 1],
+                            }}
+                            transition={{ duration: 2, repeat: Infinity, delay: 1.2 }}
+                          >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                            </svg>
                           </motion.div>
                         </div>
                       </div>
@@ -346,7 +269,7 @@ export default function Hero() {
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-full relative">
                           {/* Interactive animation showing store and smartphone interaction */}
-                          
+
                           {/* Store appears first */}
                           <motion.div 
                             className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md p-3 rounded-lg"
@@ -366,7 +289,7 @@ export default function Hero() {
                           >
                             <Store size={26} className="text-white" />
                           </motion.div>
-                          
+
                           {/* Person with phone enters from right */}
                           <motion.div 
                             className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
@@ -387,7 +310,7 @@ export default function Hero() {
                           >
                             <Smartphone size={24} className="text-white" />
                           </motion.div>
-                          
+
                           {/* Connection signal between phone and store */}
                           <motion.div 
                             className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
@@ -405,7 +328,7 @@ export default function Hero() {
                           >
                             <Zap size={26} className="text-white" />
                           </motion.div>
-                          
+
                           {/* Products/Tags appear and move from store to person */}
                           {[...Array(4)].map((_, i) => (
                             <motion.div 
@@ -437,7 +360,7 @@ export default function Hero() {
                               }
                             </motion.div>
                           ))}
-                          
+
                           {/* Happy Customer with found products */}
                           <motion.div 
                             className="absolute bg-white/30 backdrop-blur-md p-3 rounded-full"
@@ -485,7 +408,7 @@ export default function Hero() {
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-full relative">
                           {/* Animation of business networking events unfolding */}
-                          
+
                           {/* Business building 1 (appears first from top) */}
                           <motion.div 
                             className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
@@ -505,7 +428,7 @@ export default function Hero() {
                           >
                             <Building2 size={26} className="text-white" />
                           </motion.div>
-                          
+
                           {/* Business building 2 (appears second from right) */}
                           <motion.div 
                             className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
@@ -525,7 +448,7 @@ export default function Hero() {
                           >
                             <Building2 size={24} className="text-white" />
                           </motion.div>
-                          
+
                           {/* Business building 3 (appears third from bottom) */}
                           <motion.div 
                             className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
@@ -545,7 +468,7 @@ export default function Hero() {
                           >
                             <Building2 size={26} className="text-white" />
                           </motion.div>
-                          
+
                           {/* Person enters from center */}
                           <motion.div 
                             className="absolute bg-white/40 backdrop-blur-md p-3 rounded-full"
@@ -565,9 +488,9 @@ export default function Hero() {
                           >
                             <User size={20} className="text-white" />
                           </motion.div>
-                          
+
                           {/* Connection lines appear sequentially */}
-                          
+
                           {/* Line to top building */}
                           <motion.div
                             className="absolute left-1/2 top-1/2 w-0.5 bg-white/50 origin-bottom transform -translate-x-1/2 -translate-y-1/2"
@@ -584,7 +507,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           />
-                          
+
                           {/* Line to right building */}
                           <motion.div
                             className="absolute left-1/2 top-1/2 h-0.5 bg-white/50 origin-left transform -translate-y-1/2"
@@ -600,7 +523,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           />
-                          
+
                           {/* Line to bottom building */}
                           <motion.div
                             className="absolute left-1/2 top-1/2 w-0.5 bg-white/50 origin-top transform -translate-x-1/2"
@@ -617,7 +540,7 @@ export default function Hero() {
                               repeatDelay: 1.5 // Consistent pause time
                             }}
                           />
-                          
+
                           {/* Connection spark effects at each building */}
                           {[
                             { top: "20%", left: "25%", delay: 0.6 }, 
@@ -645,7 +568,7 @@ export default function Hero() {
                               </div>
                             </motion.div>
                           ))}
-                          
+
                           {/* Network formed visualization at the end */}
                           <motion.div
                             className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
