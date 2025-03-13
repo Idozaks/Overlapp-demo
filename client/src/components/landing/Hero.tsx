@@ -67,42 +67,52 @@ export default function Hero() {
   }, [api]);
 
   // Animated icon components with consistent but varied animations
-  const AnimatedIcon = ({ icon: Icon, delay = 0, color = "text-white" }) => {
+  const AnimatedIcon = ({ 
+    icon: Icon, 
+    delay = 0, 
+    color = "text-white", 
+    label = "" 
+  }) => {
     return (
       <motion.div
-        className={`absolute p-2 bg-opacity-90 rounded-xl ${color}`}
+        className={`absolute p-2 bg-opacity-90 rounded-xl ${color} flex flex-col items-center`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay }}
       >
         <Icon className="w-6 h-6" />
+        {label && (
+          <span className="text-[10px] font-medium text-white mt-1 bg-black bg-opacity-50 px-1 rounded whitespace-nowrap">
+            {label}
+          </span>
+        )}
       </motion.div>
     );
   };
 
   // Define icon sets for each slide
   const profileIcons = [
-    { icon: UserIcon, color: "text-white" },
-    { icon: HeartIcon, color: "text-pink-200" },
-    { icon: Music, color: "text-blue-200" },
-    { icon: Video, color: "text-purple-200" },
-    { icon: Cpu, color: "text-green-200" }
+    { icon: UserIcon, color: "text-white", label: "Your Profile" },
+    { icon: HeartIcon, color: "text-pink-200", label: "Interests" },
+    { icon: Music, color: "text-blue-200", label: "Music Taste" },
+    { icon: Video, color: "text-purple-200", label: "Content Preference" },
+    { icon: Cpu, color: "text-green-200", label: "AI Enhancement" }
   ];
 
   const retailIcons = [
-    { icon: ShoppingBag, color: "text-white" },
-    { icon: Tag, color: "text-yellow-200" },
-    { icon: Store, color: "text-green-200" },
-    { icon: Smartphone, color: "text-blue-200" },
-    { icon: MapPin, color: "text-red-200" }
+    { icon: ShoppingBag, color: "text-white", label: "Shopping Cart" },
+    { icon: Tag, color: "text-yellow-200", label: "Special Offers" },
+    { icon: Store, color: "text-green-200", label: "Store Finder" },
+    { icon: Smartphone, color: "text-blue-200", label: "Mobile Access" },
+    { icon: MapPin, color: "text-red-200", label: "Location" }
   ];
 
   const networkingIcons = [
-    { icon: Network, color: "text-white" },
-    { icon: Users, color: "text-blue-200" },
-    { icon: Building2, color: "text-purple-200" },
-    { icon: HeartHandshake, color: "text-green-200" },
-    { icon: Sparkles, color: "text-yellow-200" }
+    { icon: Network, color: "text-white", label: "Your Network" },
+    { icon: Users, color: "text-blue-200", label: "Connections" },
+    { icon: Building2, color: "text-purple-200", label: "Businesses" },
+    { icon: HeartHandshake, color: "text-green-200", label: "Collaboration" },
+    { icon: Sparkles, color: "text-yellow-200", label: "Opportunities" }
   ];
 
   return (
@@ -165,61 +175,39 @@ export default function Hero() {
                       </motion.div>
 
                       {/* Personal interests flowing to center - showing profile creation */}
-                      <motion.div 
-                        className="absolute top-4 right-4 bg-opacity-90 bg-purple-400 p-3 rounded-full"
-                        initial={{ y: -50, x: 50, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        transition={{ 
-                          delay: 0.6, 
-                          duration: 0.7,
-                          type: "spring", 
-                          stiffness: 100 
-                        }}
-                      >
-                        <Music className="w-5 h-5 text-white" />
-                      </motion.div>
+                      {/* Personal Profile Icon Animation */}
+                      {profileIcons.map((iconData, i) => {
+                        // Calculate positions in a circle around the center
+                        const angle = (i * (2 * Math.PI / profileIcons.length));
+                        const radius = 80;
+                        const x = radius * Math.cos(angle);
+                        const y = radius * Math.sin(angle);
 
-                      <motion.div 
-                        className="absolute bottom-4 right-4 bg-opacity-90 bg-pink-400 p-3 rounded-full"
-                        initial={{ y: 50, x: 50, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        transition={{ 
-                          delay: 0.8, 
-                          duration: 0.7,
-                          type: "spring", 
-                          stiffness: 100 
-                        }}
-                      >
-                        <HeartIcon className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
-                        initial={{ y: 50, x: -50, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        transition={{ 
-                          delay: 1.0, 
-                          duration: 0.7,
-                          type: "spring", 
-                          stiffness: 100 
-                        }}
-                      >
-                        <Video className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute top-4 left-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
-                        initial={{ y: -50, x: -50, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        transition={{ 
-                          delay: 1.2, 
-                          duration: 0.7,
-                          type: "spring", 
-                          stiffness: 100 
-                        }}
-                      >
-                        <Cpu className="w-5 h-5 text-white" />
-                      </motion.div>
+                        return (
+                          <motion.div
+                            key={i}
+                            className="absolute"
+                            initial={{ 
+                              x: 0, 
+                              y: 0, 
+                              opacity: 0 
+                            }}
+                            animate={{ 
+                              x,
+                              y,
+                              opacity: 1
+                            }}
+                            transition={{ 
+                              delay: 0.5 + (i * 0.1), 
+                              duration: 0.8,
+                              type: "spring",
+                              stiffness: 50
+                            }}
+                          >
+                            <AnimatedIcon icon={iconData.icon} color={iconData.color} label={iconData.label} />
+                          </motion.div>
+                        );
+                      })}
                     </motion.div>
                   )}
 
@@ -258,61 +246,39 @@ export default function Hero() {
                       </motion.div>
 
                       {/* Retail experience journey - showing discovery process */}
-                      <motion.div 
-                        className="absolute top-4 right-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
-                        initial={{ y: -40, x: 40, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ 
-                          delay: 0.6, 
-                          duration: 0.6,
-                          type: "spring"
-                        }}
-                      >
-                        <Tag className="w-5 h-5 text-white" />
-                      </motion.div>
+                      {/* Retail Experience Icon Animation */}
+                      {retailIcons.map((iconData, i) => {
+                        // Calculate positions in a circle around the center
+                        const angle = (i * (2 * Math.PI / retailIcons.length));
+                        const radius = 80;
+                        const x = radius * Math.cos(angle);
+                        const y = radius * Math.sin(angle);
 
-                      <motion.div 
-                        className="absolute bottom-4 right-4 bg-opacity-90 bg-blue-400 p-3 rounded-full"
-                        initial={{ y: 0, x: 80, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ 
-                          delay: 0.8, 
-                          duration: 0.7,
-                          type: "spring" 
-                        }}
-                      >
-                        <Smartphone className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
-                        initial={{ y: 40, x: -40, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ 
-                          delay: 1.0, 
-                          duration: 0.7,
-                          type: "spring" 
-                        }}
-                      >
-                        <ShoppingBag className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute top-4 left-4 bg-opacity-90 bg-red-400 p-3 rounded-full"
-                        initial={{ y: -20, x: -60, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ 
-                          delay: 1.2, 
-                          duration: 0.6,
-                          type: "spring" 
-                        }}
-                      >
-                        <MapPin className="w-5 h-5 text-white" />
-                      </motion.div>
+                        return (
+                          <motion.div
+                            key={i}
+                            className="absolute"
+                            initial={{ 
+                              x: 0, 
+                              y: 0, 
+                              opacity: 0 
+                            }}
+                            animate={{ 
+                              x,
+                              y,
+                              opacity: 1
+                            }}
+                            transition={{ 
+                              delay: 0.5 + (i * 0.1), 
+                              duration: 0.8,
+                              type: "spring",
+                              stiffness: 50
+                            }}
+                          >
+                            <AnimatedIcon icon={iconData.icon} color={iconData.color} label={iconData.label} />
+                          </motion.div>
+                        );
+                      })}
                     </motion.div>
                   )}
 
@@ -351,83 +317,39 @@ export default function Hero() {
                       </motion.div>
 
                       {/* Networking connections forming - showing business connections */}
-                      <motion.div 
-                        className="absolute top-4 right-4 bg-opacity-90 bg-blue-400 p-3 rounded-full"
-                        initial={{ x: 60, opacity: 0 }}
-                        animate={{ 
-                          x: 0, 
-                          opacity: 1,
-                          transition: {
-                            type: "spring",
-                            stiffness: 120
-                          }
-                        }}
-                        transition={{ delay: 0.6, duration: 0.7 }}
-                      >
-                        <Users className="w-5 h-5 text-white" />
-                      </motion.div>
+                      {/* Business Networking Icon Animation */}
+                      {networkingIcons.map((iconData, i) => {
+                        // Calculate positions in a circle around the center
+                        const angle = (i * (2 * Math.PI / networkingIcons.length));
+                        const radius = 80;
+                        const x = radius * Math.cos(angle);
+                        const y = radius * Math.sin(angle);
 
-                      {/* Line connecting network to users */}
-                      <motion.div
-                        className="absolute bg-blue-400 h-0.5"
-                        style={{ 
-                          top: "calc(50% - 1px)", 
-                          right: "calc(50% + 20px)",
-                          width: "0%",
-                          transformOrigin: "right"
-                        }}
-                        initial={{ width: "0%" }}
-                        animate={{ width: "30%" }}
-                        transition={{ delay: 1.3, duration: 0.4 }}
-                      />
-
-                      <motion.div 
-                        className="absolute bottom-4 right-4 bg-opacity-90 bg-purple-400 p-3 rounded-full"
-                        initial={{ y: 60, opacity: 0 }}
-                        animate={{ 
-                          y: 0, 
-                          opacity: 1,
-                          transition: {
-                            type: "spring",
-                            stiffness: 120
-                          }
-                        }}
-                        transition={{ delay: 0.8, duration: 0.7 }}
-                      >
-                        <Building2 className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
-                        initial={{ x: -60, opacity: 0 }}
-                        animate={{ 
-                          x: 0, 
-                          opacity: 1,
-                          transition: {
-                            type: "spring",
-                            stiffness: 120
-                          }
-                        }}
-                        transition={{ delay: 1.0, duration: 0.7 }}
-                      >
-                        <HeartHandshake className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute top-4 left-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
-                        initial={{ y: -60, opacity: 0 }}
-                        animate={{ 
-                          y: 0, 
-                          opacity: 1,
-                          transition: {
-                            type: "spring",
-                            stiffness: 120
-                          }
-                        }}
-                        transition={{ delay: 1.2, duration: 0.7 }}
-                      >
-                        <Sparkles className="w-5 h-5 text-white" />
-                      </motion.div>
+                        return (
+                          <motion.div
+                            key={i}
+                            className="absolute"
+                            initial={{ 
+                              x: 0, 
+                              y: 0, 
+                              opacity: 0 
+                            }}
+                            animate={{ 
+                              x,
+                              y,
+                              opacity: 1
+                            }}
+                            transition={{ 
+                              delay: 0.5 + (i * 0.1), 
+                              duration: 0.8,
+                              type: "spring",
+                              stiffness: 50
+                            }}
+                          >
+                            <AnimatedIcon icon={iconData.icon} color={iconData.color} label={iconData.label} />
+                          </motion.div>
+                        );
+                      })}
                     </motion.div>
                   )}
 
