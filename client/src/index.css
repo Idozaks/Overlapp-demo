@@ -2,6 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hero Section Animations */
+@layer utilities {
+  /* Color hue-shift animation for gradient squares */
+  .gradient-square {
+    animation: hueRotate 8s infinite ease-in-out;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Pulse effect for interaction points */
+  .interaction-point {
+    position: relative;
+  }
+  
+  .interaction-point::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: inherit;
+    opacity: 0;
+    z-index: -1;
+    animation: pulse 2s infinite;
+    background: radial-gradient(circle, rgba(var(--color-primary-rgb), 0.4) 0%, rgba(var(--color-primary-rgb), 0) 70%);
+  }
+  
+  /* Floating animation for elements */
+  .floating {
+    animation: float 3s infinite ease-in-out;
+  }
+}
+
+@keyframes hueRotate {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(30deg);
+  }
+  100% {
+    filter: hue-rotate(0deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
 @layer base {
 
 /* Touch-specific styles */
@@ -102,6 +172,10 @@
 }
 
 @layer base {
+  :root {
+    --color-primary-rgb: 77, 127, 232; /* Blue color in RGB format for animations */
+  }
+  
   * {
     @apply border-border;
   }
