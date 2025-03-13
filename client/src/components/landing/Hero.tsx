@@ -166,124 +166,128 @@ export default function Hero() {
                     >
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-full relative">
-                          {/* Calculate icon dimensions */}
-                          {(() => {
-                            const iconSize = 20; // Size of surrounding icons
-                            const centralIconSize = 32; // Size of central icon
-                            const padding = 20; // Padding around icons
-                            const containerSize = Math.max(centralIconSize + padding * 2, iconSize * 4 + padding * 3);
+                          {/* New journey animation: Center profile with orbit effect */}
 
-                            // Different animations based on current slide
-                            const getAnimationForSlide = (slideIndex: number, iconIndex: number) => {
-                              switch (slideIndex) {
-                                case 0: // "Discover what truly connects you"
-                                  return {
-                                    opacity: 1,
-                                    scale: [0.9, 1.1, 1],
-                                    y: [0, -5, 0]
-                                  };
-                                case 1: // "Turn your real preferences into connections"
-                                  return {
-                                    opacity: 1,
-                                    scale: 1,
-                                    x: iconIndex % 2 === 0 ? [0, 5, 0] : [0, -5, 0]
-                                  };
-                                case 2: // "Build a profile that reflects you"
-                                  return {
-                                    opacity: 1,
-                                    scale: [1, 1.05, 1],
-                                    rotate: 0
-                                  };
-                                default:
-                                  return { opacity: 1, rotate: 0 };
-                              }
-                            };
+                          {/* Center element - Profile */}
+                          <motion.div
+                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center z-20 shadow-lg"
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{
+                              opacity: 1,
+                              scale: 1,
+                              boxShadow: "0 0 15px rgba(255,255,255,0.5)"
+                            }}
+                            transition={{ 
+                              duration: 0.8,
+                              delay: 0.1
+                            }}
+                          >
+                            <User className="w-8 h-8 text-white" />
+                          </motion.div>
 
-                            // Central icon animation based on slide
-                            const getCentralAnimation = (slideIndex: number) => {
-                              switch (slideIndex) {
-                                case 0: // "Discover connections"
-                                  return {
-                                    opacity: 1, 
-                                    scale: 1,
-                                    rotate: [0, 5, -5, 0]
-                                  };
-                                case 1: // "Preferences to connections"
-                                  return {
-                                    opacity: 1, 
-                                    scale: [1, 1.1, 1],
-                                    rotate: 0
-                                  };
-                                case 2: // "Build profile"
-                                  return {
-                                    opacity: 1, 
-                                    scale: 1,
-                                    boxShadow: ["0px 0px 0px rgba(255,255,255,0.3)", "0px 0px 15px rgba(255,255,255,0.5)", "0px 0px 0px rgba(255,255,255,0.3)"]
-                                  };
-                                default:
-                                  return { opacity: 1, scale: 1 };
-                              }
-                            };
+                          {/* Orbital elements representing different aspects of the profile */}
+                          {[
+                            { 
+                              icon: <Sparkles className="w-5 h-5 text-white" />, 
+                              orbitSize: 60, 
+                              position: 0,
+                              delay: 0.3, 
+                              duration: 4,
+                              bg: "bg-purple-500" 
+                            },
+                            { 
+                              icon: <NetworkIcon className="w-5 h-5 text-white" />, 
+                              orbitSize: 60, 
+                              position: 90,
+                              delay: 0.4, 
+                              duration: 4,
+                              bg: "bg-green-500" 
+                            },
+                            { 
+                              icon: <HeartIcon className="w-5 h-5 text-white" />, 
+                              orbitSize: 60, 
+                              position: 180,
+                              delay: 0.5, 
+                              duration: 4,
+                              bg: "bg-pink-500" 
+                            },
+                            { 
+                              icon: <Cpu className="w-5 h-5 text-white" />, 
+                              orbitSize: 60, 
+                              position: 270,
+                              delay: 0.6, 
+                              duration: 4,
+                              bg: "bg-amber-500" 
+                            }
+                          ].map((item, index) => {
+                            // Calculate position on orbit
+                            const angle = (item.position * Math.PI) / 180;
+                            const x = Math.cos(angle) * item.orbitSize;
+                            const y = Math.sin(angle) * item.orbitSize;
 
                             return (
-                              <div style={{ width: `${containerSize}px`, height: `${containerSize}px` }} className="relative">
-                                {/* Main central icon */}
-                                <motion.div
-                                  className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary/30 rounded-3xl backdrop-blur-sm flex items-center justify-center z-10"
-                                  initial={{ opacity: 0, scale: 0.5 }}
-                                  animate={getCentralAnimation(currentSlide)}
-                                  transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-                                >
-                                  <NetworkIcon size={centralIconSize} className="text-white" />
-                                </motion.div>
+                              <motion.div
+                                key={index}
+                                className={`absolute top-1/2 left-1/2 w-10 h-10 ${item.bg} rounded-full flex items-center justify-center shadow-md z-10`}
+                                initial={{ 
+                                  opacity: 0,
+                                  x: 0,
+                                  y: 0
+                                }}
+                                animate={{
+                                  opacity: 1,
+                                  x: [x * 0.3, x],
+                                  y: [y * 0.3, y],
+                                  scale: [0.7, 1]
+                                }}
+                                transition={{
+                                  delay: item.delay,
+                                  duration: 0.8,
+                                  ease: "easeOut"
+                                }}
+                              >
+                                {item.icon}
 
-                                {/* Icons around the center */}
-                                {/* Center blue icon */}
+                                {/* Orbital path animation */}
                                 <motion.div
-                                  className="absolute bg-blue-500 backdrop-blur-md p-2 rounded-lg"
-                                  style={{
-                                    top: `50%`,
-                                    left: `50%`,
-                                    transform: "translate(-50%, -50%)"
-                                  }}
+                                  className="absolute top-1/2 left-1/2 w-full h-full rounded-full border-2 border-white/20"
                                   initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  transition={{ duration: 0.5 }}
-                                >
-                                  <HeartIcon size={iconSize * 0.8} className="text-white" />
-                                </motion.div>
-                                
-                                {/* Surrounding icons */}
-                                {[Music, Video, Cpu, HeartIcon].slice(0, 4).map((Icon, i) => {
-                                  // Calculate positions in a circle around the center
-                                  const angle = (i * Math.PI / 2) + (Math.PI / 4); // Distribute evenly at 45°, 135°, 225°, 315°
-                                  const distance = 40; // Distance from center (percentage)
-                                  return (
-                                    <motion.div
-                                      key={i}
-                                      className="absolute bg-white/30 backdrop-blur-md p-3 rounded-lg"
-                                      style={{
-                                        top: `${50 + Math.sin(angle) * distance}%`,
-                                        left: `${50 + Math.cos(angle) * distance}%`,
-                                        transform: "translate(-50%, -50%)"
-                                      }}
-                                      initial={{ opacity: 0 }}
-                                      animate={getAnimationForSlide(currentSlide, i)}
-                                      transition={{ 
-                                        duration: 1.5, 
-                                        repeat: Infinity, 
-                                        repeatType: "reverse", 
-                                        ease: "easeInOut",
-                                        delay: i * 0.2
-                                      }}
-                                    >
-                                      <Icon size={iconSize} className="text-white" />
-                                    </motion.div>
-                                  );
-                                })}
-                              </div>
+                                  animate={{ 
+                                    opacity: 1,
+                                    rotate: 360
+                                  }}
+                                  transition={{
+                                    duration: item.duration,
+                                    repeat: Infinity,
+                                    ease: "linear"
+                                  }}
+                                />
+                              </motion.div>
                             );
-                          })()}
+                          })}
+
+                          {/* Connection lines appearing */}
+                          <motion.div 
+                            className="absolute top-1/2 left-1/2 w-[120px] h-[120px] rounded-full border-dashed border-2 border-white/30 -translate-x-1/2 -translate-y-1/2"
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.8, duration: 0.5 }}
+                          />
+
+                          {/* Central glow effect */}
+                          <motion.div 
+                            className="absolute top-1/2 left-1/2 w-24 h-24 bg-blue-400/20 rounded-full blur-md -translate-x-1/2 -translate-y-1/2"
+                            initial={{ opacity: 0 }}
+                            animate={{ 
+                              opacity: [0.3, 0.7, 0.3],
+                              scale: [0.8, 1.1, 0.8]
+                            }}
+                            transition={{
+                              duration: 3,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          />
                         </div>
                       </div>
                     </motion.div>
