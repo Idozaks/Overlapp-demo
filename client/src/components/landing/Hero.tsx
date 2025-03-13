@@ -167,7 +167,7 @@ export default function Hero() {
                             className="absolute bg-white/20 backdrop-blur-md p-3 rounded-full"
                             initial={{ left: "-30%", top: "45%", opacity: 0 }}
                             animate={{ 
-                              left: ["-30%", "20%", "20%", "20%", "20%", "20%", "-30%"],
+                              left: ["-30%", "30%", "30%", "30%", "30%", "30%", "-30%"],
                               top: ["45%", "45%", "45%", "30%", "45%", "45%", "45%"],
                               opacity: [0, 1, 1, 1, 1, 1, 0],
                               scale: [0.8, 1, 1, 1.1, 1, 1, 0.8],
@@ -188,7 +188,7 @@ export default function Hero() {
                             className="absolute bg-white/20 backdrop-blur-md p-3 rounded-full"
                             initial={{ right: "-30%", top: "45%", opacity: 0 }}
                             animate={{ 
-                              right: ["-30%", "20%", "20%", "20%", "20%", "20%", "-30%"],
+                              right: ["-30%", "30%", "30%", "30%", "30%", "30%", "-30%"],
                               top: ["45%", "45%", "45%", "60%", "45%", "45%", "45%"],
                               opacity: [0, 1, 1, 1, 1, 1, 0],
                               scale: [0.8, 1, 1, 1.1, 1, 1, 0.8],
@@ -214,7 +214,7 @@ export default function Hero() {
                             }}
                             transition={{
                               duration: 5,
-                              times: [0, 0.3, 0.45, 0.55, 0.7],
+                              times: [0, 0.35, 0.45, 0.55, 0.65],
                               repeat: Infinity,
                               repeatDelay: 0.5
                             }}
