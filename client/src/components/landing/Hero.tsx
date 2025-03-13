@@ -195,8 +195,8 @@ export default function Hero() {
                             }}
                             animate={{ 
                               // Adjust positioning to keep icons within boundaries
-                              x: Math.min(Math.max(x, -120), 120),
-                              y: Math.min(Math.max(y, -120), 120),
+                              x: Math.min(Math.max(x, -100), 100),
+                              y: Math.min(Math.max(y, -100), 100),
                               opacity: 1
                             }}
                             transition={{ 
@@ -268,8 +268,8 @@ export default function Hero() {
                             }}
                             animate={{ 
                               // Adjust positioning to keep icons within boundaries
-                              x: Math.min(Math.max(x, -120), 120),
-                              y: Math.min(Math.max(y, -120), 120),
+                              x: Math.min(Math.max(x, -100), 100),
+                              y: Math.min(Math.max(y, -100), 100),
                               opacity: 1
                             }}
                             transition={{ 
@@ -341,8 +341,8 @@ export default function Hero() {
                             }}
                             animate={{ 
                               // Adjust positioning to keep icons within boundaries
-                              x: Math.min(Math.max(x, -120), 120),
-                              y: Math.min(Math.max(y, -120), 120),
+                              x: Math.min(Math.max(x, -100), 100),
+                              y: Math.min(Math.max(y, -100), 100),
                               opacity: 1
                             }}
                             transition={{ 
@@ -360,7 +360,7 @@ export default function Hero() {
                   )}
 
                   <motion.h2
-                    className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300"
+                    className="text-3xl md:text-4xl font-bold mb-4 text-gray-800"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
