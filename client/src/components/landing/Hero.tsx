@@ -28,6 +28,8 @@ import { useLocation } from "wouter";
 import React, { useState, useEffect, useCallback } from "react";
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Link } from 'wouter';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"; // Added Tooltip import
+
 
 // Define slides with themes that will inform the animations
 const slides = [
@@ -67,42 +69,47 @@ export default function Hero() {
   }, [api]);
 
   // Animated icon components with consistent but varied animations
-  const AnimatedIcon = ({ icon: Icon, delay = 0, color = "text-white" }) => {
+  const AnimatedIcon = ({ icon: Icon, delay = 0, color = "text-white", tooltip }) => {
     return (
-      <motion.div
-        className={`absolute p-2 bg-opacity-90 rounded-xl ${color}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay }}
-      >
-        <Icon className="w-6 h-6" />
-      </motion.div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <motion.div
+            className={`absolute p-2 bg-opacity-90 rounded-xl ${color}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay }}
+          >
+            <Icon className="w-6 h-6" />
+          </motion.div>
+        </TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+      </Tooltip>
     );
   };
 
   // Define icon sets for each slide
   const profileIcons = [
-    { icon: UserIcon, color: "text-white" },
-    { icon: HeartIcon, color: "text-pink-200" },
-    { icon: Music, color: "text-blue-200" },
-    { icon: Video, color: "text-purple-200" },
-    { icon: Cpu, color: "text-green-200" }
+    { icon: UserIcon, color: "text-white", tooltip: "Your Profile" },
+    { icon: HeartIcon, color: "text-pink-200", tooltip: "Your Likes" },
+    { icon: Music, color: "text-blue-200", tooltip: "Music Preferences" },
+    { icon: Video, color: "text-purple-200", tooltip: "Video Preferences" },
+    { icon: Cpu, color: "text-green-200", tooltip: "Tech Interests" }
   ];
 
   const retailIcons = [
-    { icon: ShoppingBag, color: "text-white" },
-    { icon: Tag, color: "text-yellow-200" },
-    { icon: Store, color: "text-green-200" },
-    { icon: Smartphone, color: "text-blue-200" },
-    { icon: MapPin, color: "text-red-200" }
+    { icon: ShoppingBag, color: "text-white", tooltip: "Shopping Bag" },
+    { icon: Tag, color: "text-yellow-200", tooltip: "Deals & Offers" },
+    { icon: Store, color: "text-green-200", tooltip: "Retail Stores" },
+    { icon: Smartphone, color: "text-blue-200", tooltip: "Mobile Shopping" },
+    { icon: MapPin, color: "text-red-200", tooltip: "Nearby Stores" }
   ];
 
   const networkingIcons = [
-    { icon: Network, color: "text-white" },
-    { icon: Users, color: "text-blue-200" },
-    { icon: Building2, color: "text-purple-200" },
-    { icon: HeartHandshake, color: "text-green-200" },
-    { icon: Sparkles, color: "text-yellow-200" }
+    { icon: Network, color: "text-white", tooltip: "Your Network" },
+    { icon: Users, color: "text-blue-200", tooltip: "Connections" },
+    { icon: Building2, color: "text-purple-200", tooltip: "Companies" },
+    { icon: HeartHandshake, color: "text-green-200", tooltip: "Collaborations" },
+    { icon: Sparkles, color: "text-yellow-200", tooltip: "Opportunities" }
   ];
 
   return (
@@ -165,61 +172,12 @@ export default function Hero() {
                       </motion.div>
 
                       {/* Personal interests flowing to center - showing profile creation */}
-                      <motion.div 
-                        className="absolute top-4 right-4 bg-opacity-90 bg-purple-400 p-3 rounded-full"
-                        initial={{ y: -50, x: 50, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        transition={{ 
-                          delay: 0.6, 
-                          duration: 0.7,
-                          type: "spring", 
-                          stiffness: 100 
-                        }}
-                      >
-                        <Music className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute bottom-4 right-4 bg-opacity-90 bg-pink-400 p-3 rounded-full"
-                        initial={{ y: 50, x: 50, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        transition={{ 
-                          delay: 0.8, 
-                          duration: 0.7,
-                          type: "spring", 
-                          stiffness: 100 
-                        }}
-                      >
-                        <HeartIcon className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
-                        initial={{ y: 50, x: -50, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        transition={{ 
-                          delay: 1.0, 
-                          duration: 0.7,
-                          type: "spring", 
-                          stiffness: 100 
-                        }}
-                      >
-                        <Video className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute top-4 left-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
-                        initial={{ y: -50, x: -50, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        transition={{ 
-                          delay: 1.2, 
-                          duration: 0.7,
-                          type: "spring", 
-                          stiffness: 100 
-                        }}
-                      >
-                        <Cpu className="w-5 h-5 text-white" />
-                      </motion.div>
+                      <TooltipProvider>
+                      <AnimatedIcon icon={Music} delay={0.6} color="bg-purple-400" tooltip="Music Preferences" />
+                      <AnimatedIcon icon={HeartIcon} delay={0.8} color="bg-pink-400" tooltip="Your Likes"/>
+                      <AnimatedIcon icon={Video} delay={1.0} color="bg-green-400" tooltip="Video Preferences"/>
+                      <AnimatedIcon icon={Cpu} delay={1.2} color="bg-yellow-400" tooltip="Tech Interests"/>
+                      </TooltipProvider>
                     </motion.div>
                   )}
 
@@ -257,62 +215,12 @@ export default function Hero() {
                         <Store className="w-8 h-8 text-white" />
                       </motion.div>
 
-                      {/* Retail experience journey - showing discovery process */}
-                      <motion.div 
-                        className="absolute top-4 right-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
-                        initial={{ y: -40, x: 40, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ 
-                          delay: 0.6, 
-                          duration: 0.6,
-                          type: "spring"
-                        }}
-                      >
-                        <Tag className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute bottom-4 right-4 bg-opacity-90 bg-blue-400 p-3 rounded-full"
-                        initial={{ y: 0, x: 80, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ 
-                          delay: 0.8, 
-                          duration: 0.7,
-                          type: "spring" 
-                        }}
-                      >
-                        <Smartphone className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
-                        initial={{ y: 40, x: -40, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ 
-                          delay: 1.0, 
-                          duration: 0.7,
-                          type: "spring" 
-                        }}
-                      >
-                        <ShoppingBag className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute top-4 left-4 bg-opacity-90 bg-red-400 p-3 rounded-full"
-                        initial={{ y: -20, x: -60, opacity: 0 }}
-                        animate={{ y: 0, x: 0, opacity: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ 
-                          delay: 1.2, 
-                          duration: 0.6,
-                          type: "spring" 
-                        }}
-                      >
-                        <MapPin className="w-5 h-5 text-white" />
-                      </motion.div>
+                      <TooltipProvider>
+                      <AnimatedIcon icon={Tag} delay={0.6} color="bg-yellow-400" tooltip="Deals & Offers" />
+                      <AnimatedIcon icon={Smartphone} delay={0.8} color="bg-blue-400" tooltip="Mobile Shopping"/>
+                      <AnimatedIcon icon={ShoppingBag} delay={1.0} color="bg-green-400" tooltip="Shopping Bag"/>
+                      <AnimatedIcon icon={MapPin} delay={1.2} color="bg-red-400" tooltip="Nearby Stores"/>
+                      </TooltipProvider>
                     </motion.div>
                   )}
 
@@ -350,84 +258,12 @@ export default function Hero() {
                         <Network className="w-8 h-8 text-white" />
                       </motion.div>
 
-                      {/* Networking connections forming - showing business connections */}
-                      <motion.div 
-                        className="absolute top-4 right-4 bg-opacity-90 bg-blue-400 p-3 rounded-full"
-                        initial={{ x: 60, opacity: 0 }}
-                        animate={{ 
-                          x: 0, 
-                          opacity: 1,
-                          transition: {
-                            type: "spring",
-                            stiffness: 120
-                          }
-                        }}
-                        transition={{ delay: 0.6, duration: 0.7 }}
-                      >
-                        <Users className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      {/* Line connecting network to users */}
-                      <motion.div
-                        className="absolute bg-blue-400 h-0.5"
-                        style={{ 
-                          top: "calc(50% - 1px)", 
-                          right: "calc(50% + 20px)",
-                          width: "0%",
-                          transformOrigin: "right"
-                        }}
-                        initial={{ width: "0%" }}
-                        animate={{ width: "30%" }}
-                        transition={{ delay: 1.3, duration: 0.4 }}
-                      />
-
-                      <motion.div 
-                        className="absolute bottom-4 right-4 bg-opacity-90 bg-purple-400 p-3 rounded-full"
-                        initial={{ y: 60, opacity: 0 }}
-                        animate={{ 
-                          y: 0, 
-                          opacity: 1,
-                          transition: {
-                            type: "spring",
-                            stiffness: 120
-                          }
-                        }}
-                        transition={{ delay: 0.8, duration: 0.7 }}
-                      >
-                        <Building2 className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute bottom-4 left-4 bg-opacity-90 bg-green-400 p-3 rounded-full"
-                        initial={{ x: -60, opacity: 0 }}
-                        animate={{ 
-                          x: 0, 
-                          opacity: 1,
-                          transition: {
-                            type: "spring",
-                            stiffness: 120
-                          }
-                        }}
-                        transition={{ delay: 1.0, duration: 0.7 }}
-                      >
-                        <HeartHandshake className="w-5 h-5 text-white" />
-                      </motion.div>
-
-                      <motion.div 
-                        className="absolute top-4 left-4 bg-opacity-90 bg-yellow-400 p-3 rounded-full"
-                        initial={{ y: -60, opacity: 0 }}
-                        animate={{ 
-                          y: 0, 
-                          opacity: 1,
-                          transition: {
-                            type: "spring",
-                            stiffness: 120
-                          }
-                        }}
-                        transition={{ delay: 1.2, duration: 0.7 }}
-                      >
-                        <Sparkles className="w-5 h-5 text-white" />
-                      </motion.div>
+                      <TooltipProvider>
+                      <AnimatedIcon icon={Users} delay={0.6} color="bg-blue-400" tooltip="Connections" />
+                      <AnimatedIcon icon={Building2} delay={0.8} color="bg-purple-400" tooltip="Companies"/>
+                      <AnimatedIcon icon={HeartHandshake} delay={1.0} color="bg-green-400" tooltip="Collaborations"/>
+                      <AnimatedIcon icon={Sparkles} delay={1.2} color="bg-yellow-400" tooltip="Opportunities"/>
+                      </TooltipProvider>
                     </motion.div>
                   )}
 
