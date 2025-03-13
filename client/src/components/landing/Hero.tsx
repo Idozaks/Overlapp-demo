@@ -467,7 +467,7 @@ export default function Hero() {
                   )}
 
                   {/* Scene 3: Business Networking - Interactive Business Connections */}
-                  {slide.scene === "business-networking" && (
+                  {(slide.scene === "business-networking" || showAllAnimations) && (
                     <motion.div
                       className={`w-60 h-60 md:w-72 md:h-72 rounded-2xl bg-gradient-to-br ${slide.gradientColors} p-6 mb-8 backdrop-blur-sm flex justify-center items-center gradient-square relative overflow-hidden`}
                       initial={{ scale: 0.8, opacity: 0 }}
