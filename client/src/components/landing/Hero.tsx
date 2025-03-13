@@ -180,8 +180,8 @@ export default function Hero() {
                         // Calculate positions in a circle around the center
                         const radius = 120; // Increased radius for better spacing
                         const angle = (i * (2 * Math.PI / profileIcons.length));
-                        const x = radius * Math.cos(angle) - 80; // Move center 80px left
-                        const y = radius * Math.sin(angle) - 80; // Move center 80px up
+                        const x = radius * Math.cos(angle) - 60; // Move center 60px left (was 80px)
+                        const y = radius * Math.sin(angle) - 60; // Move center 60px up (was 80px)
 
                         return (
                           <motion.div
@@ -253,8 +253,8 @@ export default function Hero() {
                         // Calculate positions in a circle around the center
                         const radius = 120; // Increased radius for better spacing
                         const angle = (i * (2 * Math.PI / retailIcons.length));
-                        const x = radius * Math.cos(angle) - 80; // Move center 80px left
-                        const y = radius * Math.sin(angle) - 80; // Move center 80px up
+                        const x = radius * Math.cos(angle) - 60; // Move center 60px left (was 80px)
+                        const y = radius * Math.sin(angle) - 60; // Move center 60px up (was 80px)
 
                         return (
                           <motion.div
@@ -326,8 +326,8 @@ export default function Hero() {
                         // Calculate positions in a circle around the center
                         const radius = 120; // Increased radius for better spacing
                         const angle = (i * (2 * Math.PI / networkingIcons.length));
-                        const x = radius * Math.cos(angle) - 80; // Move center 80px left
-                        const y = radius * Math.sin(angle) - 80; // Move center 80px up
+                        const x = radius * Math.cos(angle) - 60; // Move center 60px left (was 80px)
+                        const y = radius * Math.sin(angle) - 60; // Move center 60px up (was 80px)
 
                         return (
                           <motion.div
