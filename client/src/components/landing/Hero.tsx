@@ -258,16 +258,16 @@ export default function Hero() {
                         <Network className="w-8 h-8 text-white" />
                       </motion.div>
                       
-                      {/* Surrounding icons with tooltips */}
+                      {/* Surrounding icons with tooltips - positioned in a fan layout */}
                       <TooltipProvider>
                       <AnimatedIcon icon={Users} delay={0.6} color="bg-blue-400" tooltip="Connections" 
-                        className="absolute top-2 left-2" />
+                        className="absolute left-[-50px] top-[15px]" />
                       <AnimatedIcon icon={Building2} delay={0.8} color="bg-purple-400" tooltip="Companies" 
-                        className="absolute top-2 right-2" />
+                        className="absolute right-[-50px] top-[15px]" />
                       <AnimatedIcon icon={HeartHandshake} delay={1.0} color="bg-green-400" tooltip="Collaborations" 
-                        className="absolute bottom-2 left-2" />
+                        className="absolute bottom-[-25px] left-[-25px]" />
                       <AnimatedIcon icon={Sparkles} delay={1.2} color="bg-yellow-400" tooltip="Opportunities" 
-                        className="absolute bottom-2 right-2" />
+                        className="absolute bottom-[-25px] right-[-25px]" />
                       </TooltipProvider>
 
                       <TooltipProvider>
