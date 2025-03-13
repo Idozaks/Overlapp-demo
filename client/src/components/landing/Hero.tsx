@@ -104,7 +104,7 @@ export default function Hero() {
               size="lg"
               className="gap-2 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-700 transition-all duration-300"
             >
-              {t('landing.hero.getStarted')} <ArrowRight className="w-4 h-4" />
+              {t('common.landing.hero.slide1.cta')} <ArrowRight className="w-4 h-4" />
             </Button>
             <Button
               variant="outline"
@@ -113,7 +113,7 @@ export default function Hero() {
               asChild
             >
               <Link to="/about">
-                {t('landing.hero.learnMore')} <Search className="w-4 h-4" />
+                {t('common.landing.hero.slide2.cta')} <Search className="w-4 h-4" />
               </Link>
             </Button>
           </motion.div>
