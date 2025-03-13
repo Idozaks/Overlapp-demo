@@ -28,8 +28,6 @@ import { useLocation } from "wouter";
 import React, { useState, useEffect, useCallback } from "react";
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Link } from 'wouter';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"; // Added Tooltip import
-
 
 // Define slides with themes that will inform the animations
 const slides = [
@@ -69,47 +67,47 @@ export default function Hero() {
   }, [api]);
 
   // Animated icon components with consistent but varied animations
-  const AnimatedIcon = ({ icon: Icon, delay = 0, color = "text-white", tooltip, className = "" }) => {
+  const AnimatedIcon = ({ icon: Icon, delay = 0, color = "text-white", tooltipText, slideIndex, iconIndex }) => {
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <motion.div
-            className={`p-2 bg-opacity-90 rounded-xl ${color} ${className}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay }}
-          >
-            <Icon className="w-6 h-6" />
-          </motion.div>
-        </TooltipTrigger>
-        <TooltipContent>{tooltip}</TooltipContent>
-      </Tooltip>
+      <motion.div
+        className={`absolute p-2 bg-opacity-90 rounded-xl ${color} group relative`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay }}
+      >
+        <Icon className="w-6 h-6" />
+        {tooltipText && (
+          <div className="absolute pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 -bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm whitespace-nowrap z-50">
+            {tooltipText}
+          </div>
+        )}
+      </motion.div>
     );
   };
 
   // Define icon sets for each slide
   const profileIcons = [
-    { icon: UserIcon, color: "text-white", tooltip: "Your Profile" },
-    { icon: HeartIcon, color: "text-pink-200", tooltip: "Your Likes" },
-    { icon: Music, color: "text-blue-200", tooltip: "Music Preferences" },
-    { icon: Video, color: "text-purple-200", tooltip: "Video Preferences" },
-    { icon: Cpu, color: "text-green-200", tooltip: "Tech Interests" }
+    { icon: UserIcon, color: "text-white", tooltipText: "Profile Creation" },
+    { icon: HeartIcon, color: "text-pink-200", tooltipText: "Personal Preferences" },
+    { icon: Music, color: "text-blue-200", tooltipText: "Digital Identity" },
+    { icon: Video, color: "text-purple-200", tooltipText: "Interest Mapping" },
+    { icon: Cpu, color: "text-green-200", tooltipText: "Customization" }
   ];
 
   const retailIcons = [
-    { icon: ShoppingBag, color: "text-white", tooltip: "Shopping Bag" },
-    { icon: Tag, color: "text-yellow-200", tooltip: "Deals & Offers" },
-    { icon: Store, color: "text-green-200", tooltip: "Retail Stores" },
-    { icon: Smartphone, color: "text-blue-200", tooltip: "Mobile Shopping" },
-    { icon: MapPin, color: "text-red-200", tooltip: "Nearby Stores" }
+    { icon: ShoppingBag, color: "text-white", tooltipText: "Connect with Others" },
+    { icon: Tag, color: "text-yellow-200", tooltipText: "Find Common Interests" },
+    { icon: Store, color: "text-green-200", tooltipText: "Match Accuracy" },
+    { icon: Smartphone, color: "text-blue-200", tooltipText: "Discovery" },
+    { icon: MapPin, color: "text-red-200", tooltipText: "Real-time Matching" }
   ];
 
   const networkingIcons = [
-    { icon: Network, color: "text-white", tooltip: "Your Network" },
-    { icon: Users, color: "text-blue-200", tooltip: "Connections" },
-    { icon: Building2, color: "text-purple-200", tooltip: "Companies" },
-    { icon: HeartHandshake, color: "text-green-200", tooltip: "Collaborations" },
-    { icon: Sparkles, color: "text-yellow-200", tooltip: "Opportunities" }
+    { icon: Network, color: "text-white", tooltipText: "Self Expression" },
+    { icon: Users, color: "text-blue-200", tooltipText: "Personal Curation" },
+    { icon: Building2, color: "text-purple-200", tooltipText: "Control Your Data" },
+    { icon: HeartHandshake, color: "text-green-200", tooltipText: "Privacy Settings" },
+    { icon: Sparkles, color: "text-yellow-200", tooltipText: "Preference Management" }
   ];
 
   return (
@@ -127,10 +125,10 @@ export default function Hero() {
           }}
         >
           <CarouselContent>
-            {slides.map((slide, index) => (
-              <CarouselItem key={index} className="flex flex-col items-center justify-center">
+            {slides.map((slide, slideIndex) => (
+              <CarouselItem key={slideIndex} className="flex flex-col items-center justify-center">
                 <motion.div
-                  key={index}
+                  key={slideIndex}
                   initial={{ opacity: 0, x: 100 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -100 }}
@@ -158,12 +156,12 @@ export default function Hero() {
                       <motion.div
                         className="absolute z-10 bg-blue-500 p-5 rounded-2xl flex items-center justify-center"
                         initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ 
-                          scale: 1, 
+                        animate={{
+                          scale: 1,
                           opacity: 1,
                           boxShadow: "0 0 20px rgba(59, 130, 246, 0.6)"
                         }}
-                        transition={{ 
+                        transition={{
                           delay: 0.2,
                           duration: 0.8
                         }}
@@ -172,12 +170,9 @@ export default function Hero() {
                       </motion.div>
 
                       {/* Personal interests flowing to center - showing profile creation */}
-                      <TooltipProvider>
-                      <AnimatedIcon icon={Music} delay={0.6} color="bg-purple-400" tooltip="Music Preferences" />
-                      <AnimatedIcon icon={HeartIcon} delay={0.8} color="bg-pink-400" tooltip="Your Likes"/>
-                      <AnimatedIcon icon={Video} delay={1.0} color="bg-green-400" tooltip="Video Preferences"/>
-                      <AnimatedIcon icon={Cpu} delay={1.2} color="bg-yellow-400" tooltip="Tech Interests"/>
-                      </TooltipProvider>
+                      {profileIcons.map((iconProps, iconIndex) => (
+                        <AnimatedIcon {...iconProps} key={iconIndex} delay={0.6 + iconIndex * 0.2} slideIndex={slideIndex} iconIndex={iconIndex} />
+                      ))}
                     </motion.div>
                   )}
 
@@ -202,12 +197,12 @@ export default function Hero() {
                       <motion.div
                         className="absolute z-10 bg-teal-500 p-5 rounded-2xl flex items-center justify-center"
                         initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ 
-                          scale: 1, 
+                        animate={{
+                          scale: 1,
                           opacity: 1,
                           boxShadow: "0 0 20px rgba(20, 184, 166, 0.6)"
                         }}
-                        transition={{ 
+                        transition={{
                           delay: 0.2,
                           duration: 0.8
                         }}
@@ -215,12 +210,10 @@ export default function Hero() {
                         <Store className="w-8 h-8 text-white" />
                       </motion.div>
 
-                      <TooltipProvider>
-                      <AnimatedIcon icon={Tag} delay={0.6} color="bg-yellow-400" tooltip="Deals & Offers" />
-                      <AnimatedIcon icon={Smartphone} delay={0.8} color="bg-blue-400" tooltip="Mobile Shopping"/>
-                      <AnimatedIcon icon={ShoppingBag} delay={1.0} color="bg-green-400" tooltip="Shopping Bag"/>
-                      <AnimatedIcon icon={MapPin} delay={1.2} color="bg-red-400" tooltip="Nearby Stores"/>
-                      </TooltipProvider>
+                      {/* Retail experience journey - showing discovery process */}
+                      {retailIcons.map((iconProps, iconIndex) => (
+                        <AnimatedIcon {...iconProps} key={iconIndex} delay={0.6 + iconIndex * 0.2} slideIndex={slideIndex} iconIndex={iconIndex} />
+                      ))}
                     </motion.div>
                   )}
 
@@ -245,33 +238,23 @@ export default function Hero() {
                       <motion.div
                         className="absolute z-10 bg-indigo-500 p-5 rounded-2xl flex items-center justify-center"
                         initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ 
-                          scale: 1, 
+                        animate={{
+                          scale: 1,
                           opacity: 1,
                           boxShadow: "0 0 20px rgba(99, 102, 241, 0.6)"
                         }}
-                        transition={{ 
+                        transition={{
                           delay: 0.2,
                           duration: 0.8
                         }}
                       >
                         <Network className="w-8 h-8 text-white" />
                       </motion.div>
-                      
-                      {/* Surrounding icons with tooltips - positioned in a fan layout */}
-                      <TooltipProvider>
-                      <AnimatedIcon icon={Tag} delay={0.6} color="bg-yellow-400" tooltip="Deals" 
-                        className="absolute left-[-60px] top-[50%] translate-y-[-50%] z-10" />
-                      <AnimatedIcon icon={MapPin} delay={1.2} color="bg-red-400" tooltip="Location" 
-                        className="absolute right-[-60px] top-[50%] translate-y-[-50%] z-10" />
-                      </TooltipProvider>
 
-                      <TooltipProvider>
-                      <AnimatedIcon icon={Users} delay={0.6} color="bg-blue-400" tooltip="Connections" />
-                      <AnimatedIcon icon={Building2} delay={0.8} color="bg-purple-400" tooltip="Companies"/>
-                      <AnimatedIcon icon={HeartHandshake} delay={1.0} color="bg-green-400" tooltip="Collaborations"/>
-                      <AnimatedIcon icon={Sparkles} delay={1.2} color="bg-yellow-400" tooltip="Opportunities"/>
-                      </TooltipProvider>
+                      {/* Networking connections forming - showing business connections */}
+                      {networkingIcons.map((iconProps, iconIndex) => (
+                        <AnimatedIcon {...iconProps} key={iconIndex} delay={0.6 + iconIndex * 0.2} slideIndex={slideIndex} iconIndex={iconIndex} />
+                      ))}
                     </motion.div>
                   )}
 
