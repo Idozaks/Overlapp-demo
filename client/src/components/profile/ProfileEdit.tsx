@@ -40,8 +40,18 @@ const profileUpdateSchema = z.object({
   gender: z.enum(["Male", "Female", "Non-binary", "Prefer not to say"]).optional().or(z.literal("")),
   ageRange: z.enum(["18-25", "26-35", "36-45", "46+"]).optional().or(z.literal("")),
   countryOfOrigin: z.string().optional().or(z.literal("")),
-  residencyStatus: z.enum(["Permanent", "Temporary", "Tourist", "Expat"]).optional().or(z.literal("")),
+  languagesSpoken: z.string().optional().or(z.literal("")),
   culturalBackground: z.string().optional().or(z.literal("")),
+  education: z.enum(["High School", "Bachelor's", "Master's", "PhD", "Other", "Prefer not to say"]).optional().or(z.literal("")),
+  professionalField: z.string().optional().or(z.literal("")),
+  communityAffiliations: z.string().optional().or(z.literal("")),
+  eventPreferences: z.enum(["In-person gatherings", "Virtual meetups", "Small groups", "Large conferences", "Any"]).optional().or(z.literal("")),
+  collaborationStyle: z.enum(["Solo worker", "Team player", "Mentor/mentee", "Adaptable"]).optional().or(z.literal("")),
+  personalValues: z.string().optional().or(z.literal("")),
+  digitalIdentity: z.enum(["Early adopter", "Casual user", "Content creator", "Privacy-focused"]).optional().or(z.literal("")),
+  physicalActivityLevel: z.enum(["Very active", "Moderately active", "Occasionally active", "Primarily sedentary"]).optional().or(z.literal("")),
+  culturalExperiences: z.enum(["Well-traveled", "Local expert", "Cultural explorer", "Limited travel"]).optional().or(z.literal("")),
+  learningStyle: z.enum(["Self-taught", "Formal education", "Hands-on learner", "Visual learner"]).optional().or(z.literal("")),
   identityPreferences: z.record(z.string(), z.number()).optional(),
   preferences: z.object({
     retailPreferences: z.array(z.string())
@@ -111,8 +121,18 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       gender: user.gender || "",
       ageRange: user.ageRange || "",
       countryOfOrigin: user.countryOfOrigin || "",
-      residencyStatus: user.residencyStatus || "",
+      languagesSpoken: user.languagesSpoken || "",
       culturalBackground: user.culturalBackground || "",
+      education: user.education || "",
+      professionalField: user.professionalField || "",
+      communityAffiliations: user.communityAffiliations || "",
+      eventPreferences: user.eventPreferences || "",
+      collaborationStyle: user.collaborationStyle || "",
+      personalValues: user.personalValues || "",
+      digitalIdentity: user.digitalIdentity || "",
+      physicalActivityLevel: user.physicalActivityLevel || "",
+      culturalExperiences: user.culturalExperiences || "",
+      learningStyle: user.learningStyle || "",
       identityPreferences: user.identityPreferences || {},
       preferences: {
         retailPreferences: user.preferences?.retailPreferences || []
@@ -358,8 +378,18 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       gender: data.gender || undefined,
       ageRange: data.ageRange || undefined,
       countryOfOrigin: data.countryOfOrigin || undefined,
-      residencyStatus: data.residencyStatus || undefined,
+      languagesSpoken: data.languagesSpoken || undefined,
       culturalBackground: data.culturalBackground || undefined,
+      education: data.education || undefined,
+      professionalField: data.professionalField || undefined,
+      communityAffiliations: data.communityAffiliations || undefined,
+      eventPreferences: data.eventPreferences || undefined,
+      collaborationStyle: data.collaborationStyle || undefined,
+      personalValues: data.personalValues || undefined,
+      digitalIdentity: data.digitalIdentity || undefined,
+      physicalActivityLevel: data.physicalActivityLevel || undefined,
+      culturalExperiences: data.culturalExperiences || undefined,
+      learningStyle: data.learningStyle || undefined,
       identityPreferences: data.identityPreferences || undefined,
       preferences: {
         retailPreferences: data.preferences?.retailPreferences || []
@@ -535,21 +565,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             
             <FormField
               control={form.control}
-              name="residencyStatus"
+              name="languagesSpoken"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Residency Status</FormLabel>
+                  <FormLabel>Languages Spoken</FormLabel>
                   <FormControl>
-                    <select 
-                      className="w-full p-2 rounded-md border border-input bg-background"
-                      {...field}
-                    >
-                      <option value="">Select Residency Status</option>
-                      <option value="Permanent">Permanent</option>
-                      <option value="Temporary">Temporary</option>
-                      <option value="Tourist">Tourist</option>
-                      <option value="Expat">Expat</option>
-                    </select>
+                    <Input {...field} placeholder="E.g. English, Spanish, Mandarin" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -572,6 +593,219 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <FormDescription>
                     Share aspects of your cultural identity that are important to you. This helps us connect you with people who share similar backgrounds.
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="col-span-1 md:col-span-2 border-t border-secondary/20 pt-4 mt-4">
+              <h4 className="text-md font-medium mb-2">Enhanced Identity Attributes</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                The following fields help create more meaningful connections based on your professional and personal identity.
+              </p>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="education"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Education Level</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Education Level</option>
+                      <option value="High School">High School</option>
+                      <option value="Bachelor's">Bachelor's</option>
+                      <option value="Master's">Master's</option>
+                      <option value="PhD">PhD</option>
+                      <option value="Other">Other</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="professionalField"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Professional Field</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="E.g. Technology, Healthcare, Education" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="communityAffiliations"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Community Affiliations</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Groups, organizations or communities you belong to" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="eventPreferences"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Event Preferences</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Event Preference</option>
+                      <option value="In-person gatherings">In-person gatherings</option>
+                      <option value="Virtual meetups">Virtual meetups</option>
+                      <option value="Small groups">Small groups</option>
+                      <option value="Large conferences">Large conferences</option>
+                      <option value="Any">Any type of event</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="collaborationStyle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Collaboration Style</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Collaboration Style</option>
+                      <option value="Solo worker">Solo worker</option>
+                      <option value="Team player">Team player</option>
+                      <option value="Mentor/mentee">Mentor/mentee</option>
+                      <option value="Adaptable">Adaptable</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="personalValues"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Personal Values</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Core values like environmental consciousness, social justice, etc." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="digitalIdentity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Digital Identity</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Digital Identity</option>
+                      <option value="Early adopter">Early adopter</option>
+                      <option value="Casual user">Casual user</option>
+                      <option value="Content creator">Content creator</option>
+                      <option value="Privacy-focused">Privacy-focused</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="physicalActivityLevel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Physical Activity Level</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Activity Level</option>
+                      <option value="Very active">Very active</option>
+                      <option value="Moderately active">Moderately active</option>
+                      <option value="Occasionally active">Occasionally active</option>
+                      <option value="Primarily sedentary">Primarily sedentary</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="culturalExperiences"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cultural Experiences</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Cultural Experience</option>
+                      <option value="Well-traveled">Well-traveled</option>
+                      <option value="Local expert">Local expert</option>
+                      <option value="Cultural explorer">Cultural explorer</option>
+                      <option value="Limited travel">Limited travel</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="learningStyle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Learning Style</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Learning Style</option>
+                      <option value="Self-taught">Self-taught</option>
+                      <option value="Formal education">Formal education</option>
+                      <option value="Hands-on learner">Hands-on learner</option>
+                      <option value="Visual learner">Visual learner</option>
+                    </select>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -656,19 +890,19 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               </div>
               
               <div>
-                <label className="text-sm font-medium mb-1 block">Residency Status Importance</label>
+                <label className="text-sm font-medium mb-1 block">Languages Spoken Importance</label>
                 <input 
                   type="range" 
                   min="0" 
                   max="10" 
-                  defaultValue={user.identityPreferences?.residencyStatus || 5}
+                  defaultValue={user.identityPreferences?.languagesSpoken || 5}
                   className="w-full"
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
                     const currentPrefs = form.getValues("identityPreferences") || {};
                     form.setValue("identityPreferences", {
                       ...currentPrefs,
-                      residencyStatus: value
+                      languagesSpoken: value
                     });
                   }}
                 />
@@ -701,6 +935,87 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 </div>
               </div>
               
+              <div className="mt-6 border-t border-secondary/20 pt-4">
+                <h5 className="text-sm font-medium mb-3">Enhanced Identity Attributes Importance</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium mb-1 block">Education Level</label>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="10" 
+                      defaultValue={user.identityPreferences?.education || 5}
+                      className="w-full"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        const currentPrefs = form.getValues("identityPreferences") || {};
+                        form.setValue("identityPreferences", {
+                          ...currentPrefs,
+                          education: value
+                        });
+                      }}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-xs font-medium mb-1 block">Professional Field</label>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="10" 
+                      defaultValue={user.identityPreferences?.professionalField || 5}
+                      className="w-full"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        const currentPrefs = form.getValues("identityPreferences") || {};
+                        form.setValue("identityPreferences", {
+                          ...currentPrefs,
+                          professionalField: value
+                        });
+                      }}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-xs font-medium mb-1 block">Community Affiliations</label>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="10" 
+                      defaultValue={user.identityPreferences?.communityAffiliations || 5}
+                      className="w-full"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        const currentPrefs = form.getValues("identityPreferences") || {};
+                        form.setValue("identityPreferences", {
+                          ...currentPrefs,
+                          communityAffiliations: value
+                        });
+                      }}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-xs font-medium mb-1 block">Event Preferences</label>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="10" 
+                      defaultValue={user.identityPreferences?.eventPreferences || 5}
+                      className="w-full"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        const currentPrefs = form.getValues("identityPreferences") || {};
+                        form.setValue("identityPreferences", {
+                          ...currentPrefs,
+                          eventPreferences: value
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              
               <div className="mt-4 p-3 bg-secondary/5 rounded-md border border-secondary/10">
                 <div className="flex items-center gap-2">
                   <input 
@@ -715,8 +1030,18 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                           gender: 5,
                           ageRange: 5,
                           countryOfOrigin: 5,
-                          residencyStatus: 5,
-                          culturalBackground: 5
+                          languagesSpoken: 5,
+                          culturalBackground: 5,
+                          education: 5,
+                          professionalField: 5,
+                          communityAffiliations: 5,
+                          eventPreferences: 5,
+                          collaborationStyle: 5,
+                          personalValues: 5,
+                          digitalIdentity: 5,
+                          physicalActivityLevel: 5,
+                          culturalExperiences: 5,
+                          learningStyle: 5
                         });
                       }
                     }}
