@@ -16,8 +16,18 @@ export const users = pgTable("users", {
   gender: text("gender"), // Male, Female, Non-binary, Prefer not to say
   ageRange: text("age_range"), // 18-25, 26-35, 36-45, 46+
   countryOfOrigin: text("country_of_origin"),
-  residencyStatus: text("residency_status"), // Permanent, Temporary, Tourist, Expat
+  languagesSpoken: text("languages_spoken"), // Languages the user speaks
   culturalBackground: text("cultural_background"),
+  education: text("education"), // High School, Bachelor's, Master's, PhD, Other
+  professionalField: text("professional_field"), // User's professional field or industry
+  communityAffiliations: text("community_affiliations"), // Groups or communities user belongs to
+  eventPreferences: text("event_preferences"), // In-person, Virtual, Small groups, etc.
+  collaborationStyle: text("collaboration_style"), // Solo worker, Team player, etc.
+  personalValues: text("personal_values"), // Core values important to the user
+  digitalIdentity: text("digital_identity"), // Early adopter, Content creator, etc.
+  physicalActivityLevel: text("physical_activity_level"), // Very active, Moderately active, etc.
+  culturalExperiences: text("cultural_experiences"), // Well-traveled, Local expert, etc.
+  learningStyle: text("learning_style"), // Self-taught, Formal education, etc.
   identityPreferences: jsonb("identity_preferences").$type<{
     attributeImportance: Record<string, number>; // Store importance weightings
   }>(),
@@ -139,8 +149,18 @@ export const insertUserSchema = createInsertSchema(users).pick({
   gender: true,
   ageRange: true,
   countryOfOrigin: true,
-  residencyStatus: true,
+  languagesSpoken: true,
   culturalBackground: true,
+  education: true,
+  professionalField: true,
+  communityAffiliations: true,
+  eventPreferences: true,
+  collaborationStyle: true,
+  personalValues: true,
+  digitalIdentity: true,
+  physicalActivityLevel: true,
+  culturalExperiences: true,
+  learningStyle: true,
   identityPreferences: true,
   isAdmin: true,
   preferences: true,

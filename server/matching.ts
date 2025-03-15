@@ -32,8 +32,18 @@ export function calculateIdentityScore(
     gender: 1,
     ageRange: 1,
     countryOfOrigin: 2,
-    residencyStatus: 1,
-    culturalBackground: 3
+    languagesSpoken: 2,
+    culturalBackground: 3,
+    education: 2,
+    professionalField: 2,
+    communityAffiliations: 2,
+    eventPreferences: 1,
+    collaborationStyle: 1,
+    personalValues: 3,
+    digitalIdentity: 1,
+    physicalActivityLevel: 1,
+    culturalExperiences: 2,
+    learningStyle: 1
   };
 
   // Use provided importance or default
@@ -42,36 +52,34 @@ export function calculateIdentityScore(
     ...attributeImportance
   };
 
-  // Check each identity attribute
-  if (user1.gender && user2.gender && user1.gender === user2.gender) {
-    totalScore += importance.gender;
-    commonIdentities.push('gender');
-  }
-  maxPossibleScore += importance.gender;
+  // Helper function to check attribute match
+  const checkAttributeMatch = (attribute: keyof typeof defaultImportance) => {
+    const user1Value = user1[attribute as keyof User];
+    const user2Value = user2[attribute as keyof User];
+    
+    if (user1Value && user2Value && user1Value === user2Value) {
+      totalScore += importance[attribute];
+      commonIdentities.push(attribute);
+    }
+    maxPossibleScore += importance[attribute];
+  };
 
-  if (user1.ageRange && user2.ageRange && user1.ageRange === user2.ageRange) {
-    totalScore += importance.ageRange;
-    commonIdentities.push('ageRange');
-  }
-  maxPossibleScore += importance.ageRange;
-
-  if (user1.countryOfOrigin && user2.countryOfOrigin && user1.countryOfOrigin === user2.countryOfOrigin) {
-    totalScore += importance.countryOfOrigin;
-    commonIdentities.push('countryOfOrigin');
-  }
-  maxPossibleScore += importance.countryOfOrigin;
-
-  if (user1.residencyStatus && user2.residencyStatus && user1.residencyStatus === user2.residencyStatus) {
-    totalScore += importance.residencyStatus;
-    commonIdentities.push('residencyStatus');
-  }
-  maxPossibleScore += importance.residencyStatus;
-
-  if (user1.culturalBackground && user2.culturalBackground && user1.culturalBackground === user2.culturalBackground) {
-    totalScore += importance.culturalBackground;
-    commonIdentities.push('culturalBackground');
-  }
-  maxPossibleScore += importance.culturalBackground;
+  // Check all identity attributes
+  checkAttributeMatch('gender');
+  checkAttributeMatch('ageRange');
+  checkAttributeMatch('countryOfOrigin');
+  checkAttributeMatch('languagesSpoken');
+  checkAttributeMatch('culturalBackground');
+  checkAttributeMatch('education');
+  checkAttributeMatch('professionalField');
+  checkAttributeMatch('communityAffiliations');
+  checkAttributeMatch('eventPreferences');
+  checkAttributeMatch('collaborationStyle');
+  checkAttributeMatch('personalValues');
+  checkAttributeMatch('digitalIdentity');
+  checkAttributeMatch('physicalActivityLevel');
+  checkAttributeMatch('culturalExperiences');
+  checkAttributeMatch('learningStyle');
 
   // Normalize score to 0-1 range
   const normalizedScore = maxPossibleScore > 0 ? totalScore / maxPossibleScore : 0;
