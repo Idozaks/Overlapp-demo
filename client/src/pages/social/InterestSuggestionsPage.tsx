@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import InterestSuggestions from "@/components/profile/InterestSuggestions";
+import { apiRequest } from "@/lib/queryClient";
 import type { User } from "@shared/schema";
 
 export default function InterestSuggestionsPage() {
@@ -54,9 +55,50 @@ export default function InterestSuggestionsPage() {
 
   const currentInterests = userInterests?.interests?.map(interest => interest.name) || [];
 
-  const handleInterestsSelected = (newInterests: string[]) => {
-    // The InterestSuggestions component will handle the navigation back to the edit page
-    // This is just a placeholder in case we need additional logic here
+  const handleInterestsSelected = async (newInterests: string[]) => {
+    if (!userId || !newInterests.length) return;
+    
+    try {
+      // For each new interest, add it to the user's interests
+      for (const interest of newInterests) {
+        // Try to find the interest in available interests
+        const existingInterest = await fetch(`/api/interests?name=${encodeURIComponent(interest)}`)
+          .then(res => res.json())
+          .then(data => data.interests?.find((i: any) => i.name === interest));
+          
+        if (existingInterest) {
+          // Add existing interest to user
+          await apiRequest(`/api/users/${userId}/interests`, {
+            method: 'POST',
+            body: JSON.stringify({ interestId: existingInterest.id })
+          });
+        } else {
+          // Create new interest
+          const newInterestResponse = await apiRequest('/api/interests', {
+            method: 'POST',
+            body: JSON.stringify({
+              name: interest,
+              category: 'AI_GENERATED',
+              description: 'AI-suggested interest based on user preferences',
+              isAiGenerated: true
+            })
+          });
+          
+          if (newInterestResponse.ok) {
+            const newInterest = await newInterestResponse.json();
+            // Add newly created interest to user
+            await apiRequest(`/api/users/${userId}/interests`, {
+              method: 'POST',
+              body: JSON.stringify({ 
+                interestId: newInterest.interest?.id || newInterest.id 
+              })
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error adding interests:', error);
+    }
   };
 
   return (
