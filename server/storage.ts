@@ -288,8 +288,18 @@ export class DatabaseStorage implements IStorage {
           gender: updateData.gender,
           ageRange: updateData.ageRange,
           countryOfOrigin: updateData.countryOfOrigin,
-          residencyStatus: updateData.residencyStatus,
+          languagesSpoken: updateData.languagesSpoken,
           culturalBackground: updateData.culturalBackground,
+          education: updateData.education,
+          professionalField: updateData.professionalField,
+          communityAffiliations: updateData.communityAffiliations,
+          eventPreferences: updateData.eventPreferences,
+          collaborationStyle: updateData.collaborationStyle,
+          personalValues: updateData.personalValues,
+          digitalIdentity: updateData.digitalIdentity,
+          physicalActivityLevel: updateData.physicalActivityLevel,
+          culturalExperiences: updateData.culturalExperiences,
+          learningStyle: updateData.learningStyle,
           identityPreferences: updateData.identityPreferences
         })
         .where(eq(users.id, id))
