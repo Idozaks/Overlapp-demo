@@ -82,6 +82,10 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [searchParams] = useLocation();
+  
+  // Check if we're returning from interest suggestions with a refresh param
+  const shouldRefreshInterests = searchParams.includes('refresh=true');
 
   const [suggestedInterests, setSuggestedInterests] = useState<InterestSuggestion[]>([]);
   const [isEnriching, setIsEnriching] = useState(false);
@@ -109,11 +113,31 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const availableInterests = allInterests?.interests?.map((interest: Interest) => interest.name) || [];
   const userSelectedInterests = userInterests?.interests?.map((interest: Interest) => interest.name) || [];
 
+  // Load user interests on initial render or when they change
   useEffect(() => {
     if (userSelectedInterests.length > 0) {
       setPendingInterests(new Set(userSelectedInterests));
     }
   }, [JSON.stringify(userSelectedInterests)]);
+  
+  // Handle refreshing interest data when returning from suggestions page
+  useEffect(() => {
+    if (shouldRefreshInterests) {
+      // Invalidate and refetch the interests data
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${user.id}/interests`] });
+      
+      // Show a success toast message
+      toast({
+        title: t("profile.interestsUpdated"),
+        description: t("profile.interestsUpdatedDescription") || "Your selected interests have been updated.",
+        variant: "default"
+      });
+      
+      // Remove the refresh parameter from URL by redirecting
+      const currentPath = window.location.pathname;
+      window.history.replaceState({}, '', currentPath);
+    }
+  }, [shouldRefreshInterests, user.id, queryClient, toast, t]);
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
