@@ -128,20 +128,33 @@ export default function InterestSuggestions({
     }
   });
 
+  // Adding console.log to debug what interests are available
   useEffect(() => {
-    if (currentInterests.length > 0) {
-      setIsLoading(true);
-      enrichInterestsMutation.mutate(currentInterests);
+    console.log('Current interests in InterestSuggestions:', currentInterests);
+    
+    // Check if we have interests and proceed - use a more robust check
+    if (Array.isArray(currentInterests) && currentInterests.length > 0) {
+      // Make sure we're not already loading
+      if (!isLoading) {
+        setIsLoading(true);
+        enrichInterestsMutation.mutate(currentInterests);
+      }
     } else {
-      toast({
-        title: t("profile.enrichError"),
-        description: t("profile.selectInterestsFirst"),
-        variant: "destructive"
-      });
-      // Navigate back if no interests to enrich
-      setLocation(`/profile/${userId}/edit`);
+      // Only show error and navigate if:
+      // 1. currentInterests is defined (not during initial load)
+      // 2. It's confirmed to be empty (not undefined or still loading)
+      if (currentInterests !== undefined && !isLoading) {
+        console.log('No interests detected, showing error and navigating back');
+        toast({
+          title: t("profile.enrichError"),
+          description: t("profile.selectInterestsFirst"),
+          variant: "destructive"
+        });
+        // Navigate back if no interests to enrich
+        setLocation(`/profile/${userId}/edit`);
+      }
     }
-  }, []);
+  }, [currentInterests, userId, t, toast, setLocation, isLoading, enrichInterestsMutation]);
 
   const toggleSuggestion = (suggestion: string) => {
     setSelectedSuggestions(prev => {
