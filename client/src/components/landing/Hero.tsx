@@ -1,30 +1,29 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, UserCircle, Store, Network } from "lucide-react";
 
 const slides = [
   {
     title: "common.landing.hero.slide1.title",
     description: "common.landing.hero.slide1.subtitle",
     gradientColors: "from-blue-500 to-purple-500",
-    scene: encodeURIComponent("/attached_assets/Personal Profile.png"),
+    icon: <UserCircle className="w-32 h-32 text-white" />,
     emoji: "🧑‍💼"
   },
   {
     title: "common.landing.hero.slide2.title",
     description: "common.landing.hero.slide2.subtitle",
-    gradientColors: "from-green-500 to-teal-500", 
-    scene: encodeURIComponent("/attached_assets/Retail Experience.png"),
+    gradientColors: "from-green-500 to-teal-500",
+    icon: <Store className="w-32 h-32 text-white" />,
     emoji: "🛍️"
   },
   {
     title: "common.landing.hero.slide3.title",
     description: "common.landing.hero.slide3.subtitle",
     gradientColors: "from-amber-500 to-red-500",
-    scene: encodeURIComponent("/attached_assets/Business Networking.png"),
+    icon: <Network className="w-32 h-32 text-white" />,
     emoji: "🤝"
   }
 ];
@@ -93,11 +92,7 @@ export default function Hero() {
               transition={{ duration: 0.5 }}
             >
               <div className="relative h-full w-full rounded-xl overflow-hidden">
-                <img
-                  src={slides[currentSlide].scene}
-                  alt={t(slides[currentSlide].title)}
-                  className="w-full h-full object-cover"
-                />
+                {slides[currentSlide].icon} {/* Replaced img tag with icon */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-20`} />
               </div>
             </motion.div>
