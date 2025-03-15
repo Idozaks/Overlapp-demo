@@ -78,13 +78,27 @@ export default function InterestSuggestions({
       }
       
       // Additional validation for each suggestion item
-      const validSuggestions = data.suggestions.map(suggestion => {
+      const validSuggestions = data.suggestions.map((suggestion: any) => {
+        if (!suggestion || typeof suggestion !== 'object') {
+          console.error('Invalid suggestion object:', suggestion);
+          return { name: 'Unknown Interest', emoji: '🔍' };
+        }
+        
         // Ensure both name and emoji exist and are strings
-        return {
-          name: typeof suggestion.name === 'string' ? suggestion.name.trim() : 'Unknown Interest',
-          emoji: typeof suggestion.emoji === 'string' ? suggestion.emoji.trim() : '🔍'
-        };
-      }).filter(suggestion => suggestion.name.length > 0);
+        const name = typeof suggestion.name === 'string' ? suggestion.name.trim() : 'Unknown Interest';
+        
+        // Validate emoji - ensure it's a string and a single emoji character
+        let emoji = '🔍'; // Default fallback
+        if (typeof suggestion.emoji === 'string') {
+          const cleanEmoji = suggestion.emoji.trim();
+          // Only use if it's not empty
+          if (cleanEmoji.length > 0) {
+            emoji = cleanEmoji;
+          }
+        }
+        
+        return { name, emoji };
+      }).filter((suggestion: { name: string }) => suggestion.name !== 'Unknown Interest' && suggestion.name.length > 0);
       
       console.log('Processed suggestions:', validSuggestions);
       
