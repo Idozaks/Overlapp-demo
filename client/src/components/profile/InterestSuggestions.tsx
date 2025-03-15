@@ -64,6 +64,8 @@ export default function InterestSuggestions({
           description: "Missing suggestions in AI response",
           variant: "destructive"
         });
+        setIsLoading(false);
+        setShowAiThinking(false);
         return;
       }
       
@@ -74,31 +76,48 @@ export default function InterestSuggestions({
           description: "Invalid suggestions format from AI",
           variant: "destructive"
         });
+        setIsLoading(false);
+        setShowAiThinking(false);
         return;
       }
       
-      // Additional validation for each suggestion item
+      // Process the suggestions from the server
       const validSuggestions = data.suggestions.map((suggestion: any) => {
-        if (!suggestion || typeof suggestion !== 'object') {
-          console.error('Invalid suggestion object:', suggestion);
-          return { name: 'Unknown Interest', emoji: '🔍' };
+        // If it's already an object with name and emoji, use it directly
+        if (suggestion && typeof suggestion === 'object' && 
+            typeof suggestion.name === 'string' && suggestion.name.trim().length > 0 &&
+            typeof suggestion.emoji === 'string' && suggestion.emoji.trim().length > 0) {
+          return { 
+            name: suggestion.name.trim(), 
+            emoji: suggestion.emoji.trim() 
+          };
         }
         
-        // Ensure both name and emoji exist and are strings
-        const name = typeof suggestion.name === 'string' ? suggestion.name.trim() : 'Unknown Interest';
+        // Otherwise, construct a valid object with fallbacks
+        let name = 'Unknown Interest';
+        let emoji = '✨'; // Default fallback
         
-        // Validate emoji - ensure it's a string and a single emoji character
-        let emoji = '🔍'; // Default fallback
-        if (typeof suggestion.emoji === 'string') {
-          const cleanEmoji = suggestion.emoji.trim();
-          // Only use if it's not empty
-          if (cleanEmoji.length > 0) {
-            emoji = cleanEmoji;
+        // If it's a string, use it as the name
+        if (typeof suggestion === 'string') {
+          name = suggestion.trim();
+        } 
+        // If it's an object with at least a name
+        else if (suggestion && typeof suggestion === 'object') {
+          if (typeof suggestion.name === 'string' && suggestion.name.trim().length > 0) {
+            name = suggestion.name.trim();
+          }
+          
+          if (typeof suggestion.emoji === 'string' && suggestion.emoji.trim().length > 0) {
+            emoji = suggestion.emoji.trim();
           }
         }
         
         return { name, emoji };
-      }).filter((suggestion: { name: string }) => suggestion.name !== 'Unknown Interest' && suggestion.name.length > 0);
+      }).filter((suggestion: { name: string }) => 
+        suggestion.name !== 'Unknown Interest' && 
+        suggestion.name.length > 0 && 
+        !currentInterests.includes(suggestion.name)
+      );
       
       console.log('Processed suggestions:', validSuggestions);
       
@@ -108,11 +127,14 @@ export default function InterestSuggestions({
           description: t("profile.noSuggestionsFound"),
           variant: "destructive"
         });
+        setIsLoading(false);
+        setShowAiThinking(false);
         return;
       }
 
       setSuggestedInterests(validSuggestions);
       setIsLoading(false);
+      setShowAiThinking(false);
       toast({
         title: t("profile.enrichSuccess"),
         description: t("profile.enrichSuccessMessage")
