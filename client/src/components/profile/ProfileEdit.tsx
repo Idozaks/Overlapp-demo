@@ -22,6 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import countries from 'world-countries';
 
 interface InterestSuggestion {
   name: string;
@@ -495,13 +497,13 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             </FormItem>
           )}
         />
-        
+
         <div className="bg-secondary/10 p-4 rounded-lg border border-secondary/20 mb-6">
           <h3 className="text-lg font-medium mb-4">Identity Information</h3>
           <p className="text-sm text-muted-foreground mb-4">
             The following information helps us find better connections for you based on shared identity traits.
           </p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -525,7 +527,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="ageRange"
@@ -548,21 +550,39 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
-              control={form.control}
-              name="countryOfOrigin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Country of Origin</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="E.g. United States, Canada, etc." />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
+                control={form.control}
+                name="countryOfOrigin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("profile.countryOfOrigin")}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a country" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem key={country.cca2} value={country.cca2}>
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={`https://flagcdn.com/w20/${country.cca2.toLowerCase()}.png`}
+                                width="20" 
+                                alt={country.name.common}
+                              />
+                              {country.name.common}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
             <FormField
               control={form.control}
               name="languagesSpoken"
@@ -576,7 +596,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="culturalBackground"
@@ -811,14 +831,14 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               )}
             />
           </div>
-          
+
           <div className="mt-8 border-t border-secondary/20 pt-6">
             <h4 className="text-md font-medium mb-4">Identity Matching Preferences</h4>
             <p className="text-sm text-muted-foreground mb-4">
               Adjust how important each identity attribute is when finding matches for you.
               Higher values mean you'll be matched more strongly with people who share that trait.
             </p>
-            
+
             <div className="space-y-6">
               <div>
                 <label className="text-sm font-medium mb-1 block">Gender Importance</label>
@@ -842,7 +862,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <span>Very important</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-1 block">Age Range Importance</label>
                 <input 
@@ -865,7 +885,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <span>Very important</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-1 block">Country of Origin Importance</label>
                 <input 
@@ -888,7 +908,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <span>Very important</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-1 block">Languages Spoken Importance</label>
                 <input 
@@ -911,7 +931,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <span>Very important</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-1 block">Cultural Background Importance</label>
                 <input 
@@ -934,7 +954,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   <span>Very important</span>
                 </div>
               </div>
-              
+
               <div className="mt-6 border-t border-secondary/20 pt-4">
                 <h5 className="text-sm font-medium mb-3">Enhanced Identity Attributes Importance</h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -956,7 +976,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                       }}
                     />
                   </div>
-                  
+
                   <div>
                     <label className="text-xs font-medium mb-1 block">Professional Field</label>
                     <input 
@@ -975,7 +995,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                       }}
                     />
                   </div>
-                  
+
                   <div>
                     <label className="text-xs font-medium mb-1 block">Community Affiliations</label>
                     <input 
@@ -994,7 +1014,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                       }}
                     />
                   </div>
-                  
+
                   <div>
                     <label className="text-xs font-medium mb-1 block">Event Preferences</label>
                     <input 
@@ -1015,7 +1035,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-4 p-3 bg-secondary/5 rounded-md border border-secondary/10">
                 <div className="flex items-center gap-2">
                   <input 
@@ -1057,109 +1077,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         </div>
 
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <FormLabel>{t("profile.interests")}</FormLabel>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleEnrichInterests}
-              disabled={isEnriching}
-              className="gap-2 bg-primary/5 hover:bg-primary/10 border-primary/20"
-            >
-              {isEnriching ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4 text-primary" />
-              )}
-              Discover More Interests with AI
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {[...availableInterests, ...Array.from(aiGeneratedInterests)].map((interest, idx) => (
-              <Badge
-                key={`available-${interest}-${idx}`}
-                variant={pendingInterests.has(interest) ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer transition-all",
-                  pendingInterests.has(interest) ? "bg-primary/90" : "hover:bg-primary/10",
-                  aiGeneratedInterests.has(interest) && "border-primary/50 bg-primary/5"
-                )}
-                onClick={() => toggleInterest(interest)}
-              >
-                {aiGeneratedInterests.has(interest) && interestEmojis.get(interest) && (
-                  <span className="mr-1">{interestEmojis.get(interest)}</span>
-                )}
-                {interest}
-              </Badge>
-            ))}
-          </div>
-
-          {suggestedInterests.length > 0 && (
-            <div className="mt-4 space-y-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-sm font-medium hover:bg-primary/10"
-                  onClick={() => setShowAiThinking(!showAiThinking)}
-                >
-                  {showAiThinking ? "Hide AI Analysis" : "Show AI Analysis"}
-                </Button>
-              </div>
-
-              {showAiThinking && (
-                <div className="p-4 rounded-lg bg-primary/5 text-sm space-y-2">
-                  <p className="font-medium text-primary">AI Analysis Process:</p>
-                  <p>Based on your selected interests, our AI analyzes patterns and relationships to suggest related activities and sub-categories that might interest you. For example:</p>
-                  <ul className="list-disc list-inside space-y-1 ml-2">
-                    {Array.from(pendingInterests).map((interest, idx) => (
-                      <li key={idx} className="text-muted-foreground">
-                        From "{interest}" → Looking for specific activities, related hobbies, and specialized sub-categories
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <div className="p-4 border rounded-lg bg-secondary/5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  <p className="font-medium">AI-Suggested Interests</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {suggestedInterests.map((suggestion, idx) => {
-                    const isSelected = pendingInterests.has(suggestion.name);
-                    console.log('Rendering suggestion:', suggestion); // Debug log
-
-                    return (
-                      <Badge
-                        key={`suggestion-${suggestion.name}-${idx}`}
-                        variant={isSelected ? "default" : "outline"}
-                        className={cn(
-                          "cursor-pointer hover:bg-primary/20 transition-colors",
-                          "flex items-center gap-1"
-                        )}
-                        onClick={() => toggleInterest(suggestion.name, true)}
-                      >
-                        {suggestion.emoji && (
-                          <span className="inline-block">{suggestion.emoji}</span>
-                        )}
-                        <span>{suggestion.name}</span>
-                      </Badge>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          <FormLabel>{t("profile.retailPreferences")}</FormLabel>
+          <FormLabel>{t("profile.interests")}</FormLabel>
           <div className="flex flex-wrap gap-2">
             {RETAIL_PREFERENCES.map(preference => (
               <Badge
