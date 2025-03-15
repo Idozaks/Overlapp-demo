@@ -280,13 +280,6 @@ export default function Profile() {
                       </div>
                     )}
                     
-                    {user.user.occupation && (
-                      <div className="flex flex-col">
-                        <span className="text-sm text-muted-foreground">Profession</span>
-                        <span className="font-medium">{user.user.occupation}</span>
-                      </div>
-                    )}
-                    
                     {user.user.professionalField && (
                       <div className="flex flex-col">
                         <span className="text-sm text-muted-foreground">Professional Field</span>
