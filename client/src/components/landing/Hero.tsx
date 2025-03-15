@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -10,7 +9,7 @@ const slides = [
     title: "common.landing.hero.slide1.title",
     description: "common.landing.hero.slide1.subtitle",
     gradientColors: "from-blue-500 to-purple-500",
-    scene: "/attached_assets/Personal%20Profile.png",
+    scene: "/attached_assets/Personal Profile.png",
     emoji: "🧑‍💼"
   },
   {
