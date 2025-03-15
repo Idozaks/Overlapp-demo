@@ -1,0 +1,73 @@
+Prompt: Implement a Smart Contact Card with AI-Powered Overlap Detection in Overlapp
+
+Objective:
+Create a feature in Overlapp that allows users to generate a digital business/contact card with a QR code. When another user scans the QR code, they will be presented with an option to analyze their overlapping interests, connections, or relevance using AI. This feature should work in the following scenarios:
+
+Person-to-Person (Users scanning each other’s QR codes)
+Person-to-Business (Users scanning a business QR code to find relevant offerings or services)
+Person-to-Website (Users scanning a website QR to see how its content aligns with their interests)
+Feature Requirements:
+1. Contact Card Generation
+Allow users to create a digital business card with the following fields:
+Full Name
+Profile Picture
+Username / Handle
+Job Title (Optional)
+Custom Message / Bio
+Links (Social media, website, portfolio, etc.)
+Interests (Extracted from user profile data)
+Generate a QR code linked to this business card.
+Store the business card data in the user’s profile.
+2. QR Code Scanning & Profile Matching
+Implement a QR Code Scanner within the app.
+When scanned, fetch the business card details of the other user/business/website.
+Show a "Find Overlaps" button that, when clicked, triggers the AI to:
+Compare interests, skills, past interactions, or other relevant data.
+Identify shared topics, hobbies, industries, or preferences.
+Provide a summary of overlapping areas in a readable format.
+3. AI-Powered Overlap Detection
+Use a Natural Language Processing (NLP) model to analyze:
+Shared keywords in interests and bios
+Mutual connections (if applicable)
+Common industries, hobbies, or goals
+Display overlap insights with explanations and suggestions for engagement.
+4. Interaction & Call-to-Action
+After finding overlaps, allow users to:
+Start a chat
+Follow each other
+Bookmark the profile for later
+Share common resources (e.g., articles, events, businesses)
+Implementation Steps:
+Backend:
+
+Create an API to store and retrieve business card data.
+Generate and store QR codes linking to user business cards.
+Implement an AI module to analyze overlapping interests.
+Frontend:
+
+Add a section for users to create and customize their business card.
+Display a scannable QR code on the user’s profile.
+Integrate a QR scanner with a UI to show the scanned profile and an "Analyze Overlap" button.
+Display overlap results in a friendly, interactive format.
+AI & Data Processing:
+
+Use NLP techniques to extract and compare interests.
+Implement vector embeddings to measure similarity between interests.
+Optimize response times for seamless interaction.
+Tech Stack:
+Frontend: React, Next.js (or your preferred framework)
+Backend: Node.js, Python (Flask or FastAPI)
+Database: PostgreSQL / MongoDB (depending on structure)
+QR Code Generation: qrcode package (Python) or qrcode.react (JS)
+AI Matching: OpenAI Embeddings API, LangChain, or a local NLP model
+Hosting & Deployment: Replit or Vercel
+Final Outcome:
+Users can easily share their contact details via QR.
+AI-powered overlap detection encourages meaningful connections.
+Works for person-to-person, person-to-business, and person-to-website interactions.
+Seamless UI/UX making networking intuitive.
+Deliverables:
+
+Functional QR-based contact card system.
+AI-driven overlap analysis feature.
+Clean UI for generating, scanning, and interacting with business cards.

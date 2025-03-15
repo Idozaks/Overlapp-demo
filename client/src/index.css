@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global font settings */
+@layer base {
+  html {
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  body {
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  /* Apply Rubik font for Hebrew language content */
+  :lang(he) {
+    font-family: 'Rubik', sans-serif;
+  }
+  
+  /* Add a utility class for Hebrew text */
+  .font-hebrew {
+    font-family: 'Rubik', sans-serif;
+  }
+}
+
 /* Hero Section Animations */
 @layer utilities {
   /* Color hue-shift animation for gradient squares */
