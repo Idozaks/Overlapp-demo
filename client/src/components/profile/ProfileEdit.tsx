@@ -556,7 +556,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 name="countryOfOrigin"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Current Country</FormLabel>
+                    <FormLabel>{t("profile.countryOfOrigin")}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
