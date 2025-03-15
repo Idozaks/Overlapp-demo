@@ -211,19 +211,41 @@ export async function generateEmojisForInterests(interests: Array<{id: number, n
       messages: [
         {
           role: "system",
-          content: "You are a JSON API endpoint that assigns appropriate emojis to interest topics. You must respond with ONLY valid JSON with no additional text or explanations."
+          content: "You are a JSON API endpoint that assigns highly relevant and visually appropriate emojis to interest topics. Your selections should precisely match the semantic meaning of each interest category. You must respond with ONLY valid JSON with no additional text or explanations."
         },
         {
           role: "user",
-          content: `I need to assign a matching emoji to each of these interests:
+          content: `I need to assign a perfectly matching emoji to each of these interests:
 ${interests.map(interest => `- ${interest.name}`).join('\n')}
 
 IMPORTANT RULES:
 1. Respond with ONLY valid JSON following the exact format shown below
 2. Keep the original interest ID and name exactly as provided
 3. Choose a SINGLE relevant, widely-supported emoji for each interest
-4. The emoji should clearly represent the interest's topic
+4. The emoji must PERFECTLY represent the interest's specific topic (not general categories)
 5. Choose emojis that display well on mobile devices
+6. Consider these emoji mapping guidelines:
+   - For art-related interests: 🎨 (palette), 🖌️ (paintbrush), 🖼️ (framed picture)
+   - For books/reading: 📚 (books), 📖 (open book), 📕 (closed book)
+   - For travel: 🧳 (luggage), 🗺️ (map), 🏝️ (island), ✈️ (airplane)
+   - For fitness: 💪 (muscle), 🏋️ (weightlifter), 🧘 (yoga pose)
+   - For food: 🍽️ (plate/utensils), 🍳 (cooking), 🥗 (salad)
+   - For technology: 💻 (laptop), 📱 (smartphone), 🖥️ (desktop)
+   - For music: 🎵 (musical note), 🎸 (guitar), 🎹 (piano), 🎧 (headphones)
+   - For nature: 🌿 (plant), 🌳 (tree), 🌸 (flower), 🏞️ (landscape)
+   - For social activities: 👥 (people), 🎭 (theater masks), 🎮 (gaming)
+
+EXAMPLES OF PERFECT MATCHES:
+- "Book Clubs" should get 📚 (books stack)
+- "Art" should get 🎨 (artist palette)
+- "Fashion" should get 👗 (dress) or 👔 (necktie)
+- "Travel" should get ✈️ (airplane) or 🧳 (luggage)
+- "Fitness" should get 💪 (muscle) or 🏋️ (weightlifter)
+
+EXAMPLES OF POOR MATCHES TO AVOID:
+- Don't use 🛩️ (small airplane) for "Book Clubs"
+- Don't use 📊 (chart) for "Art" or creative activities
+- Don't use 🧮 (abacus) for "Fashion"
 
 EXAMPLE RESPONSE FORMAT:
 {
