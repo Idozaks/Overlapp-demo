@@ -852,7 +852,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       log(`Generating emojis for ${interestsToProcess.length} interests`);
       
       // Generate emojis using OpenAI
-      const result = await openai.generateEmojisForInterests(
+      const result = await openaiService.generateEmojisForInterests(
         interestsToProcess.map(interest => ({ 
           id: interest.id, 
           name: interest.name 
