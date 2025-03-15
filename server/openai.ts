@@ -18,32 +18,31 @@ export async function enrichInterests(interests: string[]): Promise<EnrichIntere
       messages: [
         {
           role: "system",
-          content: "You are an expert at identifying related interests and hobbies. Your task is to suggest highly relevant, specific interests based on a user's current interests, and pair each with the most appropriate emoji. Ensure all JSON is perfectly formatted and valid. Always include both the 'name' and 'emoji' fields for each suggestion."
+          content: "You are a JSON API endpoint that returns interest suggestions in a specific format. You must respond with ONLY valid JSON containing an array of interests with name and emoji fields. No explanations, comments, or extra text. Your JSON must match the required schema exactly."
         },
         {
           role: "user",
-          content: `Based on these interests: ${interests.join(", ")}, generate 15-20 highly specific and related new interest suggestions.
+          content: `I need to generate interest suggestions based on these existing interests: ${interests.join(", ")}.
 
-For each suggestion:
-1. Choose a single, visually distinct emoji that best represents the interest
-2. Use widely supported Unicode emojis that render well on mobile devices
-3. Ensure each suggestion is unique and not a duplicate of existing interests
-4. Format your response as perfect, valid JSON with the exact structure shown below
+IMPORTANT RULES:
+1. Respond with EXACTLY 15 interest suggestions
+2. Include ONLY the required JSON format shown below - no explanations or other text
+3. Each suggestion MUST have both a "name" field (string) and "emoji" field (single Unicode emoji)
+4. Choose widely supported emojis that display well on mobile
+5. Do not duplicate any existing interests in the suggestions
 
-Examples of good emoji-interest pairings:
-- 📚 Books (general reading)
-- 🧠 Philosophy (intellectual pursuits)
-- 🎨 Painting (visual arts)
-- 🏃 Running (specific fitness activity)
-- 🌱 Gardening (plant cultivation)
-- 🎸 Guitar (specific instrument)
-- 💻 Programming (technical skill)
-- 🍳 Cooking (food preparation)
-- 🎭 Theater (performing arts)
-- 🔭 Astronomy (scientific field)
+EXAMPLE RESPONSE FORMAT:
+{
+  "suggestions": [
+    {"name": "Travel Photography", "emoji": "📸"},
+    {"name": "Mountain Hiking", "emoji": "🏔️"},
+    {"name": "Jazz Music", "emoji": "🎷"},
+    {"name": "Italian Cooking", "emoji": "🍝"},
+    {"name": "Urban Sketching", "emoji": "✏️"}
+  ]
+}
 
-Respond ONLY with valid JSON in exactly this format:
-{"suggestions": [{"name": "Interest Name 1", "emoji": "🔍"}, {"name": "Interest Name 2", "emoji": "🎯"}, ...]}`
+YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         }
       ],
       response_format: { type: "json_object" }
@@ -53,8 +52,11 @@ Respond ONLY with valid JSON in exactly this format:
     if (!content) {
       throw new Error("No content received from OpenAI");
     }
-
+    
+    console.log("[OpenAI] Raw response content:", content);
+    
     const parsed = JSON.parse(content);
+    console.log("[OpenAI] Parsed JSON response:", parsed);
 
     // Filter out duplicates and original interests
     const suggestions = Array.isArray(parsed.suggestions) 
