@@ -103,6 +103,20 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     }
   });
   
+  // Update emojis map when interests are loaded
+  useEffect(() => {
+    if (allInterests?.interests) {
+      const newEmojiMap = new Map<string, string>();
+      allInterests.interests.forEach((interest: Interest) => {
+        // Only add if iconUrl (emoji) exists
+        if (interest.iconUrl) {
+          newEmojiMap.set(interest.name, interest.iconUrl);
+        }
+      });
+      setInterestEmojis(newEmojiMap);
+    }
+  }, [allInterests?.interests]);
+  
   const { data: interestCategories } = useQuery<{ categories: string[] }>({
     queryKey: ['/api/interests/categories'],
     queryFn: async () => {
