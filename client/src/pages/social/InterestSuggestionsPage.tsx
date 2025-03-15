@@ -16,7 +16,7 @@ export default function InterestSuggestionsPage() {
     enabled: !!userId && !isNaN(userId)
   });
 
-  const { data: userInterests } = useQuery<{ interests: { name: string }[] }>({
+  const { data: userInterests, isLoading: loadingInterests } = useQuery<{ interests: { name: string }[] }>({
     queryKey: [`/api/users/${userId}/interests`],
     enabled: !!userId && !isNaN(userId)
   });
@@ -33,7 +33,7 @@ export default function InterestSuggestionsPage() {
     );
   }
 
-  if (loadingUser) {
+  if (loadingUser || loadingInterests) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin" />
