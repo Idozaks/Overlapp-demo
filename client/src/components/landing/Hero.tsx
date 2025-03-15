@@ -24,7 +24,7 @@ const slides = [
     title: "common.landing.hero.slide3.title",
     description: "common.landing.hero.slide3.subtitle",
     gradientColors: "from-amber-500 to-red-500",
-    scene: "/Business Networking.png",
+    scene: "/Business%20Networking.png",
     emoji: "🤝"
   }
 ];
