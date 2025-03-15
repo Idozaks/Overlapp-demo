@@ -144,18 +144,34 @@ export default function InterestManager() {
                 />
               </div>
             </div>
-            <Button
-              onClick={() => addInterestMutation.mutate()}
-              disabled={!newInterest || !newCategory || addInterestMutation.isPending}
-              className="w-full"
-            >
-              {addInterestMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <Plus className="w-4 h-4 mr-2" />
-              )}
-              Add Interest
-            </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button
+                onClick={() => addInterestMutation.mutate()}
+                disabled={!newInterest || !newCategory || addInterestMutation.isPending}
+                className="w-full"
+              >
+                {addInterestMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Plus className="w-4 h-4 mr-2" />
+                )}
+                Add Interest
+              </Button>
+              
+              <Button
+                onClick={() => categorizeAllInterestsMutation.mutate()}
+                disabled={categorizeAllInterestsMutation.isPending}
+                className="w-full"
+                variant="secondary"
+              >
+                {categorizeAllInterestsMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                Categorize All Interests with AI
+              </Button>
+            </div>
 
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-4">Current Interests</h3>
