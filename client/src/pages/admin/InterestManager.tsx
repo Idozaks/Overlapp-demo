@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, Trash2, Sparkles } from "lucide-react";
+import { Loader2, Plus, Trash2, Sparkles, Smile } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Interest } from "@shared/schema";
@@ -21,6 +21,33 @@ export default function InterestManager() {
       const response = await apiRequest('/api/interests');
       return response.json();
     }
+  });
+  
+  const generateEmojisMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('/api/interests/generate-emojis', {
+        method: 'POST'
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate emojis for interests');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/interests'] });
+      toast({
+        title: "Success",
+        description: data.message || `Successfully updated interests with matching emojis`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const addInterestMutation = useMutation({
@@ -144,7 +171,7 @@ export default function InterestManager() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <Button
                 onClick={() => addInterestMutation.mutate()}
                 disabled={!newInterest || !newCategory || addInterestMutation.isPending}
@@ -158,19 +185,35 @@ export default function InterestManager() {
                 Add Interest
               </Button>
               
-              <Button
-                onClick={() => categorizeAllInterestsMutation.mutate()}
-                disabled={categorizeAllInterestsMutation.isPending}
-                className="w-full"
-                variant="secondary"
-              >
-                {categorizeAllInterestsMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Categorize All Interests with AI
-              </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button
+                  onClick={() => categorizeAllInterestsMutation.mutate()}
+                  disabled={categorizeAllInterestsMutation.isPending}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  {categorizeAllInterestsMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  Categorize All with AI
+                </Button>
+                
+                <Button
+                  onClick={() => generateEmojisMutation.mutate()}
+                  disabled={generateEmojisMutation.isPending}
+                  className="w-full"
+                  variant="outline"
+                >
+                  {generateEmojisMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Smile className="w-4 h-4 mr-2" />
+                  )}
+                  Generate Matching Emojis
+                </Button>
+              </div>
             </div>
 
             <div className="mt-8">
@@ -182,7 +225,10 @@ export default function InterestManager() {
                     className="flex items-center justify-between p-3 border rounded-lg"
                   >
                     <div className="space-y-1">
-                      <p className="font-medium">{interest.name}</p>
+                      <p className="font-medium">
+                        {interest.iconUrl && <span className="mr-2">{interest.iconUrl}</span>}
+                        {interest.name}
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="secondary">{interest.category}</Badge>
                         {interest.isAiGenerated && (
