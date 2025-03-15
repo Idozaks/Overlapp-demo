@@ -15,7 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles } from "lucide-react";
+import { useLocation } from "wouter";
+import { Loader2, Sparkles, Plus } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { User, Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
@@ -1077,7 +1078,46 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         </div>
 
         <div className="space-y-4">
-          <FormLabel>{t("profile.interests")}</FormLabel>
+          <div className="flex justify-between items-center">
+            <FormLabel>{t("profile.interests")}</FormLabel>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                type="button"
+                onClick={() => {
+                  if (!user?.id) return;
+                  window.location.href = `/profile/${user.id}/interests/suggestions`;
+                }}
+                className="flex items-center gap-1"
+              >
+                <Sparkles className="h-4 w-4" />
+                {t("profile.aiSuggestInterests")}
+              </Button>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            {availableInterests.map(interest => (
+              <Badge
+                key={interest}
+                variant={pendingInterests.has(interest) ? "default" : "outline"}
+                className="cursor-pointer hover:shadow-sm transition-all"
+                onClick={() => toggleInterest(interest)}
+              >
+                {interestEmojis.get(interest) || '🔖'} {interest}
+              </Badge>
+            ))}
+            {availableInterests.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                {t("profile.noInterestsAvailable")}
+              </p>
+            )}
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <FormLabel>{t("profile.retailPreferences")}</FormLabel>
           <div className="flex flex-wrap gap-2">
             {RETAIL_PREFERENCES.map(preference => (
               <Badge

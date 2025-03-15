@@ -14,6 +14,7 @@ import SocialHub from "@/pages/social/SocialHub";
 import ExploreUsers from "@/pages/social/ExploreUsers";
 import Profile from "@/pages/social/Profile";
 import ProfileEdit from "@/pages/social/ProfileEdit";
+import InterestSuggestionsPage from "@/pages/social/InterestSuggestionsPage";
 import Matches from "@/pages/social/Matches";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import InterestManager from "@/pages/admin/InterestManager";
@@ -71,6 +72,7 @@ function Router() {
       <Route path="/social/matches" component={Matches} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
+      <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
       <Route path="/wallet" component={WalletDashboard} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
       <Route path="/engage" component={lazy(() => import('./pages/engage/EngageIndex'))} />
