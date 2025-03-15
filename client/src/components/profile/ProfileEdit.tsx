@@ -45,7 +45,6 @@ const profileUpdateSchema = z.object({
   languagesSpoken: z.string().optional().or(z.literal("")),
   culturalBackground: z.string().optional().or(z.literal("")),
   education: z.enum(["High School", "Bachelor's", "Master's", "PhD", "Other", "Prefer not to say"]).optional().or(z.literal("")),
-  occupation: z.string().optional().or(z.literal("")),
   professionalField: z.string().optional().or(z.literal("")),
   communityAffiliations: z.string().optional().or(z.literal("")),
   eventPreferences: z.enum(["In-person gatherings", "Virtual meetups", "Small groups", "Large conferences", "Any"]).optional().or(z.literal("")),
@@ -127,7 +126,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       languagesSpoken: user.languagesSpoken || "",
       culturalBackground: user.culturalBackground || "",
       education: user.education || "",
-      occupation: user.occupation || "",
       professionalField: user.professionalField || "",
       communityAffiliations: user.communityAffiliations || "",
       eventPreferences: user.eventPreferences || "",
@@ -385,7 +383,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       languagesSpoken: data.languagesSpoken || undefined,
       culturalBackground: data.culturalBackground || undefined,
       education: data.education || undefined,
-      occupation: data.occupation || undefined,
       professionalField: data.professionalField || undefined,
       communityAffiliations: data.communityAffiliations || undefined,
       eventPreferences: data.eventPreferences || undefined,
@@ -655,20 +652,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
             <FormField
               control={form.control}
-              name="occupation"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Profession</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="E.g. Software Engineer, Doctor, Teacher" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="professionalField"
               render={({ field }) => (
                 <FormItem>
@@ -904,7 +887,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1 block">Current Country Importance</label>
+                <label className="text-sm font-medium mb-1 block">Country of Origin Importance</label>
                 <input 
                   type="range" 
                   min="0" 
