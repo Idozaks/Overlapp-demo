@@ -1,7 +1,7 @@
 import { users, posts, comments, connections, likes, wallets, nfts, transactions, interests, interestContent, userInterests, type Interest, type InterestContent, type UserInterest, type InsertInterest, type InsertInterestContent, type InsertUserInterest } from "@shared/schema";
 import { type User, type InsertUser, type Post, type Comment, type Connection, type Wallet, type NFT, type Transaction, type InsertNFT, type InsertWallet } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, inArray, or, sql } from "drizzle-orm";
+import { eq, desc, and, inArray, or, not, sql } from "drizzle-orm";
 import { log } from "./vite";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
@@ -13,8 +13,7 @@ const storageLog = (operation: string, details: any) => {
   log(`[STORAGE] ${timestamp} - ${operation}:`, JSON.stringify(details, null, 2));
 };
 
-import { interests, type Interest, type InsertInterest } from "@shared/schema";
-import { eq } from "drizzle-orm";
+// IStorage interface
 
 // Add to the IStorage interface
 export interface IStorage {
@@ -24,6 +23,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User>;
+  updateUserIdentityPreferences(userId: number, attributeImportance: Record<string, number>): Promise<User>;
 
   // Social operations
   followUser(followerId: number, followingId: number): Promise<Connection>;
@@ -55,7 +55,16 @@ export interface IStorage {
   // Transaction operations
   getTransactions(walletId: number): Promise<Transaction[]>;
   getTransaction(id: number): Promise<Transaction | undefined>;
+  
+  // Recommendations and Matching
   getRecommendations(userId: number): Promise<any[]>;
+  getIdentityMatches(userId: number, options?: {
+    limit?: number;
+    identityWeight?: number;
+    interestWeight?: number;
+    minIdentityMatches?: number;
+  }): Promise<any[]>;
+  
   // Add session store
   sessionStore: session.Store;
 
@@ -267,13 +276,21 @@ export class DatabaseStorage implements IStorage {
           : []
       } : undefined;
 
+      // Include the new identity fields in the update
       const [user] = await db
         .update(users)
         .set({
           displayName: updateData.displayName,
           bio: updateData.bio,
           avatar: updateData.avatar,
-          preferences: preferences
+          preferences: preferences,
+          // New identity fields
+          gender: updateData.gender,
+          ageRange: updateData.ageRange,
+          countryOfOrigin: updateData.countryOfOrigin,
+          residencyStatus: updateData.residencyStatus,
+          culturalBackground: updateData.culturalBackground,
+          identityPreferences: updateData.identityPreferences
         })
         .where(eq(users.id, id))
         .returning();
@@ -285,6 +302,37 @@ export class DatabaseStorage implements IStorage {
       return user;
     } catch (error) {
       log("Error updating user:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async updateUserIdentityPreferences(userId: number, attributeImportance: Record<string, number>): Promise<User> {
+    try {
+      storageLog("updateUserIdentityPreferences", { userId, attributeImportance });
+
+      // Get current user to keep existing preferences
+      const user = await this.getUser(userId);
+      if (!user) {
+        throw new Error(`User with ID ${userId} not found`);
+      }
+
+      // Prepare identity preferences
+      const identityPreferences = {
+        attributeImportance
+      };
+
+      // Update only the identity preferences field
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          identityPreferences
+        })
+        .where(eq(users.id, userId))
+        .returning();
+
+      return updatedUser;
+    } catch (error) {
+      log("Error updating user identity preferences:", error instanceof Error ? error.message : String(error));
       throw error;
     }
   }
@@ -521,6 +569,160 @@ export class DatabaseStorage implements IStorage {
         { name: `${interest} Item 2`, price: Math.floor(Math.random() * 100) + 20 }
       ]
     }));
+  }
+  
+  async getIdentityMatches(userId: number, options: {
+    limit?: number;
+    identityWeight?: number;
+    interestWeight?: number;
+    minIdentityMatches?: number;
+  } = {}): Promise<any[]> {
+    try {
+      // Default values if not provided
+      const limit = options.limit || 10;
+      const identityWeight = options.identityWeight || 0.7;
+      const interestWeight = options.interestWeight || 0.3;
+      const minIdentityMatches = options.minIdentityMatches || 2;
+      
+      // Get current user
+      const currentUser = await this.getUser(userId);
+      if (!currentUser) {
+        throw new Error(`User with ID ${userId} not found`);
+      }
+      
+      // Get all users except the current user
+      const allUsers = await db
+        .select()
+        .from(users)
+        .where(not(eq(users.id, userId)));
+        
+      // Get user interests
+      const userInterestsList = await this.getUserInterests(userId);
+      const userInterestNames = userInterestsList.map(interest => interest.name);
+      
+      // Get user's importance weights for identity attributes
+      const attributeImportance = currentUser.identityPreferences?.attributeImportance || {};
+      
+      // Calculate match scores for each user
+      const matches = [];
+      
+      for (const potentialMatch of allUsers) {
+        // Skip users with no identity information
+        if (!potentialMatch.gender && !potentialMatch.ageRange && 
+            !potentialMatch.countryOfOrigin && !potentialMatch.residencyStatus &&
+            !potentialMatch.culturalBackground) {
+          continue;
+        }
+        
+        // Calculate identity match
+        const commonIdentities = [];
+        let identityScore = 0;
+        let maxPossibleScore = 0;
+        
+        // Default importance weights if not provided by the user
+        const defaultImportance = {
+          gender: 1,
+          ageRange: 1,
+          countryOfOrigin: 2,
+          residencyStatus: 1,
+          culturalBackground: 3
+        };
+        
+        // Use provided importance or default
+        const importance = {
+          ...defaultImportance,
+          ...attributeImportance
+        };
+        
+        // Gender
+        if (currentUser.gender && potentialMatch.gender && 
+            currentUser.gender === potentialMatch.gender) {
+          identityScore += importance.gender;
+          commonIdentities.push('gender');
+        }
+        maxPossibleScore += importance.gender;
+        
+        // Age Range
+        if (currentUser.ageRange && potentialMatch.ageRange && 
+            currentUser.ageRange === potentialMatch.ageRange) {
+          identityScore += importance.ageRange;
+          commonIdentities.push('ageRange');
+        }
+        maxPossibleScore += importance.ageRange;
+        
+        // Country of Origin
+        if (currentUser.countryOfOrigin && potentialMatch.countryOfOrigin && 
+            currentUser.countryOfOrigin === potentialMatch.countryOfOrigin) {
+          identityScore += importance.countryOfOrigin;
+          commonIdentities.push('countryOfOrigin');
+        }
+        maxPossibleScore += importance.countryOfOrigin;
+        
+        // Residency Status
+        if (currentUser.residencyStatus && potentialMatch.residencyStatus && 
+            currentUser.residencyStatus === potentialMatch.residencyStatus) {
+          identityScore += importance.residencyStatus;
+          commonIdentities.push('residencyStatus');
+        }
+        maxPossibleScore += importance.residencyStatus;
+        
+        // Cultural Background
+        if (currentUser.culturalBackground && potentialMatch.culturalBackground && 
+            currentUser.culturalBackground === potentialMatch.culturalBackground) {
+          identityScore += importance.culturalBackground;
+          commonIdentities.push('culturalBackground');
+        }
+        maxPossibleScore += importance.culturalBackground;
+        
+        // Skip users who don't meet the minimum identity matches threshold
+        if (commonIdentities.length < minIdentityMatches) {
+          continue;
+        }
+        
+        // Normalize identity score
+        const normalizedIdentityScore = maxPossibleScore > 0 ? identityScore / maxPossibleScore : 0;
+        
+        // Calculate interest match score
+        let interestScore = 0;
+        const matchInterests = await this.getUserInterests(potentialMatch.id);
+        const matchInterestNames = matchInterests.map(interest => interest.name);
+        
+        // Find shared interests
+        const sharedInterests = userInterestNames.filter(interest => 
+          matchInterestNames.includes(interest)
+        );
+        
+        // Calculate score based on number of shared interests
+        const totalInterestCount = new Set([...userInterestNames, ...matchInterestNames]).size;
+        interestScore = totalInterestCount > 0 ? sharedInterests.length / totalInterestCount : 0;
+        
+        // Calculate combined score
+        const combinedScore = (identityWeight * normalizedIdentityScore) + 
+                             (interestWeight * interestScore);
+        
+        matches.push({
+          userId: potentialMatch.id,
+          username: potentialMatch.username,
+          displayName: potentialMatch.displayName,
+          avatar: potentialMatch.avatar,
+          bio: potentialMatch.bio,
+          matchScore: combinedScore,
+          sharedIdentityCount: commonIdentities.length,
+          identityScore: normalizedIdentityScore,
+          interestScore: interestScore,
+          sharedInterests: sharedInterests,
+          commonIdentities: commonIdentities
+        });
+      }
+      
+      // Sort matches by combined score (highest first)
+      return matches
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, limit);
+    } catch (error) {
+      log("Error getting identity matches:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
   }
 
   async getInterests(): Promise<Interest[]> {
