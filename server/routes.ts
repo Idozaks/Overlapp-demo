@@ -1318,7 +1318,7 @@ const SYNTHETIC_USERS = [
     familySize: 4,
     digitalLiteracy: "High",
     ruralUrban: "Urban",
-    personalValues: ["Tradition", "Wellness", "Authenticity"],
+    personalValues: "Tradition, Wellness, Authenticity",
     attributeImportance: {
       gender: 0.2,
       age: 0.5,
@@ -1350,7 +1350,7 @@ const SYNTHETIC_USERS = [
     familySize: 1,
     digitalLiteracy: "High",
     ruralUrban: "Urban",
-    personalValues: ["Diversity", "Sustainability", "Creativity"],
+    personalValues: "Diversity, Sustainability, Creativity",
     attributeImportance: {
       gender: 0.3,
       age: 0.6,
