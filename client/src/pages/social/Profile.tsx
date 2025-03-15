@@ -1,10 +1,10 @@
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader2, Edit2, AtSign, Calendar } from "lucide-react";
+import { Loader2, Edit2, AtSign, Calendar, UserCheck } from "lucide-react";
 import { Link } from "wouter";
 import PostList from "@/components/social/PostList";
 import type { User, PostWithUser } from "@shared/schema";
@@ -22,6 +22,7 @@ export default function Profile() {
   const userId = id ? parseInt(id) : null;
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
+  const [, navigate] = useLocation();
 
   // Group all useQuery hooks together at the top
   const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
@@ -171,15 +172,25 @@ export default function Profile() {
 
                 <div className="flex flex-col gap-4 mt-6">
                   {isOwnProfile ? (
-                    <Link href={`/profile/${userId}/edit`}>
+                    <div className="flex flex-col gap-3">
+                      <Link href={`/profile/${userId}/edit`}>
+                        <Button
+                          variant="outline"
+                          className="w-full cursor-pointer"
+                        >
+                          <Edit2 className="w-4 h-4 mr-2" />
+                          Edit Profile
+                        </Button>
+                      </Link>
                       <Button
-                        variant="outline"
-                        className="w-full cursor-pointer"
+                        onClick={() => navigate('/social/matches')}
+                        className="w-full"
+                        variant="default"
                       >
-                        <Edit2 className="w-4 h-4 mr-2" />
-                        Edit Profile
+                        <UserCheck className="w-4 h-4 mr-2" />
+                        Find Matches
                       </Button>
-                    </Link>
+                    </div>
                   ) : (
                     currentUser && (
                       <Button
