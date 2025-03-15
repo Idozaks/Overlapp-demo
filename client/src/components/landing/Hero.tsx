@@ -93,8 +93,8 @@ export default function Hero() {
               transition={{ duration: 0.5 }}
             >
               <div className="relative h-full w-full rounded-xl overflow-hidden">
-                <Image
-                  src={`/public${slides[currentSlide].scene}`}
+                <img
+                  src={slides[currentSlide].scene}
                   alt={t(slides[currentSlide].title)}
                   className="w-full h-full object-cover"
                   onError={(e) => {
