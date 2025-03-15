@@ -2,28 +2,31 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, UserCircle, Store, Network } from "lucide-react";
+import { ChevronRight, UserCircle, Store, Network, Users, ShoppingBag, Share2 } from "lucide-react";
 
 const slides = [
   {
     title: "common.landing.hero.slide1.title",
     description: "common.landing.hero.slide1.subtitle",
     gradientColors: "from-blue-500 to-purple-500",
-    icon: <UserCircle className="w-32 h-32 text-white" />,
+    icon: <UserCircle />,
+    secondaryIcon: <Users />,
     emoji: "🧑‍💼"
   },
   {
     title: "common.landing.hero.slide2.title",
     description: "common.landing.hero.slide2.subtitle",
     gradientColors: "from-green-500 to-teal-500",
-    icon: <Store className="w-32 h-32 text-white" />,
+    icon: <Store />,
+    secondaryIcon: <ShoppingBag />,
     emoji: "🛍️"
   },
   {
     title: "common.landing.hero.slide3.title",
     description: "common.landing.hero.slide3.subtitle",
     gradientColors: "from-amber-500 to-red-500",
-    icon: <Network className="w-32 h-32 text-white" />,
+    icon: <Network />,
+    secondaryIcon: <Share2 />,
     emoji: "🤝"
   }
 ];
@@ -91,9 +94,27 @@ export default function Hero() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative h-full w-full rounded-xl overflow-hidden">
-                {slides[currentSlide].icon} {/* Replaced img tag with icon */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-20`} />
+              <div className="relative h-full w-full rounded-xl overflow-hidden flex items-center justify-center gap-8 p-8">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-white/10 rounded-full p-6"
+                >
+                  {React.cloneElement(slides[currentSlide].icon, { 
+                    className: "w-48 h-48 text-white stroke-[1.5]"
+                  })}
+                </motion.div>
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-black/10 rounded-full p-6"
+                >
+                  {React.cloneElement(slides[currentSlide].secondaryIcon, { 
+                    className: "w-48 h-48 text-white stroke-[1.5]"
+                  })}
+                </motion.div>
+                <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-30`} />
               </div>
             </motion.div>
           </div>
