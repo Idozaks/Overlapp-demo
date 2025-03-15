@@ -94,10 +94,18 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const [pendingInterests, setPendingInterests] = useState<Set<string>>(new Set());
   const [interestEmojis, setInterestEmojis] = useState<Map<string, string>>(new Map());
 
-  const { data: allInterests } = useQuery<{ interests: Interest[] }>({
+  const { data: allInterests, isLoading: loadingInterests } = useQuery<{ interests: Interest[] }>({
     queryKey: ['/api/interests'],
     queryFn: async () => {
       const response = await apiRequest('/api/interests');
+      return response.json();
+    }
+  });
+  
+  const { data: interestCategories } = useQuery<{ categories: string[] }>({
+    queryKey: ['/api/interests/categories'],
+    queryFn: async () => {
+      const response = await apiRequest('/api/interests/categories');
       return response.json();
     }
   });
@@ -110,6 +118,23 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     }
   });
 
+  // Group interests by category
+  const interestsByCategory = React.useMemo(() => {
+    const grouped: Record<string, Interest[]> = {};
+    
+    if (allInterests?.interests) {
+      allInterests.interests.forEach((interest: Interest) => {
+        const category = interest.category || 'Uncategorized';
+        if (!grouped[category]) {
+          grouped[category] = [];
+        }
+        grouped[category].push(interest);
+      });
+    }
+    
+    return grouped;
+  }, [allInterests?.interests]);
+  
   const availableInterests = allInterests?.interests?.map((interest: Interest) => interest.name) || [];
   const userSelectedInterests = userInterests?.interests?.map((interest: Interest) => interest.name) || [];
 
@@ -387,6 +412,15 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       }
       return newSet;
     });
+  };
+  
+  // Get the count of interests in each category that are selected
+  const getSelectedCountByCategory = (category: string): number => {
+    if (!interestsByCategory[category]) return 0;
+    
+    return interestsByCategory[category].filter(interest => 
+      pendingInterests.has(interest.name)
+    ).length;
   };
 
   const toggleRetailPreference = (preference: string) => {
@@ -1121,23 +1155,46 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             </div>
           </div>
           
-          <div className="flex flex-wrap gap-2">
-            {availableInterests.map(interest => (
-              <Badge
-                key={interest}
-                variant={pendingInterests.has(interest) ? "default" : "outline"}
-                className="cursor-pointer hover:shadow-sm transition-all"
-                onClick={() => toggleInterest(interest)}
-              >
-                {interestEmojis.get(interest) || '🔖'} {interest}
-              </Badge>
-            ))}
-            {availableInterests.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                {t("profile.noInterestsAvailable")}
-              </p>
-            )}
-          </div>
+          {loadingInterests ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : Object.keys(interestsByCategory).length > 0 ? (
+            <Accordion type="multiple" className="w-full">
+              {Object.keys(interestsByCategory).sort().map((category) => (
+                <AccordionItem key={category} value={category}>
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{category}</span>
+                      {getSelectedCountByCategory(category) > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {getSelectedCountByCategory(category)}
+                        </Badge>
+                      )}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {interestsByCategory[category].map((interest) => (
+                        <Badge
+                          key={interest.name}
+                          variant={pendingInterests.has(interest.name) ? "default" : "outline"}
+                          className="cursor-pointer hover:shadow-sm transition-all"
+                          onClick={() => toggleInterest(interest.name)}
+                        >
+                          {interestEmojis.get(interest.name) || '🔖'} {interest.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {t("profile.noInterestsAvailable")}
+            </p>
+          )}
         </div>
         
         <div className="space-y-4">
