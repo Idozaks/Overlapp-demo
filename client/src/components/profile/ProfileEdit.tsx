@@ -1197,7 +1197,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                           className="cursor-pointer hover:shadow-sm transition-all"
                           onClick={() => toggleInterest(interest.name)}
                         >
-                          {interest.iconUrl || interestEmojis.get(interest.name) || '🔖'} {interest.name}
+                          {interest.iconUrl || interestEmojis.get(interest.name)} {interest.name}
                         </Badge>
                       ))}
                     </div>
