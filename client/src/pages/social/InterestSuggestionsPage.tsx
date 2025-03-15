@@ -16,7 +16,7 @@ export default function InterestSuggestionsPage() {
     enabled: !!userId && !isNaN(userId)
   });
 
-  const { data: userInterests, isLoading: loadingInterests } = useQuery<{ interests: { name: string }[] }>({
+  const { data: userInterests, isLoading: loadingInterests } = useQuery<{ interests: { id: number, name: string, category: string, iconUrl?: string }[] }>({
     queryKey: [`/api/users/${userId}/interests`],
     enabled: !!userId && !isNaN(userId)
   });

@@ -14,7 +14,12 @@ import { format } from "date-fns";
 
 // Added type definition for Interest
 interface Interest {
+  id: number;
   name: string;
+  category: string;
+  description?: string;
+  iconUrl?: string;
+  isAiGenerated?: boolean;
 }
 
 export default function Profile() {
@@ -138,7 +143,8 @@ export default function Profile() {
   };
 
   const retailPreferences = user.user.preferences?.retailPreferences || [];
-  const interests = userInterests?.interests?.map(interest => interest.name) || [];
+  // Keep full interest objects to access iconUrl
+  const interestObjects = userInterests?.interests || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -345,13 +351,13 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {interests.length > 0 && (
+                {interestObjects.length > 0 && (
                   <div>
                     <h2 className="text-lg font-semibold mb-2">Interests</h2>
                     <div className="flex flex-wrap gap-2">
-                      {interests.map(interest => (
-                        <Badge key={interest} variant="secondary">
-                          {interest}
+                      {interestObjects.map(interest => (
+                        <Badge key={interest.name} variant="secondary">
+                          {interest.iconUrl} {interest.name}
                         </Badge>
                       ))}
                     </div>
