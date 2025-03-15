@@ -67,7 +67,7 @@ function Router() {
       <Route path="/social" component={SocialHub} />
       <Route path="/social/explore" component={ExploreUsers} />
       <Route path="/profile/:id?" component={Profile} />
-      <Route path="/profile/edit" component={ProfileEdit} />
+      <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/wallet" component={WalletDashboard} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
       <Route path="/engage" component={lazy(() => import('./pages/engage/EngageIndex'))} />
