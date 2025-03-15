@@ -871,6 +871,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  app.post("/api/interests/categorize-all", async (req: Request, res: Response) => {
+    try {
+      // Check if user is authenticated and is admin
+      if (!req.isAuthenticated() || !req.user?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized. Admin access required." });
+      }
+      
+      // Get all interests without categories or with generic categories
+      const allInterests = await storage.getInterests();
+      
+      // Get interests that need categorization (empty category or AI_GENERATED category)
+      const interestsToProcess = allInterests.filter(interest => 
+        !interest.category || 
+        interest.category === 'AI_GENERATED' || 
+        interest.category === 'UNCATEGORIZED'
+      );
+      
+      if (interestsToProcess.length === 0) {
+        return res.json({ 
+          message: "No interests found that need categorization",
+          totalProcessed: 0 
+        });
+      }
+      
+      // Process interests in batches to avoid rate limits and improve performance
+      const batchSize = 20;
+      const batches = [];
+      
+      for (let i = 0; i < interestsToProcess.length; i += batchSize) {
+        batches.push(interestsToProcess.slice(i, i + batchSize));
+      }
+      
+      let totalProcessed = 0;
+      
+      // Process each batch
+      for (const batch of batches) {
+        const interestNames = batch.map(interest => interest.name);
+        
+        log(`Processing batch of ${interestNames.length} interests for categorization`);
+        
+        const prompt = `I have a list of user interests that need to be categorized. Please assign each interest to the most appropriate category.
+        
+Interests to categorize: ${interestNames.join(", ")}
+
+Response format instructions:
+1. Respond with ONLY a valid JSON object where keys are interest names and values are appropriate categories
+2. Use clear, concise category names (1-2 words, title case)
+3. Group similar interests under the same category when appropriate
+4. Be consistent with category naming
+5. Example categories: "Technology", "Fitness", "Art", "Travel", "Education", "Music", etc.
+
+Example response format:
+{
+  "Running": "Fitness",
+  "Machine Learning": "Technology",
+  "Watercolor Painting": "Art"
+}`;
+
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: "You are a specialized JSON API that categorizes interests. You must respond with ONLY valid JSON with no additional text."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 1000
+        });
+        
+        try {
+          const content = completion.choices[0].message.content || "{}";
+          const categorizations = JSON.parse(content);
+          
+          // Update each interest with its new category
+          for (const interest of batch) {
+            if (categorizations[interest.name]) {
+              const category = categorizations[interest.name];
+              log(`Updating interest "${interest.name}" with category "${category}"`);
+              
+              await storage.updateInterest(interest.id, { category });
+              totalProcessed++;
+            }
+          }
+        } catch (error) {
+          log("Error processing categorization batch:", error instanceof Error ? error.message : String(error));
+          // Continue with next batch if one fails
+          continue;
+        }
+      }
+      
+      res.json({ 
+        message: `Successfully categorized ${totalProcessed} interests`,
+        totalProcessed
+      });
+    } catch (error) {
+      log("Interest categorization error:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({
+        message: "Failed to categorize interests",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
 
   // Wallet Operations
   app.get("/api/wallet", async (req: Request, res: Response) => {

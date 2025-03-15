@@ -85,6 +85,7 @@ export interface IStorage {
   deleteInterest(id: number): Promise<void>;
   createInterest(interest: InsertInterest): Promise<Interest>;
   getInterestByName(name: string): Promise<Interest | undefined>;
+  updateInterest(id: number, data: Partial<InsertInterest>): Promise<Interest>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -964,6 +965,28 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       log("Error getting interest by name:", errorMessage);
+      throw error;
+    }
+  }
+  
+  async updateInterest(id: number, data: Partial<InsertInterest>): Promise<Interest> {
+    try {
+      log(`Updating interest with ID ${id}:`, JSON.stringify(data));
+      
+      const [updatedInterest] = await db
+        .update(interests)
+        .set(data)
+        .where(eq(interests.id, id))
+        .returning();
+      
+      if (!updatedInterest) {
+        throw new Error(`Interest with ID ${id} not found`);
+      }
+      
+      return updatedInterest;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log("Error updating interest:", errorMessage);
       throw error;
     }
   }

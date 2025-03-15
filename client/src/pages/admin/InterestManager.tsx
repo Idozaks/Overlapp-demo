@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Interest } from "@shared/schema";
@@ -72,6 +72,33 @@ export default function InterestManager() {
       toast({
         title: "Success",
         description: "Interest deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const categorizeAllInterestsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('/api/interests/categorize-all', {
+        method: 'POST'
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to categorize interests');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/interests'] });
+      toast({
+        title: "Success",
+        description: data.message || `${data.totalProcessed} interests categorized successfully`,
       });
     },
     onError: (error: Error) => {
