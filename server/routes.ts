@@ -644,6 +644,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Unable to fetch recommendations" });
     }
   });
+  
+  // Identity-based matching
+  app.get("/api/identity-matches/:userId", async (req: Request, res: Response) => {
+    try {
+      const userId = Number(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Get query parameters
+      const limit = req.query.limit ? Number(req.query.limit) : undefined;
+      const identityWeight = req.query.identityWeight ? Number(req.query.identityWeight) : undefined;
+      const interestWeight = req.query.interestWeight ? Number(req.query.interestWeight) : undefined;
+      const minIdentityMatches = req.query.minIdentityMatches ? Number(req.query.minIdentityMatches) : undefined;
+      
+      // Create options object
+      const options = {
+        limit,
+        identityWeight,
+        interestWeight,
+        minIdentityMatches
+      };
+      
+      // Filter out undefined values
+      const filteredOptions = Object.fromEntries(
+        Object.entries(options).filter(([_, v]) => v !== undefined)
+      );
+      
+      const matches = await storage.getIdentityMatches(userId, filteredOptions);
+      res.json({ matches });
+    } catch (error) {
+      log("Error fetching identity matches:", String(error));
+      res.status(500).json({ message: "Unable to fetch identity matches" });
+    }
+  });
+  
+  // Update user identity preferences
+  app.patch("/api/users/:userId/identity-preferences", async (req: Request, res: Response) => {
+    try {
+      const userId = Number(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      const { attributeImportance } = req.body;
+      if (!attributeImportance || typeof attributeImportance !== 'object') {
+        return res.status(400).json({ message: "Invalid attribute importance data" });
+      }
+      
+      const updatedUser = await storage.updateUserIdentityPreferences(userId, attributeImportance);
+      res.json({ user: updatedUser });
+    } catch (error) {
+      log("Error updating identity preferences:", String(error));
+      res.status(500).json({ message: "Unable to update identity preferences" });
+    }
+  });
 
   // Add new endpoint to get all interests
   app.get("/api/interests", async (req: Request, res: Response) => {
