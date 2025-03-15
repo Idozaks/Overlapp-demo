@@ -247,7 +247,7 @@ export default function Profile() {
                     
                     {user.user.countryOfOrigin && (
                       <div className="flex flex-col">
-                        <span className="text-sm text-muted-foreground">Country of Origin</span>
+                        <span className="text-sm text-muted-foreground">Current Country</span>
                         <div className="flex items-center gap-2">
                           <img 
                             src={`https://flagcdn.com/w20/${user.user.countryOfOrigin.toLowerCase()}.png`}
