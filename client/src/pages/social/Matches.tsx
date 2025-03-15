@@ -19,7 +19,20 @@ export default function Matches() {
   });
 
   const { data, isLoading, error, refetch } = useQuery<{ matches: MatchResult[] }>({
-    queryKey: ['/api/identity-matches', user?.id, weightConfig],
+    queryKey: [`/api/identity-matches/${user?.id}`, weightConfig],
+    queryFn: async () => {
+      if (!user?.id) throw new Error("User not logged in");
+      const queryParams = new URLSearchParams({
+        identityWeight: weightConfig.identityWeight.toString(),
+        interestWeight: weightConfig.interestWeight.toString(),
+        minIdentityMatches: weightConfig.minIdentityMatches.toString()
+      });
+      const response = await fetch(`/api/identity-matches/${user.id}?${queryParams}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch matches");
+      }
+      return response.json();
+    },
     enabled: !!user?.id,
   });
 
