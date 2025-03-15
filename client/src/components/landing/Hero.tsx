@@ -92,15 +92,13 @@ export default function Hero() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative h-full w-full rounded-xl bg-gradient-to-br from-gray-900/20 to-gray-900/10 p-1 backdrop-blur-sm">
-                <div 
-                  className={`h-full w-full rounded-lg bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-20`}
+              <div className="relative h-full w-full rounded-xl overflow-hidden">
+                <img
+                  src={`/attached_assets${slides[currentSlide].scene}`}
+                  alt={t(slides[currentSlide].title)}
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-white">
-                    {slides[currentSlide].scene}
-                  </span>
-                </div>
+                <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-20`} />
               </div>
             </motion.div>
           </div>
