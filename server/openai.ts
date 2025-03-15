@@ -13,6 +13,15 @@ interface EnrichInterestsResponse {
 
 export async function enrichInterests(interests: string[]): Promise<EnrichInterestsResponse> {
   try {
+    // Validate input
+    if (!Array.isArray(interests) || interests.length === 0) {
+      console.warn("[OpenAI] No interests provided for enrichment");
+      return { suggestions: [] };
+    }
+
+    // Debug log
+    log("[OpenAI] Generating suggestions based on interests:", interests.join(", "));
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -53,24 +62,59 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
       throw new Error("No content received from OpenAI");
     }
     
-    console.log("[OpenAI] Raw response content:", content);
+    log("[OpenAI] Raw response content:", content);
     
-    const parsed = JSON.parse(content);
-    console.log("[OpenAI] Parsed JSON response:", parsed);
-
-    // Filter out duplicates and original interests
-    const suggestions = Array.isArray(parsed.suggestions) 
-      ? parsed.suggestions
-          .filter((s: { name: string }) => !interests.includes(s.name))
-          .map((s: { name: string, emoji: string }) => ({
-            name: s.name.trim(),
-            emoji: s.emoji.trim()
-          }))
-          .filter((s: { name: string }) => s.name.length > 0)
-      : [];
-
-    log("[OpenAI] Generated suggestions:", suggestions);
-    return { suggestions };
+    // Sanitize content to ensure it's valid JSON
+    let sanitizedContent = content.trim();
+    
+    // If the string starts with ``` or contains markdown code blocks, extract the JSON part
+    if (sanitizedContent.startsWith("```json")) {
+      sanitizedContent = sanitizedContent.replace(/```json\s*/, "").replace(/\s*```\s*$/, "");
+    } else if (sanitizedContent.startsWith("```")) {
+      sanitizedContent = sanitizedContent.replace(/```\s*/, "").replace(/\s*```\s*$/, "");
+    }
+    
+    try {
+      const parsed = JSON.parse(sanitizedContent);
+      log("[OpenAI] Parsed JSON response:", parsed);
+      
+      // Validate the expected structure
+      if (!parsed.suggestions || !Array.isArray(parsed.suggestions)) {
+        throw new Error("Invalid response format: missing 'suggestions' array");
+      }
+      
+      // Process and validate suggestions
+      const validatedSuggestions = parsed.suggestions
+        .filter((s: any) => {
+          // Validate each suggestion item
+          if (!s || typeof s !== 'object') {
+            console.error("Invalid suggestion object:", s);
+            return false;
+          }
+          if (typeof s.name !== 'string' || s.name.trim().length === 0) {
+            console.error("Invalid suggestion name:", s);
+            return false;
+          }
+          if (typeof s.emoji !== 'string' || s.emoji.trim().length === 0) {
+            console.error("Invalid suggestion emoji:", s);
+            return false;
+          }
+          return true;
+        })
+        // Filter out duplicates and existing interests
+        .filter((s: { name: string }) => !interests.includes(s.name))
+        .map((s: { name: string, emoji: string }) => ({
+          name: s.name.trim(),
+          emoji: s.emoji.trim()
+        }));
+      
+      log("[OpenAI] Generated suggestions:", validatedSuggestions);
+      return { suggestions: validatedSuggestions };
+    } catch (parseError) {
+      console.error("[OpenAI] Error parsing JSON response:", parseError);
+      console.error("[OpenAI] Content attempted to parse:", sanitizedContent);
+      throw new Error(`Failed to parse OpenAI response: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+    }
   } catch (error) {
     log("[OpenAI] Error enriching interests:", error instanceof Error ? error.message : String(error));
     throw new Error("Failed to enrich interests");
