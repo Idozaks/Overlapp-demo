@@ -202,21 +202,31 @@ export async function generateEmojisForInterests(interests: Array<{id: number, n
       return { interests: [] };
     }
 
-    // Debug log
-    log("[OpenAI] Generating emojis for interests:", interests.map(i => i.name).join(", "));
+    // Process interests in batches of 20
+    const batchSize = 20;
+    const batches = [];
+    for (let i = 0; i < interests.length; i += batchSize) {
+      batches.push(interests.slice(i, i + batchSize));
+    }
 
-    // Make API call to OpenAI
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a JSON API endpoint that assigns highly relevant and visually appropriate emojis to interest topics. Your selections should precisely match the semantic meaning of each interest category. You must respond with ONLY valid JSON with no additional text or explanations."
-        },
-        {
-          role: "user",
-          content: `I need to assign a perfectly matching emoji to each of these interests:
-${interests.map(interest => `- ${interest.name}`).join('\n')}
+    const processedInterests = [];
+
+    // Process each batch
+    for (const batch of batches) {
+      log(`[OpenAI] Processing batch of ${batch.length} interests for emoji generation`);
+
+      // Make API call to OpenAI for current batch
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are a JSON API endpoint that assigns highly relevant and visually appropriate emojis to interest topics. Your selections should precisely match the semantic meaning of each interest category. You must respond with ONLY valid JSON with no additional text or explanations."
+          },
+          {
+            role: "user",
+            content: `I need to assign a perfectly matching emoji to each of these interests:
+${batch.map(interest => `- ${interest.name}`).join('\n')}
 
 IMPORTANT RULES:
 1. Respond with ONLY valid JSON following the exact format shown below
@@ -257,82 +267,72 @@ EXAMPLE RESPONSE FORMAT:
 }
 
 YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
-        }
-      ],
-      response_format: { type: "json_object" }
-    });
+          }
+        ],
+        response_format: { type: "json_object" }
+      });
 
-    // Get the content from the response
-    const content = response.choices[0].message.content;
-    if (!content) {
-      throw new Error("No content received from OpenAI");
-    }
-    
-    // Log the raw response for debugging
-    log("[OpenAI] Raw emoji response received:", content.substring(0, 100) + "...");
-    
-    // Handle various content formats and sanitize
-    let sanitizedContent = content.trim();
-    
-    // Remove markdown code blocks if present
-    if (sanitizedContent.startsWith("```json")) {
-      sanitizedContent = sanitizedContent.replace(/```json\s*/, "").replace(/\s*```\s*$/, "");
-    } else if (sanitizedContent.startsWith("```")) {
-      sanitizedContent = sanitizedContent.replace(/```\s*/, "").replace(/\s*```\s*$/, "");
-    }
-    
-    // Fix common JSON issues
-    sanitizedContent = sanitizedContent
-      // Fix trailing commas (common JSON error)
-      .replace(/,\s*}/g, '}')
-      .replace(/,\s*\]/g, ']');
-      
-    // Find the first opening brace and last closing brace
-    const openBraceIndex = sanitizedContent.indexOf('{');
-    const closeBraceIndex = sanitizedContent.lastIndexOf('}');
-    
-    // Extract only the JSON part if both braces are found
-    if (openBraceIndex !== -1 && closeBraceIndex !== -1 && closeBraceIndex > openBraceIndex) {
-      sanitizedContent = sanitizedContent.substring(openBraceIndex, closeBraceIndex + 1);
-    }
-    
-    // Parse the JSON
-    try {
-      const parsed = JSON.parse(sanitizedContent);
-      
-      // Basic validation
-      if (!parsed.interests || !Array.isArray(parsed.interests)) {
-        throw new Error("Invalid response format: missing interests array");
+    // Get the content from the response and process it
+      const content = response.choices[0].message.content;
+      if (!content) {
+        throw new Error("No content received from OpenAI");
       }
       
-      // Process and validate the interests
-      const validInterests = [];
+      // Log the raw response for debugging
+      log("[OpenAI] Raw emoji response received:", content.substring(0, 100) + "...");
       
-      for (const interest of parsed.interests) {
-        // Invalid object case
-        if (!interest || typeof interest !== 'object') {
-          continue;
-        }
-        
-        // Missing required fields
-        if (!interest.id || !interest.name || typeof interest.name !== 'string' || interest.name.trim() === '') {
-          continue;
-        }
-        
-        // Create a properly formatted interest with emoji
-        const id = interest.id;
-        const name = interest.name.trim();
-        let emoji = ''; // No emoji by default
-        
-        if (interest.emoji && typeof interest.emoji === 'string' && interest.emoji.trim() !== '') {
-          emoji = interest.emoji.trim();
-        }
-        
-        validInterests.push({ id, name, emoji });
+      // Handle various content formats and sanitize
+      let sanitizedContent = content.trim();
+      
+      // Remove markdown code blocks if present
+      if (sanitizedContent.startsWith("```json")) {
+        sanitizedContent = sanitizedContent.replace(/```json\s*/, "").replace(/\s*```\s*$/, "");
+      } else if (sanitizedContent.startsWith("```")) {
+        sanitizedContent = sanitizedContent.replace(/```\s*/, "").replace(/\s*```\s*$/, "");
       }
       
-      log("[OpenAI] Successfully generated emojis for interests:", validInterests.length);
-      return { interests: validInterests };
+      // Fix common JSON issues
+      sanitizedContent = sanitizedContent
+        .replace(/,\s*}/g, '}')
+        .replace(/,\s*\]/g, ']');
+        
+      // Find the first opening brace and last closing brace
+      const openBraceIndex = sanitizedContent.indexOf('{');
+      const closeBraceIndex = sanitizedContent.lastIndexOf('}');
+      
+      // Extract only the JSON part if both braces are found
+      if (openBraceIndex !== -1 && closeBraceIndex !== -1 && closeBraceIndex > openBraceIndex) {
+        sanitizedContent = sanitizedContent.substring(openBraceIndex, closeBraceIndex + 1);
+      }
+      
+      // Parse the JSON
+      try {
+        const parsed = JSON.parse(sanitizedContent);
+        
+        // Basic validation
+        if (!parsed.interests || !Array.isArray(parsed.interests)) {
+          throw new Error("Invalid response format: missing interests array");
+        }
+        
+        // Process batch results
+        for (const interest of parsed.interests) {
+          if (!interest || typeof interest !== 'object') continue;
+          if (!interest.id || !interest.name || typeof interest.name !== 'string' || interest.name.trim() === '') continue;
+          
+          const id = interest.id;
+          const name = interest.name.trim();
+          const emoji = (interest.emoji && typeof interest.emoji === 'string') ? interest.emoji.trim() : '✨';
+          
+          processedInterests.push({ id, name, emoji });
+        }
+      } catch (parseError) {
+        log(`[OpenAI] Error processing batch: ${parseError}`);
+        // Continue with next batch even if this one fails
+      }
+    }
+    
+    log(`[OpenAI] Successfully generated emojis for ${processedInterests.length} interests`);
+    return { interests: processedInterests };
       
     } catch (parseError) {
       log("[OpenAI] JSON parse error for emoji generation:", parseError);
