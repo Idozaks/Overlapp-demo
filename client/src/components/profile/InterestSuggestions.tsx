@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -151,21 +151,25 @@ export default function InterestSuggestions({
   });
 
   // Adding console.log to debug what interests are available
+  // Use a ref to track if we've already triggered the API call
+  const hasTriggeredEnrichment = useRef(false);
+
   useEffect(() => {
     console.log('Current interests in InterestSuggestions:', currentInterests);
     
     // Check if we have interests and proceed - use a more robust check
     if (Array.isArray(currentInterests) && currentInterests.length > 0) {
-      // Make sure we're not already loading
-      if (!isLoading) {
+      // Only trigger once to avoid loops and save API credits
+      if (!isLoading && !hasTriggeredEnrichment.current) {
         setIsLoading(true);
+        hasTriggeredEnrichment.current = true; // Mark as triggered
         enrichInterestsMutation.mutate(currentInterests);
       }
     } else {
       // Only show error and navigate if:
       // 1. currentInterests is defined (not during initial load)
       // 2. It's confirmed to be empty (not undefined or still loading)
-      if (currentInterests !== undefined && !isLoading) {
+      if (currentInterests !== undefined && !isLoading && !hasTriggeredEnrichment.current) {
         console.log('No interests detected, showing error and navigating back');
         toast({
           title: t("profile.enrichError"),
