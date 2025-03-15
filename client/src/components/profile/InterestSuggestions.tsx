@@ -194,9 +194,12 @@ export default function InterestSuggestions({
     });
   };
 
-  const handleSaveSelections = () => {
-    onInterestsSelected(Array.from(selectedSuggestions));
-    setLocation(`/profile/${userId}/edit`);
+  const handleSaveSelections = async () => {
+    // First call the callback to add interests to database
+    await onInterestsSelected(Array.from(selectedSuggestions));
+    
+    // Then navigate back to edit page
+    setLocation(`/profile/${userId}/edit?refresh=true`);
   };
 
   const handleGoBack = () => {
