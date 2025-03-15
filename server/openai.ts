@@ -18,15 +18,32 @@ export async function enrichInterests(interests: string[]): Promise<EnrichIntere
       messages: [
         {
           role: "system",
-          content: "You are an expert at identifying related interests and hobbies. For each interest provided, suggest 2-3 very specific and related interests or sub-categories, and provide a fitting emoji for each suggestion. Keep suggestions concise and focused."
+          content: "You are an expert at identifying related interests and hobbies. Your task is to suggest highly relevant, specific interests based on a user's current interests, and pair each with the most appropriate emoji. Ensure all JSON is perfectly formatted and valid. Always include both the 'name' and 'emoji' fields for each suggestion."
         },
         {
           role: "user",
-          content: `For each of these interests, suggest 2-3 specific related interests or sub-categories with appropriate emojis: ${interests.join(", ")}. 
-          For example: 
-          - Photography → {"name": "Street Photography", "emoji": "🏙️"}, {"name": "Nature Photography", "emoji": "🌲"}, {"name": "Portrait Photography", "emoji": "👤"}
-          - Sports → {"name": "Basketball", "emoji": "🏀"}, {"name": "Soccer", "emoji": "⚽"}, {"name": "Tennis", "emoji": "🎾"}
-          Return only an array of new suggestions in this exact format: {"suggestions": [{"name": "suggestion1", "emoji": "emoji1"}, {"name": "suggestion2", "emoji": "emoji2"}]}`
+          content: `Based on these interests: ${interests.join(", ")}, generate 15-20 highly specific and related new interest suggestions.
+
+For each suggestion:
+1. Choose a single, visually distinct emoji that best represents the interest
+2. Use widely supported Unicode emojis that render well on mobile devices
+3. Ensure each suggestion is unique and not a duplicate of existing interests
+4. Format your response as perfect, valid JSON with the exact structure shown below
+
+Examples of good emoji-interest pairings:
+- 📚 Books (general reading)
+- 🧠 Philosophy (intellectual pursuits)
+- 🎨 Painting (visual arts)
+- 🏃 Running (specific fitness activity)
+- 🌱 Gardening (plant cultivation)
+- 🎸 Guitar (specific instrument)
+- 💻 Programming (technical skill)
+- 🍳 Cooking (food preparation)
+- 🎭 Theater (performing arts)
+- 🔭 Astronomy (scientific field)
+
+Respond ONLY with valid JSON in exactly this format:
+{"suggestions": [{"name": "Interest Name 1", "emoji": "🔍"}, {"name": "Interest Name 2", "emoji": "🎯"}, ...]}`
         }
       ],
       response_format: { type: "json_object" }
