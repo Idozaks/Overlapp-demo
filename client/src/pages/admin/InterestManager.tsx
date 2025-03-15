@@ -1,17 +1,38 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, Trash2, Sparkles, Smile } from "lucide-react";
+import { 
+  Loader2, 
+  Plus, 
+  Trash2, 
+  Sparkles, 
+  Smile, 
+  Search, 
+  SortAsc, 
+  SortDesc, 
+  Filter
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function InterestManager() {
   const [newInterest, setNewInterest] = useState("");
   const [newCategory, setNewCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortField, setSortField] = useState<"name" | "category">("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [categoryFilter, setCategoryFilter] = useState<string>("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -137,6 +158,59 @@ export default function InterestManager() {
     },
   });
 
+  // Get unique categories for the filter dropdown
+  const uniqueCategories = useMemo(() => {
+    if (!interests?.interests) return [];
+    const categories = interests.interests.map(interest => interest.category);
+    return ["All Categories", ...Array.from(new Set(categories))];
+  }, [interests?.interests]);
+
+  // Filter and sort interests
+  const filteredAndSortedInterests = useMemo(() => {
+    if (!interests?.interests) return [];
+    
+    // Start with all interests
+    let filtered = [...interests.interests];
+    
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(interest => 
+        interest.name.toLowerCase().includes(query) || 
+        interest.category.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply category filter
+    if (categoryFilter && categoryFilter !== "All Categories") {
+      filtered = filtered.filter(interest => interest.category === categoryFilter);
+    }
+    
+    // Apply sorting
+    filtered.sort((a, b) => {
+      const fieldA = sortField === "name" ? a.name.toLowerCase() : a.category.toLowerCase();
+      const fieldB = sortField === "name" ? b.name.toLowerCase() : b.category.toLowerCase();
+      
+      if (sortDirection === "asc") {
+        return fieldA.localeCompare(fieldB);
+      } else {
+        return fieldB.localeCompare(fieldA);
+      }
+    });
+    
+    return filtered;
+  }, [interests?.interests, searchQuery, categoryFilter, sortField, sortDirection]);
+
+  // Toggle sort direction
+  const toggleSort = (field: "name" | "category") => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -217,9 +291,75 @@ export default function InterestManager() {
             </div>
 
             <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-4">Current Interests</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Current Interests</h3>
+                <div className="text-sm text-gray-500">
+                  {filteredAndSortedInterests.length} of {interests?.interests.length} interests
+                </div>
+              </div>
+              
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                {/* Search */}
+                <div className="relative flex-1">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    placeholder="Search interests..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+                
+                {/* Category Filter */}
+                <div className="w-full md:w-48">
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filter by category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {uniqueCategories.map(category => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              {/* Sort Controls */}
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-sm font-medium">Sort by:</span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className={`flex items-center gap-1 ${sortField === "name" ? "bg-muted" : ""}`}
+                  onClick={() => toggleSort("name")}
+                >
+                  Name
+                  {sortField === "name" && (
+                    sortDirection === "asc" ? 
+                      <SortAsc className="h-4 w-4" /> : 
+                      <SortDesc className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className={`flex items-center gap-1 ${sortField === "category" ? "bg-muted" : ""}`}
+                  onClick={() => toggleSort("category")}
+                >
+                  Category
+                  {sortField === "category" && (
+                    sortDirection === "asc" ? 
+                      <SortAsc className="h-4 w-4" /> : 
+                      <SortDesc className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {interests?.interests.map((interest) => (
+                {filteredAndSortedInterests.map((interest) => (
                   <div
                     key={interest.id}
                     className="flex items-center justify-between p-3 border rounded-lg"
