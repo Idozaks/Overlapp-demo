@@ -14,6 +14,7 @@ import SocialHub from "@/pages/social/SocialHub";
 import ExploreUsers from "@/pages/social/ExploreUsers";
 import Profile from "@/pages/social/Profile";
 import ProfileEdit from "@/pages/social/ProfileEdit";
+import Matches from "@/pages/social/Matches";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import InterestManager from "@/pages/admin/InterestManager";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
@@ -47,7 +48,8 @@ import {
   LogOut, 
   Menu,
   Shield,
-  InfoIcon // Assumed import; adjust if necessary
+  InfoIcon,
+  UserCheck
 } from "lucide-react";
 import "./lib/i18n";
 import About from "@/pages/About"; // Import the About component
@@ -66,6 +68,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/social" component={SocialHub} />
       <Route path="/social/explore" component={ExploreUsers} />
+      <Route path="/social/matches" component={Matches} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/wallet" component={WalletDashboard} />
@@ -95,6 +98,9 @@ function Header() {
           </a>
           <a href="/social/explore" className="text-foreground hover:text-primary whitespace-nowrap">
             Explore
+          </a>
+          <a href="/social/matches" className="text-foreground hover:text-primary whitespace-nowrap flex items-center">
+            <UserCheck className="w-4 h-4 mr-1" /> Matches
           </a>
           <a href="/wallet" className="text-foreground hover:text-primary whitespace-nowrap">
             Wallet
@@ -179,6 +185,10 @@ function Header() {
                     <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}/edit`)}>
                       <Settings className="w-4 h-4 mr-2" />
                       Edit Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/social/matches')}>
+                      <UserCheck className="w-4 h-4 mr-2" />
+                      Find Matches
                     </DropdownMenuItem>
                     {user.isAdmin && (
                       <>
