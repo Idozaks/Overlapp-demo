@@ -300,7 +300,7 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         // Create a properly formatted interest with emoji
         const id = interest.id;
         const name = interest.name.trim();
-        let emoji = '✨'; // Default fallback
+        let emoji = ''; // No emoji by default
         
         if (interest.emoji && typeof interest.emoji === 'string' && interest.emoji.trim() !== '') {
           emoji = interest.emoji.trim();
@@ -315,24 +315,24 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
     } catch (parseError) {
       log("[OpenAI] JSON parse error for emoji generation:", parseError);
       
-      // Return the original interests with a default emoji if parsing fails
+      // Return the original interests with no emoji if parsing fails
       return { 
         interests: interests.map(interest => ({
           id: interest.id,
           name: interest.name,
-          emoji: '✨' // Default emoji if parsing fails
+          emoji: '' // No emoji if parsing fails
         }))
       };
     }
   } catch (error) {
     log("[OpenAI] Error generating emojis for interests:", error);
     
-    // Return the original interests with a default emoji on error
+    // Return the original interests with no emoji on error
     return { 
       interests: interests.map(interest => ({
         id: interest.id,
         name: interest.name,
-        emoji: '✨' // Default emoji if there's an error
+        emoji: '' // No emoji if there's an error
       }))
     };
   }
