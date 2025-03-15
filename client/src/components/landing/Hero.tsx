@@ -10,21 +10,21 @@ const slides = [
     title: "common.landing.hero.slide1.title",
     description: "common.landing.hero.slide1.subtitle",
     gradientColors: "from-blue-500 to-purple-500",
-    scene: "personal-profile",
+    scene: "/Personal Profile.png",
     emoji: "🧑‍💼"
   },
   {
     title: "common.landing.hero.slide2.title",
     description: "common.landing.hero.slide2.subtitle",
     gradientColors: "from-green-500 to-teal-500",
-    scene: "retail-experience",
+    scene: "/Retail Experience.png",
     emoji: "🛍️"
   },
   {
     title: "common.landing.hero.slide3.title",
     description: "common.landing.hero.slide3.subtitle",
     gradientColors: "from-amber-500 to-red-500",
-    scene: "business-networking",
+    scene: "/Business Networking.png",
     emoji: "🤝"
   }
 ];
