@@ -227,6 +227,117 @@ export default function Profile() {
                   </div>
                 )}
 
+                {/* Identity Attributes Section */}
+                <div>
+                  <h2 className="text-lg font-semibold mb-2">Identity Attributes</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {user.user.gender && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Gender</span>
+                        <span className="font-medium">{user.user.gender}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.ageRange && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Age Range</span>
+                        <span className="font-medium">{user.user.ageRange}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.countryOfOrigin && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Country of Origin</span>
+                        <span className="font-medium">{user.user.countryOfOrigin}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.languagesSpoken && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Languages Spoken</span>
+                        <span className="font-medium">{user.user.languagesSpoken}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.culturalBackground && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Cultural Background</span>
+                        <span className="font-medium">{user.user.culturalBackground}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.education && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Education</span>
+                        <span className="font-medium">{user.user.education}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.professionalField && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Professional Field</span>
+                        <span className="font-medium">{user.user.professionalField}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.communityAffiliations && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Community Affiliations</span>
+                        <span className="font-medium">{user.user.communityAffiliations}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.eventPreferences && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Event Preferences</span>
+                        <span className="font-medium">{user.user.eventPreferences}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.collaborationStyle && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Collaboration Style</span>
+                        <span className="font-medium">{user.user.collaborationStyle}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.personalValues && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Personal Values</span>
+                        <span className="font-medium">{user.user.personalValues}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.digitalIdentity && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Digital Identity</span>
+                        <span className="font-medium">{user.user.digitalIdentity}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.physicalActivityLevel && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Physical Activity Level</span>
+                        <span className="font-medium">{user.user.physicalActivityLevel}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.culturalExperiences && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Cultural Experiences</span>
+                        <span className="font-medium">{user.user.culturalExperiences}</span>
+                      </div>
+                    )}
+                    
+                    {user.user.learningStyle && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-muted-foreground">Learning Style</span>
+                        <span className="font-medium">{user.user.learningStyle}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {interests.length > 0 && (
                   <div>
                     <h2 className="text-lg font-semibold mb-2">Interests</h2>
