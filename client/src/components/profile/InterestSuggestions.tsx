@@ -56,17 +56,48 @@ export default function InterestSuggestions({
     },
     onSuccess: (data) => {
       console.log('Received enriched interests:', data);
-      if (!data.suggestions || !Array.isArray(data.suggestions)) {
-        console.error('Invalid suggestions format:', data);
+      
+      if (!data.suggestions) {
+        console.error('No suggestions property in response:', data);
         toast({
           title: t("profile.enrichError"),
-          description: "Invalid response format from AI",
+          description: "Missing suggestions in AI response",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      if (!Array.isArray(data.suggestions)) {
+        console.error('Suggestions is not an array:', data.suggestions);
+        toast({
+          title: t("profile.enrichError"),
+          description: "Invalid suggestions format from AI",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Additional validation for each suggestion item
+      const validSuggestions = data.suggestions.map(suggestion => {
+        // Ensure both name and emoji exist and are strings
+        return {
+          name: typeof suggestion.name === 'string' ? suggestion.name.trim() : 'Unknown Interest',
+          emoji: typeof suggestion.emoji === 'string' ? suggestion.emoji.trim() : '🔍'
+        };
+      }).filter(suggestion => suggestion.name.length > 0);
+      
+      console.log('Processed suggestions:', validSuggestions);
+      
+      if (validSuggestions.length === 0) {
+        toast({
+          title: t("profile.enrichError"),
+          description: t("profile.noSuggestionsFound"),
           variant: "destructive"
         });
         return;
       }
 
-      setSuggestedInterests(data.suggestions);
+      setSuggestedInterests(validSuggestions);
       setIsLoading(false);
       toast({
         title: t("profile.enrichSuccess"),
