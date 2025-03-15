@@ -12,6 +12,15 @@ export const users = pgTable("users", {
   age: integer("age"),
   occupation: text("occupation"),
   location: text("location"),
+  // New identity attributes
+  gender: text("gender"), // Male, Female, Non-binary, Prefer not to say
+  ageRange: text("age_range"), // 18-25, 26-35, 36-45, 46+
+  countryOfOrigin: text("country_of_origin"),
+  residencyStatus: text("residency_status"), // Permanent, Temporary, Tourist, Expat
+  culturalBackground: text("cultural_background"),
+  identityPreferences: jsonb("identity_preferences").$type<{
+    attributeImportance: Record<string, number>; // Store importance weightings
+  }>(),
   isAdmin: boolean("is_admin").default(false),
   preferences: jsonb("preferences").$type<{
     interests: string[];
@@ -126,6 +135,13 @@ export const insertUserSchema = createInsertSchema(users).pick({
   age: true,
   occupation: true,
   location: true,
+  // New identity fields
+  gender: true,
+  ageRange: true,
+  countryOfOrigin: true,
+  residencyStatus: true,
+  culturalBackground: true,
+  identityPreferences: true,
   isAdmin: true,
   preferences: true,
 });
