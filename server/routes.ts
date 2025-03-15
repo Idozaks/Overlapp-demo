@@ -823,6 +823,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/interests/generate-emojis", async (req: Request, res: Response) => {
+    try {
+      // Check if user is authenticated and is admin
+      if (!req.isAuthenticated() || !req.user?.isAdmin) {
+        return res.status(403).json({ message: "Unauthorized. Admin access required." });
+      }
+      
+      // Get all interests or use the list from the request
+      let interestsToProcess;
+      
+      if (req.body.interestIds && Array.isArray(req.body.interestIds) && req.body.interestIds.length > 0) {
+        // Process specific interests if IDs are provided
+        const allInterests = await storage.getInterests();
+        interestsToProcess = allInterests.filter(interest => 
+          req.body.interestIds.includes(interest.id)
+        );
+      } else {
+        // Get all interests if no specific IDs are provided
+        interestsToProcess = await storage.getInterests();
+      }
+      
+      if (interestsToProcess.length === 0) {
+        return res.status(400).json({ message: "No interests found to process" });
+      }
+      
+      log(`Generating emojis for ${interestsToProcess.length} interests`);
+      
+      // Generate emojis using OpenAI
+      const result = await openai.generateEmojisForInterests(
+        interestsToProcess.map(interest => ({ 
+          id: interest.id, 
+          name: interest.name 
+        }))
+      );
+      
+      // Update each interest with its new emoji
+      let updatedCount = 0;
+      for (const interest of result.interests) {
+        try {
+          // Update the interest in the database by adding the emoji to iconUrl field
+          await storage.updateInterest(interest.id, { 
+            iconUrl: interest.emoji 
+          });
+          updatedCount++;
+        } catch (error) {
+          log(`Error updating interest ${interest.id} with emoji:`, error);
+        }
+      }
+      
+      res.json({ 
+        message: `Successfully updated ${updatedCount} interests with emojis`,
+        processed: updatedCount,
+        total: interestsToProcess.length
+      });
+    } catch (error) {
+      log("Interest emoji generation error:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({
+        message: "Failed to generate emojis for interests",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   app.post("/api/interests/enrich", async (req: Request, res: Response) => {
     try {
       const { interests } = req.body;
