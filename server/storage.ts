@@ -619,7 +619,7 @@ export class DatabaseStorage implements IStorage {
       for (const potentialMatch of allUsers) {
         // Skip users with no identity information
         if (!potentialMatch.gender && !potentialMatch.ageRange && 
-            !potentialMatch.countryOfOrigin && !potentialMatch.residencyStatus &&
+            !potentialMatch.countryOfOrigin && !potentialMatch.languagesSpoken &&
             !potentialMatch.culturalBackground) {
           continue;
         }
@@ -634,8 +634,18 @@ export class DatabaseStorage implements IStorage {
           gender: 1,
           ageRange: 1,
           countryOfOrigin: 2,
-          residencyStatus: 1,
-          culturalBackground: 3
+          languagesSpoken: 2,
+          culturalBackground: 3,
+          education: 2,
+          professionalField: 2,
+          communityAffiliations: 2,
+          eventPreferences: 1,
+          collaborationStyle: 1,
+          personalValues: 3,
+          digitalIdentity: 1,
+          physicalActivityLevel: 1,
+          culturalExperiences: 2,
+          learningStyle: 1
         };
         
         // Use provided importance or default
@@ -668,13 +678,93 @@ export class DatabaseStorage implements IStorage {
         }
         maxPossibleScore += importance.countryOfOrigin;
         
-        // Residency Status
-        if (currentUser.residencyStatus && potentialMatch.residencyStatus && 
-            currentUser.residencyStatus === potentialMatch.residencyStatus) {
-          identityScore += importance.residencyStatus;
-          commonIdentities.push('residencyStatus');
+        // Languages Spoken
+        if (currentUser.languagesSpoken && potentialMatch.languagesSpoken && 
+            currentUser.languagesSpoken === potentialMatch.languagesSpoken) {
+          identityScore += importance.languagesSpoken;
+          commonIdentities.push('languagesSpoken');
         }
-        maxPossibleScore += importance.residencyStatus;
+        maxPossibleScore += importance.languagesSpoken;
+        
+        // Education
+        if (currentUser.education && potentialMatch.education && 
+            currentUser.education === potentialMatch.education) {
+          identityScore += importance.education;
+          commonIdentities.push('education');
+        }
+        maxPossibleScore += importance.education;
+        
+        // Professional Field
+        if (currentUser.professionalField && potentialMatch.professionalField && 
+            currentUser.professionalField === potentialMatch.professionalField) {
+          identityScore += importance.professionalField;
+          commonIdentities.push('professionalField');
+        }
+        maxPossibleScore += importance.professionalField;
+        
+        // Community Affiliations
+        if (currentUser.communityAffiliations && potentialMatch.communityAffiliations && 
+            currentUser.communityAffiliations === potentialMatch.communityAffiliations) {
+          identityScore += importance.communityAffiliations;
+          commonIdentities.push('communityAffiliations');
+        }
+        maxPossibleScore += importance.communityAffiliations;
+        
+        // Event Preferences
+        if (currentUser.eventPreferences && potentialMatch.eventPreferences && 
+            currentUser.eventPreferences === potentialMatch.eventPreferences) {
+          identityScore += importance.eventPreferences;
+          commonIdentities.push('eventPreferences');
+        }
+        maxPossibleScore += importance.eventPreferences;
+        
+        // Collaboration Style
+        if (currentUser.collaborationStyle && potentialMatch.collaborationStyle && 
+            currentUser.collaborationStyle === potentialMatch.collaborationStyle) {
+          identityScore += importance.collaborationStyle;
+          commonIdentities.push('collaborationStyle');
+        }
+        maxPossibleScore += importance.collaborationStyle;
+        
+        // Personal Values
+        if (currentUser.personalValues && potentialMatch.personalValues && 
+            currentUser.personalValues === potentialMatch.personalValues) {
+          identityScore += importance.personalValues;
+          commonIdentities.push('personalValues');
+        }
+        maxPossibleScore += importance.personalValues;
+        
+        // Digital Identity
+        if (currentUser.digitalIdentity && potentialMatch.digitalIdentity && 
+            currentUser.digitalIdentity === potentialMatch.digitalIdentity) {
+          identityScore += importance.digitalIdentity;
+          commonIdentities.push('digitalIdentity');
+        }
+        maxPossibleScore += importance.digitalIdentity;
+        
+        // Physical Activity Level
+        if (currentUser.physicalActivityLevel && potentialMatch.physicalActivityLevel && 
+            currentUser.physicalActivityLevel === potentialMatch.physicalActivityLevel) {
+          identityScore += importance.physicalActivityLevel;
+          commonIdentities.push('physicalActivityLevel');
+        }
+        maxPossibleScore += importance.physicalActivityLevel;
+        
+        // Cultural Experiences
+        if (currentUser.culturalExperiences && potentialMatch.culturalExperiences && 
+            currentUser.culturalExperiences === potentialMatch.culturalExperiences) {
+          identityScore += importance.culturalExperiences;
+          commonIdentities.push('culturalExperiences');
+        }
+        maxPossibleScore += importance.culturalExperiences;
+        
+        // Learning Style
+        if (currentUser.learningStyle && potentialMatch.learningStyle && 
+            currentUser.learningStyle === potentialMatch.learningStyle) {
+          identityScore += importance.learningStyle;
+          commonIdentities.push('learningStyle');
+        }
+        maxPossibleScore += importance.learningStyle;
         
         // Cultural Background
         if (currentUser.culturalBackground && potentialMatch.culturalBackground && 
