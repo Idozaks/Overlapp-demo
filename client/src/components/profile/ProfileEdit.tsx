@@ -37,6 +37,12 @@ const profileUpdateSchema = z.object({
     .optional()
     .or(z.literal("")),
   avatar: z.union([z.string().url({ message: "Please enter a valid URL" }), z.instanceof(File)]).optional().or(z.literal("")),
+  gender: z.enum(["Male", "Female", "Non-binary", "Prefer not to say"]).optional().or(z.literal("")),
+  ageRange: z.enum(["18-25", "26-35", "36-45", "46+"]).optional().or(z.literal("")),
+  countryOfOrigin: z.string().optional().or(z.literal("")),
+  residencyStatus: z.enum(["Permanent", "Temporary", "Tourist", "Expat"]).optional().or(z.literal("")),
+  culturalBackground: z.string().optional().or(z.literal("")),
+  identityPreferences: z.record(z.string(), z.number()).optional(),
   preferences: z.object({
     retailPreferences: z.array(z.string())
   }).optional()
@@ -102,6 +108,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       displayName: user.displayName || "",
       bio: user.bio || "",
       avatar: user.avatar || "",
+      gender: user.gender || "",
+      ageRange: user.ageRange || "",
+      countryOfOrigin: user.countryOfOrigin || "",
+      residencyStatus: user.residencyStatus || "",
+      culturalBackground: user.culturalBackground || "",
+      identityPreferences: user.identityPreferences || {},
       preferences: {
         retailPreferences: user.preferences?.retailPreferences || []
       }
@@ -343,6 +355,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       ...data,
       bio: data.bio || undefined,
       avatar: data.avatar || undefined,
+      gender: data.gender || undefined,
+      ageRange: data.ageRange || undefined,
+      countryOfOrigin: data.countryOfOrigin || undefined,
+      residencyStatus: data.residencyStatus || undefined,
+      culturalBackground: data.culturalBackground || undefined,
+      identityPreferences: data.identityPreferences || undefined,
       preferences: {
         retailPreferences: data.preferences?.retailPreferences || []
       }
@@ -447,6 +465,271 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             </FormItem>
           )}
         />
+        
+        <div className="bg-secondary/10 p-4 rounded-lg border border-secondary/20 mb-6">
+          <h3 className="text-lg font-medium mb-4">Identity Information</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            The following information helps us find better connections for you based on shared identity traits.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gender</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Non-binary">Non-binary</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="ageRange"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Age Range</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Age Range</option>
+                      <option value="18-25">18-25</option>
+                      <option value="26-35">26-35</option>
+                      <option value="36-45">36-45</option>
+                      <option value="46+">46+</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="countryOfOrigin"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country of Origin</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="E.g. United States, Canada, etc." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="residencyStatus"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Residency Status</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 rounded-md border border-input bg-background"
+                      {...field}
+                    >
+                      <option value="">Select Residency Status</option>
+                      <option value="Permanent">Permanent</option>
+                      <option value="Temporary">Temporary</option>
+                      <option value="Tourist">Tourist</option>
+                      <option value="Expat">Expat</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="culturalBackground"
+              render={({ field }) => (
+                <FormItem className="col-span-1 md:col-span-2">
+                  <FormLabel>Cultural Background</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      {...field} 
+                      placeholder="Describe your cultural heritage, traditions, or background" 
+                      className="min-h-[80px]"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Share aspects of your cultural identity that are important to you. This helps us connect you with people who share similar backgrounds.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <div className="mt-8 border-t border-secondary/20 pt-6">
+            <h4 className="text-md font-medium mb-4">Identity Matching Preferences</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Adjust how important each identity attribute is when finding matches for you.
+              Higher values mean you'll be matched more strongly with people who share that trait.
+            </p>
+            
+            <div className="space-y-6">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Gender Importance</label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="10" 
+                  defaultValue={user.identityPreferences?.gender || 5}
+                  className="w-full"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    const currentPrefs = form.getValues("identityPreferences") || {};
+                    form.setValue("identityPreferences", {
+                      ...currentPrefs,
+                      gender: value
+                    });
+                  }}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Not important</span>
+                  <span>Very important</span>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Age Range Importance</label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="10" 
+                  defaultValue={user.identityPreferences?.ageRange || 5}
+                  className="w-full"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    const currentPrefs = form.getValues("identityPreferences") || {};
+                    form.setValue("identityPreferences", {
+                      ...currentPrefs,
+                      ageRange: value
+                    });
+                  }}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Not important</span>
+                  <span>Very important</span>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Country of Origin Importance</label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="10" 
+                  defaultValue={user.identityPreferences?.countryOfOrigin || 5}
+                  className="w-full"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    const currentPrefs = form.getValues("identityPreferences") || {};
+                    form.setValue("identityPreferences", {
+                      ...currentPrefs,
+                      countryOfOrigin: value
+                    });
+                  }}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Not important</span>
+                  <span>Very important</span>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Residency Status Importance</label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="10" 
+                  defaultValue={user.identityPreferences?.residencyStatus || 5}
+                  className="w-full"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    const currentPrefs = form.getValues("identityPreferences") || {};
+                    form.setValue("identityPreferences", {
+                      ...currentPrefs,
+                      residencyStatus: value
+                    });
+                  }}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Not important</span>
+                  <span>Very important</span>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Cultural Background Importance</label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="10" 
+                  defaultValue={user.identityPreferences?.culturalBackground || 5}
+                  className="w-full"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    const currentPrefs = form.getValues("identityPreferences") || {};
+                    form.setValue("identityPreferences", {
+                      ...currentPrefs,
+                      culturalBackground: value
+                    });
+                  }}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Not important</span>
+                  <span>Very important</span>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-secondary/5 rounded-md border border-secondary/10">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="balanceWeight"
+                    className="h-4 w-4" 
+                    defaultChecked={true}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        // Apply default balanced weights
+                        form.setValue("identityPreferences", {
+                          gender: 5,
+                          ageRange: 5,
+                          countryOfOrigin: 5,
+                          residencyStatus: 5,
+                          culturalBackground: 5
+                        });
+                      }
+                    }}
+                  />
+                  <label htmlFor="balanceWeight" className="text-sm cursor-pointer">Balance all identity attributes equally</label>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  When checked, all attributes will have equal importance in finding your matches.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
