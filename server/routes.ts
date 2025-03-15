@@ -879,8 +879,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Unauthorized. Admin access required." });
       }
       
-      // Get all interests without categories or with generic categories
+      // Get all interests
       const allInterests = await storage.getInterests();
+      
+      // First pass: Find and mark any interests with the "AI_GENERATED" category
+      // so they get proper categorization
+      for (const interest of allInterests) {
+        if (interest.category === 'AI_GENERATED') {
+          log(`Marking interest "${interest.name}" as AI-generated for proper categorization`);
+          await storage.updateInterest(interest.id, { 
+            isAiGenerated: true 
+          });
+        }
+      }
       
       // Get all interests that need categorization - especially AI-generated ones
       const interestsToProcess = allInterests.filter(interest => 
@@ -965,6 +976,37 @@ Example response format:
               
               await storage.updateInterest(interest.id, { category });
               totalProcessed++;
+            } else if (interest.category === 'AI_GENERATED' || interest.isAiGenerated) {
+              // Force a retry for AI-generated interests with no category match
+              // Try to generate a reasonable category based on the interest name
+              log(`Generating fallback category for AI-generated interest: "${interest.name}"`);
+              
+              try {
+                const fallbackPrompt = `Generate a single appropriate category name (1-2 words in Title Case) for this interest: "${interest.name}".
+                Just respond with the category name only, no explanation or additional text.`;
+                
+                const fallbackResponse = await openai.chat.completions.create({
+                  model: "gpt-4o",
+                  messages: [
+                    { role: "system", content: "You are a categorization API that responds with only a single category name in Title Case with no additional text." },
+                    { role: "user", content: fallbackPrompt }
+                  ],
+                  temperature: 0.3,
+                  max_tokens: 20
+                });
+                
+                const fallbackCategory = fallbackResponse.choices[0].message.content?.trim();
+                
+                if (fallbackCategory && fallbackCategory.length > 0) {
+                  log(`Generated fallback category "${fallbackCategory}" for interest "${interest.name}"`);
+                  await storage.updateInterest(interest.id, { 
+                    category: fallbackCategory
+                  });
+                  totalProcessed++;
+                }
+              } catch (error) {
+                log(`Error generating fallback category for "${interest.name}":`, error instanceof Error ? error.message : String(error));
+              }
             }
           }
         } catch (error) {
