@@ -81,11 +81,16 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
     sanitizedContent = sanitizedContent
       // Fix trailing commas (common JSON error)
       .replace(/,\s*}/g, '}')
-      .replace(/,\s*\]/g, ']')
-      // Remove any non-JSON text before the opening brace
-      .replace(/^[^{]*({.*)/s, '$1')
-      // Remove any non-JSON text after the closing brace
-      .replace(/(})[^}]*$/s, '$1');
+      .replace(/,\s*\]/g, ']');
+      
+    // Find the first opening brace and last closing brace
+    const openBraceIndex = sanitizedContent.indexOf('{');
+    const closeBraceIndex = sanitizedContent.lastIndexOf('}');
+    
+    // Extract only the JSON part if both braces are found
+    if (openBraceIndex !== -1 && closeBraceIndex !== -1 && closeBraceIndex > openBraceIndex) {
+      sanitizedContent = sanitizedContent.substring(openBraceIndex, closeBraceIndex + 1);
+    }
     
     // Parse the JSON
     try {
@@ -147,11 +152,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         validSuggestions = fallbacks;
       }
       
-      log("[OpenAI] Final suggestions count:", validSuggestions.length);
+      log("[OpenAI] Final suggestions count: " + validSuggestions.length);
       return { suggestions: validSuggestions };
       
     } catch (parseError) {
-      log("[OpenAI] JSON parse error:", parseError);
+      log("[OpenAI] JSON parse error: " + parseError);
       
       // Use fallbacks if JSON parsing fails
       const fallbacks = [
@@ -166,7 +171,7 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
       return { suggestions: fallbacks };
     }
   } catch (error) {
-    log("[OpenAI] Error enriching interests:", error);
+    log("[OpenAI] Error enriching interests: " + error);
     
     // Provide fallbacks even in case of complete API failure
     const fallbacks = [
