@@ -882,21 +882,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all interests
       const allInterests = await storage.getInterests();
       
-      // First pass: Find and mark any interests with the "AI_GENERATED" category
-      // so they get proper categorization
-      for (const interest of allInterests) {
-        if (interest.category === 'AI_GENERATED') {
-          log(`Marking interest "${interest.name}" as AI-generated for proper categorization`);
-          await storage.updateInterest(interest.id, { 
-            isAiGenerated: true 
-          });
+      // First pass: Find and process any interests with the "AI_GENERATED" category specifically
+      // to ensure they get proper categorization
+      const directAIInterests = allInterests.filter(interest => 
+        interest.category === 'AI_GENERATED'
+      );
+      
+      if (directAIInterests.length > 0) {
+        log(`Found ${directAIInterests.length} interests with literal "AI_GENERATED" category that need direct processing`);
+        
+        for (const interest of directAIInterests) {
+          log(`Processing AI-generated interest: "${interest.name}"`);
+          
+          try {
+            // Generate a specific category for this AI interest
+            const prompt = `Generate a single appropriate category name (1-2 words in Title Case) for this interest: "${interest.name}".
+            Just respond with the category name only, no explanation or additional text.`;
+            
+            const response = await openai.chat.completions.create({
+              model: "gpt-4o",
+              messages: [
+                { role: "system", content: "You are a categorization API that responds with only a single category name in Title Case with no additional text." },
+                { role: "user", content: prompt }
+              ],
+              temperature: 0.3,
+              max_tokens: 20
+            });
+            
+            const category = response.choices[0].message.content?.trim();
+            
+            if (category && category.length > 0) {
+              log(`Directly updating AI-generated interest "${interest.name}" with category "${category}"`);
+              await storage.updateInterest(interest.id, { 
+                category,
+                isAiGenerated: true 
+              });
+            }
+          } catch (error) {
+            log(`Error processing AI-generated interest "${interest.name}":`, error instanceof Error ? error.message : String(error));
+          }
         }
       }
       
-      // Get all interests that need categorization - especially AI-generated ones
+      // Get all interests that need categorization - including any remaining AI-generated ones
       const interestsToProcess = allInterests.filter(interest => 
         !interest.category || 
-        interest.category === 'AI_GENERATED' || 
+        interest.category === 'AI_GENERATED' ||  // Double-check any that might have been missed
         interest.category === 'UNCATEGORIZED' ||
         interest.isAiGenerated === true // Explicitly include AI-generated interests
       );
@@ -965,7 +996,15 @@ Example response format:
         });
         
         try {
-          const content = completion.choices[0].message.content || "{}";
+          let content = completion.choices[0].message.content || "{}";
+          
+          // Clean up OpenAI response in case it returns markdown-formatted JSON
+          if (content.includes('```json')) {
+            // Extract JSON from markdown code blocks
+            content = content.replace(/```json\s*|\s*```/g, '');
+          }
+          
+          // Attempt to parse and validate JSON
           const categorizations = JSON.parse(content);
           
           // Update each interest with its new category
@@ -1023,6 +1062,30 @@ Example response format:
           log("Error processing categorization batch:", error instanceof Error ? error.message : String(error));
           // Continue with next batch if one fails
           continue;
+        }
+      }
+      
+      // Final check - look for any remaining interests with literal "AI_GENERATED" category
+      const finalCheck = await storage.getInterests();
+      const remainingAIMarked = finalCheck.filter(interest => interest.category === 'AI_GENERATED');
+      
+      if (remainingAIMarked.length > 0) {
+        log(`Found ${remainingAIMarked.length} interests still marked as AI_GENERATED after main processing - fixing now`);
+        
+        for (const interest of remainingAIMarked) {
+          try {
+            // Use a more specific category
+            const fallbackCategory = interest.name.split(' ')[0] + ' Interests';
+            log(`Updating last-chance AI interest "${interest.name}" with category "${fallbackCategory}"`);
+            
+            await storage.updateInterest(interest.id, { 
+              category: fallbackCategory,
+              isAiGenerated: true
+            });
+            totalProcessed++;
+          } catch (error) {
+            log(`Error in final AI interest cleanup for "${interest.name}":`, error instanceof Error ? error.message : String(error));
+          }
         }
       }
       
