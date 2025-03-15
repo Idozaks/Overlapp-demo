@@ -94,7 +94,7 @@ export default function Hero() {
             >
               <div className="relative h-full w-full rounded-xl overflow-hidden">
                 <img
-                  src={`attached_assets${slides[currentSlide].scene}`}
+                  src={slides[currentSlide].scene}
                   alt={t(slides[currentSlide].title)}
                   className="w-full h-full object-cover"
                 />
