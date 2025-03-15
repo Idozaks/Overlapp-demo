@@ -882,11 +882,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all interests without categories or with generic categories
       const allInterests = await storage.getInterests();
       
-      // Get interests that need categorization (empty category or AI_GENERATED category)
+      // Get all interests that need categorization - especially AI-generated ones
       const interestsToProcess = allInterests.filter(interest => 
         !interest.category || 
         interest.category === 'AI_GENERATED' || 
-        interest.category === 'UNCATEGORIZED'
+        interest.category === 'UNCATEGORIZED' ||
+        interest.isAiGenerated === true // Explicitly include AI-generated interests
       );
       
       if (interestsToProcess.length === 0) {
@@ -912,22 +913,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         log(`Processing batch of ${interestNames.length} interests for categorization`);
         
-        const prompt = `I have a list of user interests that need to be categorized. Please assign each interest to the most appropriate category.
+        const prompt = `I have a list of user interests that need to be categorized. Many of these are AI-generated interests that need proper categorization. Please assign each interest to the most appropriate category.
         
 Interests to categorize: ${interestNames.join(", ")}
 
+Categorization instructions:
+1. Pay special attention to AI-generated interests which may be more specific or nuanced
+2. Use descriptive yet concise category names (1-2 words, Title Case)
+3. Group similar interests under the same category for consistency
+4. Be specific with categories - avoid generic terms like "Hobby" or "Activity"
+5. Consider the primary domain/field of the interest when categorizing
+
 Response format instructions:
 1. Respond with ONLY a valid JSON object where keys are interest names and values are appropriate categories
-2. Use clear, concise category names (1-2 words, title case)
-3. Group similar interests under the same category when appropriate
-4. Be consistent with category naming
-5. Example categories: "Technology", "Fitness", "Art", "Travel", "Education", "Music", etc.
+2. Example categories: "Technology", "Fitness", "Fine Arts", "Culinary", "Travel", "Education", "Music", "Science", etc.
 
 Example response format:
 {
   "Running": "Fitness",
   "Machine Learning": "Technology",
-  "Watercolor Painting": "Art"
+  "Watercolor Painting": "Fine Arts",
+  "Neural Networks": "Computer Science",
+  "Classical Guitar": "Music"
 }`;
 
         const completion = await openai.chat.completions.create({
