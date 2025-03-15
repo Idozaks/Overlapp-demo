@@ -974,7 +974,16 @@ Example response format:
               const category = categorizations[interest.name];
               log(`Updating interest "${interest.name}" with category "${category}"`);
               
-              await storage.updateInterest(interest.id, { category });
+              // If the interest was previously marked as AI_GENERATED, make sure to update both the
+              // category and set isAiGenerated flag to true to maintain the proper tracking
+              if (interest.category === 'AI_GENERATED') {
+                await storage.updateInterest(interest.id, { 
+                  category,
+                  isAiGenerated: true
+                });
+              } else {
+                await storage.updateInterest(interest.id, { category });
+              }
               totalProcessed++;
             } else if (interest.category === 'AI_GENERATED' || interest.isAiGenerated) {
               // Force a retry for AI-generated interests with no category match
@@ -1000,7 +1009,8 @@ Example response format:
                 if (fallbackCategory && fallbackCategory.length > 0) {
                   log(`Generated fallback category "${fallbackCategory}" for interest "${interest.name}"`);
                   await storage.updateInterest(interest.id, { 
-                    category: fallbackCategory
+                    category: fallbackCategory,
+                    isAiGenerated: true  // Ensure we maintain the AI-generated flag
                   });
                   totalProcessed++;
                 }

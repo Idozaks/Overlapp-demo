@@ -183,7 +183,12 @@ export default function InterestManager() {
                   >
                     <div className="space-y-1">
                       <p className="font-medium">{interest.name}</p>
-                      <Badge variant="secondary">{interest.category}</Badge>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="secondary">{interest.category}</Badge>
+                        {interest.isAiGenerated && (
+                          <Badge variant="outline" className="border-blue-400 text-blue-500">AI Generated</Badge>
+                        )}
+                      </div>
                     </div>
                     <Button
                       variant="ghost"
