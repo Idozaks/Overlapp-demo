@@ -1,6 +1,8 @@
 {
   "common": {
     "language": "Language",
+    "save": "Save",
+    "cancel": "Cancel",
     "nav": {
       "home": "Home",
       "demo": "Demo",
@@ -191,7 +193,19 @@
     "updateSuccess": "Profile Updated",
     "updateSuccessMessage": "Your profile has been successfully updated",
     "updateError": "Update Failed",
-    "updateErrorMessage": "Failed to update profile. Please try again."
+    "updateErrorMessage": "Failed to update profile. Please try again.",
+    "aiSuggestInterests": "Get AI Suggestions",
+    "aiSuggestions": "AI-Suggested Interests",
+    "aiSuggestionsDescription": "Based on your current interests, we've generated personalized suggestions for you",
+    "aiThinking": "AI is analyzing your interests...",
+    "tapToSelectInterests": "Tap on interests to add them to your profile",
+    "noSuggestionsFound": "No suggestions found. Try adding more interests first.",
+    "noInterestsAvailable": "No interests available. Try adding some first.",
+    "enrichSuccess": "Suggestions Ready",
+    "enrichSuccessMessage": "We've analyzed your interests and created suggestions",
+    "enrichError": "Suggestion Error",
+    "selectInterestsFirst": "Please select at least one interest before getting suggestions",
+    "errorCreatingInterest": "Error creating interest: {{interest}} - {{error}}"
   },
   "engage": {
     "title": "Ways to Engage",
