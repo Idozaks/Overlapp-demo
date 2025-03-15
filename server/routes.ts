@@ -1298,59 +1298,68 @@ Example response format:
 
 const SYNTHETIC_USERS = [
   {
-    username: "tech_explorer",
+    username: "blakebrown208",
     password: "password123",
-    displayName: "Alex Tech",
-    bio: "Tech enthusiast exploring theintersection of AI and human creativity",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-    preferences: {
-      interests: ["AI", "Technology", "Innovation"],
-      retailPreferences: ["Electronics", "Books"]
-    }
+    displayName: "Blake Brown",
+    bio: "Focused on Culinary Exploration and Network Security while working as a Artist. Valuing Tradition and Wellness.",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=blakebrown208",
+    age: 58,
+    occupation: "Artist",
+    location: "Mumbai, India",
+    gender: "Non-binary",
+    ageRange: "46+",
+    countryOfOrigin: "United States",
+    educationLevel: "Masters",
+    income: "Medium",
+    politicalView: "Moderate",
+    culturalBackground: "Asian American",
+    sexualOrientation: "Heterosexual",
+    relationshipStatus: "Married",
+    familySize: 4,
+    digitalLiteracy: "High",
+    ruralUrban: "Urban",
+    personalValues: ["Tradition", "Wellness", "Authenticity"],
+    attributeImportance: {
+      gender: 0.2,
+      age: 0.5,
+      location: 0.7,
+      occupation: 0.9,
+      educationLevel: 0.4,
+      culturalBackground: 0.3
+    },
+    interests: ["Culinary Exploration", "Network Security", "Film Production", "Quantum Computing", "Tea Culture"]
   },
   {
-    username: "nature_lens",
+    username: "mason_carter_98",
     password: "password123",
-    displayName: "Sam Nature",
-    bio: "Wildlife photographer capturing Earth's beauty one frame at a time",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sam",
-    preferences: {
-      interests: ["Photography", "Nature", "Travel"],
-      retailPreferences: ["Camera Gear", "Outdoor Equipment"]
-    }
-  },
-  {
-    username: "fitness_guru",
-    password: "password123",
-    displayName: "Jordan Fit",
-    bio: "Personal trainer helping others achieve their fitness goals",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jordan",
-    preferences: {
-      interests: ["Fitness", "Nutrition", "Wellness"],
-      retailPreferences: ["Sports Equipment", "Health Foods"]
-    }
-  },
-  {
-    username: "art_soul",
-    password: "password123",
-    displayName: "Morgan Art",
-    bio: "Digital artist exploring new forms of expression",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Morgan",
-    preferences: {
-      interests: ["Art", "Digital Media", "Design"],
-      retailPreferences: ["Art Supplies", "Digital Tools"]
-    }
-  },
-  {
-    username: "food_adventurer",
-    password: "password123",
-    displayName: "Jamie Food",
-    bio: "Culinary explorer sharing global flavors and recipes",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jamie",
-    preferences: {
-      interests: ["Cooking", "Travel", "Culture"],
-      retailPreferences: ["Kitchen Equipment", "Specialty Foods"]
-    }
+    displayName: "Mason Carter",
+    bio: "Passionate about Software Engineering and Tea Culture while working as a Professor. Valuing Diversity and Sustainability.",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=mason_carter_98",
+    age: 45,
+    occupation: "Professor",
+    location: "London, UK",
+    gender: "Male",
+    ageRange: "31-45",
+    countryOfOrigin: "United Kingdom",
+    educationLevel: "Doctorate",
+    income: "High",
+    politicalView: "Progressive",
+    culturalBackground: "European",
+    sexualOrientation: "Gay",
+    relationshipStatus: "Single",
+    familySize: 1,
+    digitalLiteracy: "High",
+    ruralUrban: "Urban",
+    personalValues: ["Diversity", "Sustainability", "Creativity"],
+    attributeImportance: {
+      gender: 0.3,
+      age: 0.6,
+      location: 0.8,
+      occupation: 0.7,
+      educationLevel: 0.9,
+      culturalBackground: 0.5
+    },
+    interests: ["Software Engineering", "Tea Culture", "Dance", "Classical Music", "Vintage Computing"]
   }
 ];
 

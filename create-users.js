@@ -1,29 +1,10 @@
 // Script to create synthetic users through the debug endpoint
 import axios from 'axios';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Load the synthetic users
-const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'synthetic-users.json'), 'utf8'));
 
 // Determine the base URL - use the URL from the Replit environment
 const getBaseUrl = () => {
-  // For Replit environment
-  const replitSlug = process.env.REPL_SLUG;
-  const replitOwner = process.env.REPL_OWNER;
-  const replitClusterHost = process.env.REPLIT_CLUSTER_HOST;
-
-  // If running in Replit, return the Replit URL
-  if (replitSlug && replitOwner && replitClusterHost) {
-    return `https://${replitSlug}.${replitOwner}.${replitClusterHost}`;
-  }
-
-  // Default to localhost - adjust the port as needed
-  return 'http://localhost:3000';
+  // For local development
+  return 'http://localhost:5000';
 };
 
 // URL to call for generating users
@@ -31,15 +12,20 @@ const url = `${getBaseUrl()}/api/debug/generate-users`;
 
 async function createUsers() {
   try {
-    console.log(`Creating ${users.length} synthetic users via ${url}...`);
+    console.log(`Creating synthetic users via ${url}...`);
     
     // Call the debug endpoint to generate users
-    const response = await axios.post(url, { 
-      userCount: users.length
-    });
+    const response = await axios.post(url);
     
-    console.log('Response:', response.data);
-    console.log('Users created successfully!');
+    console.log('Response status:', response.status);
+    if (response.data && response.data.users) {
+      console.log(`Created ${response.data.users.length} users successfully!`);
+      response.data.users.forEach(user => {
+        console.log(` - ${user.username}: ${user.displayName}`);
+      });
+    } else {
+      console.log('Response data:', response.data);
+    }
   } catch (error) {
     console.error('Error creating users:', error.message);
     if (error.response) {
