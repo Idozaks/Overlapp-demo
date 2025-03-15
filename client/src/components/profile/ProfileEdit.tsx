@@ -23,7 +23,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { countries } from 'world-countries';
+import countries from 'world-countries';
 
 interface InterestSuggestion {
   name: string;
