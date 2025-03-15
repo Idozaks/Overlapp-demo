@@ -10,7 +10,7 @@ const slides = [
     title: "common.landing.hero.slide1.title",
     description: "common.landing.hero.slide1.subtitle",
     gradientColors: "from-blue-500 to-purple-500",
-    scene: "/attached_assets/Personal Profile.png",
+    scene: "/attached_assets/Personal%20Profile.png",
     emoji: "🧑‍💼"
   },
   {
@@ -93,10 +93,14 @@ export default function Hero() {
               transition={{ duration: 0.5 }}
             >
               <div className="relative h-full w-full rounded-xl overflow-hidden">
-                <img
-                  src={slides[currentSlide].scene}
+                <Image
+                  src={`/public${slides[currentSlide].scene}`}
                   alt={t(slides[currentSlide].title)}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error('Image failed to load:', e);
+                    e.currentTarget.src = '/fallback-image.png';
+                  }}
                 />
                 <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-20`} />
               </div>
