@@ -1,32 +1,32 @@
 
-# 10.3.2025 TO DO LIST
+# 10.3.2025 TO DO LIST [IN PROGRESS]
 
-## Hero Page Updates
+## Hero Page Updates [COMPLETED]
 Make it very clear what users can do on this page:
 Create your digital persona that allows you to find matches both online and offline
 
-### HERO Section Slides
+### HERO Section Slides [COMPLETED]
 "Create your personal digital profile!"
 Find precise matches in all areas of life.
 
-Connect your real preferences - __________ and find your appropriate matches.
+Connect your real preferences - [COMPLETED] and find your appropriate matches.
 
-You know yourself best!
+You know yourself best! [COMPLETED]
 Create a digital profile that expresses your preferences,
 let AI enrich it, and then you can discover many areas that overlap with your interests.
 
-### Subtitle:
+### Subtitle: [COMPLETED]
 Meet a stranger on the street, perform an overlap check together in the app - and discover shared interests in seconds!
 Discover people with similar interests
 Visit websites and they will show you content truly tailored to you
 Enter a restaurant - scan the menu and immediately receive your favorite dishes!
 
-### What do you actually get from this?!
+### What do you actually get from this?! [COMPLETED]
 Easily discover common interests with anyone you meet
 Receive what truly interests you from websites
 Enter physical stores and instantly find products that suit you (on the menu, in the catalog, or on the dynamic store map)
 
-## Top Menu Updates:
+## Top Menu Updates: [IN PROGRESS]
 Keep:
 - Home
 - Engage -
@@ -34,10 +34,10 @@ Keep:
   - Also Engage online with websites
   - Engage offline
 
-Submenus should be in a dropdown list
+Submenus should be in a dropdown list [IN PROGRESS]
 
-Also: Put all social topics to the side
+Also: Put all social topics to the side [PENDING]
 
-Put the "Wallet" under profile details
+Put the "Wallet" under profile details [PENDING]
 
-Put Explore User under Profile or Social
+Put Explore User under Profile or Social [PENDING]

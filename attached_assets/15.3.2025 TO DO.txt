@@ -1,0 +1,52 @@
+
+# 15.3.2025 TO DO LIST
+
+## Smart Contact Card Implementation
+
+### Contact Card Generation [PENDING]
+- Create digital business card UI with fields:
+  - Full Name
+  - Profile Picture
+  - Username/Handle
+  - Job Title (optional)
+  - Bio
+  - Social Links
+  - Interests
+- Implement QR code generation
+- Store card data in user profile
+
+### QR Code Scanner [PENDING]
+- Implement in-app QR scanner
+- Add "Find Overlaps" button
+- Create profile matching system
+
+### AI-Powered Overlap Detection [PENDING]
+- Implement NLP analysis for:
+  - Shared interests/keywords
+  - Mutual connections
+  - Common industries
+- Display overlap insights
+
+### Interaction Features [PENDING]
+- Add chat functionality
+- Implement follow system
+- Create bookmarking feature
+- Add resource sharing capability
+
+## Technical Tasks
+
+### Backend Development [PENDING]
+- Create business card API endpoints
+- Set up QR code generation system
+- Implement AI analysis module
+
+### Frontend Implementation [PENDING]
+- Build business card creation UI
+- Add QR code display
+- Create scanner interface
+- Design overlap results display
+
+### AI Processing [PENDING]
+- Set up NLP processing
+- Implement vector embeddings
+- Optimize response times
