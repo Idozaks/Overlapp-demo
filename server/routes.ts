@@ -704,11 +704,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add new endpoint to get all interests
   app.get("/api/interests", async (req: Request, res: Response) => {
     try {
-      const allInterests = await storage.getInterests();
-      res.json({ interests: allInterests });
+      const { category } = req.query;
+      let interests;
+      
+      if (category && typeof category === 'string') {
+        interests = await storage.getInterestsByCategory(category);
+      } else {
+        interests = await storage.getInterests();
+      }
+      
+      res.json({ interests });
     } catch (error) {
       log("Error fetching interests:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Unable to fetch interests" });
+    }
+  });
+  
+  app.get("/api/interests/categories", async (req: Request, res: Response) => {
+    try {
+      const allInterests = await storage.getInterests();
+      // Extract unique categories
+      const categories = [...new Set(allInterests.map(interest => interest.category))];
+      res.json({ categories });
+    } catch (error) {
+      log("Error fetching interest categories:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch interest categories" });
     }
   });
 
