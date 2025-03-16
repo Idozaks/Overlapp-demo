@@ -19,7 +19,12 @@ export default function Matches() {
   });
 
   // Using a separate state for applied configuration to avoid auto-refetching
-  const [appliedConfig, setAppliedConfig] = useState(weightConfig);
+  // Initialize with the same default values
+  const [appliedConfig, setAppliedConfig] = useState({
+    identityWeight: 0.7,
+    interestWeight: 0.3,
+    minIdentityMatches: 1
+  });
 
   const { data, isLoading, error, refetch } = useQuery<{ matches: MatchResult[] }>({
     queryKey: [`/api/identity-matches/${user?.id}`, appliedConfig],
@@ -135,7 +140,12 @@ export default function Matches() {
             </div>
             <Button 
               className="mt-4"
-              onClick={() => refetch()}
+              onClick={() => {
+                // Apply the current slider values to the applied config
+                setAppliedConfig(weightConfig);
+                // Then refetch with the new values
+                refetch();
+              }}
             >
               Update Matches
             </Button>
