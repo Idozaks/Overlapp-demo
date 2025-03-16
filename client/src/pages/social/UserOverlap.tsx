@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,12 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 export default function UserOverlap() {
-  const { userId } = useParams<{ userId: string }>();
+  const [location] = useLocation();
+  const params = new URLSearchParams(location.split('?')[1] || '');
+  const targetUserId = params.get('targetUserId');
   const { user: currentUser } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Convert userId to number
-  const targetUserId = parseInt(userId || "0");
+  // Convert targetUserId to number
+  const targetUserIdNum = targetUserId ? parseInt(targetUserId) : 0;
 
   // Query to fetch target user data
   const { data: userData, isLoading: loadingUser, error: userError } = useQuery<{ user: any }>({

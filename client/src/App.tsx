@@ -16,6 +16,7 @@ import Profile from "@/pages/social/Profile";
 import ProfileEdit from "@/pages/social/ProfileEdit";
 import InterestSuggestionsPage from "@/pages/social/InterestSuggestionsPage";
 import Matches from "@/pages/social/Matches";
+import UserOverlap from "@/pages/social/UserOverlap";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import InterestManager from "@/pages/admin/InterestManager";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/social" component={SocialHub} />
       <Route path="/social/explore" component={ExploreUsers} />
       <Route path="/social/matches" component={Matches} />
+      <Route path="/social/overlap" component={UserOverlap} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />

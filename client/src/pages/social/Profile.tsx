@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader2, Edit2, AtSign, Calendar, UserCheck } from "lucide-react";
+import { Loader2, Edit2, AtSign, Calendar, UserCheck, Users, Laptop } from "lucide-react";
 import { Link } from "wouter";
 import PostList from "@/components/social/PostList";
 import type { User, PostWithUser } from "@shared/schema";
@@ -199,18 +199,33 @@ export default function Profile() {
                     </div>
                   ) : (
                     currentUser && (
-                      <Button
-                        onClick={handleFollowToggle}
-                        disabled={followMutation.isPending || unfollowMutation.isPending}
-                        variant={isFollowing ? "outline" : "default"}
-                        className="w-full"
-                      >
-                        {followMutation.isPending || unfollowMutation.isPending ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          isFollowing ? "Unfollow" : "Follow"
+                      <div className="flex flex-col gap-3">
+                        <Button
+                          onClick={handleFollowToggle}
+                          disabled={followMutation.isPending || unfollowMutation.isPending}
+                          variant={isFollowing ? "outline" : "default"}
+                          className="w-full"
+                        >
+                          {followMutation.isPending || unfollowMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            isFollowing ? "Unfollow" : "Follow"
+                          )}
+                        </Button>
+                        
+                        {/* Overlap button for comparing users */}
+                        {currentUser && (
+                          <Link href={`/social/overlap?currentUserId=${currentUser.id}&targetUserId=${userId}`}>
+                            <Button
+                              variant="secondary"
+                              className="w-full"
+                            >
+                              <Users className="w-4 h-4 mr-2" />
+                              Analyze Overlap
+                            </Button>
+                          </Link>
                         )}
-                      </Button>
+                      </div>
                     )
                   )}
 
