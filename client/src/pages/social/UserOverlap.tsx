@@ -5,9 +5,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Loader2, ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 
 export default function UserOverlap() {
   const [location] = useLocation();
@@ -193,17 +194,148 @@ export default function UserOverlap() {
         </Card>
       </div>
 
-      {/* Overlap Score Card */}
+      {/* Overlap Score Card with Visual Indicator and Quick Insights */}
       {overlapData && (
         <Card className="mb-8">
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="flex justify-between items-center">
               Overlap Score 
               <Badge className="text-xl px-4 py-2">
                 {Math.round(overlapData.overlapScore * 100)}%
               </Badge>
             </CardTitle>
+            
+            {/* Visual Overlap Indicator */}
+            <div className="mt-6 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Low</span>
+                <span>Medium</span>
+                <span>High</span>
+              </div>
+              <Progress 
+                value={Math.round(overlapData.overlapScore * 100)} 
+                className="h-3"
+                indicatorClassName={
+                  overlapData.overlapScore > 0.7 
+                    ? "bg-green-500" 
+                    : overlapData.overlapScore > 0.4 
+                      ? "bg-yellow-500" 
+                      : "bg-orange-500"
+                }
+              />
+            </div>
           </CardHeader>
+          <CardContent>
+            {/* Quick Insights & Highlights */}
+            <div className="space-y-4">
+              <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
+                <h3 className="font-semibold mb-2 flex items-center">
+                  <span className="text-xl mr-2">✨</span> Quick Insights
+                </h3>
+                <p className="text-sm text-muted-foreground italic mb-3">
+                  {overlapData.similarInterests.length > 0 
+                    ? `You both share ${overlapData.similarInterests.length} interests, including ${overlapData.similarInterests.slice(0, 2).join(' and ')}${overlapData.similarInterests.length > 2 ? '...' : '!'}`
+                    : "You have different interests, which creates an opportunity to learn from each other!"}
+                </p>
+                <p className="text-sm">
+                  {overlapData.commonIdentities.length > 0 
+                    ? `You have ${overlapData.commonIdentities.length} identity traits in common, creating a solid foundation for connection.`
+                    : "Your diverse backgrounds offer a rich opportunity for cultural exchange!"}
+                </p>
+              </div>
+              
+              {/* One-line Overview */}
+              <div className="mt-4 text-center">
+                <p className="text-sm font-medium italic">
+                  {overlapData.overlapScore > 0.7 
+                    ? "Your profiles suggest a strong synergy of shared experiences and interests!" 
+                    : overlapData.overlapScore > 0.4 
+                      ? "You have a balanced mix of similarities and differences - perfect for meaningful exchange!" 
+                      : "Your diverse backgrounds create unique opportunities for learning from each other!"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Conversation Starters Card */}
+      {overlapData && (
+        <Card className="mb-8 border-2 border-primary/10">
+          <CardHeader className="bg-primary/5">
+            <CardTitle className="flex items-center">
+              <MessageSquare className="mr-2 h-5 w-5 text-primary" />
+              Conversation Starters
+            </CardTitle>
+            <CardDescription>
+              Break the ice with personalized conversation topics
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {overlapData.similarInterests.length > 0 ? (
+                <>
+                  <div className="p-3 border rounded-lg bg-card hover:bg-accent/5 transition-colors cursor-pointer">
+                    <p className="font-medium mb-1">
+                      {`Ask about ${overlapData.similarInterests[0]}`}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {`What got you interested in ${overlapData.similarInterests[0]}? I'd love to hear about your experience.`}
+                    </p>
+                  </div>
+                  
+                  {overlapData.similarInterests.length > 1 && (
+                    <div className="p-3 border rounded-lg bg-card hover:bg-accent/5 transition-colors cursor-pointer">
+                      <p className="font-medium mb-1">
+                        {`Share your ${overlapData.similarInterests[1]} stories`}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {`I noticed we both enjoy ${overlapData.similarInterests[1]}! What's your favorite thing about it?`}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {Object.keys(overlapData.differentIdentities).length > 0 && (
+                    <div className="p-3 border rounded-lg bg-card hover:bg-accent/5 transition-colors cursor-pointer">
+                      <p className="font-medium mb-1">
+                        {`Learn about ${Object.keys(overlapData.differentIdentities)[0]}`}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {`I'd love to hear more about your experience with ${Object.values(overlapData.differentIdentities)[0].target}!`}
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="p-3 border rounded-lg bg-card hover:bg-accent/5 transition-colors cursor-pointer">
+                    <p className="font-medium mb-1">Ask about unique perspectives</p>
+                    <p className="text-sm text-muted-foreground">
+                      I'd love to learn more about your experiences. What's something you're passionate about?
+                    </p>
+                  </div>
+                  
+                  {overlapData.uniqueTargetUserInterests.length > 0 && (
+                    <div className="p-3 border rounded-lg bg-card hover:bg-accent/5 transition-colors cursor-pointer">
+                      <p className="font-medium mb-1">
+                        {`Ask about ${overlapData.uniqueTargetUserInterests[0]}`}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {`I noticed you're interested in ${overlapData.uniqueTargetUserInterests[0]}. What draws you to that?`}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="p-3 border rounded-lg bg-card hover:bg-accent/5 transition-colors cursor-pointer">
+                    <p className="font-medium mb-1">Share a learning opportunity</p>
+                    <p className="text-sm text-muted-foreground">
+                      Our different backgrounds could be a great opportunity to learn from each other!
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          </CardContent>
         </Card>
       )}
 
