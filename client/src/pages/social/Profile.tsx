@@ -215,10 +215,11 @@ export default function Profile() {
                         
                         {/* Overlap button for comparing users */}
                         {currentUser && (
-                          <Link href={`/social/overlap?currentUserId=${currentUser.id}&targetUserId=${userId}`}>
+                          <Link href={`/social/overlap?targetUserId=${userId}`}>
                             <Button
                               variant="secondary"
                               className="w-full"
+                              onClick={() => console.log("Navigating to overlap with target:", userId)}
                             >
                               <Users className="w-4 h-4 mr-2" />
                               Analyze Overlap

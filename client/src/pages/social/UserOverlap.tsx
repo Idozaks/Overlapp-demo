@@ -11,10 +11,19 @@ import { Separator } from "@/components/ui/separator";
 
 export default function UserOverlap() {
   const [location] = useLocation();
-  const params = new URLSearchParams(location.split('?')[1] || '');
-  const targetUserId = params.get('targetUserId');
+  // Make sure to handle URL parameters correctly
+  const searchParams = new URLSearchParams(window.location.search);
+  const targetUserId = searchParams.get('targetUserId');
   const { user: currentUser } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Make sure we have the needed parameters
+  useEffect(() => {
+    console.log("Current location:", location);
+    console.log("Current query params:", window.location.search);
+    console.log("Target user ID:", targetUserId);
+    console.log("Current user:", currentUser?.id);
+  }, [location, targetUserId, currentUser]);
 
   // Convert targetUserId to number
   const targetUserIdNum = targetUserId ? parseInt(targetUserId) : 0;
@@ -45,9 +54,19 @@ export default function UserOverlap() {
     queryKey: [`/api/users/${targetUserId}/overlap`],
     enabled: !!targetUserId && !!currentUser?.id,
     queryFn: async () => {
+      console.log("Fetching overlap data for target user ID:", targetUserId);
+      // First check if target user exists
+      const userCheckResponse = await fetch(`/api/users/${targetUserId}`);
+      if (!userCheckResponse.ok) {
+        throw new Error(`User with ID ${targetUserId} not found`);
+      }
+      
+      // Then fetch overlap data
       const response = await fetch(`/api/users/${targetUserId}/overlap`);
       if (!response.ok) {
-        throw new Error('Failed to fetch overlap data');
+        const errorText = await response.text();
+        console.error("Overlap API error:", errorText);
+        throw new Error('Failed to fetch overlap data: ' + errorText);
       }
       return response.json();
     }
