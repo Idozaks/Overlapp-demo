@@ -23,6 +23,13 @@ export default function UserOverlap() {
   const { data: userData, isLoading: loadingUser, error: userError } = useQuery<{ user: any }>({
     queryKey: [`/api/users/${targetUserId}`],
     enabled: !!targetUserId,
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${targetUserId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+      return response.json();
+    }
   });
 
   // Query to fetch the overlap analysis
@@ -37,6 +44,13 @@ export default function UserOverlap() {
   }>({
     queryKey: [`/api/users/${targetUserId}/overlap`],
     enabled: !!targetUserId && !!currentUser?.id,
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${targetUserId}/overlap`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch overlap data');
+      }
+      return response.json();
+    }
   });
 
   // Function to regenerate analysis
