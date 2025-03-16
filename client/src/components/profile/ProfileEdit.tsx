@@ -1192,7 +1192,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                     <div className="flex flex-wrap gap-2 pt-2">
                       {interestsByCategory[category].map((interest) => (
                         <Badge
-                          key={interest.name}
+                          key={`interest-${interest.id}-${category}`}
                           variant={pendingInterests.has(interest.name) ? "default" : "outline"}
                           className="cursor-pointer hover:shadow-sm transition-all"
                           onClick={() => toggleInterest(interest.name)}
