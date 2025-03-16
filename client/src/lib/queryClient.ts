@@ -13,12 +13,15 @@ interface RequestOptions {
 }
 
 export async function apiRequest(url: string, options?: RequestOptions): Promise<Response> {
+  const isFormData = options?.body instanceof FormData;
   const res = await fetch(url, {
     method: options?.method || 'GET',
     headers: {
-      ...(!(options?.body instanceof FormData) && { "Content-Type": "application/json" }), //Added this line to handle FormData
+      ...(!isFormData && { "Content-Type": "application/json" }),
     },
-    body: options?.body, // Removed JSON.stringify as FormData should not be stringified.
+    body: isFormData 
+      ? options?.body 
+      : options?.body ? JSON.stringify(options.body) : undefined,
     credentials: "include",
   });
 
