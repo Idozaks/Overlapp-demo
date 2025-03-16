@@ -18,14 +18,17 @@ export default function Matches() {
     minIdentityMatches: 1
   });
 
+  // Using a separate state for applied configuration to avoid auto-refetching
+  const [appliedConfig, setAppliedConfig] = useState(weightConfig);
+
   const { data, isLoading, error, refetch } = useQuery<{ matches: MatchResult[] }>({
-    queryKey: [`/api/identity-matches/${user?.id}`, weightConfig],
+    queryKey: [`/api/identity-matches/${user?.id}`, appliedConfig],
     queryFn: async () => {
       if (!user?.id) throw new Error("User not logged in");
       const queryParams = new URLSearchParams({
-        identityWeight: weightConfig.identityWeight.toString(),
-        interestWeight: weightConfig.interestWeight.toString(),
-        minIdentityMatches: weightConfig.minIdentityMatches.toString()
+        identityWeight: appliedConfig.identityWeight.toString(),
+        interestWeight: appliedConfig.interestWeight.toString(),
+        minIdentityMatches: appliedConfig.minIdentityMatches.toString()
       });
       const response = await fetch(`/api/identity-matches/${user.id}?${queryParams}`);
       if (!response.ok) {
@@ -36,11 +39,12 @@ export default function Matches() {
     enabled: !!user?.id,
   });
 
+  // Only refetch when user ID changes, not when sliders change
   useEffect(() => {
     if (user?.id) {
       refetch();
     }
-  }, [weightConfig, user?.id, refetch]);
+  }, [user?.id, refetch]);
 
   if (isLoading) {
     return (
