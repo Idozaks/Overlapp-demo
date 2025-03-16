@@ -339,28 +339,16 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
     log(`[OpenAI] Successfully generated emojis for ${processedInterests.length} interests`);
     return { interests: processedInterests };
       
-    } catch (parseError) {
-      log("[OpenAI] JSON parse error for emoji generation:", parseError);
+    } catch (error) {
+      log("[OpenAI] Error generating emojis for interests:", error);
       
-      // Return the original interests with no emoji if parsing fails
+      // Return the original interests with no emoji on error
       return { 
         interests: interests.map(interest => ({
           id: interest.id,
           name: interest.name,
-          emoji: '' // No emoji if parsing fails
+          emoji: '' // No emoji if there's an error
         }))
       };
     }
-  } catch (error) {
-    log("[OpenAI] Error generating emojis for interests:", error);
-    
-    // Return the original interests with no emoji on error
-    return { 
-      interests: interests.map(interest => ({
-        id: interest.id,
-        name: interest.name,
-        emoji: '' // No emoji if there's an error
-      }))
-    };
-  }
 }
