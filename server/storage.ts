@@ -593,7 +593,7 @@ export class DatabaseStorage implements IStorage {
       const limit = options.limit || 10;
       const identityWeight = options.identityWeight || 0.7;
       const interestWeight = options.interestWeight || 0.3;
-      const minIdentityMatches = options.minIdentityMatches || 2;
+      const minIdentityMatches = options.minIdentityMatches !== undefined ? options.minIdentityMatches : 2;
       
       // Get current user
       const currentUser = await this.getUser(userId);
@@ -618,10 +618,14 @@ export class DatabaseStorage implements IStorage {
       const matches = [];
       
       for (const potentialMatch of allUsers) {
-        // Skip users with no identity information
-        if (!potentialMatch.gender && !potentialMatch.ageRange && 
+        // Only skip users with no identity information if the minIdentityMatches is greater than 0
+        // This allows matching with users who don't have identity attributes when minIdentityMatches is set to 0
+        if (minIdentityMatches > 0 && 
+            !potentialMatch.gender && !potentialMatch.ageRange && 
             !potentialMatch.countryOfOrigin && !potentialMatch.languagesSpoken &&
-            !potentialMatch.culturalBackground) {
+            !potentialMatch.culturalBackground && !potentialMatch.education &&
+            !potentialMatch.professionalField && !potentialMatch.eventPreferences &&
+            !potentialMatch.collaborationStyle) {
           continue;
         }
         
@@ -775,8 +779,8 @@ export class DatabaseStorage implements IStorage {
         }
         maxPossibleScore += importance.culturalBackground;
         
-        // Skip users who don't meet the minimum identity matches threshold
-        if (commonIdentities.length < minIdentityMatches) {
+        // Only skip users based on minimum identity matches if minIdentityMatches is greater than 0
+        if (minIdentityMatches > 0 && commonIdentities.length < minIdentityMatches) {
           continue;
         }
         
