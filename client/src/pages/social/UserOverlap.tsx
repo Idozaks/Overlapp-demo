@@ -121,6 +121,8 @@ export default function UserOverlap() {
   }
 
   const targetUser = userData?.user;
+  const currentUserBio = currentUser?.bio || "";
+  const targetUserBio = targetUser?.bio || "";
   
   if (!targetUser) {
     return (
@@ -167,6 +169,11 @@ export default function UserOverlap() {
                 </CardDescription>
               </div>
             </div>
+            {currentUserBio && (
+              <div className="mt-3 text-sm text-muted-foreground italic">
+                <p className="line-clamp-2">{currentUserBio}</p>
+              </div>
+            )}
           </CardHeader>
         </Card>
 
@@ -190,6 +197,11 @@ export default function UserOverlap() {
                 </CardDescription>
               </div>
             </div>
+            {targetUserBio && (
+              <div className="mt-3 text-sm text-muted-foreground italic">
+                <p className="line-clamp-2">{targetUserBio}</p>
+              </div>
+            )}
           </CardHeader>
         </Card>
       </div>
@@ -281,8 +293,8 @@ export default function UserOverlap() {
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   {overlapData.similarInterests.length > 0
-                    ? `Collaborate on a ${overlapData.similarInterests[0]} project that leverages both your skills and perspectives.`
-                    : 'Create a cultural exchange project drawing on your diverse backgrounds and interests.'}
+                    ? `Collaborate on a ${overlapData.similarInterests[0]} project that leverages both your skills and perspectives${targetUserBio ? ` — ${targetUserBio.split('.')[0]}.` : '.'}`
+                    : `Create a cultural exchange project drawing on your diverse backgrounds and interests${targetUserBio ? ` with ${targetUser.displayName || targetUser.username}'s experience in ${targetUserBio.split(' ').slice(0, 5).join(' ')}...` : '.'}`}
                 </p>
                 <div className="flex justify-between items-center">
                   <Badge variant="outline" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
@@ -305,10 +317,10 @@ export default function UserOverlap() {
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   {overlapData.commonIdentities.length > 1
-                    ? `Co-host a workshop focused on ${overlapData.commonIdentities[0]} experiences and knowledge sharing.`
+                    ? `Co-host a workshop focused on ${overlapData.commonIdentities[0]} experiences and knowledge sharing${currentUserBio && targetUserBio ? ` combining both your backgrounds.` : '.'}`
                     : overlapData.similarInterests.length > 0
-                      ? `Conduct joint research or exploration on evolving trends in ${overlapData.similarInterests[0]}.`
-                      : `Exchange skills: you can teach about ${overlapData.uniqueCurrentUserInterests[0] || 'your expertise'}, and learn about ${overlapData.uniqueTargetUserInterests[0] || 'their specialties'}.`}
+                      ? `Conduct joint research or exploration on evolving trends in ${overlapData.similarInterests[0]}${targetUserBio ? ` that could benefit from ${targetUser.displayName || targetUser.username}'s perspective.` : '.'}`
+                      : `Exchange skills: you can teach about ${overlapData.uniqueCurrentUserInterests[0] || 'your expertise'}, and learn about ${overlapData.uniqueTargetUserInterests[0] || 'their specialties'}${targetUserBio ? ` — draw inspiration from their experience with "${targetUserBio.substring(0, 40)}${targetUserBio.length > 40 ? '...' : ''}"` : '.'}`}
                 </p>
                 <div className="flex justify-between items-center">
                   <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
@@ -363,10 +375,14 @@ export default function UserOverlap() {
                   {Object.keys(overlapData.differentIdentities).length > 0 && (
                     <div className="p-3 border rounded-lg bg-card hover:bg-accent/5 transition-colors cursor-pointer">
                       <p className="font-medium mb-1">
-                        {`Learn about ${Object.keys(overlapData.differentIdentities)[0]}`}
+                        {`Learn about ${Object.keys(overlapData.differentIdentities)[0] === 'countryOfOrigin' 
+                          ? 'your country' 
+                          : Object.keys(overlapData.differentIdentities)[0]}`}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {`I'd love to hear more about your experience with ${Object.values(overlapData.differentIdentities)[0].target}!`}
+                        {`I'd love to hear more about your experience ${Object.keys(overlapData.differentIdentities)[0] === 'countryOfOrigin' 
+                          ? `in ${Object.values(overlapData.differentIdentities)[0].target}` 
+                          : `with ${Object.values(overlapData.differentIdentities)[0].target}`}!`}
                       </p>
                     </div>
                   )}
@@ -505,7 +521,9 @@ export default function UserOverlap() {
                         <Badge variant="outline" className="bg-blue-500/10 text-blue-700 dark:text-blue-300">
                           {values.current}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">{key}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {key === 'countryOfOrigin' ? 'Country' : key}
+                        </span>
                         <Badge variant="outline" className="bg-purple-500/10 text-purple-700 dark:text-purple-300">
                           {values.target}
                         </Badge>
