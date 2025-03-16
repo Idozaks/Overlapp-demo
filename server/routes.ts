@@ -15,6 +15,7 @@ import path from "path";
 import fs from "fs";
 import OpenAI from "openai";
 import * as openaiService from "./openai";
+import * as userOverlapService from "./userOverlap";
 
 const scryptAsync = promisify(scrypt);
 
@@ -1296,6 +1297,50 @@ Example response format:
     } catch (error) {
       log("Error adding user interest:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Unable to add user interest" });
+    }
+  });
+
+  // User Overlap Analysis
+  app.get("/api/users/:id/overlap", async (req: Request, res: Response) => {
+    try {
+      // Ensure user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const currentUser = req.user as User;
+      const targetUserId = parseInt(req.params.id);
+
+      if (isNaN(targetUserId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Fetch target user
+      const targetUser = await storage.getUser(targetUserId);
+      if (!targetUser) {
+        return res.status(404).json({ message: "Target user not found" });
+      }
+
+      // Get interests for both users
+      const currentUserInterests = await storage.getUserInterests(currentUser.id);
+      const targetUserInterests = await storage.getUserInterests(targetUserId);
+
+      // Extract interest names
+      const currentUserInterestNames = currentUserInterests.map(interest => interest.name);
+      const targetUserInterestNames = targetUserInterests.map(interest => interest.name);
+
+      // Generate the overlap analysis
+      const analysisResult = await userOverlapService.generateUserOverlapAnalysis(
+        currentUser,
+        targetUser,
+        currentUserInterestNames,
+        targetUserInterestNames
+      );
+
+      res.json(analysisResult);
+    } catch (error) {
+      log("Error generating user overlap analysis:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to generate user overlap analysis" });
     }
   });
 
