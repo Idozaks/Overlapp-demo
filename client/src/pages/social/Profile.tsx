@@ -372,7 +372,7 @@ export default function Profile() {
                     <h2 className="text-lg font-semibold mb-2">Interests</h2>
                     <div className="flex flex-wrap gap-2">
                       {interestObjects.map(interest => (
-                        <Badge key={interest.name} variant="secondary">
+                        <Badge key={interest.id} variant="secondary">
                           {interest.iconUrl} {interest.name}
                         </Badge>
                       ))}

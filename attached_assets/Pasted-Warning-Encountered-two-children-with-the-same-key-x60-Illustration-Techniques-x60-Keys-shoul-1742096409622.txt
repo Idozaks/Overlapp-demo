@@ -1,0 +1,43 @@
+Warning: Encountered two children with the same key, &#x60;Illustration Techniques&#x60;. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at div
+    at div
+    at div
+    at div
+    at _c9 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at Profile (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/pages/social/Profile.tsx:32:18)
+    at Route (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=213ec2e5:323:16)
+    at Switch (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=213ec2e5:379:17)
+    at Router (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=pOp1hnbLIXr0H_ZvU7bdG:69:20)
+    at main
+    at div
+    at AuthProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-auth.tsx:26:32)
+    at QueryClientProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=213ec2e5:2805:3)
+    at App
+at div
+at div
+at div
+at div
+at div
+at _c9 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/ui/card.tsx:114:12)
+at div
+at _c (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/ui/card.tsx:20:11)
+at div
+at div
+at Profile (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/pages/social/Profile.tsx:32:18)
+at Route (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=213ec2e5:323:16)
+at Switch (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=213ec2e5:379:17)
+at Router (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=pOp1hnbLIXr0H_ZvU7bdG:69:20)
+at main
+at div
+at AuthProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-auth.tsx:26:32)
+at QueryClientProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=213ec2e5:2805:3)
+at App
+at t.value (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

@@ -241,7 +241,7 @@ export default function InterestSuggestions({
               <div className="flex flex-wrap gap-2 mb-6">
                 {suggestedInterests.map((suggestion, index) => (
                   <Badge
-                    key={index}
+                    key={`suggestion-${suggestion.name}-${index}`}
                     variant={selectedSuggestions.has(suggestion.name) ? "default" : "outline"}
                     className="cursor-pointer text-sm py-1.5 px-3 hover:shadow-sm transition-all"
                     onClick={() => toggleSuggestion(suggestion.name)}
