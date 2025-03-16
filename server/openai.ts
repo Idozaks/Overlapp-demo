@@ -133,12 +133,17 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
           continue;
         }
         
-        // Create a properly formatted suggestion
+        // Create a properly formatted suggestion with normalized emoji
         const name = suggestion.name.trim();
         let emoji = '✨'; // Default fallback
         
-        if (suggestion.emoji && typeof suggestion.emoji === 'string' && suggestion.emoji.trim() !== '') {
-          emoji = suggestion.emoji.trim();
+        if (suggestion.emoji && typeof suggestion.emoji === 'string') {
+          // Ensure we get just the first emoji if multiple are returned
+          const trimmedEmoji = suggestion.emoji.trim();
+          const emojiMatch = trimmedEmoji.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/u);
+          if (emojiMatch) {
+            emoji = emojiMatch[0];
+          }
         }
         
         validSuggestions.push({ name, emoji });
