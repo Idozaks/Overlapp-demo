@@ -214,14 +214,13 @@ export default function UserOverlap() {
               </div>
               <Progress 
                 value={Math.round(overlapData.overlapScore * 100)} 
-                className="h-3"
-                indicatorClassName={
+                className={`h-3 ${
                   overlapData.overlapScore > 0.7 
-                    ? "bg-green-500" 
+                    ? "bg-green-500/20" 
                     : overlapData.overlapScore > 0.4 
-                      ? "bg-yellow-500" 
-                      : "bg-orange-500"
-                }
+                      ? "bg-yellow-500/20" 
+                      : "bg-orange-500/20"
+                }`}
               />
             </div>
           </CardHeader>
@@ -253,6 +252,72 @@ export default function UserOverlap() {
                       ? "You have a balanced mix of similarities and differences - perfect for meaningful exchange!" 
                       : "Your diverse backgrounds create unique opportunities for learning from each other!"}
                 </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Collaboration Suggestions Card */}
+      {overlapData && (
+        <Card className="mb-8 border-2 border-primary/10">
+          <CardHeader className="bg-primary/5">
+            <CardTitle className="flex items-center">
+              <MessageSquare className="mr-2 h-5 w-5 text-primary" />
+              Project Ideas
+            </CardTitle>
+            <CardDescription>
+              Potential collaborations based on your shared interests
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* First Project Card with gradient border */}
+              <div className="p-5 rounded-lg bg-card border-2 border-gradient-to-r from-primary/40 to-secondary/40 shadow-sm">
+                <h3 className="text-lg font-medium mb-2 flex items-center">
+                  {overlapData.similarInterests.length > 0 
+                    ? `${overlapData.similarInterests[0]} ${overlapData.similarInterests.length > 1 ? '+ ' + overlapData.similarInterests[1] : ''} Project`
+                    : 'Cross-Cultural Exchange'}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {overlapData.similarInterests.length > 0
+                    ? `Collaborate on a ${overlapData.similarInterests[0]} project that leverages both your skills and perspectives.`
+                    : 'Create a cultural exchange project drawing on your diverse backgrounds and interests.'}
+                </p>
+                <div className="flex justify-between items-center">
+                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
+                    {overlapData.overlapScore > 0.5 ? 'High Compatibility' : 'Complementary Skills'}
+                  </Badge>
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    Propose
+                  </Button>
+                </div>
+              </div>
+
+              {/* Second Project Card */}
+              <div className="p-5 rounded-lg bg-card border border-primary/10 shadow-sm">
+                <h3 className="text-lg font-medium mb-2">
+                  {overlapData.commonIdentities.length > 1 
+                    ? `${overlapData.commonIdentities[0]} Workshop`
+                    : overlapData.similarInterests.length > 0 
+                      ? `${overlapData.similarInterests[0]} Research`
+                      : 'Skill-Share Session'}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {overlapData.commonIdentities.length > 1
+                    ? `Co-host a workshop focused on ${overlapData.commonIdentities[0]} experiences and knowledge sharing.`
+                    : overlapData.similarInterests.length > 0
+                      ? `Conduct joint research or exploration on evolving trends in ${overlapData.similarInterests[0]}.`
+                      : `Exchange skills: you can teach about ${overlapData.uniqueCurrentUserInterests[0] || 'your expertise'}, and learn about ${overlapData.uniqueTargetUserInterests[0] || 'their specialties'}.`}
+                </p>
+                <div className="flex justify-between items-center">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+                    {overlapData.overlapScore > 0.7 ? 'Perfect Match' : 'Growth Opportunity'}
+                  </Badge>
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    Propose
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
