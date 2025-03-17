@@ -549,8 +549,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                     >
                       {t("profile.selectPredefinedAvatar")}
                     </Button>
-                    <div id="avatar-grid" className="grid grid-cols-5 gap-2" style={{ display: 'none' }}>
-                      {Array.from({ length: 20 }, (_, i) => (
+                    <div id="avatar-grid" className="grid grid-cols-5 gap-2 max-h-[400px] overflow-y-auto p-2" style={{ display: 'none' }}>
+                      {Array.from({ length: 200 }, (_, i) => (
                         <div
                           key={i}
                           className={`cursor-pointer rounded-lg p-1 hover:bg-accent ${value === `https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}` ? 'ring-2 ring-primary' : ''}`}
@@ -560,6 +560,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}`}
                             alt={`Avatar ${i + 1}`}
                             className="w-full h-auto rounded"
+                            loading="lazy"
                           />
                         </div>
                       ))}
