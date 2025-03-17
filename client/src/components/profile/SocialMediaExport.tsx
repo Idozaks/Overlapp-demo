@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Share2, Download, QrCode } from 'lucide-react';
+import { Share2, Download, QrCode, MapPin, Briefcase, Book, Globe, Heart } from 'lucide-react';
 import QRCode from 'qrcode';
 import * as htmlToImage from 'html-to-image';
 import { useQuery } from '@tanstack/react-query';
@@ -33,6 +33,13 @@ interface User {
   learningStyle?: string | null;
 }
 
+interface Interest {
+  id: number;
+  name: string;
+  category?: string;
+  emoji?: string;
+}
+
 interface SocialMediaExportProps {
   userId: number;
 }
@@ -46,6 +53,12 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
   // Fetch the user data for contact card
   const { data: userData } = useQuery<{ user: User }>({
     queryKey: [`/api/users/${userId}`],
+    enabled: !!userId
+  });
+  
+  // Fetch user interests
+  const { data: userInterests } = useQuery<{ interests: Interest[] }>({
+    queryKey: [`/api/users/${userId}/interests`],
     enabled: !!userId
   });
   
@@ -185,7 +198,7 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
               <div className="p-5">
                 {/* Header with profile picture and name */}
                 <div className="flex items-center mb-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden mr-4">
+                  <div className="w-20 h-20 rounded-full overflow-hidden mr-4 border-2 border-primary shadow-lg">
                     <img 
                       src={userData?.user.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'} 
                       alt="Profile" 
@@ -193,10 +206,19 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
                     />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">{userData?.user.displayName || userData?.user.username}</h2>
-                    <p className="text-sm text-muted-foreground">{userData?.user.username}</p>
+                    <h2 className="text-2xl font-bold">{userData?.user.displayName || userData?.user.username}</h2>
+                    <p className="text-sm text-muted-foreground">@{userData?.user.username}</p>
                     {userData?.user.occupation && (
-                      <p className="text-sm text-muted-foreground">{userData?.user.occupation}</p>
+                      <div className="flex items-center mt-1">
+                        <Briefcase className="h-3 w-3 mr-1 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">{userData.user.occupation}</p>
+                      </div>
+                    )}
+                    {userData?.user.location && (
+                      <div className="flex items-center mt-1">
+                        <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">{userData.user.location}</p>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -204,22 +226,20 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
                 {/* Bio section */}
                 {userData?.user.bio && (
                   <div className="border-t pt-3 mb-4">
-                    <h3 className="font-medium mb-1">About</h3>
-                    <p className="text-sm">{userData.user.bio}</p>
-                  </div>
-                )}
-                
-                {/* Location section */}
-                {userData?.user.location && (
-                  <div className="border-t pt-3 mb-4">
-                    <h3 className="font-medium mb-1">Location</h3>
-                    <p className="text-sm">{userData.user.location}</p>
+                    <h3 className="font-medium mb-1 flex items-center">
+                      <Book className="h-4 w-4 mr-2 text-amber-500" /> 
+                      About Me
+                    </h3>
+                    <p className="text-sm italic">" {userData.user.bio} "</p>
                   </div>
                 )}
                 
                 {/* Identity attributes section */}
                 <div className="border-t pt-3 mb-4">
-                  <h3 className="font-medium mb-2">Identity Attributes</h3>
+                  <h3 className="font-medium mb-2 flex items-center">
+                    <Heart className="h-4 w-4 mr-2 text-rose-500" />
+                    Identity Attributes
+                  </h3>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                     {userData?.user.gender && (
                       <div>
@@ -271,6 +291,24 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
                     )}
                   </div>
                 </div>
+                
+                {/* Interests section */}
+                {userInterests?.interests && userInterests.interests.length > 0 && (
+                  <div className="border-t pt-3 mb-4">
+                    <h3 className="font-medium mb-2 flex items-center">
+                      <Globe className="h-4 w-4 mr-2 text-blue-500" />
+                      Interests & Passions
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {userInterests.interests.map((interest, index) => (
+                        <div key={`interest-${interest.id}-${index}`} className="px-3 py-1 bg-secondary rounded-full flex items-center text-sm">
+                          <span className="mr-1">{interest.emoji || '🌟'}</span>
+                          <span>{interest.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 {/* QR Code */}
                 <div className="flex justify-center mt-4 mb-1">
