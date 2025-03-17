@@ -20,6 +20,17 @@
 │  │                                                 │    │
 │  └─────────────────────────────────────────────────┘    │
 │                                                         │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │                                                 │    │
+│  │     🔄 ONE-CLICK SOCIAL MEDIA EXPORT            │    │
+│  │                                                 │    │
+│  │     Share your Overlapp identity across         │    │
+│  │     all your favorite social platforms          │    │
+│  │     • Platform-optimized formatting             │    │
+│  │     • Privacy controls for each platform        │    │
+│  │                                                 │    │
+│  └─────────────────────────────────────────────────┘    │
+│                                                         │
 │  ┌─────────────────┐  ┌─────────────────┐               │
 │  │                 │  │                 │               │
 │  │  🔄 User        │  │  🧠 AI-Powered  │               │
@@ -59,6 +70,15 @@ Our flagship feature! Share your digital identity instantly with QR codes:
 - 📊 Granular control over shared identity elements
 - 🔄 Seamless integration with the physical world
 - 🧠 AI-powered context-aware card customization
+
+### [🔄 ONE-CLICK SOCIAL MEDIA EXPORT](./social-export.md) | [🔄 עברית](./social-export-he.md)
+Seamlessly share your Overlapp identity across all social platforms:
+
+- 📱 Platform-optimized formatting for each social network
+- 🛡️ Fine-grained privacy controls per platform
+- 🔄 Smart synchronization options to keep profiles updated
+- 📊 Export performance analytics
+- 🖼️ AI-enhanced content optimization
 
 ### [🔄 User Overlap Analysis](./user-overlap.md) | [🔄 עברית](./user-overlap-he.md)
 Discover how our sophisticated matching system helps users find meaningful connections:
@@ -120,6 +140,7 @@ More languages coming soon!
 │  ┌───────────────────────────────────────────┐  │
 │  │                                           │  │
 │  │  • 📱 INSTANTLY SHAREABLE QR IDENTITY 🔥  │  │
+│  │  • 🔄 ONE-CLICK SOCIAL MEDIA EXPORT       │  │
 │  │  • User Overlap Analysis                  │  │
 │  │  • AI-Powered Interest Matching           │  │
 │  │  • Multilanguage Support                  │  │

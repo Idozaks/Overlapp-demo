@@ -17,6 +17,7 @@ import ProfileEdit from "@/pages/social/ProfileEdit";
 import InterestSuggestionsPage from "@/pages/social/InterestSuggestionsPage";
 import Matches from "@/pages/social/Matches";
 import UserOverlap from "@/pages/social/UserOverlap";
+import SocialMediaExportPage from "@/pages/social/SocialMediaExport";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import InterestManager from "@/pages/admin/InterestManager";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
