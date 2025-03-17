@@ -456,7 +456,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       // Handle all other fields
       Object.entries(data).forEach(([key, value]) => {
         if (key !== 'avatar' && value !== undefined && value !== '') {
-          if (typeof value === 'object') {
+          if (key === 'preferences' || key === 'identityPreferences') {
+            formData.append(key, JSON.stringify(value));
+          } else if (typeof value === 'object') {
             formData.append(key, JSON.stringify(value));
           } else {
             formData.append(key, String(value));
@@ -464,7 +466,13 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         }
       });
 
-      await updateMutation.mutateAsync(formData);
+      const headers = new Headers();
+      headers.append('Accept', 'application/json');
+      
+      await updateMutation.mutateAsync({
+        formData,
+        headers
+      });
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;
