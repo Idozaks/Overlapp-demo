@@ -84,7 +84,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchParams] = useLocation();
-  
+
   // Check if we're returning from interest suggestions with a refresh param
   const shouldRefreshInterests = searchParams.includes('refresh=true');
 
@@ -102,7 +102,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return response.json();
     }
   });
-  
+
   // Update emojis map when interests are loaded
   useEffect(() => {
     if (allInterests?.interests) {
@@ -116,7 +116,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       setInterestEmojis(newEmojiMap);
     }
   }, [allInterests?.interests]);
-  
+
   const { data: interestCategories } = useQuery<{ categories: string[] }>({
     queryKey: ['/api/interests/categories'],
     queryFn: async () => {
@@ -136,7 +136,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   // Group interests by category
   const interestsByCategory = React.useMemo(() => {
     const grouped: Record<string, Interest[]> = {};
-    
+
     if (allInterests?.interests) {
       allInterests.interests.forEach((interest: Interest) => {
         const category = interest.category || 'Uncategorized';
@@ -146,10 +146,10 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         grouped[category].push(interest);
       });
     }
-    
+
     return grouped;
   }, [allInterests?.interests]);
-  
+
   const availableInterests = allInterests?.interests?.map((interest: Interest) => interest.name) || [];
   const userSelectedInterests = userInterests?.interests?.map((interest: Interest) => interest.name) || [];
 
@@ -159,20 +159,20 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       setPendingInterests(new Set(userSelectedInterests));
     }
   }, [JSON.stringify(userSelectedInterests)]);
-  
+
   // Handle refreshing interest data when returning from suggestions page
   useEffect(() => {
     if (shouldRefreshInterests) {
       // Invalidate and refetch the interests data
       queryClient.invalidateQueries({ queryKey: [`/api/users/${user.id}/interests`] });
-      
+
       // Show a success toast message
       toast({
         title: t("profile.interestsUpdated"),
         description: t("profile.interestsUpdatedDescription") || "Your selected interests have been updated.",
         variant: "default"
       });
-      
+
       // Remove the refresh parameter from URL by redirecting
       const currentPath = window.location.pathname;
       window.history.replaceState({}, '', currentPath);
@@ -209,32 +209,21 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
   const updateMutation = useMutation({
     mutationFn: async (data: ProfileUpdateData) => {
-      if (!user.id || isNaN(user.id)) {
+      if (!user?.id) {
         throw new Error("Invalid user ID");
       }
+
+      let body;
+      let requestOptions = {
+        method: "PATCH",
+      };
 
       if (data.avatar instanceof File) {
         const formData = new FormData();
         formData.append('avatar', data.avatar);
         if (data.displayName) formData.append('displayName', data.displayName);
         if (data.bio) formData.append('bio', data.bio);
-        return await apiRequest(`/api/users/${user.id}`, {
-          method: "PATCH",
-          body: formData
-        }).then(res => res.json());
-      }
-
-      const cleanedData = JSON.parse(JSON.stringify(data));
-      return await apiRequest(`/api/users/${user.id}`, {
-        method: "PATCH",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(cleanedData)
-      }).then(res => res.json());
-        if (data.preferences) {
-          formData.append('preferences', JSON.stringify(data.preferences));
-        }
+        if (data.preferences) formData.append('preferences', JSON.stringify(data.preferences));
         body = formData;
       } else {
         body = JSON.stringify(data);
@@ -437,11 +426,11 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return newSet;
     });
   };
-  
+
   // Get the count of interests in each category that are selected
   const getSelectedCountByCategory = (category: string): number => {
     if (!interestsByCategory[category]) return 0;
-    
+
     return interestsByCategory[category].filter(interest => 
       pendingInterests.has(interest.name)
     ).length;
@@ -925,7 +914,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
             <div className="space-y-6">
               <div>
-                <label className="text-sm font-medium mb-1 block">Gender Importance</label>
+                <label className="text-sm font-mediummb-1 block">Gender Importance</label>
                 <input 
                   type="range" 
                   min="0" 
@@ -1161,6 +1150,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         </div>
 
         <div className="space-y-4">
+          <FormLabel>{t("profile.interests")}</FormLabel>
           <div className="flex justify-between items-center">
             <FormLabel>{t("profile.interests")}</FormLabel>
             <div className="flex gap-2">
@@ -1179,7 +1169,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               </Button>
             </div>
           </div>
-          
+
           {loadingInterests ? (
             <div className="flex items-center justify-center py-4">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -1221,7 +1211,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             </p>
           )}
         </div>
-        
+
         <div className="space-y-4">
           <FormLabel>{t("profile.retailPreferences")}</FormLabel>
           <div className="flex flex-wrap gap-2">
