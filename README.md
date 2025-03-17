@@ -3,11 +3,11 @@
 ## Interactive Feature Simulations
 🎮 Click on any of the features below to see an interactive simulation:
 
-- [User Overlap Analysis](./simulations/user-overlap.html) - See how our comprehensive profile comparison system works
-- [AI-Powered Interest Matching](./simulations/interest-matching.html) - Experience our intelligent interest recommendation system
-- [Multilanguage Support](./simulations/multilanguage.html) - Try the application in multiple languages with RTL support
+- [User Overlap Analysis](./simulations/markdown/user-overlap.md) - See how our comprehensive profile comparison system works
+- [AI-Powered Interest Matching](./simulations/markdown/interest-matching.md) - Experience our intelligent interest recommendation system
+- [Multilanguage Support](./simulations/markdown/multilanguage.md) - Try the application in multiple languages with RTL support
 
-[View All Feature Simulations](./simulations/index.html)
+[View All Feature Simulations](./simulations/markdown/README.md)
 
 ## Recent Updates (March 2024)
 
@@ -132,9 +132,9 @@
 - AI Integration: OpenAI API
 
 ## Core Features
-- [Comprehensive user overlap analysis](./simulations/user-overlap.html)
-- [AI-powered interest matching](./simulations/interest-matching.html)
-- [Multi-language support](./simulations/multilanguage.html)
+- [Comprehensive user overlap analysis](./simulations/markdown/user-overlap.md)
+- [AI-powered interest matching](./simulations/markdown/interest-matching.md)
+- [Multi-language support](./simulations/markdown/multilanguage.md)
 - Profile comparison system
 - Collaboration suggestions
 - Modern UI components
