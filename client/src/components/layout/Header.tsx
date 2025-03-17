@@ -400,8 +400,8 @@ export default function Header() {
             {/* Social Topics */}
             <Link to="/social">
               <Button variant="ghost" className="gap-2">
-                <Users className="w-4 h-4" />
-                Social
+                <Share2 className="w-4 h-4" />
+                Social Export
               </Button>
             </Link>
 
