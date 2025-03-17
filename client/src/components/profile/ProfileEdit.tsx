@@ -445,31 +445,25 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   };
 
   const onSubmit = async (data: ProfileUpdateData) => {
-    const cleanData = {
-      ...data,
-      bio: data.bio || undefined,
-      avatar: data.avatar || undefined,
-      gender: data.gender || undefined,
-      ageRange: data.ageRange || undefined,
-      countryOfOrigin: data.countryOfOrigin || undefined,
-      languagesSpoken: data.languagesSpoken || undefined,
-      culturalBackground: data.culturalBackground || undefined,
-      education: data.education || undefined,
-      professionalField: data.professionalField || undefined,
-      communityAffiliations: data.communityAffiliations || undefined,
-      eventPreferences: data.eventPreferences || undefined,
-      collaborationStyle: data.collaborationStyle || undefined,
-      personalValues: data.personalValues || undefined,
-      digitalIdentity: data.digitalIdentity || undefined,
-      physicalActivityLevel: data.physicalActivityLevel || undefined,
-      culturalExperiences: data.culturalExperiences || undefined,
-      learningStyle: data.learningStyle || undefined,
-      identityPreferences: data.identityPreferences || undefined,
-      preferences: {
-        retailPreferences: data.preferences?.retailPreferences || []
-      }
-    };
-    await updateMutation.mutateAsync(cleanData);
+    if (data.avatar instanceof File) {
+      const formData = new FormData();
+      formData.append('avatar', data.avatar);
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== 'avatar' && value !== undefined && value !== '') {
+          if (key === 'preferences') {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, value as string);
+          }
+        }
+      });
+      await updateMutation.mutateAsync(formData);
+    } else {
+      const cleanData = Object.fromEntries(
+        Object.entries(data).filter(([_, value]) => value !== undefined && value !== '')
+      );
+      await updateMutation.mutateAsync(cleanData);
+    }
   };
 
   return (
