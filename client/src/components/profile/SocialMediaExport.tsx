@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,7 +22,11 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Linkedin, Twitter, Instagram, Facebook, AlertCircle, RefreshCw, Lock, Info, Check } from 'lucide-react';
+import { Linkedin, Twitter, Instagram, Facebook, AlertCircle, RefreshCw, Lock, Info, Check, Share2, Download, QrCode } from 'lucide-react';
+import QRCode from 'qrcode';
+import * as htmlToImage from 'html-to-image';
+import { useQuery } from '@tanstack/react-query';
+import { User } from '../../shared/schema';
 
 interface SocialMediaExportProps {
   userId: number;
@@ -52,6 +56,30 @@ type SyncFrequency = 'none' | 'manual' | 'auto' | 'weekly' | 'monthly';
 
 export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
   const { toast } = useToast();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [isGeneratingCard, setIsGeneratingCard] = useState<boolean>(false);
+  
+  // Fetch the user data for contact card
+  const { data: userData } = useQuery<{ user: User }>({
+    queryKey: [`/api/users/${userId}`],
+    enabled: !!userId
+  });
+  
+  // Generate QR code for the profile URL
+  useEffect(() => {
+    if (userId) {
+      const profileUrl = `${window.location.origin}/profile/${userId}`;
+      QRCode.toDataURL(profileUrl)
+        .then(url => {
+          setQrCodeUrl(url);
+        })
+        .catch(err => {
+          console.error('Error generating QR code:', err);
+        });
+    }
+  }, [userId]);
+  
   const [platforms, setPlatforms] = useState<SocialPlatform[]>([
     { 
       id: 'linkedin', 
@@ -167,6 +195,32 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
     });
   };
 
+  // Function to copy image to clipboard
+  const copyToClipboard = (dataUrl: string) => {
+    // Create a textarea element to copy the data URL
+    const textarea = document.createElement('textarea');
+    textarea.value = dataUrl;
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+      document.execCommand('copy');
+      toast({
+        title: "Copied to Clipboard",
+        description: "Image URL copied to clipboard. You can paste it into messages or social media.",
+        variant: "default",
+      });
+    } catch (err) {
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy to clipboard. Try the download option instead.",
+        variant: "destructive",
+      });
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  };
+  
   const exportToAllPlatforms = () => {
     // In a real implementation, this would call APIs to export the profile
     const connectedPlatforms = platforms.filter(p => p.connected);
@@ -212,10 +266,11 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="platforms">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="platforms">Platforms</TabsTrigger>
               <TabsTrigger value="privacy">Privacy Controls</TabsTrigger>
               <TabsTrigger value="sync">Sync Settings</TabsTrigger>
+              <TabsTrigger value="contact-card">Contact Card</TabsTrigger>
             </TabsList>
             
             <TabsContent value="platforms" className="space-y-4 mt-4">
@@ -421,6 +476,185 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
                   </Card>
                 ))}
               </div>
+            </TabsContent>
+            
+            <TabsContent value="contact-card" className="space-y-4 mt-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <QrCode className="h-5 w-5" />
+                    Digital Contact Card
+                  </CardTitle>
+                  <CardDescription>
+                    Generate a digital contact card with QR code to share your Overlapp identity instantly
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {/* Contact Card Preview */}
+                    <div 
+                      ref={cardRef} 
+                      className="bg-card border rounded-lg overflow-hidden shadow-md max-w-sm mx-auto"
+                    >
+                      <div className="bg-primary p-4 text-primary-foreground">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold">Overlapp Identity Card</h3>
+                          <div className="text-xs rounded-full bg-primary-foreground text-primary px-2 py-0.5">
+                            Digital ID
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="p-4 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-16 w-16 rounded-full overflow-hidden bg-muted">
+                            {userData?.user?.avatar ? (
+                              <img 
+                                src={userData.user.avatar} 
+                                alt={userData?.user?.displayName || 'User'} 
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary">
+                                {userData?.user?.displayName?.[0] || '?'}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-lg">{userData?.user?.displayName || 'Loading...'}</h3>
+                            <p className="text-sm text-muted-foreground">@{userData?.user?.username || 'username'}</p>
+                            <p className="text-xs mt-1">{userData?.user?.occupation || ''}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="text-sm">
+                            <span className="font-medium">Bio: </span>
+                            <span className="text-muted-foreground">{userData?.user?.bio || 'No bio available'}</span>
+                          </div>
+                          
+                          <div className="text-sm">
+                            <span className="font-medium">Location: </span>
+                            <span className="text-muted-foreground">{userData?.user?.location || 'Not specified'}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-4 flex justify-center">
+                          {qrCodeUrl && (
+                            <div className="p-2 bg-white rounded">
+                              <img 
+                                src={qrCodeUrl} 
+                                alt="Profile QR Code" 
+                                className="h-32 w-32"
+                              />
+                              <p className="text-xs text-center mt-1">Scan to view full profile</p>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="pt-2 border-t text-center text-xs text-muted-foreground">
+                          Generated on {new Date().toLocaleDateString()} | Overlapp
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Button
+                        onClick={() => {
+                          if (cardRef.current) {
+                            setIsGeneratingCard(true);
+                            
+                            htmlToImage.toPng(cardRef.current)
+                              .then(dataUrl => {
+                                const link = document.createElement('a');
+                                link.download = `overlapp-contact-card-${userData?.user?.username || 'user'}.png`;
+                                link.href = dataUrl;
+                                link.click();
+                                
+                                toast({
+                                  title: "Contact Card Downloaded",
+                                  description: "Your digital contact card has been saved as an image.",
+                                  variant: "default",
+                                });
+                                
+                                setIsGeneratingCard(false);
+                              })
+                              .catch(error => {
+                                console.error('Error generating contact card:', error);
+                                toast({
+                                  title: "Generation Failed",
+                                  description: "There was an error generating your contact card.",
+                                  variant: "destructive",
+                                });
+                                setIsGeneratingCard(false);
+                              });
+                          }
+                        }}
+                        disabled={isGeneratingCard}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download as Image
+                      </Button>
+                      
+                      <Button
+                        onClick={() => {
+                          if (cardRef.current) {
+                            setIsGeneratingCard(true);
+                            
+                            htmlToImage.toPng(cardRef.current)
+                              .then(dataUrl => {
+                                // For mobile devices
+                                if (navigator.share) {
+                                  fetch(dataUrl)
+                                    .then(res => res.blob())
+                                    .then(blob => {
+                                      const file = new File([blob], `overlapp-card-${userData?.user?.username || 'user'}.png`, { type: 'image/png' });
+                                      navigator.share({
+                                        title: 'My Overlapp Contact Card',
+                                        text: 'Check out my digital identity card from Overlapp!',
+                                        files: [file]
+                                      })
+                                      .then(() => {
+                                        setIsGeneratingCard(false);
+                                      })
+                                      .catch(error => {
+                                        console.error('Sharing failed:', error);
+                                        setIsGeneratingCard(false);
+                                        
+                                        // Fallback to clipboard copy
+                                        copyToClipboard(dataUrl);
+                                      });
+                                    });
+                                } else {
+                                  // Fallback to clipboard copy
+                                  copyToClipboard(dataUrl);
+                                  setIsGeneratingCard(false);
+                                }
+                              })
+                              .catch(error => {
+                                console.error('Error generating contact card for sharing:', error);
+                                toast({
+                                  title: "Sharing Failed",
+                                  description: "There was an error preparing your contact card for sharing.",
+                                  variant: "destructive",
+                                });
+                                setIsGeneratingCard(false);
+                              });
+                          }
+                        }}
+                        variant="outline"
+                        disabled={isGeneratingCard}
+                        className="flex items-center gap-2"
+                      >
+                        <Share2 className="h-4 w-4" />
+                        Share Contact Card
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
             
             <TabsContent value="sync" className="space-y-4 mt-4">
