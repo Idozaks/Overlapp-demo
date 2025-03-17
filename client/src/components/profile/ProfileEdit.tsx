@@ -208,15 +208,21 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (data: ProfileUpdateData) => {
+    mutationFn: async (formData: FormData) => {
       if (!user?.id) {
         throw new Error("Invalid user ID");
       }
-
-      let body;
-      let requestOptions = {
+      
+      const response = await fetch(`/api/users/${user.id}`, {
         method: "PATCH",
-      };
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+      
+      return response.json();
 
       if (data.avatar instanceof File) {
         const formData = new FormData();
@@ -469,10 +475,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       const headers = new Headers();
       headers.append('Accept', 'application/json');
       
-      await updateMutation.mutateAsync({
-        formData,
-        headers
-      });
+      await updateMutation.mutateAsync(formData);
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;
