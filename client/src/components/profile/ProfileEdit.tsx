@@ -914,6 +914,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
             <div className="space-y-6">
               <div>
+                <label className<div>
                 <label className="text-sm font-mediummb-1 block">Gender Importance</label>
                 <input                   type="range" 
                   min="0" 
@@ -1189,9 +1190,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {interestsByCategory[category].map((interest) => (
+                      {interestsByCategory[category].map((interest, index) => ( // Added index here
                         <Badge
-                          key={`interest-${interest.id}-${category}`}
+                          key={`interest-${interest.id}-${category}-${index}`} // Added index to key
                           variant={pendingInterests.has(interest.name) ? "default" : "outline"}
                           className="cursor-pointer hover:shadow-sm transition-all"
                           onClick={() => toggleInterest(interest.name)}
