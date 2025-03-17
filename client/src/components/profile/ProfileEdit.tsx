@@ -216,6 +216,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       if (data.avatar instanceof File) {
         const formData = new FormData();
         formData.append('avatar', data.avatar);
+        if (data.displayName) formData.append('displayName', data.displayName);
+        if (data.bio) formData.append('bio', data.bio);
         return await apiRequest(`/api/users/${user.id}`, {
           method: "PATCH",
           body: formData
@@ -225,11 +227,11 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       const cleanedData = JSON.parse(JSON.stringify(data));
       return await apiRequest(`/api/users/${user.id}`, {
         method: "PATCH",
-        body: cleanedData
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(cleanedData)
       }).then(res => res.json());
-        formData.append('avatar', data.avatar);
-        if (data.displayName) formData.append('displayName', data.displayName);
-        if (data.bio) formData.append('bio', data.bio);
         if (data.preferences) {
           formData.append('preferences', JSON.stringify(data.preferences));
         }
