@@ -240,8 +240,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
       requestOptions.body = body;
 
-      const response = await apiRequest(`/api/users/${user.id}`, requestOptions);
-      const result = await response.json();
+      const result = await (await apiRequest(`/api/users/${user.id}`, requestOptions)).json();
       if (!result.user) {
         throw new Error("Invalid response from server");
       }
