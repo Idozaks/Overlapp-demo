@@ -7,6 +7,15 @@
 │                                                         │
 │                OVERLAPP FEATURE SHOWCASE                │
 │                                                         │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │                                                 │    │
+│  │           📱 INSTANT IDENTITY SHARING           │    │
+│  │                                                 │    │
+│  │     Share your digital contact card via QR      │    │
+│  │     for seamless real-world connections         │    │
+│  │                                                 │    │
+│  └─────────────────────────────────────────────────┘    │
+│                                                         │
 │  ┌─────────────────┐  ┌─────────────────┐               │
 │  │                 │  │                 │               │
 │  │  🔄 User        │  │  🧠 AI-Powered  │               │
@@ -37,6 +46,15 @@
 Welcome to the Overlapp feature simulations! These Markdown files provide interactive demonstrations of key features in the Overlapp platform, designed to showcase the functionality in an accessible format.
 
 ## 🌟 Available Simulations
+
+### ⭐ [📱 Instant Identity Sharing](./digital-contact-card.md) | [📱 עברית](./digital-contact-card-he.md)
+Our newest feature! Share your digital identity instantly with QR codes:
+
+- 💳 Digital contact cards with customizable sharing permissions
+- 📲 QR code generation for instant real-world connections
+- 📊 Granular control over shared identity elements
+- 🔄 Seamless integration with the physical world
+- 🧠 AI-powered context-aware card customization
 
 ### [🔄 User Overlap Analysis](./user-overlap.md) | [🔄 עברית](./user-overlap-he.md)
 Discover how our sophisticated matching system helps users find meaningful connections:
@@ -97,6 +115,7 @@ More languages coming soon!
 │  STEP 1: Choose a feature to explore            │
 │  ┌───────────────────────────────────────────┐  │
 │  │                                           │  │
+│  │  • 📱 Instant Identity Sharing (NEW!)     │  │
 │  │  • User Overlap Analysis                  │  │
 │  │  • AI-Powered Interest Matching           │  │
 │  │  • Multilanguage Support                  │  │
