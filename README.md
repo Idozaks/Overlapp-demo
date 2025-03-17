@@ -1,5 +1,14 @@
 # Overlapp Project Status
 
+## Interactive Feature Simulations
+🎮 Click on any of the features below to see an interactive simulation:
+
+- [User Overlap Analysis](./simulations/user-overlap.html) - See how our comprehensive profile comparison system works
+- [AI-Powered Interest Matching](./simulations/interest-matching.html) - Experience our intelligent interest recommendation system
+- [Multilanguage Support](./simulations/multilanguage.html) - Try the application in multiple languages with RTL support
+
+[View All Feature Simulations](./simulations/index.html)
+
 ## Recent Updates (March 2024)
 
 ### UserOverlap Feature Implementation ✅
@@ -123,9 +132,9 @@
 - AI Integration: OpenAI API
 
 ## Core Features
-- Comprehensive user overlap analysis
-- AI-powered interest matching
-- Multi-language support
+- [Comprehensive user overlap analysis](./simulations/user-overlap.html)
+- [AI-powered interest matching](./simulations/interest-matching.html)
+- [Multi-language support](./simulations/multilanguage.html)
 - Profile comparison system
 - Collaboration suggestions
 - Modern UI components
