@@ -453,13 +453,13 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     try {
       const formData = new FormData();
       
-      // Handle all fields, including avatar
+      // Handle all fields
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== '') {
           if (key === 'avatar') {
             if (value instanceof File) {
               formData.append('avatar', value);
-            } else if (typeof value === 'string' && value.startsWith('http')) {
+            } else if (typeof value === 'string') {
               formData.append('avatar', value);
             }
           } else if (typeof value === 'object') {
@@ -470,6 +470,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         }
       });
 
+      const headers = new Headers();
+      headers.append('Accept', 'application/json');
+      
       const result = await updateMutation.mutateAsync(formData);
       if (result?.user) {
         // Force a refetch of user data
@@ -559,7 +562,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                     <div id="avatar-grid" className="grid grid-cols-5 gap-2 max-h-[400px] overflow-y-auto p-2" style={{ display: 'none' }}>
                       {Array.from({ length: 200 }, (_, i) => (
                         <div
-                          key={i}
+                          key={`avatar-${i}`}
                           className={`cursor-pointer rounded-lg p-1 hover:bg-accent ${value === `https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}` ? 'ring-2 ring-primary' : ''}`}
                           onClick={() => onChange(`https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}`)}
                         >
