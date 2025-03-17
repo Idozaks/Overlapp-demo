@@ -84,7 +84,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchParams] = useLocation();
-  
+
   // Check if we're returning from interest suggestions with a refresh param
   const shouldRefreshInterests = searchParams.includes('refresh=true');
 
@@ -102,7 +102,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return response.json();
     }
   });
-  
+
   // Update emojis map when interests are loaded
   useEffect(() => {
     if (allInterests?.interests) {
@@ -116,7 +116,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       setInterestEmojis(newEmojiMap);
     }
   }, [allInterests?.interests]);
-  
+
   const { data: interestCategories } = useQuery<{ categories: string[] }>({
     queryKey: ['/api/interests/categories'],
     queryFn: async () => {
@@ -136,7 +136,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   // Group interests by category
   const interestsByCategory = React.useMemo(() => {
     const grouped: Record<string, Interest[]> = {};
-    
+
     if (allInterests?.interests) {
       allInterests.interests.forEach((interest: Interest) => {
         const category = interest.category || 'Uncategorized';
@@ -146,10 +146,10 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         grouped[category].push(interest);
       });
     }
-    
+
     return grouped;
   }, [allInterests?.interests]);
-  
+
   const availableInterests = allInterests?.interests?.map((interest: Interest) => interest.name) || [];
   const userSelectedInterests = userInterests?.interests?.map((interest: Interest) => interest.name) || [];
 
@@ -159,20 +159,20 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       setPendingInterests(new Set(userSelectedInterests));
     }
   }, [JSON.stringify(userSelectedInterests)]);
-  
+
   // Handle refreshing interest data when returning from suggestions page
   useEffect(() => {
     if (shouldRefreshInterests) {
       // Invalidate and refetch the interests data
       queryClient.invalidateQueries({ queryKey: [`/api/users/${user.id}/interests`] });
-      
+
       // Show a success toast message
       toast({
         title: t("profile.interestsUpdated"),
         description: t("profile.interestsUpdatedDescription") || "Your selected interests have been updated.",
         variant: "default"
       });
-      
+
       // Remove the refresh parameter from URL by redirecting
       const currentPath = window.location.pathname;
       window.history.replaceState({}, '', currentPath);
@@ -208,24 +208,28 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (data: ProfileUpdateData) => {
-      if (!user.id || isNaN(user.id)) {
+    mutationFn: async (formData: FormData) => {
+      if (!user?.id) {
         throw new Error("Invalid user ID");
       }
-
-      let body;
-      const requestOptions: RequestInit = {
-        method: "PATCH"
-      };
+      
+      const response = await fetch(`/api/users/${user.id}`, {
+        method: "PATCH",
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+      
+      return response.json();
 
       if (data.avatar instanceof File) {
         const formData = new FormData();
         formData.append('avatar', data.avatar);
         if (data.displayName) formData.append('displayName', data.displayName);
         if (data.bio) formData.append('bio', data.bio);
-        if (data.preferences) {
-          formData.append('preferences', JSON.stringify(data.preferences));
-        }
+        if (data.preferences) formData.append('preferences', JSON.stringify(data.preferences));
         body = formData;
       } else {
         body = JSON.stringify(data);
@@ -236,8 +240,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
       requestOptions.body = body;
 
-      const response = await apiRequest(`/api/users/${user.id}`, requestOptions);
-      const result = await response.json();
+      const result = await (await apiRequest(`/api/users/${user.id}`, requestOptions)).json();
       if (!result.user) {
         throw new Error("Invalid response from server");
       }
@@ -428,11 +431,11 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       return newSet;
     });
   };
-  
+
   // Get the count of interests in each category that are selected
   const getSelectedCountByCategory = (category: string): number => {
     if (!interestsByCategory[category]) return 0;
-    
+
     return interestsByCategory[category].filter(interest => 
       pendingInterests.has(interest.name)
     ).length;
@@ -447,31 +450,38 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   };
 
   const onSubmit = async (data: ProfileUpdateData) => {
-    const cleanData = {
-      ...data,
-      bio: data.bio || undefined,
-      avatar: data.avatar || undefined,
-      gender: data.gender || undefined,
-      ageRange: data.ageRange || undefined,
-      countryOfOrigin: data.countryOfOrigin || undefined,
-      languagesSpoken: data.languagesSpoken || undefined,
-      culturalBackground: data.culturalBackground || undefined,
-      education: data.education || undefined,
-      professionalField: data.professionalField || undefined,
-      communityAffiliations: data.communityAffiliations || undefined,
-      eventPreferences: data.eventPreferences || undefined,
-      collaborationStyle: data.collaborationStyle || undefined,
-      personalValues: data.personalValues || undefined,
-      digitalIdentity: data.digitalIdentity || undefined,
-      physicalActivityLevel: data.physicalActivityLevel || undefined,
-      culturalExperiences: data.culturalExperiences || undefined,
-      learningStyle: data.learningStyle || undefined,
-      identityPreferences: data.identityPreferences || undefined,
-      preferences: {
-        retailPreferences: data.preferences?.retailPreferences || []
+    try {
+      const formData = new FormData();
+      
+      // Handle all fields
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') {
+          if (key === 'avatar') {
+            if (value instanceof File) {
+              formData.append('avatar', value);
+            } else if (typeof value === 'string') {
+              formData.append('avatar', value);
+            }
+          } else if (typeof value === 'object') {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+
+      const headers = new Headers();
+      headers.append('Accept', 'application/json');
+      
+      const result = await updateMutation.mutateAsync(formData);
+      if (result?.user) {
+        // Force a refetch of user data
+        queryClient.invalidateQueries(['user']);
       }
-    };
-    await updateMutation.mutateAsync(cleanData);
+    } catch (error) {
+      console.error('Profile update error:', error);
+      throw error;
+    }
   };
 
   return (
@@ -549,10 +559,10 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                     >
                       {t("profile.selectPredefinedAvatar")}
                     </Button>
-                    <div id="avatar-grid" className="grid grid-cols-5 gap-2" style={{ display: 'none' }}>
-                      {Array.from({ length: 20 }, (_, i) => (
+                    <div id="avatar-grid" className="grid grid-cols-5 gap-2 max-h-[400px] overflow-y-auto p-2" style={{ display: 'none' }}>
+                      {Array.from({ length: 200 }, (_, i) => (
                         <div
-                          key={i}
+                          key={`avatar-${i}`}
                           className={`cursor-pointer rounded-lg p-1 hover:bg-accent ${value === `https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}` ? 'ring-2 ring-primary' : ''}`}
                           onClick={() => onChange(`https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}`)}
                         >
@@ -560,6 +570,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar${i}`}
                             alt={`Avatar ${i + 1}`}
                             className="w-full h-auto rounded"
+                            loading="lazy"
                           />
                         </div>
                       ))}
@@ -1151,6 +1162,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         </div>
 
         <div className="space-y-4">
+          <FormLabel>{t("profile.interests")}</FormLabel>
           <div className="flex justify-between items-center">
             <FormLabel>{t("profile.interests")}</FormLabel>
             <div className="flex gap-2">
@@ -1169,7 +1181,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               </Button>
             </div>
           </div>
-          
+
           {loadingInterests ? (
             <div className="flex items-center justify-center py-4">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -1190,9 +1202,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {interestsByCategory[category].map((interest) => (
+                      {interestsByCategory[category].map((interest, index) => ( // Added index here
                         <Badge
-                          key={`interest-${interest.id}-${category}`}
+                          key={`interest-${interest.id}-${category}-${index}`} // Added index to key
                           variant={pendingInterests.has(interest.name) ? "default" : "outline"}
                           className="cursor-pointer hover:shadow-sm transition-all"
                           onClick={() => toggleInterest(interest.name)}
@@ -1211,7 +1223,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
             </p>
           )}
         </div>
-        
+
         <div className="space-y-4">
           <FormLabel>{t("profile.retailPreferences")}</FormLabel>
           <div className="flex flex-wrap gap-2">
