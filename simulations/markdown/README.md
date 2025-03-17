@@ -7,12 +7,16 @@
 │                                                         │
 │                OVERLAPP FEATURE SHOWCASE                │
 │                                                         │
+│  🔥 FEATURED: [📱 INSTANTLY SHAREABLE QR IDENTITY](./digital-contact-card.md) 🔥  │
+│                                                         │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │                                                 │    │
-│  │           📱 INSTANT IDENTITY SHARING           │    │
+│  │     📱 INSTANTLY SHAREABLE DIGITAL IDENTITY     │    │
 │  │                                                 │    │
 │  │     Share your digital contact card via QR      │    │
 │  │     for seamless real-world connections         │    │
+│  │     • One-tap QR code sharing                   │    │
+│  │     • Instant profile connections               │    │
 │  │                                                 │    │
 │  └─────────────────────────────────────────────────┘    │
 │                                                         │
@@ -47,8 +51,8 @@ Welcome to the Overlapp feature simulations! These Markdown files provide intera
 
 ## 🌟 Available Simulations
 
-### ⭐ [📱 Instant Identity Sharing](./digital-contact-card.md) | [📱 עברית](./digital-contact-card-he.md)
-Our newest feature! Share your digital identity instantly with QR codes:
+### 🔥 [📱 INSTANTLY SHAREABLE QR IDENTITY](./digital-contact-card.md) | [📱 עברית](./digital-contact-card-he.md)
+Our flagship feature! Share your digital identity instantly with QR codes:
 
 - 💳 Digital contact cards with customizable sharing permissions
 - 📲 QR code generation for instant real-world connections
@@ -115,7 +119,7 @@ More languages coming soon!
 │  STEP 1: Choose a feature to explore            │
 │  ┌───────────────────────────────────────────┐  │
 │  │                                           │  │
-│  │  • 📱 Instant Identity Sharing (NEW!)     │  │
+│  │  • 📱 INSTANTLY SHAREABLE QR IDENTITY 🔥  │  │
 │  │  • User Overlap Analysis                  │  │
 │  │  • AI-Powered Interest Matching           │  │
 │  │  • Multilanguage Support                  │  │
