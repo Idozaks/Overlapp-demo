@@ -213,10 +213,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         throw new Error("Invalid user ID");
       }
 
-      let body;
-      const requestOptions: RequestInit = {
-        method: "PATCH"
-      };
+      const cleanedData = JSON.parse(JSON.stringify(data)); // Ensure proper JSON serialization
+      const response = await apiRequest(`/api/users/${user.id}`, {
+        method: "PATCH",
+        body: cleanedData
+      });
+      return response.json();
 
       if (data.avatar instanceof File) {
         const formData = new FormData();
