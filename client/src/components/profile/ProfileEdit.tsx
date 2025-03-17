@@ -914,9 +914,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
             <div className="space-y-6">
               <div>
-                <label className<div>
-                <label className="text-sm font-mediummb-1 block">Gender Importance</label>
-                <input                   type="range" 
+                <label className="text-sm font-medium mb-1 block">Gender Importance</label>
+                <input 
+                  type="range" 
                   min="0" 
                   max="10" 
                   defaultValue={user.identityPreferences?.gender || 5}
