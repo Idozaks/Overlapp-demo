@@ -12,6 +12,10 @@
 import { spawn, execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
 
 // Get the directory of the current module
 const __filename = fileURLToPath(import.meta.url);

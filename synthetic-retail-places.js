@@ -5,8 +5,13 @@
  * and links them to user preferences. All entities are clearly marked as synthetic/AI-generated.
  */
 
-import { db } from './server/db.js';
-import { users } from './shared/schema.js';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as schema from './shared/schema.js';
+
+// Create connection pool
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const db = drizzle(pool, { schema });
 
 // Synthetic retail categories
 const RETAIL_CATEGORIES = [
@@ -153,7 +158,7 @@ async function updateUserPreferences() {
   
   try {
     // Get all users
-    const allUsers = await db.select().from(users);
+    const allUsers = await db.select().from(schema.users);
     
     if (allUsers.length === 0) {
       console.log('No users found in the database. Please create users first.');
@@ -207,9 +212,9 @@ async function updateUserPreferences() {
         
         // Update in database
         const [updatedUser] = await db
-          .update(users)
+          .update(schema.users)
           .set({ preferences: newPreferences })
-          .where(db.eq(users.id, user.id))
+          .where(db.eq(schema.users.id, user.id))
           .returning();
         
         updatedUsers.push(updatedUser);

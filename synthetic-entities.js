@@ -207,7 +207,7 @@ async function createSyntheticEntities() {
             const contentData = generateSyntheticContent(entity.id, entityName, category);
             
             const [content] = await db
-              .insert(interestContent)
+              .insert(schema.interestContent)
               .values(contentData)
               .returning();
             

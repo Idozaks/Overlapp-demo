@@ -6,8 +6,13 @@
  * marked as synthetic/AI-generated.
  */
 
-import { db } from './server/db.js';
-import { posts, users } from './shared/schema.js';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as schema from './shared/schema.js';
+
+// Create connection pool
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const db = drizzle(pool, { schema });
 
 // Types of synthetic locations
 const LOCATION_TYPES = [
@@ -132,7 +137,7 @@ async function createSyntheticLocationPost(userId, locationType) {
   
   try {
     const [post] = await db
-      .insert(posts)
+      .insert(schema.posts)
       .values({
         userId,
         content,
@@ -150,7 +155,7 @@ async function createSyntheticLocationPost(userId, locationType) {
 // Get all users from the database
 async function getAllUsers() {
   try {
-    const allUsers = await db.select().from(users);
+    const allUsers = await db.select().from(schema.users);
     return allUsers;
   } catch (error) {
     console.error('Error fetching users:', error);
