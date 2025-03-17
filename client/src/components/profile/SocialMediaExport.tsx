@@ -106,37 +106,43 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
   const handleShareCard = () => {
     if (cardRef.current) {
       setIsGeneratingCard(true);
-      htmlToImage.toPng(cardRef.current)
+      
+      // Use a lower quality setting and JPEG format for better compatibility
+      htmlToImage.toJpeg(cardRef.current, { quality: 0.8 })
         .then(dataUrl => {
           if (navigator.share) {
-            const blob = dataURItoBlob(dataUrl);
-            const file = new File([blob], `${userData?.user.displayName || userData?.user.username}-contact-card.png`, { type: 'image/png' });
-            
-            navigator.share({
-              title: 'My Overlapp Contact Card',
-              text: `Check out my digital identity card from Overlapp`,
-              files: [file]
-            })
-              .then(() => {
-                toast({
-                  title: "Shared",
-                  description: "Contact card has been shared",
-                  variant: "default",
-                });
+            try {
+              // Attempt to share only text and URL first as it's more reliable
+              navigator.share({
+                title: 'My Overlapp Contact Card',
+                text: `Check out my digital identity card from Overlapp`,
+                url: window.location.href
               })
-              .catch(error => {
-                console.error('Error sharing:', error);
-                toast({
-                  title: "Share Failed",
-                  description: "Could not share the contact card",
-                  variant: "destructive",
+                .then(() => {
+                  toast({
+                    title: "Shared",
+                    description: "Contact card link has been shared",
+                    variant: "default",
+                  });
+                  setIsGeneratingCard(false);
+                })
+                .catch(error => {
+                  console.error('Error sharing link:', error);
+                  
+                  // If link sharing fails, fallback to clipboard
+                  copyToClipboard(dataUrl);
+                  setIsGeneratingCard(false);
                 });
-              });
+            } catch (error) {
+              console.error('Share API error:', error);
+              copyToClipboard(dataUrl);
+              setIsGeneratingCard(false);
+            }
           } else {
             // Fallback to copy if Web Share API is not available
             copyToClipboard(dataUrl);
+            setIsGeneratingCard(false);
           }
-          setIsGeneratingCard(false);
         })
         .catch(error => {
           console.error('Error generating contact card:', error);
@@ -154,10 +160,11 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
   const handleDownloadCard = () => {
     if (cardRef.current) {
       setIsGeneratingCard(true);
-      htmlToImage.toPng(cardRef.current)
+      // Use JPEG format for better compatibility and smaller file size
+      htmlToImage.toJpeg(cardRef.current, { quality: 0.9 })
         .then(dataUrl => {
           const link = document.createElement('a');
-          link.download = `${userData?.user.displayName || userData?.user.username}-contact-card.png`;
+          link.download = `${userData?.user.displayName || userData?.user.username}-contact-card.jpg`;
           link.href = dataUrl;
           link.click();
           setIsGeneratingCard(false);
@@ -329,7 +336,8 @@ export default function SocialMediaExport({ userId }: SocialMediaExportProps) {
                 onClick={() => {
                   if (cardRef.current) {
                     setIsGeneratingCard(true);
-                    htmlToImage.toPng(cardRef.current)
+                    // Use same format as other operations (JPEG)
+                    htmlToImage.toJpeg(cardRef.current, { quality: 0.8 })
                       .then(dataUrl => {
                         copyToClipboard(dataUrl);
                         setIsGeneratingCard(false);
