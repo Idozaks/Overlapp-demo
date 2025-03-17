@@ -453,16 +453,15 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     try {
       const formData = new FormData();
       
-      // Handle avatar separately if it's a File
-      if (data.avatar instanceof File) {
-        formData.append('avatar', data.avatar);
-      }
-
-      // Handle all other fields
+      // Handle all fields, including avatar
       Object.entries(data).forEach(([key, value]) => {
-        if (key !== 'avatar' && value !== undefined && value !== '') {
-          if (key === 'preferences' || key === 'identityPreferences') {
-            formData.append(key, JSON.stringify(value));
+        if (value !== undefined && value !== '') {
+          if (key === 'avatar') {
+            if (value instanceof File) {
+              formData.append('avatar', value);
+            } else if (typeof value === 'string' && value.startsWith('http')) {
+              formData.append('avatar', value);
+            }
           } else if (typeof value === 'object') {
             formData.append(key, JSON.stringify(value));
           } else {
@@ -471,10 +470,11 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         }
       });
 
-      const headers = new Headers();
-      headers.append('Accept', 'application/json');
-      
-      await updateMutation.mutateAsync(formData);
+      const result = await updateMutation.mutateAsync(formData);
+      if (result?.user) {
+        // Force a refetch of user data
+        queryClient.invalidateQueries(['user']);
+      }
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;
