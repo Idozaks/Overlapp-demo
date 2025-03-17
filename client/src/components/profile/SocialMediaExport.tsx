@@ -26,7 +26,16 @@ import { Linkedin, Twitter, Instagram, Facebook, AlertCircle, RefreshCw, Lock, I
 import QRCode from 'qrcode';
 import * as htmlToImage from 'html-to-image';
 import { useQuery } from '@tanstack/react-query';
-import { User } from '../../shared/schema';
+// Define a simplified User type for this component
+interface User {
+  id: number;
+  username: string;
+  displayName: string | null;
+  avatar: string | null;
+  bio: string | null;
+  occupation: string | null;
+  location: string | null;
+}
 
 interface SocialMediaExportProps {
   userId: number;
