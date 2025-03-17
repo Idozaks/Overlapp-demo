@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader2, Edit2, AtSign, Calendar, UserCheck, Users, Laptop } from "lucide-react";
+import { Loader2, Edit2, AtSign, Calendar, UserCheck, Users, Laptop, RefreshCw, Share2 } from "lucide-react";
 import { Link } from "wouter";
 import PostList from "@/components/social/PostList";
 import type { User, PostWithUser } from "@shared/schema";
@@ -195,6 +195,14 @@ export default function Profile() {
                       >
                         <UserCheck className="w-4 h-4 mr-2" />
                         Find Matches
+                      </Button>
+                      <Button
+                        onClick={() => navigate('/social/export')}
+                        className="w-full"
+                        variant="secondary"
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Social Media Export
                       </Button>
                     </div>
                   ) : (

@@ -52,7 +52,9 @@ import {
   Menu,
   Shield,
   InfoIcon,
-  UserCheck
+  UserCheck,
+  Share2,
+  RefreshCw
 } from "lucide-react";
 import "./lib/i18n";
 import About from "@/pages/About"; // Import the About component
@@ -73,6 +75,7 @@ function Router() {
       <Route path="/social/explore" component={ExploreUsers} />
       <Route path="/social/matches" component={Matches} />
       <Route path="/social/overlap" component={UserOverlap} />
+      <Route path="/social/export" component={SocialMediaExportPage} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
@@ -106,6 +109,9 @@ function Header() {
           </a>
           <a href="/social/matches" className="text-foreground hover:text-primary whitespace-nowrap flex items-center">
             <UserCheck className="w-4 h-4 mr-1" /> Matches
+          </a>
+          <a href="/social/export" className="text-foreground hover:text-primary whitespace-nowrap flex items-center">
+            <RefreshCw className="w-4 h-4 mr-1" /> Social Export
           </a>
           <a href="/wallet" className="text-foreground hover:text-primary whitespace-nowrap">
             Wallet
@@ -194,6 +200,10 @@ function Header() {
                     <DropdownMenuItem onClick={() => navigate('/social/matches')}>
                       <UserCheck className="w-4 h-4 mr-2" />
                       Find Matches
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/social/export')}>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Social Media Export
                     </DropdownMenuItem>
                     {user.isAdmin && (
                       <>
