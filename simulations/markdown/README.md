@@ -17,9 +17,17 @@
 │                                                         │
 │  ┌─────────────────┐  ┌─────────────────┐               │
 │  │                 │  │                 │               │
-│  │  🌐 Multi-      │  │  🔜 More        │               │
-│  │  language       │  │  Features       │               │
-│  │  Support        │  │  Coming Soon    │               │
+│  │  🌐 Multi-      │  │  🌐 Physical-   │               │
+│  │  language       │  │  Digital        │               │
+│  │  Support        │  │  Experience     │               │
+│  │                 │  │                 │               │
+│  └─────────────────┘  └─────────────────┘               │
+│                                                         │
+│  ┌─────────────────┐  ┌─────────────────┐               │
+│  │                 │  │                 │               │
+│  │  🪪 Digital     │  │  🔜 More        │               │
+│  │  Identity       │  │  Features       │               │
+│  │  Management     │  │  Coming Soon    │               │
 │  │                 │  │                 │               │
 │  └─────────────────┘  └─────────────────┘               │
 │                                                         │
@@ -30,7 +38,7 @@ Welcome to the Overlapp feature simulations! These Markdown files provide intera
 
 ## 🌟 Available Simulations
 
-### [🔄 User Overlap Analysis](./user-overlap.md)
+### [🔄 User Overlap Analysis](./user-overlap.md) | [🔄 עברית](./user-overlap-he.md)
 Discover how our sophisticated matching system helps users find meaningful connections:
 
 - 👥 Profile comparison with detailed matching metrics
@@ -38,7 +46,7 @@ Discover how our sophisticated matching system helps users find meaningful conne
 - 💡 AI-generated collaboration suggestions
 - 📊 Visual representation of compatibility areas
 
-### [🧠 AI-Powered Interest Matching](./interest-matching.md)
+### [🧠 AI-Powered Interest Matching](./interest-matching.md) | [🧠 עברית](./interest-matching-he.md)
 Explore our intelligent recommendation engine that suggests new interests:
 
 - 🔍 Pattern recognition across interest categories
@@ -46,13 +54,40 @@ Explore our intelligent recommendation engine that suggests new interests:
 - 🌐 Interest relationship mapping and visualization
 - 🤖 Neural network-based suggestion algorithms
 
-### [🌐 Multilanguage Support](./multilanguage.md)
+### [🌐 Multilanguage Support](./multilanguage.md) | [🌐 עברית](./multilanguage-he.md)
 Experience Overlapp's comprehensive localization capabilities:
 
 - 🌍 Support for 6+ languages including RTL (Right-to-Left)
 - 🔄 Bidirectional text handling for mixed-language content
 - 📱 Direction-aware interface components
 - 🛠️ Technical implementation examples
+
+### [🌐 Physical-Digital Experience](./phygital-experience.md) | [🌐 עברית](./phygital-experience-he.md)
+See how Overlapp bridges the gap between physical and digital identities:
+
+- 🔗 Proximity-based connection technology
+- 🏪 Retail integration for enhanced shopping experiences
+- 📱 Mobile tools for physical world interactions
+- 🧠 AI-enhanced contextual awareness
+
+### [🪪 Digital Identity Management](./digital-identity.md) | [🪪 עברית](./digital-identity-he.md)
+Learn about our comprehensive identity management system:
+
+- 🔒 Privacy-first design with granular access controls
+- 🛡️ Multi-level identity verification
+- 🌐 Decentralized identity options
+- 🔗 Cross-platform identity integration
+
+## 🌍 Language Support
+
+All simulations are available in multiple languages:
+
+| Language | Icon | Available |
+|----------|:----:|:---------:|
+| English  | 🇺🇸 | ✅ All features |
+| Hebrew   | 🇮🇱 | ✅ All features |
+
+More languages coming soon!
 
 ## 🧭 Navigation Guide
 
@@ -65,11 +100,22 @@ Experience Overlapp's comprehensive localization capabilities:
 │  │  • User Overlap Analysis                  │  │
 │  │  • AI-Powered Interest Matching           │  │
 │  │  • Multilanguage Support                  │  │
+│  │  • Physical-Digital Experience            │  │
+│  │  • Digital Identity Management            │  │
 │  │                                           │  │
 │  └───────────────────────────────────────────┘  │
 │                       │                         │
 │                       ▼                         │
-│  STEP 2: Review simulation content              │
+│  STEP 2: Select your preferred language         │
+│  ┌───────────────────────────────────────────┐  │
+│  │                                           │  │
+│  │  • English (🇺🇸)                          │  │
+│  │  • Hebrew (🇮🇱)                           │  │
+│  │                                           │  │
+│  └───────────────────────────────────────────┘  │
+│                       │                         │
+│                       ▼                         │
+│  STEP 3: Review simulation content              │
 │  ┌───────────────────────────────────────────┐  │
 │  │                                           │  │
 │  │  • Text explanations                      │  │
@@ -80,7 +126,7 @@ Experience Overlapp's comprehensive localization capabilities:
 │  └───────────────────────────────────────────┘  │
 │                       │                         │
 │                       ▼                         │
-│  STEP 3: Explore related features               │
+│  STEP 4: Explore related features               │
 │  ┌───────────────────────────────────────────┐  │
 │  │                                           │  │
 │  │  • Follow links between simulations       │  │
@@ -105,6 +151,7 @@ We're continually expanding our simulation library with new features:
 - 📱 Mobile Experience
 - 🗃️ Content Management
 - 🤝 Community Engagement Tools
+- 🏆 Gamification Elements
 
 ---
 
