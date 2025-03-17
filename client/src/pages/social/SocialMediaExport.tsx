@@ -1,14 +1,10 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import SocialMediaExport from '@/components/profile/SocialMediaExport';
-import type { User } from '@shared/schema';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function SocialMediaExportPage() {
-  // Fetch the current user data
-  const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
-    queryKey: ['/api/user'],
-    retry: false,
-  });
+  // Get authenticated user from auth context
+  const { user, isLoading: loadingUser } = useAuth();
 
   if (loadingUser) {
     return (
@@ -25,7 +21,7 @@ export default function SocialMediaExportPage() {
     );
   }
 
-  if (!user || !user.user) {
+  if (!user) {
     return (
       <div className="container mx-auto p-4">
         <div className="max-w-4xl mx-auto text-center py-12">
@@ -44,7 +40,7 @@ export default function SocialMediaExportPage() {
           Share your Overlapp identity across your favorite social platforms with optimized formatting and privacy controls.
         </p>
         
-        <SocialMediaExport userId={user.user.id} />
+        <SocialMediaExport userId={user.id} />
       </div>
     </div>
   );
