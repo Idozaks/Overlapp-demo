@@ -445,24 +445,29 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   };
 
   const onSubmit = async (data: ProfileUpdateData) => {
-    if (data.avatar instanceof File) {
+    try {
       const formData = new FormData();
-      formData.append('avatar', data.avatar);
+      
+      // Handle avatar separately if it's a File
+      if (data.avatar instanceof File) {
+        formData.append('avatar', data.avatar);
+      }
+
+      // Handle all other fields
       Object.entries(data).forEach(([key, value]) => {
         if (key !== 'avatar' && value !== undefined && value !== '') {
-          if (key === 'preferences') {
+          if (typeof value === 'object') {
             formData.append(key, JSON.stringify(value));
           } else {
-            formData.append(key, value as string);
+            formData.append(key, String(value));
           }
         }
       });
+
       await updateMutation.mutateAsync(formData);
-    } else {
-      const cleanData = Object.fromEntries(
-        Object.entries(data).filter(([_, value]) => value !== undefined && value !== '')
-      );
-      await updateMutation.mutateAsync(cleanData);
+    } catch (error) {
+      console.error('Profile update error:', error);
+      throw error;
     }
   };
 
