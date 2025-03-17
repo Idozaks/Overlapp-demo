@@ -213,15 +213,20 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         throw new Error("Invalid user ID");
       }
 
-      const cleanedData = JSON.parse(JSON.stringify(data)); // Ensure proper JSON serialization
-      const response = await apiRequest(`/api/users/${user.id}`, {
-        method: "PATCH",
-        body: cleanedData
-      });
-      return response.json();
-
       if (data.avatar instanceof File) {
         const formData = new FormData();
+        formData.append('avatar', data.avatar);
+        return await apiRequest(`/api/users/${user.id}`, {
+          method: "PATCH",
+          body: formData
+        }).then(res => res.json());
+      }
+
+      const cleanedData = JSON.parse(JSON.stringify(data));
+      return await apiRequest(`/api/users/${user.id}`, {
+        method: "PATCH",
+        body: cleanedData
+      }).then(res => res.json());
         formData.append('avatar', data.avatar);
         if (data.displayName) formData.append('displayName', data.displayName);
         if (data.bio) formData.append('bio', data.bio);
