@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Interest Matching - Overlapp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .input-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4b5563;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        
+        .input-container {
+            margin-bottom: 20px;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .text-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .current-interests {
+            margin-top: 20px;
+        }
+        
+        .interests-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .interest-tag {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .interest-emoji {
+            margin-right: 6px;
+            font-size: 1.2rem;
+        }
+        
+        .button {
+            background: linear-gradient(90deg, #06b6d4, #3b82f6);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .button:hover {
+            opacity: 0.9;
+        }
+        
+        .processing-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+            display: none;
+        }
+        
+        .processing-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 5px solid #e5e7eb;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .suggestion-list {
+            margin-top: 20px;
+        }
+        
+        .suggestion-item {
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3b82f6;
+            display: flex;
+            align-items: center;
+        }
+        
+        .suggestion-emoji {
+            font-size: 2rem;
+            margin-right: 15px;
+            display: inline-block;
+            width: 40px;
+            text-align: center;
+        }
+        
+        .suggestion-details {
+            flex: 1;
+        }
+        
+        .suggestion-name {
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .suggestion-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .add-button {
+            background-color: #ecfdf5;
+            color: #059669;
+            border: 1px solid #d1fae5;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .add-button:hover {
+            background-color: #d1fae5;
+        }
+        
+        .relationship-section {
+            margin-top: 30px;
+        }
+        
+        .relationship-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #4b5563;
+        }
+        
+        .relationship-map {
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .map-container {
+            position: relative;
+            width: 400px;
+            height: 300px;
+        }
+        
+        .map-node {
+            position: absolute;
+            width: 100px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 50px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .node-connection {
+            position: absolute;
+            background-color: #d1d5db;
+            z-index: -1;
+            transform-origin: left center;
+        }
+        
+        .strong-connection {
+            background-color: #3b82f6;
+        }
+        
+        @media (max-width: 768px) {
+            .map-container {
+                width: 100%;
+                height: 400px;
+            }
+            
+            .map-node {
+                width: 80px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI-Powered Interest Matching</h1>
+            <p class="subtitle">Discover new interests that align with your existing preferences</p>
+        </header>
+        
+        <div class="input-section" id="input-section">
+            <h2 class="section-title">Your Interests</h2>
+            
+            <div class="input-container">
+                <label for="interest-input" class="input-label">Add a new interest:</label>
+                <input type="text" id="interest-input" class="text-input" placeholder="e.g., Photography, Machine Learning, Hiking...">
+            </div>
+            
+            <button class="button" id="add-interest-btn">Add Interest</button>
+            
+            <div class="current-interests">
+                <h3>Current Interests:</h3>
+                <div class="interests-container" id="interests-container">
+                    <div class="interest-tag"><span class="interest-emoji">📸</span>Photography</div>
+                    <div class="interest-tag"><span class="interest-emoji">🏔️</span>Hiking</div>
+                    <div class="interest-tag"><span class="interest-emoji">🍳</span>Cooking</div>
+                    <div class="interest-tag"><span class="interest-emoji">📱</span>Mobile Development</div>
+                </div>
+            </div>
+            
+            <button class="button" id="generate-btn" style="margin-top: 30px;">Generate Recommendations</button>
+        </div>
+        
+        <div class="processing-section" id="processing-section">
+            <div class="processing-icon"></div>
+            <h2>Analyzing your interests...</h2>
+            <p>Our AI is finding connections and patterns to suggest new interests you might enjoy.</p>
+        </div>
+        
+        <div class="results-section" id="results-section">
+            <h2 class="section-title">Recommended Interests</h2>
+            
+            <p>Based on your current interests, we think you might enjoy:</p>
+            
+            <div class="suggestion-list">
+                <div class="suggestion-item">
+                    <div class="suggestion-emoji">🎨</div>
+                    <div class="suggestion-details">
+                        <div class="suggestion-name">Graphic Design</div>
+                        <div class="suggestion-description">Connected to your interest in Photography. Many photographers expand their skills to graphic design for visual storytelling.</div>
+                    </div>
+                    <button class="add-button">Add</button>
+                </div>
+                
+                <div class="suggestion-item">
+                    <div class="suggestion-emoji">🏕️</div>
+                    <div class="suggestion-details">
+                        <div class="suggestion-name">Camping</div>
+                        <div class="suggestion-description">Related to your interest in Hiking. Many hikers enjoy camping as a way to extend their outdoor adventures.</div>
+                    </div>
+                    <button class="add-button">Add</button>
+                </div>
+                
+                <div class="suggestion-item">
+                    <div class="suggestion-emoji">🌱</div>
+                    <div class="suggestion-details">
+                        <div class="suggestion-name">Sustainable Living</div>
+                        <div class="suggestion-description">Connects your interests in Cooking and Hiking, suggesting an appreciation for nature and healthy living.</div>
+                    </div>
+                    <button class="add-button">Add</button>
+                </div>
+                
+                <div class="suggestion-item">
+                    <div class="suggestion-emoji">📊</div>
+                    <div class="suggestion-details">
+                        <div class="suggestion-name">UI/UX Design</div>
+                        <div class="suggestion-description">Bridges your interests in Photography and Mobile Development through visual design principles.</div>
+                    </div>
+                    <button class="add-button">Add</button>
+                </div>
+            </div>
+            
+            <div class="relationship-section">
+                <h3 class="relationship-title">Interest Relationship Map</h3>
+                
+                <div class="relationship-map">
+                    <div class="map-container" id="map-container">
+                        <!-- This will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // DOM elements
+        const addInterestBtn = document.getElementById('add-interest-btn');
+        const interestInput = document.getElementById('interest-input');
+        const interestsContainer = document.getElementById('interests-container');
+        const generateBtn = document.getElementById('generate-btn');
+        const inputSection = document.getElementById('input-section');
+        const processingSection = document.getElementById('processing-section');
+        const resultsSection = document.getElementById('results-section');
+        const mapContainer = document.getElementById('map-container');
+        
+        // List of emojis to randomly assign to new interests
+        const emojis = ['🎮', '🎸', '🏄‍♂️', '🚴‍♀️', '🧘‍♀️', '🎭', '🎨', '📚', '✈️', '🌱', '🏋️‍♂️', '🎯', '🎬', '🧩', '🎤'];
+        
+        // Add new interest
+        addInterestBtn.addEventListener('click', () => {
+            const interestName = interestInput.value.trim();
+            if (interestName) {
+                const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                const interestTag = document.createElement('div');
+                interestTag.className = 'interest-tag';
+                interestTag.innerHTML = `<span class="interest-emoji">${randomEmoji}</span>${interestName}`;
+                interestsContainer.appendChild(interestTag);
+                interestInput.value = '';
+            }
+        });
+        
+        // Handle Enter key in the input
+        interestInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addInterestBtn.click();
+            }
+        });
+        
+        // Generate recommendations
+        generateBtn.addEventListener('click', () => {
+            // Show processing animation
+            inputSection.style.display = 'none';
+            processingSection.style.display = 'block';
+            
+            // Simulate AI processing delay
+            setTimeout(() => {
+                processingSection.style.display = 'none';
+                resultsSection.style.display = 'block';
+                
+                // Create and animate the interest relationship map
+                createInterestMap();
+            }, 2500);
+        });
+        
+        // Add event listeners to all Add buttons
+        document.querySelectorAll('.add-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const interestName = this.parentElement.querySelector('.suggestion-name').textContent;
+                const interestEmoji = this.parentElement.querySelector('.suggestion-emoji').textContent;
+                
+                // Add to current interests
+                const interestTag = document.createElement('div');
+                interestTag.className = 'interest-tag';
+                interestTag.innerHTML = `<span class="interest-emoji">${interestEmoji}</span>${interestName}`;
+                interestsContainer.appendChild(interestTag);
+                
+                // Change button text to indicate it's been added
+                this.textContent = 'Added';
+                this.style.backgroundColor = '#d1fae5';
+                this.disabled = true;
+            });
+        });
+        
+        // Create the interest relationship map
+        function createInterestMap() {
+            // Clear existing map
+            mapContainer.innerHTML = '';
+            
+            // Define the interests and their positions
+            const interests = [
+                { name: 'Photography', x: 150, y: 50 },
+                { name: 'Hiking', x: 50, y: 150 },
+                { name: 'Cooking', x: 250, y: 150 },
+                { name: 'Mobile Dev', x: 150, y: 250 },
+                { name: 'Graphic Design', x: 300, y: 50 },
+                { name: 'Camping', x: 50, y: 250 },
+                { name: 'Sustainable Living', x: 300, y: 250 },
+                { name: 'UI/UX Design', x: 200, y: 150 }
+            ];
+            
+            // Define connections (pairs of indices from the interests array)
+            const connections = [
+                { from: 0, to: 4, strong: true },
+                { from: 1, to: 5, strong: true },
+                { from: 2, to: 6, strong: false },
+                { from: 3, to: 7, strong: true },
+                { from: 0, to: 7, strong: false },
+                { from: 1, to: 6, strong: false },
+                { from: 2, to: 5, strong: false },
+                { from: 0, to: 1, strong: false },
+                { from: 2, to: 3, strong: false }
+            ];
+            
+            // Create the connection lines first (so they're behind the nodes)
+            connections.forEach(conn => {
+                const from = interests[conn.from];
+                const to = interests[conn.to];
+                
+                // Calculate line properties
+                const dx = to.x - from.x;
+                const dy = to.y - from.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                // Create the line
+                const line = document.createElement('div');
+                line.className = `node-connection ${conn.strong ? 'strong-connection' : ''}`;
+                line.style.width = `${length}px`;
+                line.style.height = '2px';
+                line.style.left = `${from.x}px`;
+                line.style.top = `${from.y}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                mapContainer.appendChild(line);
+            });
+            
+            // Create the interest nodes
+            interests.forEach((interest, index) => {
+                const node = document.createElement('div');
+                node.className = 'map-node';
+                node.textContent = interest.name;
+                node.style.left = `${interest.x - 50}px`; // Center the node
+                node.style.top = `${interest.y - 20}px`; // Center the node
+                
+                // Add some animation delay based on index
+                node.style.animationDelay = `${index * 0.1}s`;
+                
+                // Add hover effect
+                node.addEventListener('mouseover', () => {
+                    node.style.transform = 'scale(1.1)';
+                    node.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                });
+                
+                node.addEventListener('mouseout', () => {
+                    node.style.transform = 'scale(1)';
+                    node.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                });
+                
+                mapContainer.appendChild(node);
+            });
+            
+            // Animate nodes appearing
+            const nodes = document.querySelectorAll('.map-node');
+            nodes.forEach((node, index) => {
+                node.style.opacity = '0';
+                node.style.transform = 'scale(0.8)';
+                
+                setTimeout(() => {
+                    node.style.opacity = '1';
+                    node.style.transform = 'scale(1)';
+                }, 100 * index);
+            });
+        }
+    </script>
+</body>
+</html>

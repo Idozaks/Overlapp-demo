@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overlapp Feature Simulations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .features-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #4b5563;
+        }
+        
+        .feature-description {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        
+        .feature-link {
+            display: inline-block;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+        
+        .feature-link:hover {
+            opacity: 0.9;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Overlapp Feature Simulations</h1>
+            <p class="subtitle">Interactive demos of key Overlapp features</p>
+        </header>
+        
+        <ul class="features-list">
+            <li class="feature-card">
+                <h2 class="feature-title">User Overlap Analysis</h2>
+                <p class="feature-description">Experience our comprehensive user overlap analysis system that helps users discover shared interests and collaboration opportunities with others. The system analyzes profiles, identifies common interests, and suggests potential collaboration areas.</p>
+                <a href="user-overlap.html" class="feature-link" target="_blank">View Simulation</a>
+            </li>
+            
+            <li class="feature-card">
+                <h2 class="feature-title">AI-Powered Interest Matching</h2>
+                <p class="feature-description">Explore our AI-powered interest matching system that analyzes user preferences and suggests new interests they might enjoy. The intelligent algorithm identifies connections between existing interests and recommends relevant new areas to explore.</p>
+                <a href="interest-matching.html" class="feature-link" target="_blank">View Simulation</a>
+            </li>
+            
+            <li class="feature-card">
+                <h2 class="feature-title">Multilanguage Support</h2>
+                <p class="feature-description">Experience Overlapp's comprehensive multilanguage support with RTL capabilities. The platform supports English, Hebrew, Arabic, Russian, French, and Spanish, ensuring users from diverse backgrounds can engage comfortably.</p>
+                <a href="multilanguage.html" class="feature-link" target="_blank">View Simulation</a>
+            </li>
+        </ul>
+        
+        <div class="footer">
+            <p>© 2025 Overlapp. All simulations are for demonstration purposes only.</p>
+        </div>
+    </div>
+</body>
+</html>
