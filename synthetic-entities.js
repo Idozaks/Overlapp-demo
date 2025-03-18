@@ -7,20 +7,20 @@
 
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as schema from './shared/schema.js';
+import * as schema from './shared/schema.ts';
 
 // Create connection pool
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool, { schema });
 
-// Categories for our synthetic entities
+// Categories for our entities
 const ENTITY_CATEGORIES = [
-  'SYNTHETIC_RETAIL',       // Physical stores
-  'SYNTHETIC_ONLINE',       // Websites and online platforms
-  'SYNTHETIC_EDUCATION',    // Educational institutions
-  'SYNTHETIC_HOSPITALITY',  // Hotels, restaurants, etc.
-  'SYNTHETIC_ENTERTAINMENT', // Theaters, parks, etc.
-  'SYNTHETIC_HEALTHCARE',   // Hospitals, clinics, etc.
+  'RETAIL',       // Physical stores
+  'ONLINE',       // Websites and online platforms
+  'EDUCATION',    // Educational institutions
+  'HOSPITALITY',  // Hotels, restaurants, etc.
+  'ENTERTAINMENT', // Theaters, parks, etc.
+  'HEALTHCARE',   // Hospitals, clinics, etc.
 ];
 
 // Generate a random AI-like name for our synthetic entities

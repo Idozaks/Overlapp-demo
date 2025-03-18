@@ -64,14 +64,8 @@ async function generateAllSyntheticData() {
   console.log('This process will create clearly marked AI-generated test data');
   console.log('for digital and physical entities, locations, and retail places.');
   
-  // Install fs module if needed
-  try {
-    // Check if fs is available
-    execSync('node -e "require(\'fs\')"');
-  } catch (error) {
-    console.log('Installing required modules...');
-    execSync('npm install fs');
-  }
+  // fs module is now imported at the top of the file
+  // No need to check for it since it's a built-in Node.js module
   
   try {
     // Run each script sequentially
