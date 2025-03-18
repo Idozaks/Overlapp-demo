@@ -7,8 +7,10 @@
  */
 
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import pg from 'pg';
 import * as schema from './shared/schema.ts';
+
+const { Pool } = pg;
 
 // Create connection pool
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -78,6 +80,13 @@ function generateLocationName(locationType) {
   };
   
   const type = typePrefix.split(' ')[0];
+  
+  // Ensure the type exists in our mapping, or fall back to a default
+  if (!prefixes[type] || !suffixes[type]) {
+    console.log(`Warning: Unknown location type ${type}, using default instead`);
+    return `${CITIES[Math.floor(Math.random() * CITIES.length)]} ${locationType.toLowerCase().replace('_', ' ')}`;
+  }
+  
   const prefix = prefixes[type][Math.floor(Math.random() * prefixes[type].length)];
   const suffix = suffixes[type][Math.floor(Math.random() * suffixes[type].length)];
   
