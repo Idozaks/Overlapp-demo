@@ -1,8 +1,9 @@
 /**
- * Synthetic Retail and Places Generator Script
+ * Retail and Places Generator Script
  * 
- * This script generates synthetic retail stores, places, and digital platforms
- * and links them to user preferences. All entities are clearly marked as synthetic/AI-generated.
+ * This script generates retail stores, places, and digital platforms
+ * and links them to user preferences. These entities represent diverse
+ * businesses for testing the platform's overlap analysis features.
  */
 
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -28,7 +29,7 @@ const RETAIL_CATEGORIES = [
   'ECO_FRIENDLY'
 ];
 
-// Synthetic store types
+// Store types
 const STORE_TYPES = [
   'physical_store',
   'online_shop',
@@ -118,9 +119,9 @@ function generateStoreProducts(category) {
   return selectedProducts;
 }
 
-// Create data structure for synthetic retail stores
-async function generateSyntheticRetailData() {
-  console.log('Generating synthetic retail store data...');
+// Create data structure for retail stores
+async function generateRetailData() {
+  console.log('Generating retail store data...');
   
   const retailStores = [];
   

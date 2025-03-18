@@ -101,7 +101,7 @@ function generateRandomCoordinates() {
 }
 
 // Generate realistic content for an entity
-function generateSyntheticContent(entityId, entityName, category) {
+function generateEntityContent(entityId, entityName, category) {
   const contentTypes = {
     'RETAIL': ['product', 'promotion', 'event', 'review'],
     'ONLINE': ['article', 'service', 'tool', 'community'],
@@ -266,9 +266,9 @@ function generateSyntheticContent(entityId, entityName, category) {
   };
 }
 
-// Create synthetic entities and their content
-async function createSyntheticEntities() {
-  console.log('Starting synthetic entity generation...');
+// Create entities and their content
+async function createEntities() {
+  console.log('Starting entity generation...');
   
   const createdEntities = [];
   const createdContent = [];
@@ -281,8 +281,8 @@ async function createSyntheticEntities() {
       console.log(`Creating ${numEntities} entities for category ${category}...`);
       
       for (let i = 0; i < numEntities; i++) {
-        const entityName = generateSyntheticName(category);
-        const entityDescription = generateSyntheticDescription(entityName, category);
+        const entityName = generateEntityName(category);
+        const entityDescription = generateEntityDescription(entityName, category);
         
         // Generate icon URL based on category
         const categoryBase = category.toLowerCase();
@@ -308,7 +308,7 @@ async function createSyntheticEntities() {
           const numContentItems = Math.floor(Math.random() * 3) + 2; // 2-4 content items
           
           for (let j = 0; j < numContentItems; j++) {
-            const contentData = generateSyntheticContent(entity.id, entityName, category);
+            const contentData = generateEntityContent(entity.id, entityName, category);
             
             const [content] = await db
               .insert(schema.interestContent)
@@ -324,7 +324,7 @@ async function createSyntheticEntities() {
       }
     }
     
-    console.log(`Successfully created ${createdEntities.length} synthetic entities with ${createdContent.length} content items`);
+    console.log(`Successfully created ${createdEntities.length} entities with ${createdContent.length} content items`);
     return { entities: createdEntities, content: createdContent };
     
   } catch (error) {
@@ -334,7 +334,7 @@ async function createSyntheticEntities() {
 }
 
 // Call the function to create entities
-createSyntheticEntities()
+createEntities()
   .then((result) => {
     console.log('Entity generation complete!');
     console.log(`Created ${result.entities.length} entities and ${result.content.length} content items`);
