@@ -1,9 +1,9 @@
 /**
- * Synthetic Locations Generator Script
+ * Location Generator Script
  * 
- * This script generates synthetic physical locations that can be used
- * for creating posts with location data. All locations are clearly
- * marked as synthetic/AI-generated.
+ * This script generates realistic physical locations that can be used
+ * for creating posts with location data to simulate real-world user
+ * interactions and posting behaviors.
  */
 
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -14,62 +14,67 @@ import * as schema from './shared/schema.ts';
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool, { schema });
 
-// Types of synthetic locations
+// Types of locations
 const LOCATION_TYPES = [
-  'SYNTHETIC_PARK',
-  'SYNTHETIC_MALL',
-  'SYNTHETIC_THEATER',
-  'SYNTHETIC_RESTAURANT',
-  'SYNTHETIC_MUSEUM',
-  'SYNTHETIC_LIBRARY',
-  'SYNTHETIC_CAFE',
-  'SYNTHETIC_GYM',
-  'SYNTHETIC_CONCERT_VENUE',
-  'SYNTHETIC_CONFERENCE_CENTER'
+  'PARK',
+  'MALL',
+  'THEATER',
+  'RESTAURANT',
+  'MUSEUM',
+  'LIBRARY',
+  'CAFE',
+  'GYM',
+  'CONCERT_VENUE',
+  'CONFERENCE_CENTER'
 ];
 
-// City names for our synthetic locations
-const SYNTHETIC_CITIES = [
-  'AIville',
-  'Synthopolis',
-  'Virtualton',
-  'Simulacra City',
-  'Botburg',
-  'Digital Heights',
-  'Pixelton',
-  'Datapolis',
-  'Algorithmia',
-  'Codeminster'
+// City names for our locations
+const CITIES = [
+  'San Francisco',
+  'New York',
+  'Chicago',
+  'London',
+  'Tokyo',
+  'Sydney',
+  'Berlin',
+  'Toronto',
+  'Singapore',
+  'Barcelona',
+  'Amsterdam',
+  'Stockholm',
+  'Seoul',
+  'Melbourne',
+  'Vienna'
 ];
 
-// Generate a synthetic location name
+// Generate a realistic location name
 function generateLocationName(locationType) {
-  const typePrefix = locationType.replace('SYNTHETIC_', '').replace('_', ' ');
+  const typePrefix = locationType.replace('_', ' ');
   
   const prefixes = {
-    'PARK': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Bot', 'Pixel', 'Data', 'Code', 'Algorithm'],
-    'MALL': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Tech', 'Cyber', 'Bot', 'Pixel', 'Data'],
-    'THEATER': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Bot', 'Pixel', 'Data', 'Code', 'Algorithm'],
-    'RESTAURANT': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Bot', 'Pixel', 'Data', 'Code', 'Algorithm'],
-    'MUSEUM': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Bot', 'Pixel', 'Data', 'Code', 'Algorithm'],
-    'LIBRARY': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Bot', 'Pixel', 'Data', 'Code', 'Algorithm'],
-    'CAFE': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Bot', 'Pixel', 'Data', 'Code', 'Algorithm'],
-    'GYM': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Bot', 'Pixel', 'Data', 'Code', 'Algorithm'],
-    'CONCERT_VENUE': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Bot', 'Pixel', 'Data', 'Code', 'Algorithm'],
-    'CONFERENCE_CENTER': ['Synthetic', 'Virtual', 'Digital', 'AI', 'Simulated', 'Bot', 'Pixel', 'Data', 'Code', 'Algorithm']
+    'PARK': ['Central', 'Riverside', 'Golden Gate', 'Highland', 'Sunset', 'Evergreen', 'Oakwood', 'Lakeside', 'Emerald', 'Victoria'],
+    'MALL': ['Grand', 'Metro', 'Westfield', 'City Center', 'Plaza', 'Gallery', 'Pacific', 'Bayside', 'Horizon', 'Union Square'],
+    'THEATER': ['Royal', 'Broadway', 'Imperial', 'Paramount', 'Regent', 'Majestic', 'Century', 'Grand', 'State', 'Landmark'],
+    'RESTAURANT': ['The Garden', 'Blue Door', 'Harvest', 'Olive & Vine', 'Wildflower', 'Copper Pot', 'The Harbor', 'Sage', 'Ember', 'Terrain'],
+    'MUSEUM': ['Metropolitan', 'Modern Art', 'National', 'Natural History', 'Science', 'Contemporary', 'Heritage', 'Maritime', 'Cultural', 'City'],
+    'LIBRARY': ['Central', 'Public', 'University', 'Memorial', 'Carnegie', 'Heritage', 'Civic', 'National', 'State', 'Mitchell'],
+    'CAFE': ['Morning Light', 'Cornerstone', 'Rustic Bean', 'Maple Leaf', 'Coffee & Clay', 'The Daily Grind', 'Shoreline', 'Urban Brew', 'The Mill', 'Sunrise'],
+    'GYM': ['Elevate', 'Peak', 'Pulse', 'Iron', 'Vigor', 'Strength', 'Elite', 'Core', 'Vitality', 'Axis'],
+    'CONCERT_VENUE': ['Symphony', 'Royal', 'Metropolitan', 'Grand', 'Civic', 'Harmony', 'Heritage', 'Phillips', 'Riverside', 'Meridian'],
+    'CONFERENCE_CENTER': ['International', 'Summit', 'Metropolitan', 'Convention', 'Global', 'Central', 'Executive', 'Business', 'Exchange', 'Forum']
   };
   
   const suffixes = {
-    'PARK': ['Park', 'Gardens', 'Reserve', 'Commons', 'Meadows'],
-    'MALL': ['Mall', 'Plaza', 'Center', 'Galleria', 'Shops'],
-    'THEATER': ['Theater', 'Cinema', 'Playhouse', 'Stage', 'Amphitheater'],
-    'RESTAURANT': ['Restaurant', 'Eatery', 'Bistro', 'Grill', 'Diner'],
-    'MUSEUM': ['Museum', 'Gallery', 'Exhibition', 'Collection', 'Archive'],
-    'LIBRARY': ['Library', 'Archives', 'Repository', 'Collection', 'Resource Center'],
-    'CAFE': ['Cafe', 'Coffee Shop', 'Tea House', 'Espresso Bar', 'Bistro'],
-    'GYM': ['Gym', 'Fitness Center', 'Training Studio', 'Health Club', 'Athletic Center'],
-    'CONCERT_VENUE': ['Concert Hall', 'Music Venue', 'Stage', 'Auditorium', 'Arena'],
-    'CONFERENCE_CENTER': ['Conference Center', 'Convention Hall', 'Meeting Place', 'Forum', 'Assembly']
+    'PARK': ['Park', 'Gardens', 'Reserve', 'Commons', 'Meadows', 'Botanical Garden', 'Arboretum', 'Conservatory', 'Green'],
+    'MALL': ['Mall', 'Plaza', 'Center', 'Galleria', 'Shops', 'Shopping Center', 'Market', 'Square', 'Promenade'],
+    'THEATER': ['Theater', 'Cinema', 'Playhouse', 'Stage', 'Amphitheater', 'Cineplex', 'Picture House', 'Arts Center'],
+    'RESTAURANT': ['Restaurant', 'Eatery', 'Bistro', 'Grill', 'Diner', 'Kitchen', 'Table', 'Brasserie', 'Tavern'],
+    'MUSEUM': ['Museum', 'Gallery', 'Exhibition', 'Collection', 'Archive', 'Institute', 'Foundation', 'Center'],
+    'LIBRARY': ['Library', 'Archives', 'Collection', 'Resource Center', 'Reading Room', 'Media Center', 'Learning Center'],
+    'CAFE': ['Cafe', 'Coffee House', 'Tea Room', 'Espresso Bar', 'Bistro', 'Coffee Shop', 'Bakery', 'Patisserie'],
+    'GYM': ['Fitness', 'Health Club', 'Training Center', 'Athletic Club', 'Wellness Center', 'Sports Club', 'Studio'],
+    'CONCERT_VENUE': ['Hall', 'Center', 'Auditorium', 'Arena', 'Theater', 'Pavilion', 'Palace', 'Performance Center'],
+    'CONFERENCE_CENTER': ['Conference Center', 'Convention Center', 'Exhibition Hall', 'Forum', 'Event Center', 'Business Center']
   };
   
   const type = typePrefix.split(' ')[0];
@@ -107,26 +112,29 @@ function generateRandomCoordinates() {
 
 // Generate a post content for a location
 function generatePostContent(locationName, locationType) {
-  const type = locationType.replace('SYNTHETIC_', '').replace('_', ' ').toLowerCase();
+  const type = locationType.replace('_', ' ').toLowerCase();
   
   const templates = [
-    `Visiting the AI-generated ${locationName} today. This is a synthetic ${type} that doesn't exist in real life, created for testing.`,
-    `Checking out ${locationName}, a completely fictional ${type} created by AI for testing purposes.`,
-    `At the synthetic ${locationName}. This ${type} is AI-generated and used for application testing only.`,
-    `Exploring ${locationName}, which is a computer-generated ${type} that doesn't exist in the real world.`,
-    `Posted from ${locationName}, an AI-simulated ${type} created for this demo application.`
+    `Visiting ${locationName} today. Such a beautiful day to enjoy this amazing ${type}!`,
+    `Checking out ${locationName} with friends. Definitely a must-visit ${type} in the area.`,
+    `Spending the afternoon at ${locationName}. Great atmosphere at this ${type}!`,
+    `Exploring ${locationName} for the first time. Can't believe I haven't been to this ${type} before.`,
+    `Just arrived at ${locationName}. Love the vibe of this ${type}!`,
+    `Having a wonderful time at ${locationName}. The perfect ${type} for a day like today.`,
+    `Finally made it to ${locationName}. This ${type} is everything I hoped it would be!`,
+    `Taking in the sights at ${locationName}. Definitely one of the best ${type}s I've visited.`
   ];
   
   return templates[Math.floor(Math.random() * templates.length)];
 }
 
-// Create synthetic post with location
-async function createSyntheticLocationPost(userId, locationType) {
+// Create post with location
+async function createLocationPost(userId, locationType) {
   const locationName = generateLocationName(locationType);
-  const city = SYNTHETIC_CITIES[Math.floor(Math.random() * SYNTHETIC_CITIES.length)];
+  const city = CITIES[Math.floor(Math.random() * CITIES.length)];
   const coordinates = generateRandomCoordinates();
   
-  const placeName = `${locationName}, ${city} (SYNTHETIC)`;
+  const placeName = `${locationName}, ${city}`;
   const content = generatePostContent(locationName, locationType);
   
   const location = {
@@ -191,7 +199,7 @@ async function createSyntheticLocationPosts() {
         const locationType = LOCATION_TYPES[Math.floor(Math.random() * LOCATION_TYPES.length)];
         
         try {
-          const post = await createSyntheticLocationPost(user.id, locationType);
+          const post = await createLocationPost(user.id, locationType);
           createdPosts.push(post);
           console.log(`Created post with location: ${post.location.placeName}`);
         } catch (error) {
