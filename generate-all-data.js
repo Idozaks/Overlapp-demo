@@ -20,15 +20,15 @@ const __dirname = dirname(__filename);
 // Define the scripts to run in sequence
 const scripts = [
   {
-    file: 'synthetic-entities.js',
+    file: 'entities.js',
     description: 'Generating entities (digital/physical places)'
   },
   {
-    file: 'synthetic-locations.js',
+    file: 'locations.js',
     description: 'Generating location posts'
   },
   {
-    file: 'synthetic-retail-places.js',
+    file: 'retail-places.js',
     description: 'Generating retail places and user preferences'
   }
 ];
