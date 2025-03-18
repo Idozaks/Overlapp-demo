@@ -14,18 +14,18 @@ import fs from 'fs';
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool, { schema });
 
-// Synthetic retail categories
+// Retail categories
 const RETAIL_CATEGORIES = [
-  'SYNTHETIC_FASHION',
-  'SYNTHETIC_ELECTRONICS',
-  'SYNTHETIC_HOME_GOODS', 
-  'SYNTHETIC_BEAUTY',
-  'SYNTHETIC_SPORTS',
-  'SYNTHETIC_BOOKS',
-  'SYNTHETIC_TOYS',
-  'SYNTHETIC_GROCERY',
-  'SYNTHETIC_HEALTH',
-  'SYNTHETIC_ECO_FRIENDLY'
+  'FASHION',
+  'ELECTRONICS',
+  'HOME_GOODS', 
+  'BEAUTY',
+  'SPORTS',
+  'BOOKS',
+  'TOYS',
+  'GROCERY',
+  'HEALTH',
+  'ECO_FRIENDLY'
 ];
 
 // Synthetic store types
@@ -39,27 +39,25 @@ const STORE_TYPES = [
   'outlet'
 ];
 
-// Generate a synthetic retail store name
+// Generate a realistic retail store name
 function generateStoreName(category) {
-  const categoryBase = category.replace('SYNTHETIC_', '');
-  
   const prefixes = {
-    'FASHION': ['SynthStyle', 'AIFashion', 'VirtualThreads', 'PixelWear', 'SimuStyle'],
-    'ELECTRONICS': ['TechSim', 'AIGadgets', 'VirtualTech', 'SynthElectro', 'PixelGear'],
-    'HOME_GOODS': ['SynthHome', 'AILiving', 'VirtualNest', 'PixelHouse', 'SimuDecor'],
-    'BEAUTY': ['SynthBeauty', 'AIGlow', 'VirtualLooks', 'PixelGlam', 'SimuCosmetics'],
-    'SPORTS': ['SynthSports', 'AIFitness', 'VirtualAthletic', 'PixelGym', 'SimuActive'],
-    'BOOKS': ['SynthReads', 'AIBooks', 'VirtualLibrary', 'PixelPages', 'SimuLit'],
-    'TOYS': ['SynthPlay', 'AIToys', 'VirtualFun', 'PixelGames', 'SimuJoy'],
-    'GROCERY': ['SynthMart', 'AIFoods', 'VirtualMarket', 'PixelPantry', 'SimuGrocery'],
-    'HEALTH': ['SynthHealth', 'AIWellness', 'VirtualCare', 'PixelVitality', 'SimuHealth'],
-    'ECO_FRIENDLY': ['SynthGreen', 'AISustain', 'VirtualEco', 'PixelEarth', 'SimuNature']
+    'FASHION': ['Urban', 'Metro', 'Elite', 'Velvet', 'Lux', 'Classic', 'Trendy', 'Refined', 'Chic', 'Sleek'],
+    'ELECTRONICS': ['Future', 'Tech', 'Digital', 'Circuit', 'Nova', 'Pulse', 'Smart', 'Quantum', 'Byte', 'Wave'],
+    'HOME_GOODS': ['Comfort', 'Hearth', 'Nest', 'Harmony', 'Haven', 'Oasis', 'Cozy', 'Modern', 'Living', 'Elegant'],
+    'BEAUTY': ['Glow', 'Radiance', 'Pure', 'Allure', 'Charm', 'Essence', 'Gleam', 'Bloom', 'Serene', 'Luxe'],
+    'SPORTS': ['Active', 'Peak', 'Summit', 'Velocity', 'Endure', 'Fitness', 'Element', 'Apex', 'Vigor', 'Dynamic'],
+    'BOOKS': ['Chapter', 'Page', 'Story', 'Novel', 'Literary', 'Saga', 'Tome', 'Narrative', 'Bookish', 'Reader'],
+    'TOYS': ['Wonder', 'Playful', 'Joy', 'Imagine', 'Delight', 'Magic', 'Discovery', 'Whimsy', 'Adventure', 'Create'],
+    'GROCERY': ['Fresh', 'Market', 'Harvest', 'Pantry', 'Basket', 'Garden', 'Orchard', 'Bounty', 'Culinary', 'Select'],
+    'HEALTH': ['Vital', 'Wellness', 'Balance', 'Nourish', 'Thrive', 'Renew', 'Revive', 'Flourish', 'Optimal', 'Core'],
+    'ECO_FRIENDLY': ['Green', 'Sustain', 'Earth', 'Nature', 'Eco', 'Terra', 'Verdant', 'Organic', 'Planet', 'Pure']
   };
   
-  const suffixes = ['Store', 'Market', 'Shop', 'Outlet', 'Emporium', 'Depot', 'Hub', 'Center', 'World', 'Place'];
+  const suffixes = ['Store', 'Market', 'Shop', 'Outlet', 'Emporium', 'Depot', 'Hub', 'Center', 'World', 'Place', 'Co.', 'Collective', '& Co', 'Studio'];
   
   // Get a random prefix for the category
-  const prefix = prefixes[categoryBase][Math.floor(Math.random() * prefixes[categoryBase].length)];
+  const prefix = prefixes[category][Math.floor(Math.random() * prefixes[category].length)];
   
   // Sometimes add a suffix
   const shouldAddSuffix = Math.random() > 0.3;
@@ -71,41 +69,39 @@ function generateStoreName(category) {
   return prefix;
 }
 
-// Generate a description for a retail store
+// Generate a realistic description for a retail store
 function generateStoreDescription(name, category, storeType) {
-  const categoryBase = category.replace('SYNTHETIC_', '').replace('_', ' ').toLowerCase();
+  const categoryBase = category.replace('_', ' ').toLowerCase();
   const storeTypeFormatted = storeType.replace('_', ' ');
   
   const templates = [
-    `${name} is a synthetic ${storeTypeFormatted} specializing in ${categoryBase} products. This is an AI-generated store for testing purposes and does not exist in the real world.`,
-    `A simulated ${categoryBase} ${storeTypeFormatted} called ${name}. This is a fictional retail entity created for application testing.`,
-    `${name} represents a computer-generated ${storeTypeFormatted} in the ${categoryBase} category. This synthetic store is used for demonstration purposes only.`,
-    `An AI-created ${categoryBase} ${storeTypeFormatted} named ${name}. This retail entity doesn't exist in reality and is used for testing user preferences.`,
-    `${name} - a synthetic ${storeTypeFormatted} offering ${categoryBase} products. This is a fictional store created for application testing and development.`
+    `${name} is a premier ${storeTypeFormatted} specializing in high-quality ${categoryBase} products, offering exceptional customer service and a curated selection.`,
+    `Discover the unique shopping experience at ${name}, a ${categoryBase} ${storeTypeFormatted} dedicated to bringing you the finest products and personalized service.`,
+    `${name} brings a fresh perspective to the ${categoryBase} market as a distinctive ${storeTypeFormatted} featuring thoughtfully selected items for discerning customers.`,
+    `Welcome to ${name}, where passion for ${categoryBase} meets exceptional retail experience in our carefully designed ${storeTypeFormatted}.`,
+    `At ${name}, we've reimagined what a ${categoryBase} ${storeTypeFormatted} can be, focusing on quality, sustainability, and customer satisfaction.`
   ];
   
   return templates[Math.floor(Math.random() * templates.length)];
 }
 
-// Generate products for a store
+// Generate realistic products for a store
 function generateStoreProducts(category) {
-  const categoryBase = category.replace('SYNTHETIC_', '');
-  
   const productsByCategory = {
-    'FASHION': ['AI-Generated Shirts', 'Synthetic Jeans', 'Virtual Dresses', 'Pixel Shoes', 'Simulated Accessories'],
-    'ELECTRONICS': ['AI-Generated Phones', 'Synthetic Laptops', 'Virtual Headphones', 'Pixel Cameras', 'Simulated Speakers'],
-    'HOME_GOODS': ['AI-Generated Furniture', 'Synthetic Kitchenware', 'Virtual Decor', 'Pixel Bedding', 'Simulated Lighting'],
-    'BEAUTY': ['AI-Generated Makeup', 'Synthetic Skincare', 'Virtual Fragrances', 'Pixel Hair Products', 'Simulated Spa Items'],
-    'SPORTS': ['AI-Generated Sportswear', 'Synthetic Equipment', 'Virtual Fitness Gear', 'Pixel Outdoor Gear', 'Simulated Training Tools'],
-    'BOOKS': ['AI-Generated Fiction', 'Synthetic Non-Fiction', 'Virtual Textbooks', 'Pixel Comics', 'Simulated Journals'],
-    'TOYS': ['AI-Generated Action Figures', 'Synthetic Board Games', 'Virtual Educational Toys', 'Pixel Collectibles', 'Simulated Outdoor Toys'],
-    'GROCERY': ['AI-Generated Pantry Items', 'Synthetic Produce', 'Virtual Snacks', 'Pixel Beverages', 'Simulated Prepared Foods'],
-    'HEALTH': ['AI-Generated Vitamins', 'Synthetic Supplements', 'Virtual Fitness Products', 'Pixel Wellness Items', 'Simulated Health Foods'],
-    'ECO_FRIENDLY': ['AI-Generated Sustainable Products', 'Synthetic Eco Goods', 'Virtual Green Living Items', 'Pixel Earth-Friendly Products', 'Simulated Recycled Goods']
+    'FASHION': ['Premium Cotton Shirts', 'Designer Jeans', 'Seasonal Dresses', 'Handcrafted Shoes', 'Statement Accessories'],
+    'ELECTRONICS': ['Smartphones', 'Ultrabook Laptops', 'Wireless Headphones', 'Digital Cameras', 'Smart Home Speakers'],
+    'HOME_GOODS': ['Artisan Furniture', 'Gourmet Kitchenware', 'Stylish Home Decor', 'Luxury Bedding', 'Designer Lighting'],
+    'BEAUTY': ['Premium Cosmetics', 'Organic Skincare', 'Signature Fragrances', 'Professional Hair Products', 'Spa Essentials'],
+    'SPORTS': ['Performance Activewear', 'Professional Equipment', 'Fitness Accessories', 'Outdoor Gear', 'Training Supplements'],
+    'BOOKS': ['Bestselling Fiction', 'Reference Works', 'Educational Resources', 'Graphic Novels', 'Journals & Planners'],
+    'TOYS': ['Collectible Figures', 'Strategy Board Games', 'Educational Toys', 'Limited Edition Collectibles', 'Outdoor Play Equipment'],
+    'GROCERY': ['Gourmet Pantry Items', 'Organic Produce', 'Artisanal Snacks', 'Craft Beverages', 'Ready-to-Serve Meals'],
+    'HEALTH': ['Natural Vitamins', 'Performance Supplements', 'Fitness Equipment', 'Wellness Accessories', 'Organic Health Foods'],
+    'ECO_FRIENDLY': ['Sustainable Home Products', 'Eco-Conscious Fashion', 'Zero-Waste Essentials', 'Recycled Decor Items', 'Renewable Energy Gadgets']
   };
   
   // Select 3-5 random products from the category
-  const products = productsByCategory[categoryBase];
+  const products = [...productsByCategory[category]]; // Create a copy of the array
   const numProducts = Math.floor(Math.random() * 3) + 3; // 3-5 products
   const selectedProducts = [];
   
