@@ -5,9 +5,9 @@
  * for testing purposes. All entities are clearly marked as synthetic/AI-generated.
  */
 
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import * as schema from './shared/schema.js';
+const { drizzle } = require('drizzle-orm/node-postgres');
+const { Pool } = require('pg');
+const schema = require('./shared/schema');
 
 // Create connection pool
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });

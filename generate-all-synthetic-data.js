@@ -11,13 +11,9 @@
 
 import { spawn, execSync } from 'child_process';
 import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
-import { config } from 'dotenv';
+import { dirname, join } from 'path';
 
-// Load environment variables from .env file
-config();
-
-// Get the directory of the current module
+// Get current file path (ESM equivalent of __dirname)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -81,7 +77,7 @@ async function generateAllSyntheticData() {
     // Run each script sequentially
     for (const script of scripts) {
       console.log(`\n=== ${script.description} ===`);
-      const scriptPath = resolve(__dirname, script.file);
+      const scriptPath = path.resolve(__dirname, script.file);
       await runScript(scriptPath);
     }
     
