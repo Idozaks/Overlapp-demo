@@ -38,8 +38,8 @@ function runScript(scriptPath) {
   return new Promise((resolve, reject) => {
     console.log(`\n🚀 Running: ${scriptPath}`);
     
-    // Use Node.js to run the script
-    const child = spawn('node', [scriptPath], { stdio: 'inherit' });
+    // Use tsx to run the TypeScript files
+    const child = spawn('npx', ['tsx', scriptPath], { stdio: 'inherit' });
     
     child.on('close', (code) => {
       if (code === 0) {
