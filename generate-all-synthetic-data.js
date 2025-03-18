@@ -77,7 +77,7 @@ async function generateAllSyntheticData() {
     // Run each script sequentially
     for (const script of scripts) {
       console.log(`\n=== ${script.description} ===`);
-      const scriptPath = path.resolve(__dirname, script.file);
+      const scriptPath = join(__dirname, script.file);
       await runScript(scriptPath);
     }
     

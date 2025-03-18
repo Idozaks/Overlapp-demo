@@ -5,9 +5,10 @@
  * and links them to user preferences. All entities are clearly marked as synthetic/AI-generated.
  */
 
-const { drizzle } = require('drizzle-orm/node-postgres');
-const { Pool } = require('pg');
-const schema = require('./shared/schema');
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as schema from './shared/schema.js';
+import fs from 'fs';
 
 // Create connection pool
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -239,7 +240,6 @@ updateUserPreferences()
     console.log(`Generated ${result.retailStores.length} synthetic retail stores for reference`);
     
     // Save retail stores data to a file for reference
-    const fs = require('fs');
     fs.writeFileSync('synthetic-retail-data.json', JSON.stringify(result.retailStores, null, 2));
     console.log('Saved retail store data to synthetic-retail-data.json');
     
