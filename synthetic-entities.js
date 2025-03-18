@@ -297,7 +297,6 @@ async function createEntities() {
               category,
               description: entityDescription,
               iconUrl,
-              isAiGenerated: true,
             })
             .returning();
           
