@@ -140,17 +140,16 @@ async function generateRetailData() {
         category,
         type: storeType,
         description,
-        products,
-        isAiGenerated: true
+        products
       });
     }
   }
   
-  console.log(`Generated ${retailStores.length} synthetic retail stores`);
+  console.log(`Generated ${retailStores.length} retail stores`);
   return retailStores;
 }
 
-// Update user preferences with synthetic retail preferences
+// Update user preferences with retail preferences
 async function updateUserPreferences() {
   console.log('Starting update of user retail preferences...');
   
@@ -163,15 +162,15 @@ async function updateUserPreferences() {
       return [];
     }
     
-    console.log(`Found ${allUsers.length} users. Updating with synthetic retail preferences...`);
+    console.log(`Found ${allUsers.length} users. Updating with retail preferences...`);
     
-    // Generate synthetic retail data
-    const retailStores = await generateSyntheticRetailData();
+    // Generate retail data
+    const retailStores = await generateRetailData();
     
     // Extract just the retail categories for preferences
     const retailCategories = RETAIL_CATEGORIES.map(category => {
-      // Convert from SYNTHETIC_CATEGORY to Display Category
-      return category.replace('SYNTHETIC_', '').replace('_', ' ');
+      // Convert from CATEGORY to display format
+      return category.replace('_', ' ');
     });
     
     const updatedUsers = [];
@@ -233,12 +232,12 @@ async function updateUserPreferences() {
 updateUserPreferences()
   .then((result) => {
     console.log('User retail preference update complete!');
-    console.log(`Updated ${result.updatedUsers.length} users with synthetic retail preferences`);
-    console.log(`Generated ${result.retailStores.length} synthetic retail stores for reference`);
+    console.log(`Updated ${result.updatedUsers.length} users with retail preferences`);
+    console.log(`Generated ${result.retailStores.length} retail stores for reference`);
     
     // Save retail stores data to a file for reference
-    fs.writeFileSync('synthetic-retail-data.json', JSON.stringify(result.retailStores, null, 2));
-    console.log('Saved retail store data to synthetic-retail-data.json');
+    fs.writeFileSync('retail-data.json', JSON.stringify(result.retailStores, null, 2));
+    console.log('Saved retail store data to retail-data.json');
     
     process.exit(0);
   })

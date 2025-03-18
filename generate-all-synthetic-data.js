@@ -1,12 +1,12 @@
 /**
- * Master Script for Generating All Synthetic Data
+ * Master Script for Generating All Test Data
  * 
- * This script coordinates the generation of all synthetic entities:
- * 1. Synthetic Digital/Physical Entities
- * 2. Synthetic Location Posts
- * 3. Synthetic Retail Places and User Preferences
+ * This script coordinates the generation of all entities:
+ * 1. Digital/Physical Entities
+ * 2. Location Posts
+ * 3. Retail Places and User Preferences
  * 
- * All data is clearly marked as synthetic/AI-generated for testing purposes.
+ * All data is generated for testing the platform's overlap analysis features.
  */
 
 import { spawn, execSync } from 'child_process';
