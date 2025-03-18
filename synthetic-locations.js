@@ -171,9 +171,9 @@ async function getAllUsers() {
   }
 }
 
-// Create synthetic location posts for all users
-async function createSyntheticLocationPosts() {
-  console.log('Starting synthetic location post generation...');
+// Create location posts for all users
+async function createLocationPosts() {
+  console.log('Starting location post generation...');
   
   try {
     // Get all users
@@ -184,7 +184,7 @@ async function createSyntheticLocationPosts() {
       return [];
     }
     
-    console.log(`Found ${allUsers.length} users. Creating synthetic location posts...`);
+    console.log(`Found ${allUsers.length} users. Creating location posts...`);
     
     const createdPosts = [];
     
@@ -208,7 +208,7 @@ async function createSyntheticLocationPosts() {
       }
     }
     
-    console.log(`Successfully created ${createdPosts.length} synthetic location posts`);
+    console.log(`Successfully created ${createdPosts.length} location posts`);
     return createdPosts;
     
   } catch (error) {
@@ -218,10 +218,10 @@ async function createSyntheticLocationPosts() {
 }
 
 // Execute the function
-createSyntheticLocationPosts()
+createLocationPosts()
   .then((posts) => {
     console.log('Location post generation complete!');
-    console.log(`Created ${posts.length} posts with synthetic locations`);
+    console.log(`Created ${posts.length} location posts`);
     process.exit(0);
   })
   .catch((error) => {

@@ -1,8 +1,9 @@
 /**
- * Synthetic Entity Generator Script
+ * Entity Generator Script
  * 
- * This script generates AI entities such as stores, websites, and physical locations
- * for testing purposes. All entities are clearly marked as synthetic/AI-generated.
+ * This script generates entities such as stores, websites, and physical locations
+ * for testing purposes. These entities represent a diverse range of businesses
+ * and organizations for the platform.
  */
 
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -24,7 +25,7 @@ const ENTITY_CATEGORIES = [
 ];
 
 // Generate a realistic name for our entities
-function generateSyntheticName(category) {
+function generateEntityName(category) {
   const prefixes = {
     'RETAIL': ['Urban', 'Ivy', 'Summit', 'Harbor', 'Meridian', 'Horizon', 'Coastal', 'Alpine', 'Prism', 'Metro'],
     'ONLINE': ['Atlas', 'Nimble', 'Bright', 'Clear', 'Evolve', 'Elevate', 'Wave', 'Peak', 'Spark', 'Lunar'],
@@ -53,7 +54,7 @@ function generateSyntheticName(category) {
 }
 
 // Generate a natural description for the entity
-function generateSyntheticDescription(name, category) {
+function generateEntityDescription(name, category) {
   const descriptions = {
     'RETAIL': [
       `${name} offers a curated collection of premium products with a focus on quality and customer experience.`,
