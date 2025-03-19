@@ -20,6 +20,10 @@ const __dirname = dirname(__filename);
 // Define the scripts to run in sequence
 const scripts = [
   {
+    file: 'enhanced-generate-users.js',
+    description: 'Generating enhanced user profiles'
+  },
+  {
     file: 'entities.js',
     description: 'Generating entities (digital/physical places)'
   },
