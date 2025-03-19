@@ -1,0 +1,36 @@
+Cannot read properties of undefined (reading 'charAt')
+at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=yFoyDVGH1V-15B2v64by8:286:350
+at Array.map (<anonymous>)
+at Router.jsxDEV.children.jsxDEV.component (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=yFoyDVGH1V-15B2v64by8:284:33)
+at renderWithHooks (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:11548:26)
+at updateFunctionComponent (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:14582:28)
+at beginWork (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:15924:22)
+at HTMLUnknownElement.callCallback2 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:3674:22)
+at Object.invokeGuardedCallbackDev (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:3699:24)
+at invokeGuardedCallback (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:3733:39)
+at beginWork$1 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:19765:15)
+The above error occurred in one of your React components:
+
+    at Router.jsxDEV.children.jsxDEV.component (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=yFoyDVGH1V-15B2v64by8:162:26)
+    at Route (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a1bf3b59:323:16)
+    at Switch (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a1bf3b59:379:17)
+    at Router (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=yFoyDVGH1V-15B2v64by8:78:20)
+    at main
+    at div
+    at AuthProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-auth.tsx:26:32)
+    at QueryClientProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=a1bf3b59:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+Cannot read properties of undefined (reading 'charAt')
+at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=yFoyDVGH1V-15B2v64by8:286:350
+at Array.map (<anonymous>)
+at Router.jsxDEV.children.jsxDEV.component (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=yFoyDVGH1V-15B2v64by8:284:33)
+at renderWithHooks (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:11548:26)
+at updateFunctionComponent (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:14582:28)
+at beginWork (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:15924:22)
+at beginWork$1 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:19753:22)
+at performUnitOfWork (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:19198:20)
+at workLoopSync (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-T2SWDQEL.js?v=a1bf3b59:19137:13)
+at renderRootSync (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/ho

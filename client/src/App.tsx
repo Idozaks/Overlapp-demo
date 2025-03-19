@@ -155,7 +155,7 @@ function Router() {
                         <CardContent className="p-4">
                           <div className="flex justify-between mb-2">
                             <Badge variant="outline">
-                              {item.contentType.charAt(0).toUpperCase() + item.contentType.slice(1)}
+                              {item.contentType ? `${item.contentType.charAt(0).toUpperCase()}${item.contentType.slice(1)}` : 'Content'}
                             </Badge>
                           </div>
                           <p>{item.content}</p>
