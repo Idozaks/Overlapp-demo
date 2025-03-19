@@ -172,43 +172,90 @@ async function getAllUsers() {
 }
 
 // Create location posts for all users
-async function createLocationPosts() {
-  console.log('Starting location post generation...');
+async function createLocationPosts(previewMode = false) {
+  if (previewMode) {
+    console.log('PREVIEW MODE: Generating sample location posts without saving to database');
+  } else {
+    console.log('Starting location post generation...');
+  }
   
   try {
-    // Get all users
-    const allUsers = await getAllUsers();
+    // In preview mode, create sample users
+    const sampleUsers = [
+      { id: 1, username: 'user1' },
+      { id: 2, username: 'user2' },
+      { id: 3, username: 'user3' }
+    ];
     
-    if (allUsers.length === 0) {
+    // Get actual users or use sample users in preview mode
+    const allUsers = previewMode ? sampleUsers : await getAllUsers();
+    
+    if (!previewMode && allUsers.length === 0) {
       console.log('No users found in the database. Please create users first.');
       return [];
     }
     
-    console.log(`Found ${allUsers.length} users. Creating location posts...`);
+    if (!previewMode) {
+      console.log(`Found ${allUsers.length} users. Creating location posts...`);
+    }
     
     const createdPosts = [];
     
-    // For each user, create 1-3 location posts
+    // For each user, create location posts
     for (const user of allUsers) {
-      const numPosts = Math.floor(Math.random() * 3) + 1; // 1-3 posts per user
+      // Limit number of posts in preview mode
+      const numPosts = previewMode ? (user.id === 1 ? 2 : 1) : Math.floor(Math.random() * 3) + 1;
       
-      console.log(`Creating ${numPosts} location posts for user ${user.username} (ID: ${user.id})...`);
+      if (previewMode) {
+        console.log(`[PREVIEW] Creating ${numPosts} location posts for user ${user.username} (ID: ${user.id})...`);
+      } else {
+        console.log(`Creating ${numPosts} location posts for user ${user.username} (ID: ${user.id})...`);
+      }
       
       for (let i = 0; i < numPosts; i++) {
         // Select a random location type
         const locationType = LOCATION_TYPES[Math.floor(Math.random() * LOCATION_TYPES.length)];
+        const locationName = generateLocationName(locationType);
+        const city = CITIES[Math.floor(Math.random() * CITIES.length)];
+        const placeName = `${locationName}, ${city}`;
+        const content = generatePostContent(locationName, locationType);
         
-        try {
-          const post = await createLocationPost(user.id, locationType);
-          createdPosts.push(post);
-          console.log(`Created post with location: ${post.location.placeName}`);
-        } catch (error) {
-          console.error(`Error creating post for user ${user.username}:`, error);
+        if (previewMode) {
+          // Just display the generated content in preview mode
+          console.log(`[PREVIEW] Sample post for ${user.username}:`);
+          console.log(`  Location: ${placeName}`);
+          console.log(`  Content: ${content}`);
+          console.log('');
+          
+          // Add to sample posts for reporting
+          createdPosts.push({
+            id: createdPosts.length + 1,
+            userId: user.id,
+            content,
+            location: {
+              placeName,
+              latitude: 37.7749,
+              longitude: -122.4194
+            }
+          });
+        } else {
+          try {
+            const post = await createLocationPost(user.id, locationType);
+            createdPosts.push(post);
+            console.log(`Created post with location: ${post.location.placeName}`);
+          } catch (error) {
+            console.error(`Error creating post for user ${user.username}:`, error);
+          }
         }
       }
     }
     
-    console.log(`Successfully created ${createdPosts.length} location posts`);
+    if (previewMode) {
+      console.log('[PREVIEW] No data has been saved to the database');
+    } else {
+      console.log(`Successfully created ${createdPosts.length} location posts`);
+    }
+    
     return createdPosts;
     
   } catch (error) {
@@ -217,12 +264,19 @@ async function createLocationPosts() {
   }
 }
 
+// Check for preview mode flag
+const isPreviewMode = process.argv.includes('--preview');
+
 // Execute the function
-createLocationPosts()
+createLocationPosts(isPreviewMode)
   .then((posts) => {
-    console.log('Location post generation complete!');
-    console.log(`Created ${posts.length} location posts`);
-    process.exit(0);
+    if (isPreviewMode) {
+      process.exit(0);
+    } else {
+      console.log('Location post generation complete!');
+      console.log(`Created ${posts.length} location posts`);
+      process.exit(0);
+    }
   })
   .catch((error) => {
     console.error('Failed to generate location posts:', error);
