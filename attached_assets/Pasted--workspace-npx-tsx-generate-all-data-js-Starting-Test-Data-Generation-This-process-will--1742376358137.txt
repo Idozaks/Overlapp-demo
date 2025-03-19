@@ -1,0 +1,566 @@
+~/workspace$ npx tsx generate-all-data.js
+=== Starting Test Data Generation ===
+This process will create test data for the platform
+for digital and physical entities, locations, and retail places.
+
+⚠️ WARNING: This will write data directly to your database.
+Are you sure you want to continue? (yes/no): yes
+
+=== Generating enhanced user profiles ===
+
+🚀 Running: npx tsx /home/runner/workspace/enhanced-generate-users.js
+9:23:39 AM [express] Initializing database connection pool...
+9:23:39 AM [express] Creating Drizzle ORM instance...
+Fetching interests from database...
+Found 139 interests in the database.
+Generating 25 enriched user profiles...
+Generated user 1/25: Olga Popov with 9 interests
+Generated user 2/25: Ali Mbeki with 9 interests
+Generated user 3/25: Hassan Hernández with 6 interests
+Generated user 4/25: Hiroshi Saleh with 6 interests
+Generated user 5/25: Olivia Kim with 8 interests
+Generated user 6/25: Leila Nassar with 8 interests
+Generated user 7/25: Mikhail Nkosi with 6 interests
+Generated user 8/25: Ivan Rodríguez with 6 interests
+Generated user 9/25: Sebastián Smirnov with 5 interests
+Generated user 10/25: Natasha Park with 4 interests
+Generated user 11/25: Camila Kuznetsov with 8 interests
+Generated user 12/25: Viktor Hernández with 6 interests
+Generated user 13/25: Santiago Jones with 5 interests
+Generated user 14/25: Zuri Ivanov with 3 interests
+Generated user 15/25: Chen Okafor with 4 interests
+Generated user 16/25: Mei Chukwu with 3 interests
+Generated user 17/25: Emma García with 3 interests
+Generated user 18/25: Liam Hernández with 3 interests
+Generated user 19/25: Mikhail Rodríguez with 5 interests
+Generated user 20/25: Omar Nassar with 7 interests
+Generated user 21/25: Amir Tanaka with 4 interests
+Generated user 22/25: Vladimir Amir with 6 interests
+Generated user 23/25: Oliver Smirnov with 6 interests
+Generated user 24/25: Liam Khalil with 6 interests
+Generated user 25/25: Oliver Diallo with 6 interests
+Generated 25 enriched synthetic users and saved to enhanced-synthetic-users.json
+Created create-enhanced-users.js script for inserting users into the database
+Run the following command to install axios if not already installed:
+npm install axios --save-dev
+
+Then run the enhanced users script:
+node create-enhanced-users.js
+✓ Successfully generated enriched user profiles
+✅ Successfully completed: /home/runner/workspace/enhanced-generate-users.js
+
+=== Generating entities (digital/physical places) ===
+
+🚀 Running: npx tsx /home/runner/workspace/entities.js
+Starting entity generation...
+Creating 5 entities for category RETAIL...
+Error creating entity Coastal Connect: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 222,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Coastal Connect) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Created entity: Metro Solutions (ID: 189)
+Created content: Customer Experiences at Metro Solutions for entity Metro Solutions
+Created content: What People are Saying about Metro Solutions for entity Metro Solutions
+Created content: Metro Solutions Customer Testimonials for entity Metro Solutions
+Created content: New Collection at Metro Solutions for entity Metro Solutions
+Created entity: Alpine Ventures (ID: 190)
+Created content: Join Us: Alpine Ventures Community Gathering for entity Alpine Ventures
+Created content: What People are Saying about Alpine Ventures for entity Alpine Ventures
+Created entity: Horizon Connect (ID: 191)
+Created content: Featured Items at Horizon Connect for entity Horizon Connect
+Created content: Join Us: Horizon Connect Community Gathering for entity Horizon Connect
+Created content: Customer Experiences at Horizon Connect for entity Horizon Connect
+Error creating entity Alpine: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 213,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Alpine) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Creating 5 entities for category ONLINE...
+Created entity: Bright Solutions (ID: 193)
+Created content: Digital Solutions from Bright Solutions for entity Bright Solutions
+Created content: Digital Solutions from Bright Solutions for entity Bright Solutions
+Created content: Bright Solutions Industry Perspectives for entity Bright Solutions
+Created content: Tools Available at Bright Solutions for entity Bright Solutions
+Created entity: Clear Network (ID: 194)
+Created content: Connect with Clear Network for entity Clear Network
+Created content: Connect with Clear Network for entity Clear Network
+Created content: Digital Solutions from Clear Network for entity Clear Network
+Created content: Clear Network Industry Perspectives for entity Clear Network
+Created entity: Lunar Partners (ID: 195)
+Created content: Latest Insights from Lunar Partners for entity Lunar Partners
+Created content: Lunar Partners Network Opportunities for entity Lunar Partners
+Error creating entity Lunar: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 212,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Lunar) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Error creating entity Evolve: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 213,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Evolve) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Creating 4 entities for category EDUCATION...
+Created entity: Vertex Hub (ID: 198)
+Created content: Vertex Hub Educational Tracks for entity Vertex Hub
+Created content: Upcoming Event at Vertex Hub for entity Vertex Hub
+Created content: Join Us: Vertex Hub Community Gathering for entity Vertex Hub
+Created entity: Quest Studios (ID: 199)
+Created content: Professional Development with Quest Studios for entity Quest Studios
+Created content: Courses Offered by Quest Studios for entity Quest Studios
+Created entity: Beacon Labs (ID: 200)
+Created content: Educational Opportunities at Beacon Labs for entity Beacon Labs
+Created content: Upcoming Event at Beacon Labs for entity Beacon Labs
+Created content: Upcoming Event at Beacon Labs for entity Beacon Labs
+Error creating entity Legacy Ventures: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 222,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Legacy Ventures) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Creating 4 entities for category HOSPITALITY...
+Created entity: Skyline Dynamics (ID: 202)
+Created content: Skyline Dynamics Signature Dishes for entity Skyline Dynamics
+Created content: Professional Services at Skyline Dynamics for entity Skyline Dynamics
+Created content: Culinary Offerings at Skyline Dynamics for entity Skyline Dynamics
+Created entity: Oasis (ID: 203)
+Created content: Room Options at Oasis for entity Oasis
+Created content: Services Offered by Oasis for entity Oasis
+Created content: Stay with Oasis for entity Oasis
+Created content: Professional Services at Oasis for entity Oasis
+Created entity: Skyline Global (ID: 204)
+Created content: Services Offered by Skyline Global for entity Skyline Global
+Created content: Culinary Offerings at Skyline Global for entity Skyline Global
+Created entity: Haven Partners (ID: 205)
+Created content: How Haven Partners Can Help You for entity Haven Partners
+Created content: Services Offered by Haven Partners for entity Haven Partners
+Created content: Professional Services at Haven Partners for entity Haven Partners
+Created content: Professional Services at Haven Partners for entity Haven Partners
+Creating 5 entities for category ENTERTAINMENT...
+Error creating entity Spark Ventures: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 221,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Spark Ventures) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Error creating entity Anthem: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 213,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Anthem) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Error creating entity Anthem: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 213,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Anthem) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Created entity: Spotlight Works (ID: 209)
+Created content: Experiences at Spotlight Works for entity Spotlight Works
+Created content: Unique Offerings from Spotlight Works for entity Spotlight Works
+Error creating entity Prism: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 212,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Prism) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Creating 5 entities for category HEALTHCARE...
+Error creating entity Thrive: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 213,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Thrive) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Error creating entity Harmony: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 214,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Harmony) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Created entity: Tranquil Works (ID: 213)
+Created content: Meet the Specialists at Tranquil Works for entity Tranquil Works
+Created content: Tranquil Works Educational Tracks for entity Tranquil Works
+Created content: Tranquil Works Professional Network for entity Tranquil Works
+Created content: Tranquil Works Wellness Options for entity Tranquil Works
+Error creating entity Wellness: error: duplicate key value violates unique constraint "interests_name_unique"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async createEntities (file:///home/runner/workspace/entities.js:338:28) {
+  length: 215,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (name)=(Wellness) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'interests',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'interests_name_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Created entity: Thrive Studios (ID: 215)
+Created content: Thrive Studios Wellness Options for entity Thrive Studios
+Created content: Professional Development with Thrive Studios for entity Thrive Studios
+Created content: Programs at Thrive Studios for entity Thrive Studios
+Created content: Programs at Thrive Studios for entity Thrive Studios
+Successfully created 16 entities with 50 content items
+Entity generation complete!
+Created 16 entities and 50 content items
+✅ Successfully completed: /home/runner/workspace/entities.js
+
+=== Generating location posts ===
+
+🚀 Running: npx tsx /home/runner/workspace/locations.js
+Starting location post generation...
+Found 32 users. Creating location posts...
+Creating 1 location posts for user ido (ID: 10)...
+Created post with location: Riverside Commons, Stockholm
+Creating 3 location posts for user tech_explorer (ID: 2)...
+Created post with location: Century Playhouse, Singapore
+Created post with location: Metropolitan Museum, Chicago
+Created post with location: Natural History Foundation, Toronto
+Creating 3 location posts for user haydenrodriguez2 (ID: 22)...
+Created post with location: Evergreen Botanical Garden, Amsterdam
+Created post with location: City Center Promenade, Barcelona
+Created post with location: Iron Wellness Center, New York
+Creating 2 location posts for user nature_lens (ID: 3)...
+Created post with location: Strength Fitness, Berlin
+Created post with location: Memorial Resource Center, Vienna
+Creating 2 location posts for user kaijohnson505 (ID: 23)...
+Created post with location: Evergreen Botanical Garden, Sydney
+Created post with location: Carnegie Learning Center, London
+Creating 1 location posts for user fitness_guru (ID: 4)...
+Created post with location: Pacific Plaza, Toronto
+Creating 3 location posts for user art_soul (ID: 5)...
+Created post with location: Grand Market, Barcelona
+Created post with location: Meridian Palace, Amsterdam
+Created post with location: Majestic Picture House, Stockholm
+Creating 3 location posts for user food_adventurer (ID: 6)...
+Created post with location: Contemporary Archive, Barcelona
+Created post with location: City Center Promenade, Amsterdam
+Created post with location: Gallery Shopping Center, Barcelona
+Creating 3 location posts for user testuser3 (ID: 14)...
+Created post with location: Evergreen Green, London
+Created post with location: Highland Meadows, Vienna
+Created post with location: Axis Fitness, Barcelona
+Creating 3 location posts for user mason_carter_98 (ID: 19)...
+Created post with location: State Archives, New York
+Created post with location: Golden Gate Gardens, Vienna
+Created post with location: Terrain Grill, Amsterdam
+Creating 2 location posts for user idozaks (ID: 11)...
+Created post with location: Pulse Training Center, Tokyo
+Created post with location: Global Exhibition Hall, Chicago
+Creating 2 location posts for user test user 2 (ID: 13)...
+Created post with location: Sunset Gardens, London
+Created post with location: Grand Center, Singapore
+Creating 1 location posts for user rileygonzalez51 (ID: 24)...
+Created post with location: Sunrise Bistro, Barcelona
+Creating 2 location posts for user novalopez126 (ID: 25)...
+Created post with location: Maritime Archive, San Francisco
+Created post with location: Peak Wellness Center, Melbourne
+Creating 1 location posts for user quinndavis97 (ID: 26)...
+Created post with location: The Mill Bakery, Tokyo
+Creating 1 location posts for user rileymoore962 (ID: 27)...
+Created post with location: Olive & Vine Brasserie, Chicago
+Creating 1 location posts for user jamiewilson602 (ID: 28)...
+Created post with location: Central Business Center, Barcelona
+Creating 2 location posts for user parkerjackson495 (ID: 29)...
+Created post with location: Heritage Resource Center, Seoul
+Created post with location: Science Collection, Vienna
+Creating 2 location posts for user parkerhernandez874 (ID: 30)...
+Created post with location: Pulse Training Center, Barcelona
+Created post with location: Memorial Media Center, Tokyo
+Creating 2 location posts for user finleymartin209 (ID: 31)...
+Created post with location: Elite Training Center, Melbourne
+Created post with location: The Garden Table, London
+Creating 3 location posts for user mj (ID: 17)...
+Created post with location: City Foundation, Stockholm
+Created post with location: Modern Art Institute, Tokyo
+Created post with location: Axis Wellness Center, Chicago
+Creating 3 location posts for user blakewilliams869 (ID: 21)...
+Created post with location: Pulse Studio, Barcelona
+Created post with location: Lakeside Reserve, Seoul
+Created post with location: Regent Cineplex, Toronto
+Creating 2 location posts for user quinnjohnson475 (ID: 32)...
+Created post with location: Oakwood Arboretum, New York
+Created post with location: Terrain Bistro, Seoul
+Creating 1 location posts for user morgananderson336 (ID: 33)...
+Created post with location: Central Learning Center, Chicago
+Creating 3 location posts for user caseyjackson310 (ID: 34)...
+Created post with location: Riverside Arena, San Francisco
+Created post with location: Vigor Health Club, Seoul
+Created post with location: Metropolitan Collection, Singapore
+Creating 1 location posts for user parkerdavis935 (ID: 35)...
+Created post with location: Maritime Center, Chicago
+Creating 3 location posts for user skylermartinez295 (ID: 36)...
+Created post with location: Cornerstone Tea Room, Barcelona
+Created post with location: Cultural Foundation, Toronto
+Created post with location: Emerald Meadows, Berlin
+Creating 3 location posts for user parkermartinez12 (ID: 37)...
+Created post with location: Highland Botanical Garden, Toronto
+Created post with location: Convention Conference Center, Chicago
+Created post with location: Evergreen Reserve, Berlin
+Creating 2 location posts for user quinndavis17 (ID: 38)...
+Created post with location: Vigor Training Center, Toronto
+Created post with location: Mitchell Learning Center, Amsterdam
+Creating 2 location posts for user finleyjackson763 (ID: 39)...
+Created post with location: National Gallery, Melbourne
+Created post with location: Summit Business Center, Tokyo
+Creating 2 location posts for user blakebrown208 (ID: 18)...
+Created post with location: Elevate Fitness, Vienna
+Created post with location: Imperial Cineplex, Melbourne
+Creating 3 location posts for user dannizaks (ID: 12)...
+Created post with location: Science Museum, Chicago
+Created post with location: Grand Arts Center, Berlin
+Created post with location: Victoria Gardens, Berlin
+Successfully created 68 location posts
+Location post generation complete!
+Created 68 location posts
+✅ Successfully completed: /home/runner/workspace/locations.js
+
+=== Generating retail places and user preferences ===
+
+🚀 Running: npx tsx /home/runner/workspace/retail-places.js
+Starting update of user retail preferences...
+Found 32 users. Updating with retail preferences...
+Generating retail store data...
+Generated 26 retail stores
+Updated user ido with retail preferences: GROCERY, ECO FRIENDLY, BOOKS
+Updated user tech_explorer with retail preferences: HEALTH, GROCERY, BEAUTY
+Updated user haydenrodriguez2 with retail preferences: TOYS, HEALTH, ECO FRIENDLY, SPORTS
+Updated user nature_lens with retail preferences: BEAUTY, HOME GOODS
+Updated user kaijohnson505 with retail preferences: GROCERY
+Updated user fitness_guru with retail preferences: GROCERY, FASHION
+Updated user art_soul with retail preferences: SPORTS, ELECTRONICS
+Updated user food_adventurer with retail preferences: HOME GOODS, FASHION, ECO FRIENDLY
+Updated user testuser3 with retail preferences: BOOKS, FASHION
+Updated user mason_carter_98 with retail preferences: HOME GOODS, ECO FRIENDLY, BEAUTY, HEALTH
+Updated user idozaks with retail preferences: HOME GOODS, TOYS, BEAUTY
+Updated user test user 2 with retail preferences: ECO FRIENDLY, SPORTS
+Updated user rileygonzalez51 with retail preferences: GROCERY, BEAUTY
+Updated user novalopez126 with retail preferences: HOME GOODS, FASHION, TOYS
+Updated user quinndavis97 with retail preferences: GROCERY, HOME GOODS
+Updated user rileymoore962 with retail preferences: GROCERY, ECO FRIENDLY, TOYS
+Updated user jamiewilson602 with retail preferences: ECO FRIENDLY, BEAUTY
+Updated user parkerjackson495 with retail preferences: GROCERY, SPORTS
+Updated user parkerhernandez874 with retail preferences: FASHION, ECO FRIENDLY
+Updated user finleymartin209 with retail preferences: GROCERY, HOME GOODS, TOYS, FASHION
+Updated user mj with retail preferences: HOME GOODS, TOYS, ELECTRONICS
+Updated user blakewilliams869 with retail preferences: HEALTH, HOME GOODS
+Updated user quinnjohnson475 with retail preferences: BOOKS, GROCERY, ECO FRIENDLY
+Updated user morgananderson336 with retail preferences: SPORTS, BOOKS
+Updated user caseyjackson310 with retail preferences: ECO FRIENDLY, GROCERY, SPORTS
+Updated user parkerdavis935 with retail preferences: SPORTS, BOOKS
+Updated user skylermartinez295 with retail preferences: ELECTRONICS, TOYS
+Updated user parkermartinez12 with retail preferences: HEALTH, HOME GOODS, ELECTRONICS
+Updated user quinndavis17 with retail preferences: TOYS, FASHION, GROCERY
+Updated user finleyjackson763 with retail preferences: HOME GOODS, FASHION
+Updated user blakebrown208 with retail preferences: GROCERY, HEALTH, HOME GOODS
+Updated user dannizaks with retail preferences: GROCERY, ELECTRONICS
+User retail preference update complete!
+Updated 32 users with retail preferences
+Generated 26 retail stores for reference
+Saved retail store data to retail-data.json
+✅ Successfully completed: /home/runner/workspace/retail-places.js
+
+🎉 All test data generation complete!
+The database now contains entities for testing the overlap analysis features.
+All test data is designed to work seamlessly with the platform.

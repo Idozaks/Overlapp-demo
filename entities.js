@@ -7,6 +7,7 @@
  */
 
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { eq } from 'drizzle-orm';
 import pg from 'pg';
 import * as schema from './shared/schema.ts';
 
@@ -334,19 +335,36 @@ async function createEntities() {
         const iconUrl = `https://source.unsplash.com/random/100x100/?${categoryBase},icon`;
         
         try {
-          // Insert the entity as an interest
-          const [entity] = await db
-            .insert(schema.interests)
-            .values({
-              name: entityName,
-              category,
-              description: entityDescription,
-              iconUrl,
-            })
-            .returning();
+          // Check if entity with this name already exists
+          const existingEntity = await db
+            .select()
+            .from(schema.interests)
+            .where(eq(schema.interests.name, entityName))
+            .limit(1);
+            
+          let entity;
+          
+          if (existingEntity.length > 0) {
+            // Entity already exists, use the existing one
+            entity = existingEntity[0];
+            console.log(`Using existing entity: ${entityName} (ID: ${entity.id})`);
+          } else {
+            // Insert the entity as a new interest
+            const [newEntity] = await db
+              .insert(schema.interests)
+              .values({
+                name: entityName,
+                category,
+                description: entityDescription,
+                iconUrl,
+              })
+              .returning();
+            
+            entity = newEntity;
+            console.log(`Created entity: ${entityName} (ID: ${entity.id})`);
+          }
           
           createdEntities.push(entity);
-          console.log(`Created entity: ${entityName} (ID: ${entity.id})`);
           
           // Create 2-4 content items for each entity
           const numContentItems = Math.floor(Math.random() * 3) + 2; // 2-4 content items
