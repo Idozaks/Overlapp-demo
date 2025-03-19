@@ -14,8 +14,11 @@ import CategoryNavigation from '@/components/marketplace/CategoryNavigation';
 interface EntityContent {
   id: number;
   entityId: number;
-  contentType: string;
-  content: string;
+  title: string;
+  description: string;
+  url?: string;
+  thumbnailUrl?: string;
+  type: string;
   createdAt: string;
 }
 
