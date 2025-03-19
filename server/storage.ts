@@ -946,8 +946,11 @@ export class DatabaseStorage implements IStorage {
     try {
       // First delete all user-interest relationships
       await db.delete(userInterests).where(eq(userInterests.interestId, id));
+      
+      // Then delete all interest content records (to avoid foreign key constraint violations)
+      await db.delete(interestContent).where(eq(interestContent.interestId, id));
 
-      // Then delete the interest itself
+      // Finally delete the interest itself
       await db.delete(interests).where(eq(interests.id, id));
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
