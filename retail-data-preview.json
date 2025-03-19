@@ -1,119 +1,123 @@
 [
   {
-    "name": "Chic Depot",
+    "name": "Velvet",
     "category": "FASHION",
-    "type": "outlet",
-    "description": "At Chic Depot, we've reimagined what a fashion outlet can be, focusing on quality, sustainability, and customer satisfaction.",
+    "type": "physical_store",
+    "description": "Welcome to Velvet, where passion for fashion meets exceptional retail experience in our carefully designed physical store.",
     "products": [
-      "Statement Accessories",
+      "Premium Cotton Shirts",
       "Seasonal Dresses",
-      "Handcrafted Shoes"
+      "Handcrafted Shoes",
+      "Statement Accessories",
+      "Designer Jeans"
     ]
   },
   {
-    "name": "Wave Co.",
+    "name": "Future",
     "category": "ELECTRONICS",
-    "type": "boutique",
-    "description": "Wave Co. is a premier boutique specializing in high-quality electronics products, offering exceptional customer service and a curated selection.",
+    "type": "outlet",
+    "description": "Future brings a fresh perspective to the electronics market as a distinctive outlet featuring thoughtfully selected items for discerning customers.",
     "products": [
       "Smartphones",
-      "Digital Cameras",
-      "Wireless Headphones"
+      "Smart Home Speakers",
+      "Wireless Headphones",
+      "Digital Cameras"
     ]
   },
   {
-    "name": "Comfort Place",
+    "name": "Oasis Place",
     "category": "HOME_GOODS",
-    "type": "popup_store",
-    "description": "Comfort Place brings a fresh perspective to the home goods market as a distinctive popup store featuring thoughtfully selected items for discerning customers.",
+    "type": "marketplace",
+    "description": "At Oasis Place, we've reimagined what a home goods marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
+      "Gourmet Kitchenware",
+      "Stylish Home Decor",
+      "Luxury Bedding",
       "Designer Lighting",
-      "Artisan Furniture",
-      "Stylish Home Decor"
+      "Artisan Furniture"
     ]
   },
   {
-    "name": "Charm Emporium",
+    "name": "Allure Outlet",
     "category": "BEAUTY",
-    "type": "boutique",
-    "description": "Discover the unique shopping experience at Charm Emporium, a beauty boutique dedicated to bringing you the finest products and personalized service.",
+    "type": "department_store",
+    "description": "At Allure Outlet, we've reimagined what a beauty department store can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
-      "Professional Hair Products",
       "Signature Fragrances",
-      "Organic Skincare"
+      "Spa Essentials",
+      "Premium Cosmetics",
+      "Organic Skincare",
+      "Professional Hair Products"
     ]
   },
   {
-    "name": "Apex Center",
+    "name": "Apex Co.",
     "category": "SPORTS",
-    "type": "physical_store",
-    "description": "Apex Center is a premier physical store specializing in high-quality sports products, offering exceptional customer service and a curated selection.",
+    "type": "department_store",
+    "description": "At Apex Co., we've reimagined what a sports department store can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
-      "Performance Activewear",
-      "Training Supplements",
       "Professional Equipment",
-      "Fitness Accessories"
+      "Training Supplements",
+      "Outdoor Gear",
+      "Performance Activewear"
     ]
   },
   {
-    "name": "Literary & Co",
+    "name": "Story Studio",
     "category": "BOOKS",
-    "type": "boutique",
-    "description": "Literary & Co brings a fresh perspective to the books market as a distinctive boutique featuring thoughtfully selected items for discerning customers.",
+    "type": "marketplace",
+    "description": "At Story Studio, we've reimagined what a books marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
-      "Educational Resources",
-      "Journals & Planners",
       "Graphic Novels",
+      "Journals & Planners",
       "Reference Works"
     ]
   },
   {
-    "name": "Playful World",
+    "name": "Playful Hub",
     "category": "TOYS",
-    "type": "boutique",
-    "description": "At Playful World, we've reimagined what a toys boutique can be, focusing on quality, sustainability, and customer satisfaction.",
+    "type": "outlet",
+    "description": "Playful Hub brings a fresh perspective to the toys market as a distinctive outlet featuring thoughtfully selected items for discerning customers.",
     "products": [
-      "Strategy Board Games",
-      "Collectible Figures",
+      "Limited Edition Collectibles",
       "Outdoor Play Equipment",
-      "Educational Toys"
+      "Strategy Board Games"
     ]
   },
   {
-    "name": "Fresh Emporium",
+    "name": "Garden Depot",
     "category": "GROCERY",
-    "type": "popup_store",
-    "description": "Discover the unique shopping experience at Fresh Emporium, a grocery popup store dedicated to bringing you the finest products and personalized service.",
+    "type": "outlet",
+    "description": "Garden Depot is a premier outlet specializing in high-quality grocery products, offering exceptional customer service and a curated selection.",
     "products": [
+      "Gourmet Pantry Items",
       "Organic Produce",
       "Ready-to-Serve Meals",
-      "Gourmet Pantry Items"
+      "Craft Beverages"
     ]
   },
   {
-    "name": "Nourish Store",
+    "name": "Renew Center",
     "category": "HEALTH",
-    "type": "boutique",
-    "description": "Discover the unique shopping experience at Nourish Store, a health boutique dedicated to bringing you the finest products and personalized service.",
+    "type": "department_store",
+    "description": "Welcome to Renew Center, where passion for health meets exceptional retail experience in our carefully designed department store.",
     "products": [
       "Performance Supplements",
       "Wellness Accessories",
       "Fitness Equipment",
-      "Natural Vitamins",
-      "Organic Health Foods"
+      "Organic Health Foods",
+      "Natural Vitamins"
     ]
   },
   {
-    "name": "Nature",
+    "name": "Nature Depot",
     "category": "ECO_FRIENDLY",
-    "type": "outlet",
-    "description": "Nature is a premier outlet specializing in high-quality eco friendly products, offering exceptional customer service and a curated selection.",
+    "type": "physical_store",
+    "description": "At Nature Depot, we've reimagined what a eco friendly physical store can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
-      "Sustainable Home Products",
-      "Renewable Energy Gadgets",
       "Eco-Conscious Fashion",
       "Recycled Decor Items",
-      "Zero-Waste Essentials"
+      "Sustainable Home Products"
     ]
   }
 ]
