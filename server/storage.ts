@@ -86,6 +86,16 @@ export interface IStorage {
   createInterest(interest: InsertInterest): Promise<Interest>;
   getInterestByName(name: string): Promise<Interest | undefined>;
   updateInterest(id: number, data: Partial<InsertInterest>): Promise<Interest>;
+  
+  // Entity operations
+  getAllEntities(): Promise<Entity[]>;
+  getEntitiesByCategory(category: string): Promise<Entity[]>;
+  getEntity(id: number): Promise<Entity | undefined>;
+  getEntityByName(name: string): Promise<Entity | undefined>;
+  createEntity(entity: InsertEntity): Promise<Entity>;
+  getEntityContent(entityId: number): Promise<EntityContent[]>;
+  addEntityContent(content: InsertEntityContent): Promise<EntityContent>;
+  deleteEntity(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -993,6 +1003,88 @@ export class DatabaseStorage implements IStorage {
       log("Error updating interest:", errorMessage);
       throw error;
     }
+  }
+
+  // Entity methods
+  async getAllEntities(): Promise<Entity[]> {
+    return await db.select().from(entities);
+  }
+
+  async getEntitiesByCategory(category: string): Promise<Entity[]> {
+    return await db
+      .select()
+      .from(entities)
+      .where(eq(entities.category, category));
+  }
+
+  async getEntity(id: number): Promise<Entity | undefined> {
+    const [entity] = await db
+      .select()
+      .from(entities)
+      .where(eq(entities.id, id));
+    return entity;
+  }
+
+  async getEntityByName(name: string): Promise<Entity | undefined> {
+    const [entity] = await db
+      .select()
+      .from(entities)
+      .where(eq(entities.name, name));
+    return entity;
+  }
+
+  async createEntity(entity: InsertEntity): Promise<Entity> {
+    try {
+      const [newEntity] = await db
+        .insert(entities)
+        .values({
+          name: entity.name,
+          category: entity.category,
+          description: entity.description || undefined,
+          entityType: entity.entityType,
+          iconUrl: entity.iconUrl || undefined,
+          coordinates: entity.coordinates || undefined
+        })
+        .returning();
+      return newEntity;
+    } catch (error) {
+      log("Error creating entity:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getEntityContent(entityId: number): Promise<EntityContent[]> {
+    return await db
+      .select()
+      .from(entityContent)
+      .where(eq(entityContent.entityId, entityId));
+  }
+
+  async addEntityContent(content: InsertEntityContent): Promise<EntityContent> {
+    const [newContent] = await db
+      .insert(entityContent)
+      .values({
+        entityId: content.entityId,
+        title: content.title,
+        description: content.description || undefined,
+        url: content.url || undefined,
+        thumbnailUrl: content.thumbnailUrl || undefined,
+        type: content.type
+      })
+      .returning();
+    return newContent;
+  }
+
+  async deleteEntity(id: number): Promise<void> {
+    // First delete all entity content
+    await db
+      .delete(entityContent)
+      .where(eq(entityContent.entityId, id));
+    
+    // Then delete the entity
+    await db
+      .delete(entities)
+      .where(eq(entities.id, id));
   }
 }
 
