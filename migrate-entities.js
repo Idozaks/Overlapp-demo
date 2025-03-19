@@ -9,224 +9,266 @@
  * 4. Optionally removes the old data after successful migration
  */
 
-import { db, schema } from './server/db.js';
-import { eq } from 'drizzle-orm';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { db } from './server/db.js';
 
-// Entity categories to migrate
+dotenv.config();
+
+// Get current file path (ESM equivalent of __dirname)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Operation modes
+const MODE = {
+  DRY_RUN: 'dry-run',         // Only identify and count records, no changes
+  MIGRATE_ONLY: 'migrate',     // Create new records without deleting old ones
+  MIGRATE_AND_CLEAN: 'clean'   // Create new records and delete old ones
+};
+
+// Entity categories that may exist in the interest table
 const ENTITY_CATEGORIES = [
   'RETAIL',
-  'ONLINE', 
+  'E_COMMERCE',
+  'RESTAURANT',
   'EDUCATION',
-  'HOSPITALITY',
   'ENTERTAINMENT',
-  'HEALTHCARE'
+  'TECHNOLOGY',
+  'WELLNESS',
+  'FINANCIAL',
+  'TRAVEL',
+  'MEDIA',
+  'CAFE',
+  'BAR',
+  'PARK',
+  'LIBRARY',
+  'MUSEUM',
+  'GALLERY',
+  'GYM',
+  'YOGA_STUDIO',
+  'COWORKING_SPACE',
+  'THEATER',
+  'CONCERT_VENUE',
+  'SHOPPING_MALL',
+  'BOUTIQUE',
+  'BOOKSTORE',
+  'MARKET',
+  'UNIVERSITY',
+  'COMMUNITY_CENTER',
+  'HOTEL',
+  'BEACH',
+  'AIRPORT',
+  'TRAIN_STATION',
+  'BUS_TERMINAL',
+  'SPORTS_COMPLEX'
 ];
 
-// Map category to entity type
-const ENTITY_TYPES = {
-  'RETAIL': 'PHYSICAL',
-  'ONLINE': 'DIGITAL',
-  'EDUCATION': 'PHYSICAL',
-  'HOSPITALITY': 'PHYSICAL',
-  'ENTERTAINMENT': 'PHYSICAL',
-  'HEALTHCARE': 'PHYSICAL',
-};
-
-// Migration mode options
-const MODE = {
-  DRY_RUN: 'dry-run',  // Don't make changes, just show what would happen
-  MIGRATE: 'migrate',   // Migrate data but keep original
-  MIGRATE_AND_CLEAN: 'migrate-and-clean'  // Migrate and then delete original data
-};
-
 async function migrateEntities(mode = MODE.DRY_RUN) {
-  console.log(`Starting entity migration in ${mode} mode...`);
-
+  console.log(`🔄 Starting entity migration in ${mode} mode...`);
+  
   try {
-    // Get all entities from interests table
-    const entityInterests = await db
-      .select()
-      .from(schema.interests)
-      .where(schema.interests.category.in(ENTITY_CATEGORIES));
-
-    console.log(`Found ${entityInterests.length} entities in interests table`);
-
-    // For tracking results
-    const migrationResults = {
-      entitiesToMigrate: entityInterests.length,
-      entitiesMigrated: 0,
-      contentItemsToMigrate: 0,
-      contentItemsMigrated: 0,
-      entitiesRemoved: 0,
-      contentItemsRemoved: 0,
-      errors: []
-    };
-
-    // In dry run mode, just get content count
-    if (mode === MODE.DRY_RUN) {
-      for (const interest of entityInterests) {
-        const contentItems = await db
-          .select()
-          .from(schema.interestContent)
-          .where(eq(schema.interestContent.interestId, interest.id));
-          
-        migrationResults.contentItemsToMigrate += contentItems.length;
-      }
-      
-      console.log(`Would migrate ${migrationResults.entitiesToMigrate} entities and ${migrationResults.contentItemsToMigrate} content items`);
-      return migrationResults;
+    // Step 1: Identify entities in interests table
+    const entityQuery = `
+      SELECT * FROM interests 
+      WHERE category IN (${ENTITY_CATEGORIES.map(cat => `'${cat}'`).join(',')})
+    `;
+    
+    const interestEntities = await db.query(entityQuery);
+    
+    if (interestEntities.rows.length === 0) {
+      console.log('✅ No entities found in interests table. Nothing to migrate.');
+      return;
     }
-
-    // Process each entity
-    for (const interest of entityInterests) {
+    
+    console.log(`Found ${interestEntities.rows.length} entities in interests table.`);
+    
+    // If dry run mode, show sample entities and exit
+    if (mode === MODE.DRY_RUN) {
+      console.log('\nSample entities found:');
+      interestEntities.rows.slice(0, 5).forEach(entity => {
+        console.log(`- ${entity.name} (${entity.category})`);
+      });
+      
+      // Count by category
+      const categoryCounts = {};
+      interestEntities.rows.forEach(entity => {
+        categoryCounts[entity.category] = (categoryCounts[entity.category] || 0) + 1;
+      });
+      
+      console.log('\nCategory breakdown:');
+      Object.entries(categoryCounts).forEach(([category, count]) => {
+        console.log(`- ${category}: ${count} entities`);
+      });
+      
+      console.log('\n⚠️ Dry run mode - no changes were made.');
+      console.log('To migrate entities, run with --migrate or --migrate-and-clean flag.');
+      
+      return;
+    }
+    
+    // Step 2: Migrate entities and their content
+    console.log('\nStarting migration process...');
+    
+    let migratedCount = 0;
+    let contentItemsMigrated = 0;
+    let errorsEncountered = 0;
+    
+    for (const entity of interestEntities.rows) {
       try {
-        console.log(`Processing ${interest.name} (ID: ${interest.id})...`);
+        // Find all content items for this entity
+        const contentQuery = `
+          SELECT * FROM interest_content
+          WHERE interest_id = $1
+          ORDER BY created_at ASC
+        `;
         
-        // Check if entity already exists in entities table
-        const existingEntity = await db
-          .select()
-          .from(schema.entities)
-          .where(eq(schema.entities.name, interest.name))
-          .limit(1);
+        const contentItems = await db.query(contentQuery, [entity.id]);
+        
+        // Determine entity type - default to PHYSICAL for location categories
+        const isLocationCategory = [
+          'CAFE', 'RESTAURANT', 'BAR', 'PARK', 'LIBRARY', 'MUSEUM', 'GALLERY', 
+          'GYM', 'YOGA_STUDIO', 'COWORKING_SPACE', 'THEATER', 'CONCERT_VENUE', 
+          'SHOPPING_MALL', 'BOUTIQUE', 'BOOKSTORE', 'MARKET', 'UNIVERSITY', 
+          'COMMUNITY_CENTER', 'HOTEL', 'BEACH', 'AIRPORT', 'TRAIN_STATION', 
+          'BUS_TERMINAL', 'SPORTS_COMPLEX'
+        ].includes(entity.category);
+        
+        const entityType = isLocationCategory ? 'PHYSICAL' : 
+                          ['E_COMMERCE', 'TECHNOLOGY', 'MEDIA'].includes(entity.category) ? 
+                          'DIGITAL' : (Math.random() > 0.5 ? 'PHYSICAL' : 'DIGITAL');
+        
+        // Generate location data for physical entities
+        const location = {
+          coordinates: {
+            lat: (Math.random() * 170 - 85).toFixed(6),
+            lng: (Math.random() * 360 - 180).toFixed(6)
+          },
+          address: '123 Main St',
+          city: 'Anytown',
+          country: 'US'
+        };
+        
+        // Insert into entities table
+        const newEntityResult = await db.query(
+          'INSERT INTO entities (name, category, description, location, type, is_synthetic) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+          [
+            entity.name, 
+            entity.category, 
+            entity.description || `${entity.name} is a ${entity.category.toLowerCase().replace('_', '-')} entity.`, 
+            JSON.stringify(location),
+            entityType,
+            true // Mark as synthetic
+          ]
+        );
+        
+        const newEntityId = newEntityResult.rows[0].id;
+        
+        // Migrate content items
+        let contentMigratedForEntity = 0;
+        
+        for (const item of contentItems.rows) {
+          await db.query(
+            'INSERT INTO entity_content (entity_id, content_type, title, content, created_at) VALUES ($1, $2, $3, $4, $5)',
+            [
+              newEntityId,
+              item.content_type || 'INFO',
+              item.title || 'Information',
+              item.content,
+              item.created_at
+            ]
+          );
           
-        // If entity already exists in entities table, use it, otherwise create it
-        let entity;
-        if (existingEntity.length > 0) {
-          entity = existingEntity[0];
-          console.log(`Entity ${interest.name} already exists in entities table with ID ${entity.id}`);
-        } else {
-          // Insert into entities table
-          const [newEntity] = await db
-            .insert(schema.entities)
-            .values({
-              name: interest.name,
-              description: interest.description,
-              category: interest.category,
-              entityType: ENTITY_TYPES[interest.category] || 'PHYSICAL',
-              iconUrl: interest.iconUrl,
-              coordinates: interest.metadata?.coordinates || null,
-            })
-            .returning();
-            
-          entity = newEntity;
-          migrationResults.entitiesMigrated++;
-          console.log(`Created entity ${interest.name} in entities table with ID ${entity.id}`);
+          contentMigratedForEntity++;
         }
         
-        // Get all content for this entity from interest_content
-        const contentItems = await db
-          .select()
-          .from(schema.interestContent)
-          .where(eq(schema.interestContent.interestId, interest.id));
-          
-        console.log(`Found ${contentItems.length} content items for ${interest.name}`);
-        migrationResults.contentItemsToMigrate += contentItems.length;
+        migratedCount++;
+        contentItemsMigrated += contentMigratedForEntity;
         
-        // Migrate each content item
-        for (const content of contentItems) {
-          // Check if content already exists
-          const existingContent = await db
-            .select()
-            .from(schema.entityContent)
-            .where(eq(schema.entityContent.title, content.title))
-            .where(eq(schema.entityContent.entityId, entity.id))
-            .limit(1);
-            
-          if (existingContent.length > 0) {
-            console.log(`Content ${content.title} already exists for entity ${interest.name}`);
-            continue;
-          }
-            
-          // Insert into entity_content
-          await db
-            .insert(schema.entityContent)
-            .values({
-              entityId: entity.id,
-              title: content.title,
-              description: content.description,
-              url: content.url,
-              thumbnailUrl: content.thumbnailUrl,
-              type: content.type
-            });
-            
-          migrationResults.contentItemsMigrated++;
-          console.log(`Migrated content ${content.title} to entity ${interest.name}`);
+        // Log progress for every 10 entities
+        if (migratedCount % 10 === 0) {
+          console.log(`Migrated ${migratedCount}/${interestEntities.rows.length} entities...`);
         }
         
-        // If migrate-and-clean mode, remove old data
+        // Step 3: Optionally delete old data if in CLEAN mode
         if (mode === MODE.MIGRATE_AND_CLEAN) {
-          // First delete all content items
-          const deletedContent = await db
-            .delete(schema.interestContent)
-            .where(eq(schema.interestContent.interestId, interest.id))
-            .returning();
-            
-          migrationResults.contentItemsRemoved += deletedContent.length;
-          console.log(`Removed ${deletedContent.length} content items for ${interest.name} from interest_content`);
+          // Delete content items first (foreign key constraint)
+          await db.query('DELETE FROM interest_content WHERE interest_id = $1', [entity.id]);
           
-          // Then delete the interest itself
-          await db
-            .delete(schema.interests)
-            .where(eq(schema.interests.id, interest.id));
-            
-          migrationResults.entitiesRemoved++;
-          console.log(`Removed entity ${interest.name} from interests table`);
+          // Then delete the entity from interests table
+          await db.query('DELETE FROM interests WHERE id = $1', [entity.id]);
         }
         
       } catch (error) {
-        console.error(`Error migrating ${interest.name}:`, error);
-        migrationResults.errors.push({
-          entityId: interest.id,
-          entityName: interest.name,
-          error: error.message
-        });
+        console.error(`Error migrating entity ${entity.name} (ID: ${entity.id}):`, error.message);
+        errorsEncountered++;
       }
     }
     
-    return migrationResults;
+    // Final report
+    console.log('\n✅ Migration complete!');
+    console.log(`Successfully migrated ${migratedCount} entities with ${contentItemsMigrated} content items.`);
+    
+    if (errorsEncountered > 0) {
+      console.log(`⚠️ Encountered ${errorsEncountered} errors during migration.`);
+    }
+    
+    if (mode === MODE.MIGRATE_AND_CLEAN) {
+      console.log('🧹 Old data has been removed from interests and interest_content tables.');
+    } else {
+      console.log('ℹ️ Original data remains in the interests and interest_content tables.');
+      console.log('   Run with --migrate-and-clean to remove the legacy data after confirming the migration worked correctly.');
+    }
     
   } catch (error) {
-    console.error('Error in migration process:', error);
-    throw error;
+    console.error('❌ Migration failed:', error.message);
+    if (error.stack) console.error(error.stack);
   }
 }
 
-// Get command line arguments
-const args = process.argv.slice(2);
-let mode = MODE.DRY_RUN; // Default to dry run
-
-if (args.includes('--migrate')) {
-  mode = MODE.MIGRATE;
-} else if (args.includes('--migrate-and-clean')) {
-  mode = MODE.MIGRATE_AND_CLEAN;
+// Parse command-line arguments to determine mode
+async function main() {
+  const args = process.argv.slice(2);
+  
+  let mode = MODE.DRY_RUN;
+  
+  if (args.includes('--migrate') || args.includes('-m')) {
+    mode = MODE.MIGRATE_ONLY;
+  } else if (args.includes('--migrate-and-clean') || args.includes('--clean') || args.includes('-c')) {
+    mode = MODE.MIGRATE_AND_CLEAN;
+  } else if (args.includes('--dry-run') || args.includes('-d') || args.length === 0) {
+    mode = MODE.DRY_RUN;
+  } else {
+    console.log('Unknown option. Using dry-run mode.');
+  }
+  
+  // Ask for confirmation in clean mode
+  if (mode === MODE.MIGRATE_AND_CLEAN) {
+    console.log('⚠️ WARNING: You are about to migrate entities AND DELETE the original data.');
+    console.log('This operation cannot be undone.');
+    
+    const readline = await import('readline');
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+    
+    await new Promise((resolve) => {
+      rl.question('Are you sure you want to proceed? (yes/no): ', (answer) => {
+        const lowerAnswer = answer.toLowerCase();
+        if (lowerAnswer !== 'yes' && lowerAnswer !== 'y') {
+          console.log('Operation cancelled. Using migrate-only mode instead.');
+          mode = MODE.MIGRATE_ONLY;
+        }
+        rl.close();
+        resolve();
+      });
+    });
+  }
+  
+  await migrateEntities(mode);
+  process.exit(0);
 }
 
-// Run the migration
-migrateEntities(mode)
-  .then((results) => {
-    console.log('\nMigration Summary:');
-    console.log('------------------');
-    console.log(`Entities found: ${results.entitiesToMigrate}`);
-    console.log(`Entities migrated: ${results.entitiesMigrated}`);
-    console.log(`Content items found: ${results.contentItemsToMigrate}`);
-    console.log(`Content items migrated: ${results.contentItemsMigrated}`);
-    
-    if (mode === MODE.MIGRATE_AND_CLEAN) {
-      console.log(`Entities removed: ${results.entitiesRemoved}`);
-      console.log(`Content items removed: ${results.contentItemsRemoved}`);
-    }
-    
-    if (results.errors.length > 0) {
-      console.log(`\nErrors encountered: ${results.errors.length}`);
-      results.errors.forEach((error, index) => {
-        console.log(`Error ${index + 1}: Entity ${error.entityName} (${error.entityId}) - ${error.error}`);
-      });
-    }
-    
-    console.log('\nMigration complete!');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('Migration failed:', error);
-    process.exit(1);
-  });
+// Run the script
+main();
