@@ -1419,6 +1419,48 @@ Example response format:
       res.status(500).json({ message: "Unable to fetch entity details" });
     }
   });
+  
+  // Entity-User overlap analysis endpoint
+  app.get("/api/marketplace/entities/:id/overlap", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const currentUser = req.user as User;
+      const entityId = Number(req.params.id);
+      
+      if (isNaN(entityId)) {
+        return res.status(400).json({ message: "Invalid entity ID" });
+      }
+      
+      // Get entity details
+      const entity = await storage.getEntity(entityId);
+      if (!entity) {
+        return res.status(404).json({ message: "Entity not found" });
+      }
+      
+      // Get entity content
+      const entityContent = await storage.getEntityContent(entityId);
+      
+      // Get user interests
+      const userInterests = await storage.getUserInterests(currentUser.id);
+      const userInterestNames = userInterests.map(interest => interest.name);
+      
+      // Generate the overlap analysis
+      const analysisResult = await entityOverlapService.generateEntityUserOverlapAnalysis(
+        currentUser,
+        entity,
+        entityContent,
+        userInterestNames
+      );
+      
+      res.json(analysisResult);
+    } catch (error) {
+      log("Error generating entity-user overlap analysis:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to generate entity-user overlap analysis" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
