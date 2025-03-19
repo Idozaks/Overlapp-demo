@@ -20,8 +20,11 @@ import { Card, CardContent } from '@/components/ui/card';
 interface EntityContent {
   id: number;
   entityId: number;
-  contentType: string;
-  content: string;
+  title: string;
+  description: string;
+  url?: string;
+  thumbnailUrl?: string;
+  type: string;
   createdAt: string;
 }
 
@@ -53,10 +56,10 @@ export default function EntityDetail() {
     if (!entity?.content) return {};
     
     return entity.content.reduce((acc, item) => {
-      if (!acc[item.contentType]) {
-        acc[item.contentType] = [];
+      if (!acc[item.type]) {
+        acc[item.type] = [];
       }
-      acc[item.contentType].push(item);
+      acc[item.type].push(item);
       return acc;
     }, {} as Record<string, EntityContent[]>);
   }, [entity]);
@@ -187,13 +190,35 @@ export default function EntityDetail() {
                       <CardContent className="p-4">
                         <div className="flex justify-between mb-2">
                           <Badge variant="outline">
-                            {item.contentType.charAt(0).toUpperCase() + item.contentType.slice(1)}
+                            {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
                             {formatDate(item.createdAt)}
                           </span>
                         </div>
-                        <p>{item.content}</p>
+                        <h3 className="text-md font-medium">{item.title}</h3>
+                        <p className="mt-2">{item.description}</p>
+                        {item.thumbnailUrl && (
+                          <div className="mt-3">
+                            <img 
+                              src={item.thumbnailUrl} 
+                              alt={item.title} 
+                              className="rounded-md max-h-40 object-cover"
+                            />
+                          </div>
+                        )}
+                        {item.url && (
+                          <div className="mt-3">
+                            <a 
+                              href={item.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-primary text-sm hover:underline"
+                            >
+                              Related Link
+                            </a>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
@@ -217,7 +242,29 @@ export default function EntityDetail() {
                               {formatDate(item.createdAt)}
                             </span>
                           </div>
-                          <p>{item.content}</p>
+                          <h3 className="text-md font-medium">{item.title}</h3>
+                          <p className="mt-2">{item.description}</p>
+                          {item.thumbnailUrl && (
+                            <div className="mt-3">
+                              <img 
+                                src={item.thumbnailUrl} 
+                                alt={item.title} 
+                                className="rounded-md max-h-40 object-cover"
+                              />
+                            </div>
+                          )}
+                          {item.url && (
+                            <div className="mt-3">
+                              <a 
+                                href={item.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary text-sm hover:underline"
+                              >
+                                Related Link
+                              </a>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
