@@ -26,6 +26,16 @@ const ENTITY_CATEGORIES = [
   'HEALTHCARE',   // Hospitals, clinics, etc.
 ];
 
+// Entity types mapping
+const ENTITY_TYPES = {
+  'RETAIL': 'PHYSICAL',
+  'ONLINE': 'DIGITAL',
+  'EDUCATION': 'PHYSICAL',
+  'HOSPITALITY': 'PHYSICAL',
+  'ENTERTAINMENT': 'PHYSICAL',
+  'HEALTHCARE': 'PHYSICAL'
+};
+
 // Generate a realistic name for our entities
 function generateEntityName(category) {
   const prefixes = {
@@ -41,6 +51,17 @@ function generateEntityName(category) {
     'Group', 'Hub', 'Connect', 'Center', 'Network', 'Studios', 'Partners', 'Labs', 
     'Solutions', 'Exchange', 'Global', 'Works', 'Collective', 'Ventures', 'Dynamics'
   ];
+  
+  // Handle case where category doesn't exist in prefixes
+  if (!prefixes[category]) {
+    console.log(`Warning: Category ${category} not found in name prefixes, using default names`);
+    // Use a random set of prefixes as fallback
+    const allPrefixArrays = Object.values(prefixes);
+    const randomPrefixArray = allPrefixArrays[Math.floor(Math.random() * allPrefixArrays.length)];
+    const randomPrefix = randomPrefixArray[Math.floor(Math.random() * randomPrefixArray.length)];
+    const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+    return `${randomPrefix} ${randomSuffix}`;
+  }
   
   // Get a random prefix for the category
   const prefix = prefixes[category][Math.floor(Math.random() * prefixes[category].length)];
@@ -90,6 +111,18 @@ function generateEntityDescription(name, category) {
     ],
   };
   
+  // Handle case where category doesn't exist in descriptions
+  if (!descriptions[category]) {
+    console.log(`Warning: Category ${category} not found in descriptions, using default descriptions`);
+    // Default descriptions for any category
+    const defaultDescriptions = [
+      `${name} is an innovative organization dedicated to excellence in all aspects of our operations.`,
+      `At ${name}, we prioritize quality, service, and customer satisfaction through our industry-leading approach.`,
+      `${name} combines traditional values with modern innovation to deliver exceptional experiences for our customers.`
+    ];
+    return defaultDescriptions[Math.floor(Math.random() * defaultDescriptions.length)];
+  }
+  
   const categoryDescriptions = descriptions[category];
   return categoryDescriptions[Math.floor(Math.random() * categoryDescriptions.length)];
 }
@@ -113,7 +146,17 @@ function generateEntityContent(entityId, entityName, category) {
     'HEALTHCARE': ['service', 'specialist', 'treatment', 'program'],
   };
   
-  const contentType = contentTypes[category][Math.floor(Math.random() * contentTypes[category].length)];
+  // Default content types for unknown categories
+  const defaultContentTypes = ['article', 'event', 'service', 'review'];
+  
+  // Handle case where category doesn't exist in contentTypes
+  let contentType;
+  if (!contentTypes[category]) {
+    console.log(`Warning: Category ${category} not found in content types, using default content types`);
+    contentType = defaultContentTypes[Math.floor(Math.random() * defaultContentTypes.length)];
+  } else {
+    contentType = contentTypes[category][Math.floor(Math.random() * contentTypes[category].length)];
+  }
   
   // Title templates
   const titleTemplates = {

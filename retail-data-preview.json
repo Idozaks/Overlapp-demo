@@ -1,0 +1,119 @@
+[
+  {
+    "name": "Classic Studio",
+    "category": "FASHION",
+    "type": "physical_store",
+    "description": "At Classic Studio, we've reimagined what a fashion physical store can be, focusing on quality, sustainability, and customer satisfaction.",
+    "products": [
+      "Premium Cotton Shirts",
+      "Statement Accessories",
+      "Seasonal Dresses"
+    ]
+  },
+  {
+    "name": "Digital Shop",
+    "category": "ELECTRONICS",
+    "type": "outlet",
+    "description": "Welcome to Digital Shop, where passion for electronics meets exceptional retail experience in our carefully designed outlet.",
+    "products": [
+      "Smart Home Speakers",
+      "Ultrabook Laptops",
+      "Smartphones",
+      "Wireless Headphones",
+      "Digital Cameras"
+    ]
+  },
+  {
+    "name": "Haven Hub",
+    "category": "HOME_GOODS",
+    "type": "marketplace",
+    "description": "At Haven Hub, we've reimagined what a home goods marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
+    "products": [
+      "Gourmet Kitchenware",
+      "Artisan Furniture",
+      "Luxury Bedding",
+      "Stylish Home Decor"
+    ]
+  },
+  {
+    "name": "Bloom Emporium",
+    "category": "BEAUTY",
+    "type": "boutique",
+    "description": "Bloom Emporium is a premier boutique specializing in high-quality beauty products, offering exceptional customer service and a curated selection.",
+    "products": [
+      "Premium Cosmetics",
+      "Spa Essentials",
+      "Organic Skincare",
+      "Signature Fragrances",
+      "Professional Hair Products"
+    ]
+  },
+  {
+    "name": "Vigor",
+    "category": "SPORTS",
+    "type": "online_shop",
+    "description": "Vigor is a premier online shop specializing in high-quality sports products, offering exceptional customer service and a curated selection.",
+    "products": [
+      "Fitness Accessories",
+      "Professional Equipment",
+      "Performance Activewear"
+    ]
+  },
+  {
+    "name": "Bookish World",
+    "category": "BOOKS",
+    "type": "department_store",
+    "description": "Bookish World is a premier department store specializing in high-quality books products, offering exceptional customer service and a curated selection.",
+    "products": [
+      "Reference Works",
+      "Journals & Planners",
+      "Graphic Novels",
+      "Educational Resources"
+    ]
+  },
+  {
+    "name": "Discovery Hub",
+    "category": "TOYS",
+    "type": "physical_store",
+    "description": "Discover the unique shopping experience at Discovery Hub, a toys physical store dedicated to bringing you the finest products and personalized service.",
+    "products": [
+      "Limited Edition Collectibles",
+      "Collectible Figures",
+      "Strategy Board Games",
+      "Outdoor Play Equipment"
+    ]
+  },
+  {
+    "name": "Basket Store",
+    "category": "GROCERY",
+    "type": "popup_store",
+    "description": "Basket Store is a premier popup store specializing in high-quality grocery products, offering exceptional customer service and a curated selection.",
+    "products": [
+      "Gourmet Pantry Items",
+      "Artisanal Snacks",
+      "Organic Produce"
+    ]
+  },
+  {
+    "name": "Balance Collective",
+    "category": "HEALTH",
+    "type": "popup_store",
+    "description": "Discover the unique shopping experience at Balance Collective, a health popup store dedicated to bringing you the finest products and personalized service.",
+    "products": [
+      "Performance Supplements",
+      "Fitness Equipment",
+      "Organic Health Foods"
+    ]
+  },
+  {
+    "name": "Eco Market",
+    "category": "ECO_FRIENDLY",
+    "type": "marketplace",
+    "description": "At Eco Market, we've reimagined what a eco friendly marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
+    "products": [
+      "Sustainable Home Products",
+      "Renewable Energy Gadgets",
+      "Recycled Decor Items"
+    ]
+  }
+]
