@@ -549,9 +549,16 @@ async function generateEnrichedUsers(count = 25) {
       import path from 'path';
       import { fileURLToPath } from 'url';
       import axios from 'axios';
+      import * as readline from 'readline';
       
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = path.dirname(__filename);
+      
+      // Create readline interface for user input
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
       
       async function createEnhancedUsers() {
         try {
@@ -559,16 +566,17 @@ async function generateEnrichedUsers(count = 25) {
           
           console.log(\`Preparing to create \${usersData.length} enriched users...\`);
           
-          // Ask for confirmation before proceeding
-          process.stdout.write('Do you want to proceed with adding these users to the database? (y/yes to continue): ');
-          for await (const line of console) {
-            const response = line.trim().toLowerCase();
-            if (response === 'y' || response === 'yes') {
-              break;
-            } else {
-              console.log('Operation cancelled by user');
-              process.exit(0);
-            }
+          // Use promise for user confirmation
+          const confirmation = await new Promise((resolve) => {
+            rl.question('Do you want to proceed with adding these users to the database? (y/yes to continue): ', (answer) => {
+              resolve(answer.trim().toLowerCase());
+            });
+          });
+          
+          if (confirmation !== 'y' && confirmation !== 'yes') {
+            console.log('Operation cancelled by user');
+            rl.close();
+            return;
           }
           
           let successCount = 0;
