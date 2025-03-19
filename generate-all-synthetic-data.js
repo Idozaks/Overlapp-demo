@@ -106,7 +106,8 @@ async function generateAllTestData() {
   
   await new Promise((resolve) => {
     rl.question('\n⚠️ WARNING: This will write synthetic data directly to your database.\nAre you sure you want to continue? (yes/no): ', (answer) => {
-      if (answer.toLowerCase() !== 'yes') {
+      const lowerAnswer = answer.toLowerCase();
+      if (lowerAnswer !== 'yes' && lowerAnswer !== 'y') {
         console.log('Operation cancelled. Try running with --preview to see sample data without saving.');
         process.exit(0);
       }
