@@ -54,10 +54,13 @@ import {
   InfoIcon,
   UserCheck,
   Share2,
-  RefreshCw
+  RefreshCw,
+  Store,
+  ShoppingBag
 } from "lucide-react";
 import "./lib/i18n";
 import About from "@/pages/About"; // Import the About component
+import Marketplace from "@/pages/marketplace"; // Import the Marketplace component
 
 
 function Router() {
@@ -80,6 +83,8 @@ function Router() {
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
       <Route path="/wallet" component={WalletDashboard} />
+      <Route path="/marketplace" component={Marketplace} />
+      <Route path="/marketplace/entity/:id" component={lazy(() => import('./pages/marketplace/entity/[id]'))} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
       <Route path="/engage" component={lazy(() => import('./pages/engage/EngageIndex'))} />
       <Route path="/engage/persona" component={lazy(() => import('./pages/engage/EngagePersona'))} />
@@ -113,6 +118,9 @@ function Header() {
           <a href="/social/export" className="text-foreground hover:text-primary whitespace-nowrap flex items-center">
             <RefreshCw className="w-4 h-4 mr-1" /> Social Export
           </a>
+          <a href="/marketplace" className="text-foreground hover:text-primary whitespace-nowrap flex items-center">
+            <Store className="w-4 h-4 mr-1" /> Marketplace
+          </a>
           <a href="/wallet" className="text-foreground hover:text-primary whitespace-nowrap">
             Wallet
           </a>
@@ -123,16 +131,21 @@ function Header() {
           )}
         </>
       ) : (
-        <a href="/demo" className="text-foreground hover:text-primary whitespace-nowrap">
-          Demo
-        </a>
+        <>
+          <a href="/demo" className="text-foreground hover:text-primary whitespace-nowrap">
+            Demo
+          </a>
+          <a href="/marketplace" className="text-foreground hover:text-primary whitespace-nowrap flex items-center">
+            <Store className="w-4 h-4 mr-1" /> Marketplace
+          </a>
+        </>
       )}
       <a href="/contact" className="text-foreground hover:text-primary whitespace-nowrap">
         Contact
       </a>
       <a href="/about" className="text-foreground hover:text-primary whitespace-nowrap">
         About
-      </a> {/* Added About link */}
+      </a>
     </nav>
   );
 
@@ -197,6 +210,7 @@ function Header() {
                       <Settings className="w-4 h-4 mr-2" />
                       Edit Profile
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate('/social/matches')}>
                       <UserCheck className="w-4 h-4 mr-2" />
                       Find Matches
@@ -204,6 +218,10 @@ function Header() {
                     <DropdownMenuItem onClick={() => navigate('/social/export')}>
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Social Media Export
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/marketplace')}>
+                      <Store className="w-4 h-4 mr-2" />
+                      Marketplace
                     </DropdownMenuItem>
                     {user.isAdmin && (
                       <>
