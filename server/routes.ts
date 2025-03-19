@@ -16,6 +16,7 @@ import fs from "fs";
 import OpenAI from "openai";
 import * as openaiService from "./openai";
 import * as userOverlapService from "./userOverlap";
+import * as entityOverlapService from "./entityOverlap";
 
 const scryptAsync = promisify(scrypt);
 
