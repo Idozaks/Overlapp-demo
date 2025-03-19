@@ -71,30 +71,27 @@ async function migrateEntities(mode = MODE.DRY_RUN) {
   
   try {
     // Step 1: Identify entities in interests table
-    const entityQuery = `
-      SELECT * FROM interests 
-      WHERE category IN (${ENTITY_CATEGORIES.map(cat => `'${cat}'`).join(',')})
-    `;
+    const interestEntities = await db.select()
+      .from(interests)
+      .where(inArray(interests.category, ENTITY_CATEGORIES));
     
-    const interestEntities = await db.query(entityQuery);
-    
-    if (interestEntities.rows.length === 0) {
+    if (interestEntities.length === 0) {
       console.log('✅ No entities found in interests table. Nothing to migrate.');
       return;
     }
     
-    console.log(`Found ${interestEntities.rows.length} entities in interests table.`);
+    console.log(`Found ${interestEntities.length} entities in interests table.`);
     
     // If dry run mode, show sample entities and exit
     if (mode === MODE.DRY_RUN) {
       console.log('\nSample entities found:');
-      interestEntities.rows.slice(0, 5).forEach(entity => {
+      interestEntities.slice(0, 5).forEach(entity => {
         console.log(`- ${entity.name} (${entity.category})`);
       });
       
       // Count by category
       const categoryCounts = {};
-      interestEntities.rows.forEach(entity => {
+      interestEntities.forEach(entity => {
         categoryCounts[entity.category] = (categoryCounts[entity.category] || 0) + 1;
       });
       
@@ -116,16 +113,13 @@ async function migrateEntities(mode = MODE.DRY_RUN) {
     let contentItemsMigrated = 0;
     let errorsEncountered = 0;
     
-    for (const entity of interestEntities.rows) {
+    for (const entity of interestEntities) {
       try {
         // Find all content items for this entity
-        const contentQuery = `
-          SELECT * FROM interest_content
-          WHERE interest_id = $1
-          ORDER BY created_at ASC
-        `;
-        
-        const contentItems = await db.query(contentQuery, [entity.id]);
+        const contentItems = await db.select()
+          .from(interestContent)
+          .where(eq(interestContent.interestId, entity.id))
+          .orderBy(interestContent.createdAt);
         
         // Determine entity type - default to PHYSICAL for location categories
         const isLocationCategory = [
@@ -152,34 +146,30 @@ async function migrateEntities(mode = MODE.DRY_RUN) {
         };
         
         // Insert into entities table
-        const newEntityResult = await db.query(
-          'INSERT INTO entities (name, category, description, location, type, is_synthetic) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-          [
-            entity.name, 
-            entity.category, 
-            entity.description || `${entity.name} is a ${entity.category.toLowerCase().replace('_', '-')} entity.`, 
-            JSON.stringify(location),
-            entityType,
-            true // Mark as synthetic
-          ]
-        );
-        
-        const newEntityId = newEntityResult.rows[0].id;
+        const [newEntity] = await db.insert(entities)
+          .values({
+            name: entity.name,
+            category: entity.category,
+            description: entity.description || `${entity.name} is a ${entity.category.toLowerCase().replace('_', '-')} entity.`,
+            coordinates: JSON.stringify(location.coordinates),
+            entityType: entityType,
+            iconUrl: entity.iconUrl || null
+          })
+          .returning();
         
         // Migrate content items
         let contentMigratedForEntity = 0;
         
-        for (const item of contentItems.rows) {
-          await db.query(
-            'INSERT INTO entity_content (entity_id, content_type, title, content, created_at) VALUES ($1, $2, $3, $4, $5)',
-            [
-              newEntityId,
-              item.content_type || 'INFO',
-              item.title || 'Information',
-              item.content,
-              item.created_at
-            ]
-          );
+        for (const item of contentItems) {
+          await db.insert(entityContent)
+            .values({
+              entityId: newEntity.id,
+              title: item.title || 'Information',
+              description: item.description || null,
+              url: item.url || '#',
+              thumbnailUrl: item.thumbnailUrl || null,
+              type: item.type || 'INFO'
+            });
           
           contentMigratedForEntity++;
         }
@@ -189,16 +179,18 @@ async function migrateEntities(mode = MODE.DRY_RUN) {
         
         // Log progress for every 10 entities
         if (migratedCount % 10 === 0) {
-          console.log(`Migrated ${migratedCount}/${interestEntities.rows.length} entities...`);
+          console.log(`Migrated ${migratedCount}/${interestEntities.length} entities...`);
         }
         
         // Step 3: Optionally delete old data if in CLEAN mode
         if (mode === MODE.MIGRATE_AND_CLEAN) {
           // Delete content items first (foreign key constraint)
-          await db.query('DELETE FROM interest_content WHERE interest_id = $1', [entity.id]);
+          await db.delete(interestContent)
+            .where(eq(interestContent.interestId, entity.id));
           
           // Then delete the entity from interests table
-          await db.query('DELETE FROM interests WHERE id = $1', [entity.id]);
+          await db.delete(interests)
+            .where(eq(interests.id, entity.id));
         }
         
       } catch (error) {
