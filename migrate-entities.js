@@ -48,6 +48,9 @@ const ENTITY_CATEGORIES = [
   'LIBRARY',
   'MUSEUM',
   'GALLERY',
+  'HEALTHCARE',
+  'ONLINE',
+  'HOSPITALITY',
   'GYM',
   'YOGA_STUDIO',
   'COWORKING_SPACE',
@@ -64,11 +67,7 @@ const ENTITY_CATEGORIES = [
   'AIRPORT',
   'TRAIN_STATION',
   'BUS_TERMINAL',
-  'SPORTS_COMPLEX',
-  // Additional categories found in the database
-  'HEALTHCARE',
-  'ONLINE',
-  'HOSPITALITY'
+  'SPORTS_COMPLEX'
 ];
 
 async function cleanEntitiesOnly() {
