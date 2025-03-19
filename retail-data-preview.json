@@ -1,121 +1,118 @@
 [
   {
-    "name": "Sleek",
+    "name": "Chic Depot",
     "category": "FASHION",
     "type": "outlet",
-    "description": "Discover the unique shopping experience at Sleek, a fashion outlet dedicated to bringing you the finest products and personalized service.",
+    "description": "At Chic Depot, we've reimagined what a fashion outlet can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
-      "Handcrafted Shoes",
       "Statement Accessories",
-      "Designer Jeans",
       "Seasonal Dresses",
-      "Premium Cotton Shirts"
+      "Handcrafted Shoes"
     ]
   },
   {
-    "name": "Wave Shop",
+    "name": "Wave Co.",
     "category": "ELECTRONICS",
-    "type": "marketplace",
-    "description": "Wave Shop is a premier marketplace specializing in high-quality electronics products, offering exceptional customer service and a curated selection.",
+    "type": "boutique",
+    "description": "Wave Co. is a premier boutique specializing in high-quality electronics products, offering exceptional customer service and a curated selection.",
     "products": [
+      "Smartphones",
       "Digital Cameras",
-      "Ultrabook Laptops",
-      "Smartphones"
+      "Wireless Headphones"
     ]
   },
   {
-    "name": "Harmony Emporium",
+    "name": "Comfort Place",
     "category": "HOME_GOODS",
-    "type": "department_store",
-    "description": "Harmony Emporium is a premier department store specializing in high-quality home goods products, offering exceptional customer service and a curated selection.",
+    "type": "popup_store",
+    "description": "Comfort Place brings a fresh perspective to the home goods market as a distinctive popup store featuring thoughtfully selected items for discerning customers.",
     "products": [
-      "Stylish Home Decor",
       "Designer Lighting",
       "Artisan Furniture",
-      "Luxury Bedding",
-      "Gourmet Kitchenware"
+      "Stylish Home Decor"
     ]
   },
   {
-    "name": "Serene",
+    "name": "Charm Emporium",
     "category": "BEAUTY",
-    "type": "department_store",
-    "description": "Serene is a premier department store specializing in high-quality beauty products, offering exceptional customer service and a curated selection.",
+    "type": "boutique",
+    "description": "Discover the unique shopping experience at Charm Emporium, a beauty boutique dedicated to bringing you the finest products and personalized service.",
     "products": [
-      "Premium Cosmetics",
-      "Spa Essentials",
-      "Organic Skincare",
-      "Professional Hair Products"
+      "Professional Hair Products",
+      "Signature Fragrances",
+      "Organic Skincare"
     ]
   },
   {
-    "name": "Active",
+    "name": "Apex Center",
     "category": "SPORTS",
-    "type": "online_shop",
-    "description": "Discover the unique shopping experience at Active, a sports online shop dedicated to bringing you the finest products and personalized service.",
+    "type": "physical_store",
+    "description": "Apex Center is a premier physical store specializing in high-quality sports products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Outdoor Gear",
-      "Professional Equipment",
+      "Performance Activewear",
       "Training Supplements",
+      "Professional Equipment",
       "Fitness Accessories"
     ]
   },
   {
-    "name": "Chapter Co.",
+    "name": "Literary & Co",
     "category": "BOOKS",
-    "type": "online_shop",
-    "description": "Welcome to Chapter Co., where passion for books meets exceptional retail experience in our carefully designed online shop.",
-    "products": [
-      "Graphic Novels",
-      "Journals & Planners",
-      "Educational Resources",
-      "Reference Works",
-      "Bestselling Fiction"
-    ]
-  },
-  {
-    "name": "Joy",
-    "category": "TOYS",
-    "type": "outlet",
-    "description": "Joy is a premier outlet specializing in high-quality toys products, offering exceptional customer service and a curated selection.",
-    "products": [
-      "Outdoor Play Equipment",
-      "Collectible Figures",
-      "Strategy Board Games",
-      "Limited Edition Collectibles"
-    ]
-  },
-  {
-    "name": "Bounty Collective",
-    "category": "GROCERY",
     "type": "boutique",
-    "description": "Bounty Collective is a premier boutique specializing in high-quality grocery products, offering exceptional customer service and a curated selection.",
+    "description": "Literary & Co brings a fresh perspective to the books market as a distinctive boutique featuring thoughtfully selected items for discerning customers.",
     "products": [
-      "Artisanal Snacks",
+      "Educational Resources",
+      "Journals & Planners",
+      "Graphic Novels",
+      "Reference Works"
+    ]
+  },
+  {
+    "name": "Playful World",
+    "category": "TOYS",
+    "type": "boutique",
+    "description": "At Playful World, we've reimagined what a toys boutique can be, focusing on quality, sustainability, and customer satisfaction.",
+    "products": [
+      "Strategy Board Games",
+      "Collectible Figures",
+      "Outdoor Play Equipment",
+      "Educational Toys"
+    ]
+  },
+  {
+    "name": "Fresh Emporium",
+    "category": "GROCERY",
+    "type": "popup_store",
+    "description": "Discover the unique shopping experience at Fresh Emporium, a grocery popup store dedicated to bringing you the finest products and personalized service.",
+    "products": [
       "Organic Produce",
       "Ready-to-Serve Meals",
-      "Craft Beverages"
+      "Gourmet Pantry Items"
     ]
   },
   {
-    "name": "Renew Place",
+    "name": "Nourish Store",
     "category": "HEALTH",
     "type": "boutique",
-    "description": "Renew Place is a premier boutique specializing in high-quality health products, offering exceptional customer service and a curated selection.",
+    "description": "Discover the unique shopping experience at Nourish Store, a health boutique dedicated to bringing you the finest products and personalized service.",
     "products": [
-      "Fitness Equipment",
       "Performance Supplements",
+      "Wellness Accessories",
+      "Fitness Equipment",
+      "Natural Vitamins",
       "Organic Health Foods"
     ]
   },
   {
-    "name": "Nature Place",
+    "name": "Nature",
     "category": "ECO_FRIENDLY",
-    "type": "marketplace",
-    "description": "At Nature Place, we've reimagined what a eco friendly marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
+    "type": "outlet",
+    "description": "Nature is a premier outlet specializing in high-quality eco friendly products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Eco-Conscious Fashion",
       "Sustainable Home Products",
+      "Renewable Energy Gadgets",
+      "Eco-Conscious Fashion",
+      "Recycled Decor Items",
       "Zero-Waste Essentials"
     ]
   }

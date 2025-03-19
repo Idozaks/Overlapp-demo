@@ -1,299 +1,310 @@
 [
   {
-    "name": "Metro",
+    "name": "Chic Emporium",
+    "category": "FASHION",
+    "type": "boutique",
+    "description": "Chic Emporium brings a fresh perspective to the fashion market as a distinctive boutique featuring thoughtfully selected items for discerning customers.",
+    "products": [
+      "Seasonal Dresses",
+      "Handcrafted Shoes",
+      "Statement Accessories",
+      "Designer Jeans",
+      "Premium Cotton Shirts"
+    ]
+  },
+  {
+    "name": "Urban",
     "category": "FASHION",
     "type": "department_store",
-    "description": "Metro brings a fresh perspective to the fashion market as a distinctive department store featuring thoughtfully selected items for discerning customers.",
+    "description": "At Urban, we've reimagined what a fashion department store can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
-      "Statement Accessories",
+      "Seasonal Dresses",
+      "Premium Cotton Shirts",
+      "Designer Jeans",
+      "Statement Accessories"
+    ]
+  },
+  {
+    "name": "Refined",
+    "category": "FASHION",
+    "type": "outlet",
+    "description": "Refined brings a fresh perspective to the fashion market as a distinctive outlet featuring thoughtfully selected items for discerning customers.",
+    "products": [
+      "Designer Jeans",
       "Handcrafted Shoes",
+      "Premium Cotton Shirts",
+      "Statement Accessories",
       "Seasonal Dresses"
     ]
   },
   {
-    "name": "Elite Depot",
-    "category": "FASHION",
-    "type": "department_store",
-    "description": "Elite Depot is a premier department store specializing in high-quality fashion products, offering exceptional customer service and a curated selection.",
-    "products": [
-      "Handcrafted Shoes",
-      "Seasonal Dresses",
-      "Premium Cotton Shirts",
-      "Designer Jeans"
-    ]
-  },
-  {
-    "name": "Nova Hub",
+    "name": "Quantum Collective",
     "category": "ELECTRONICS",
-    "type": "outlet",
-    "description": "Discover the unique shopping experience at Nova Hub, a electronics outlet dedicated to bringing you the finest products and personalized service.",
+    "type": "popup_store",
+    "description": "Discover the unique shopping experience at Quantum Collective, a electronics popup store dedicated to bringing you the finest products and personalized service.",
     "products": [
-      "Smart Home Speakers",
+      "Ultrabook Laptops",
       "Smartphones",
       "Wireless Headphones",
-      "Digital Cameras",
-      "Ultrabook Laptops"
+      "Smart Home Speakers",
+      "Digital Cameras"
     ]
   },
   {
-    "name": "Pulse",
+    "name": "Future & Co",
     "category": "ELECTRONICS",
-    "type": "online_shop",
-    "description": "At Pulse, we've reimagined what a electronics online shop can be, focusing on quality, sustainability, and customer satisfaction.",
+    "type": "marketplace",
+    "description": "Discover the unique shopping experience at Future & Co, a electronics marketplace dedicated to bringing you the finest products and personalized service.",
     "products": [
       "Smart Home Speakers",
+      "Ultrabook Laptops",
+      "Smartphones",
       "Digital Cameras",
       "Wireless Headphones"
     ]
   },
   {
-    "name": "Living",
+    "name": "Haven Place",
     "category": "HOME_GOODS",
-    "type": "boutique",
-    "description": "Living brings a fresh perspective to the home goods market as a distinctive boutique featuring thoughtfully selected items for discerning customers.",
+    "type": "physical_store",
+    "description": "Discover the unique shopping experience at Haven Place, a home goods physical store dedicated to bringing you the finest products and personalized service.",
     "products": [
       "Designer Lighting",
-      "Luxury Bedding",
+      "Artisan Furniture",
       "Gourmet Kitchenware",
+      "Luxury Bedding",
+      "Stylish Home Decor"
+    ]
+  },
+  {
+    "name": "Elegant World",
+    "category": "HOME_GOODS",
+    "type": "department_store",
+    "description": "Welcome to Elegant World, where passion for home goods meets exceptional retail experience in our carefully designed department store.",
+    "products": [
+      "Artisan Furniture",
+      "Gourmet Kitchenware",
+      "Luxury Bedding",
+      "Stylish Home Decor"
+    ]
+  },
+  {
+    "name": "Nest & Co",
+    "category": "HOME_GOODS",
+    "type": "popup_store",
+    "description": "Welcome to Nest & Co, where passion for home goods meets exceptional retail experience in our carefully designed popup store.",
+    "products": [
+      "Designer Lighting",
       "Stylish Home Decor",
+      "Luxury Bedding",
       "Artisan Furniture"
     ]
   },
   {
-    "name": "Modern Depot",
-    "category": "HOME_GOODS",
-    "type": "online_shop",
-    "description": "Modern Depot brings a fresh perspective to the home goods market as a distinctive online shop featuring thoughtfully selected items for discerning customers.",
-    "products": [
-      "Gourmet Kitchenware",
-      "Artisan Furniture",
-      "Stylish Home Decor",
-      "Luxury Bedding"
-    ]
-  },
-  {
-    "name": "Luxe Emporium",
+    "name": "Gleam Collective",
     "category": "BEAUTY",
-    "type": "marketplace",
-    "description": "Welcome to Luxe Emporium, where passion for beauty meets exceptional retail experience in our carefully designed marketplace.",
+    "type": "department_store",
+    "description": "Gleam Collective is a premier department store specializing in high-quality beauty products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Organic Skincare",
       "Premium Cosmetics",
-      "Professional Hair Products",
+      "Organic Skincare",
       "Spa Essentials",
       "Signature Fragrances"
     ]
   },
   {
-    "name": "Luxe",
+    "name": "Glow",
     "category": "BEAUTY",
-    "type": "popup_store",
-    "description": "Luxe is a premier popup store specializing in high-quality beauty products, offering exceptional customer service and a curated selection.",
+    "type": "outlet",
+    "description": "Welcome to Glow, where passion for beauty meets exceptional retail experience in our carefully designed outlet.",
     "products": [
-      "Professional Hair Products",
-      "Premium Cosmetics",
+      "Spa Essentials",
       "Organic Skincare",
       "Signature Fragrances",
-      "Spa Essentials"
-    ]
-  },
-  {
-    "name": "Radiance Co.",
-    "category": "BEAUTY",
-    "type": "physical_store",
-    "description": "Radiance Co. is a premier physical store specializing in high-quality beauty products, offering exceptional customer service and a curated selection.",
-    "products": [
       "Professional Hair Products",
+      "Premium Cosmetics"
+    ]
+  },
+  {
+    "name": "Essence",
+    "category": "BEAUTY",
+    "type": "marketplace",
+    "description": "Welcome to Essence, where passion for beauty meets exceptional retail experience in our carefully designed marketplace.",
+    "products": [
       "Spa Essentials",
-      "Organic Skincare"
+      "Premium Cosmetics",
+      "Organic Skincare",
+      "Signature Fragrances"
     ]
   },
   {
-    "name": "Summit & Co",
+    "name": "Velocity Hub",
     "category": "SPORTS",
     "type": "marketplace",
-    "description": "At Summit & Co, we've reimagined what a sports marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
-    "products": [
-      "Professional Equipment",
-      "Fitness Accessories",
-      "Training Supplements",
-      "Performance Activewear",
-      "Outdoor Gear"
-    ]
-  },
-  {
-    "name": "Vigor Store",
-    "category": "SPORTS",
-    "type": "physical_store",
-    "description": "Vigor Store is a premier physical store specializing in high-quality sports products, offering exceptional customer service and a curated selection.",
+    "description": "Velocity Hub is a premier marketplace specializing in high-quality sports products, offering exceptional customer service and a curated selection.",
     "products": [
       "Outdoor Gear",
-      "Performance Activewear",
-      "Professional Equipment"
-    ]
-  },
-  {
-    "name": "Fitness",
-    "category": "SPORTS",
-    "type": "marketplace",
-    "description": "Fitness is a premier marketplace specializing in high-quality sports products, offering exceptional customer service and a curated selection.",
-    "products": [
       "Fitness Accessories",
       "Performance Activewear",
-      "Outdoor Gear",
-      "Professional Equipment",
       "Training Supplements"
     ]
   },
   {
-    "name": "Reader Outlet",
-    "category": "BOOKS",
-    "type": "boutique",
-    "description": "Reader Outlet brings a fresh perspective to the books market as a distinctive boutique featuring thoughtfully selected items for discerning customers.",
+    "name": "Active Place",
+    "category": "SPORTS",
+    "type": "marketplace",
+    "description": "Welcome to Active Place, where passion for sports meets exceptional retail experience in our carefully designed marketplace.",
     "products": [
+      "Training Supplements",
+      "Fitness Accessories",
+      "Performance Activewear"
+    ]
+  },
+  {
+    "name": "Narrative Outlet",
+    "category": "BOOKS",
+    "type": "marketplace",
+    "description": "Narrative Outlet brings a fresh perspective to the books market as a distinctive marketplace featuring thoughtfully selected items for discerning customers.",
+    "products": [
+      "Bestselling Fiction",
       "Graphic Novels",
-      "Bestselling Fiction",
-      "Journals & Planners"
-    ]
-  },
-  {
-    "name": "Page Market",
-    "category": "BOOKS",
-    "type": "outlet",
-    "description": "At Page Market, we've reimagined what a books outlet can be, focusing on quality, sustainability, and customer satisfaction.",
-    "products": [
-      "Educational Resources",
-      "Bestselling Fiction",
-      "Graphic Novels"
-    ]
-  },
-  {
-    "name": "Narrative Hub",
-    "category": "BOOKS",
-    "type": "boutique",
-    "description": "At Narrative Hub, we've reimagined what a books boutique can be, focusing on quality, sustainability, and customer satisfaction.",
-    "products": [
       "Reference Works",
-      "Educational Resources",
-      "Graphic Novels"
+      "Educational Resources"
     ]
   },
   {
-    "name": "Discovery World",
-    "category": "TOYS",
-    "type": "physical_store",
-    "description": "At Discovery World, we've reimagined what a toys physical store can be, focusing on quality, sustainability, and customer satisfaction.",
+    "name": "Narrative Shop",
+    "category": "BOOKS",
+    "type": "popup_store",
+    "description": "Discover the unique shopping experience at Narrative Shop, a books popup store dedicated to bringing you the finest products and personalized service.",
     "products": [
-      "Strategy Board Games",
-      "Limited Edition Collectibles",
-      "Educational Toys"
+      "Journals & Planners",
+      "Educational Resources",
+      "Bestselling Fiction"
     ]
   },
   {
-    "name": "Imagine World",
+    "name": "Wonder & Co",
     "category": "TOYS",
-    "type": "physical_store",
-    "description": "Imagine World is a premier physical store specializing in high-quality toys products, offering exceptional customer service and a curated selection.",
+    "type": "marketplace",
+    "description": "At Wonder & Co, we've reimagined what a toys marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
       "Educational Toys",
+      "Strategy Board Games",
+      "Limited Edition Collectibles",
       "Outdoor Play Equipment",
+      "Collectible Figures"
+    ]
+  },
+  {
+    "name": "Whimsy Studio",
+    "category": "TOYS",
+    "type": "marketplace",
+    "description": "At Whimsy Studio, we've reimagined what a toys marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
+    "products": [
+      "Strategy Board Games",
+      "Outdoor Play Equipment",
+      "Collectible Figures",
       "Limited Edition Collectibles"
     ]
   },
   {
-    "name": "Orchard Place",
-    "category": "GROCERY",
-    "type": "physical_store",
-    "description": "Orchard Place is a premier physical store specializing in high-quality grocery products, offering exceptional customer service and a curated selection.",
+    "name": "Discovery Shop",
+    "category": "TOYS",
+    "type": "online_shop",
+    "description": "Discovery Shop is a premier online shop specializing in high-quality toys products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Craft Beverages",
+      "Strategy Board Games",
+      "Educational Toys",
+      "Outdoor Play Equipment"
+    ]
+  },
+  {
+    "name": "Basket Hub",
+    "category": "GROCERY",
+    "type": "department_store",
+    "description": "Discover the unique shopping experience at Basket Hub, a grocery department store dedicated to bringing you the finest products and personalized service.",
+    "products": [
+      "Organic Produce",
       "Ready-to-Serve Meals",
+      "Craft Beverages",
       "Artisanal Snacks",
       "Gourmet Pantry Items"
     ]
   },
   {
-    "name": "Garden & Co",
+    "name": "Select Emporium",
     "category": "GROCERY",
-    "type": "outlet",
-    "description": "Garden & Co brings a fresh perspective to the grocery market as a distinctive outlet featuring thoughtfully selected items for discerning customers.",
+    "type": "boutique",
+    "description": "Select Emporium brings a fresh perspective to the grocery market as a distinctive boutique featuring thoughtfully selected items for discerning customers.",
     "products": [
       "Ready-to-Serve Meals",
-      "Craft Beverages",
-      "Gourmet Pantry Items",
       "Organic Produce",
+      "Craft Beverages",
       "Artisanal Snacks"
     ]
   },
   {
-    "name": "Pantry Studio",
-    "category": "GROCERY",
-    "type": "online_shop",
-    "description": "At Pantry Studio, we've reimagined what a grocery online shop can be, focusing on quality, sustainability, and customer satisfaction.",
+    "name": "Wellness Depot",
+    "category": "HEALTH",
+    "type": "department_store",
+    "description": "Welcome to Wellness Depot, where passion for health meets exceptional retail experience in our carefully designed department store.",
     "products": [
-      "Artisanal Snacks",
-      "Ready-to-Serve Meals",
-      "Craft Beverages"
+      "Organic Health Foods",
+      "Performance Supplements",
+      "Natural Vitamins",
+      "Fitness Equipment"
+    ]
+  },
+  {
+    "name": "Renew Shop",
+    "category": "HEALTH",
+    "type": "department_store",
+    "description": "At Renew Shop, we've reimagined what a health department store can be, focusing on quality, sustainability, and customer satisfaction.",
+    "products": [
+      "Performance Supplements",
+      "Fitness Equipment",
+      "Wellness Accessories",
+      "Natural Vitamins",
+      "Organic Health Foods"
     ]
   },
   {
     "name": "Balance",
     "category": "HEALTH",
-    "type": "boutique",
-    "description": "Discover the unique shopping experience at Balance, a health boutique dedicated to bringing you the finest products and personalized service.",
+    "type": "physical_store",
+    "description": "Welcome to Balance, where passion for health meets exceptional retail experience in our carefully designed physical store.",
     "products": [
-      "Organic Health Foods",
-      "Performance Supplements",
       "Fitness Equipment",
-      "Natural Vitamins",
-      "Wellness Accessories"
-    ]
-  },
-  {
-    "name": "Thrive",
-    "category": "HEALTH",
-    "type": "marketplace",
-    "description": "Thrive brings a fresh perspective to the health market as a distinctive marketplace featuring thoughtfully selected items for discerning customers.",
-    "products": [
       "Organic Health Foods",
-      "Performance Supplements",
-      "Wellness Accessories"
-    ]
-  },
-  {
-    "name": "Vital",
-    "category": "HEALTH",
-    "type": "marketplace",
-    "description": "At Vital, we've reimagined what a health marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
-    "products": [
       "Wellness Accessories",
-      "Organic Health Foods",
-      "Fitness Equipment",
-      "Performance Supplements",
-      "Natural Vitamins"
+      "Performance Supplements"
     ]
   },
   {
-    "name": "Planet World",
+    "name": "Organic Co.",
     "category": "ECO_FRIENDLY",
-    "type": "online_shop",
-    "description": "Planet World brings a fresh perspective to the eco friendly market as a distinctive online shop featuring thoughtfully selected items for discerning customers.",
+    "type": "department_store",
+    "description": "At Organic Co., we've reimagined what a eco friendly department store can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
       "Zero-Waste Essentials",
-      "Recycled Decor Items",
-      "Eco-Conscious Fashion"
+      "Sustainable Home Products",
+      "Renewable Energy Gadgets",
+      "Eco-Conscious Fashion",
+      "Recycled Decor Items"
     ]
   },
   {
-    "name": "Terra",
+    "name": "Nature Emporium",
     "category": "ECO_FRIENDLY",
-    "type": "outlet",
-    "description": "Discover the unique shopping experience at Terra, a eco friendly outlet dedicated to bringing you the finest products and personalized service.",
+    "type": "department_store",
+    "description": "Nature Emporium brings a fresh perspective to the eco friendly market as a distinctive department store featuring thoughtfully selected items for discerning customers.",
     "products": [
+      "Sustainable Home Products",
       "Renewable Energy Gadgets",
       "Eco-Conscious Fashion",
       "Zero-Waste Essentials",
-      "Sustainable Home Products"
+      "Recycled Decor Items"
     ]
   }
 ]
