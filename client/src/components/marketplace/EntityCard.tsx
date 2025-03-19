@@ -6,8 +6,11 @@ import { MapPin, Globe, Calendar } from 'lucide-react';
 interface EntityContent {
   id: number;
   entityId: number;
-  contentType: string;
-  content: string;
+  title: string;
+  description: string;
+  url?: string;
+  thumbnailUrl?: string;
+  type: string;
   createdAt: string;
 }
 
