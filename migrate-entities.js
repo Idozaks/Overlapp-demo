@@ -13,6 +13,8 @@ import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { db } from './server/db.js';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
+import { interests, interestContent, entities, entityContent } from './shared/schema.js';
 
 dotenv.config();
 
