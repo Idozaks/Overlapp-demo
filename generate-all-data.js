@@ -58,14 +58,61 @@ function runScript(scriptPath) {
   });
 }
 
+// Preview mode function to run scripts with --preview flag
+async function previewTestData() {
+  console.log('=== 👁️ PREVIEW MODE: Test Data Generation ===');
+  console.log('This will show sample data without saving to the database');
+  
+  try {
+    // Run each script with preview flag
+    for (const script of scripts) {
+      console.log(`\n=== PREVIEW: ${script.description} ===`);
+      const scriptPath = join(__dirname, script.file);
+      await runScript(scriptPath + ' --preview');
+    }
+    
+    console.log('\n✅ Preview generation complete!');
+    console.log('No data has been saved to the database.');
+    console.log('Run this script without --preview to save the data.');
+    
+  } catch (error) {
+    console.error('\n❌ Preview generation failed:', error);
+    process.exit(1);
+  }
+}
+
 // Run the scripts in sequence
 async function generateAllTestData() {
+  // Check if we're in preview mode
+  const isPreviewMode = process.argv.includes('--preview');
+  
+  if (isPreviewMode) {
+    await previewTestData();
+    return;
+  }
+  
+  // Regular data generation mode
   console.log('=== Starting Test Data Generation ===');
   console.log('This process will create test data for the platform');
   console.log('for digital and physical entities, locations, and retail places.');
   
-  // fs module is now imported at the top of the file
-  // No need to check for it since it's a built-in Node.js module
+  // Ask for confirmation before proceeding
+  const readline = await import('readline');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  
+  await new Promise((resolve) => {
+    rl.question('\n⚠️ WARNING: This will write data directly to your database.\nAre you sure you want to continue? (yes/no): ', (answer) => {
+      if (answer.toLowerCase() !== 'yes') {
+        console.log('Operation cancelled. Try running with --preview to see sample data without saving.');
+        process.exit(0);
+      }
+      rl.close();
+      resolve();
+    });
+  });
   
   try {
     // Run each script sequentially

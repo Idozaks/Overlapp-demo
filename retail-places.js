@@ -7,6 +7,7 @@
  */
 
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { eq } from 'drizzle-orm';
 import pg from 'pg';
 import * as schema from './shared/schema.ts';
 import fs from 'fs';
