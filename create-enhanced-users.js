@@ -34,51 +34,53 @@ async function createEnhancedUsers() {
       return;
     }
     
-        let successCount = 0;
-        let failCount = 0;
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const userData of usersData) {
+      const { interestIds, ...userToCreate } = userData;
+      
+      try {
+        // Register the user
+        console.log(`Creating user: ${userData.username}...`);
+        const registerResponse = await axios.post('http://localhost:3000/api/register', userToCreate);
         
-        for (const userData of usersData) {
-          const { interestIds, ...userToCreate } = userData;
+        if (registerResponse.status === 201) {
+          const newUser = registerResponse.data.user;
+          console.log(`Successfully created user ${newUser.username} with ID ${newUser.id}`);
+          successCount++;
           
-          try {
-            // Register the user
-            console.log(`Creating user: ${userData.username}...`);
-            const registerResponse = await axios.post('http://localhost:3000/api/register', userToCreate);
-            
-            if (registerResponse.status === 201) {
-              const newUser = registerResponse.data.user;
-              console.log(`Successfully created user ${newUser.username} with ID ${newUser.id}`);
-              successCount++;
-              
-              // Add interests to the user
-              if (interestIds && interestIds.length > 0) {
-                let interestSuccessCount = 0;
-                for (const interestId of interestIds) {
-                  try {
-                    await axios.post(`http://localhost:3000/api/users/${newUser.id}/interests`, { interestId });
-                    interestSuccessCount++;
-                  } catch (interestError) {
-                    console.error(`Failed to add interest ${interestId} to user ${newUser.username}: ${interestError.message}`);
-                  }
-                }
-                console.log(`Added ${interestSuccessCount} interests to user ${newUser.username}`);
+          // Add interests to the user
+          if (interestIds && interestIds.length > 0) {
+            let interestSuccessCount = 0;
+            for (const interestId of interestIds) {
+              try {
+                await axios.post(`http://localhost:3000/api/users/${newUser.id}/interests`, { interestId });
+                interestSuccessCount++;
+              } catch (interestError) {
+                console.error(`Failed to add interest ${interestId} to user ${newUser.username}: ${interestError.message}`);
               }
             }
-          } catch (userError) {
-            console.error(`Failed to create user ${userData.username}: ${userError.message}`);
-            if (userError.response) {
-              console.error(`Response data: ${JSON.stringify(userError.response.data)}`);
-            }
-            failCount++;
+            console.log(`Added ${interestSuccessCount} interests to user ${newUser.username}`);
           }
         }
-        
-        console.log('User creation process completed!');
-        console.log(`Successfully created ${successCount} users, ${failCount} failures`);
-      } catch (error) {
-        console.error('Error creating users:', error.message);
+      } catch (userError) {
+        console.error(`Failed to create user ${userData.username}: ${userError.message}`);
+        if (userError.response) {
+          console.error(`Response data: ${JSON.stringify(userError.response.data)}`);
+        }
+        failCount++;
       }
     }
     
-    createEnhancedUsers();
+    console.log('User creation process completed!');
+    console.log(`Successfully created ${successCount} users, ${failCount} failures`);
+    rl.close();
+  } catch (error) {
+    console.error('Error creating users:', error.message);
+    rl.close();
+  }
+}
+
+createEnhancedUsers();
     
