@@ -65,6 +65,7 @@ import {
 import "./lib/i18n";
 import About from "@/pages/About"; // Import the About component
 import Marketplace from "@/pages/marketplace"; // Import the Marketplace component
+import EntityOverlap from "@/pages/marketplace/EntityOverlap"; // Import the EntityOverlap component
 
 
 function Router() {
@@ -88,6 +89,7 @@ function Router() {
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
       <Route path="/wallet" component={WalletDashboard} />
       <Route path="/marketplace" component={Marketplace} />
+      <Route path="/marketplace/entity/:id/overlap" component={EntityOverlap} />
       <Route path="/marketplace/entity/:id" component={() => {
         const [, params] = useRoute('/marketplace/entity/:id');
         const entityId = params?.id ? parseInt(params.id) : 0;
@@ -131,6 +133,14 @@ function Router() {
                 </Link>
                 <h1 className="text-2xl font-bold ml-4">{entity.name}</h1>
               </div>
+              {user && (
+                <Link href={`/marketplace/entity/${entityId}/overlap`}>
+                  <Button>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Analyze Overlap
+                  </Button>
+                </Link>
+              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

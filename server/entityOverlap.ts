@@ -28,7 +28,7 @@ export async function generateEntityUserOverlapAnalysis(
     const entityCategory = entity.category;
     const entityType = entity.entityType;
     const entityName = entity.name;
-    const entityDescription = entity.description;
+    const entityDescription = entity.description || "";
     
     // Extract content summaries
     const contentSummaries = entityContent.map(content => 
@@ -95,7 +95,7 @@ export async function generateEntityUserOverlapAnalysis(
     // Extract suggested activities from the analysis
     // This is a simplified approach - in production, you might want to have OpenAI
     // return these as structured data
-    const activityMatches = analysis.match(/suggested activities?:(.+?)(?:\n\n|\n$|$)/is);
+    const activityMatches = analysis.match(/suggested activities?:(.+?)(?:\n\n|\n$|$)/i);
     if (activityMatches && activityMatches[1]) {
       const activitiesText = activityMatches[1].trim();
       const activities = activitiesText
@@ -129,7 +129,7 @@ export async function generateEntityUserOverlapAnalysis(
       overlapScore: adjustedScore
     };
   } catch (error) {
-    log("Error generating entity-user overlap analysis:", error);
+    log("Error generating entity-user overlap analysis:", error instanceof Error ? error.message : String(error));
     throw new Error("Failed to generate entity-user overlap analysis");
   }
 }
