@@ -51,7 +51,8 @@ const CITIES = [
 
 // Generate a realistic location name
 function generateLocationName(locationType) {
-  const typePrefix = locationType.replace('_', ' ');
+  // Make sure we're using the exact string from our LOCATION_TYPES array
+  // This prevents issues with format mismatches
   
   const prefixes = {
     'PARK': ['Central', 'Riverside', 'Golden Gate', 'Highland', 'Sunset', 'Evergreen', 'Oakwood', 'Lakeside', 'Emerald', 'Victoria'],
@@ -79,16 +80,14 @@ function generateLocationName(locationType) {
     'CONFERENCE_CENTER': ['Conference Center', 'Convention Center', 'Exhibition Hall', 'Forum', 'Event Center', 'Business Center']
   };
   
-  const type = typePrefix.split(' ')[0];
-  
   // Ensure the type exists in our mapping, or fall back to a default
-  if (!prefixes[type] || !suffixes[type]) {
-    console.log(`Warning: Unknown location type ${type}, using default instead`);
+  if (!prefixes[locationType] || !suffixes[locationType]) {
+    console.log(`Warning: Unknown location type ${locationType}, using default instead`);
     return `${CITIES[Math.floor(Math.random() * CITIES.length)]} ${locationType.toLowerCase().replace('_', ' ')}`;
   }
   
-  const prefix = prefixes[type][Math.floor(Math.random() * prefixes[type].length)];
-  const suffix = suffixes[type][Math.floor(Math.random() * suffixes[type].length)];
+  const prefix = prefixes[locationType][Math.floor(Math.random() * prefixes[locationType].length)];
+  const suffix = suffixes[locationType][Math.floor(Math.random() * suffixes[locationType].length)];
   
   return `${prefix} ${suffix}`;
 }
