@@ -33,9 +33,9 @@ interface Entity {
   name: string;
   category: string;
   description: string;
-  type: string;
-  latitude?: number;
-  longitude?: number;
+  entityType: string;
+  iconUrl?: string;
+  coordinates?: { lat: string; lng: string };
   createdAt: string;
   content?: EntityContent[];
 }
@@ -142,12 +142,12 @@ export default function EntityDetail() {
             <div className="flex flex-wrap gap-3 mb-4">
               <Badge variant="secondary">{entity.category}</Badge>
               <Badge variant="outline" className="flex items-center gap-1">
-                {entity.type === 'physical' ? (
+                {entity.entityType === 'PHYSICAL' ? (
                   <MapPin size={14} />
                 ) : (
                   <Globe size={14} />
                 )}
-                {entity.type === 'physical' ? 'Physical Location' : 'Digital Entity'}
+                {entity.entityType === 'PHYSICAL' ? 'Physical Location' : 'Digital Entity'}
               </Badge>
               <Badge variant="outline" className="flex items-center gap-1">
                 <Calendar size={14} />
@@ -158,12 +158,12 @@ export default function EntityDetail() {
             <h2 className="text-xl font-semibold mb-2">About</h2>
             <p className="text-muted-foreground mb-4">{entity.description}</p>
             
-            {entity.latitude && entity.longitude && (
+            {entity.coordinates && (
               <div className="rounded-lg border overflow-hidden h-64 bg-muted flex items-center justify-center mb-4">
                 <div className="text-center">
                   <MapPin className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">
-                    Location: {entity.latitude.toFixed(6)}, {entity.longitude.toFixed(6)}
+                    Location: {entity.coordinates.lat}, {entity.coordinates.lng}
                   </p>
                 </div>
               </div>
@@ -292,7 +292,7 @@ export default function EntityDetail() {
                       {entity.category}
                     </p>
                   </div>
-                  {entity.type === 'physical' ? (
+                  {entity.entityType === 'PHYSICAL' ? (
                     <MapPin size={16} className="text-muted-foreground" />
                   ) : (
                     <Globe size={16} className="text-muted-foreground" />
