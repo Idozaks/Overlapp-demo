@@ -337,6 +337,14 @@ function createAttributeImportance(userInfo) {
 // Main function to fetch interests from database and generate users
 async function generateEnrichedUsers(count = 25) {
   try {
+    // Check for preview mode
+    const isPreviewMode = process.argv.includes('--preview');
+    
+    if (isPreviewMode) {
+      console.log('=== 👁️ PREVIEW MODE: Enhanced User Generation ===');
+      console.log('This will show sample data without saving to the database');
+    }
+    
     console.log('Fetching interests from database...');
     // Fetch all interests from the database
     const dbInterests = await db.select().from(interests);
@@ -510,96 +518,120 @@ async function generateEnrichedUsers(count = 25) {
       console.log(`Generated user ${i}/${count}: ${firstName} ${lastName} with ${userInterests.length} interests`);
     }
     
-    // Save users to a file
-    fs.writeFileSync(path.join(__dirname, 'enhanced-synthetic-users.json'), JSON.stringify(users, null, 2));
-    console.log(`Generated ${count} enriched synthetic users and saved to enhanced-synthetic-users.json`);
-    
-    // Create a script to insert the users into the database
-    const createUsersScript = `
-    // This script will register the enriched users in the database
-    import fs from 'fs';
-    import path from 'path';
-    import { fileURLToPath } from 'url';
-    import axios from 'axios';
-    
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    
-    async function createEnhancedUsers() {
-      try {
-        const usersData = JSON.parse(fs.readFileSync(path.join(__dirname, 'enhanced-synthetic-users.json'), 'utf8'));
-        
-        console.log(\`Preparing to create \${usersData.length} enriched users...\`);
-        
-        // Ask for confirmation before proceeding
-        process.stdout.write('Do you want to proceed with adding these users to the database? (y/yes to continue): ');
-        for await (const line of console) {
-          const response = line.trim().toLowerCase();
-          if (response === 'y' || response === 'yes') {
-            break;
-          } else {
-            console.log('Operation cancelled by user');
-            process.exit(0);
-          }
-        }
-        
-        let successCount = 0;
-        let failCount = 0;
-        
-        for (const userData of usersData) {
-          const { interestIds, ...userToCreate } = userData;
-          
-          try {
-            // Register the user
-            console.log(\`Creating user: \${userData.username}...\`);
-            const registerResponse = await axios.post('http://localhost:3000/api/register', userToCreate);
-            
-            if (registerResponse.status === 201) {
-              const newUser = registerResponse.data.user;
-              console.log(\`Successfully created user \${newUser.username} with ID \${newUser.id}\`);
-              successCount++;
-              
-              // Add interests to the user
-              if (interestIds && interestIds.length > 0) {
-                let interestSuccessCount = 0;
-                for (const interestId of interestIds) {
-                  try {
-                    await axios.post(\`http://localhost:3000/api/users/\${newUser.id}/interests\`, { interestId });
-                    interestSuccessCount++;
-                  } catch (interestError) {
-                    console.error(\`Failed to add interest \${interestId} to user \${newUser.username}: \${interestError.message}\`);
-                  }
-                }
-                console.log(\`Added \${interestSuccessCount} interests to user \${newUser.username}\`);
-              }
-            }
-          } catch (userError) {
-            console.error(\`Failed to create user \${userData.username}: \${userError.message}\`);
-            if (userError.response) {
-              console.error(\`Response data: \${JSON.stringify(userError.response.data)}\`);
-            }
-            failCount++;
-          }
-        }
-        
-        console.log('User creation process completed!');
-        console.log(\`Successfully created \${successCount} users, \${failCount} failures\`);
-      } catch (error) {
-        console.error('Error creating users:', error.message);
+    // If in preview mode, just display sample users
+    if (isPreviewMode) {
+      // Display sample of generated users
+      console.log('\n=== Sample Generated User Profiles (Preview Mode) ===');
+      for (let i = 0; i < Math.min(3, users.length); i++) {
+        const user = users[i];
+        console.log(`\nUser ${i+1}/${Math.min(3, users.length)}:`);
+        console.log(`- Username: ${user.username}`);
+        console.log(`- Name: ${user.displayName}`);
+        console.log(`- Age: ${user.age}`);
+        console.log(`- Location: ${user.location}`);
+        console.log(`- Occupation: ${user.occupation}`);
+        console.log(`- Bio: ${user.bio.substring(0, 150)}...`);
+        console.log(`- Interests: ${user.preferences.interests.slice(0, 5).join(', ')}${user.preferences.interests.length > 5 ? '...' : ''}`);
+        console.log(`- Interests Count: ${user.interestIds.length}`);
       }
+      
+      console.log(`\nPreview of ${count} enriched synthetic users complete.`);
+      console.log('To save these users, run this script without the --preview flag.');
+    } else {
+      // Save users to a file
+      fs.writeFileSync(path.join(__dirname, 'enhanced-synthetic-users.json'), JSON.stringify(users, null, 2));
+      console.log(`Generated ${count} enriched synthetic users and saved to enhanced-synthetic-users.json`);
+      
+      // Create a script to insert the users into the database
+      const createUsersScript = `
+      // This script will register the enriched users in the database
+      import fs from 'fs';
+      import path from 'path';
+      import { fileURLToPath } from 'url';
+      import axios from 'axios';
+      
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      
+      async function createEnhancedUsers() {
+        try {
+          const usersData = JSON.parse(fs.readFileSync(path.join(__dirname, 'enhanced-synthetic-users.json'), 'utf8'));
+          
+          console.log(\`Preparing to create \${usersData.length} enriched users...\`);
+          
+          // Ask for confirmation before proceeding
+          process.stdout.write('Do you want to proceed with adding these users to the database? (y/yes to continue): ');
+          for await (const line of console) {
+            const response = line.trim().toLowerCase();
+            if (response === 'y' || response === 'yes') {
+              break;
+            } else {
+              console.log('Operation cancelled by user');
+              process.exit(0);
+            }
+          }
+          
+          let successCount = 0;
+          let failCount = 0;
+          
+          for (const userData of usersData) {
+            const { interestIds, ...userToCreate } = userData;
+            
+            try {
+              // Register the user
+              console.log(\`Creating user: \${userData.username}...\`);
+              const baseUrl = process.env.REPLIT_URL || 'http://localhost:3000';
+              const registerResponse = await axios.post(\`\${baseUrl}/api/register\`, userToCreate);
+              
+              if (registerResponse.status === 201) {
+                const newUser = registerResponse.data.user;
+                console.log(\`Successfully created user \${newUser.username} with ID \${newUser.id}\`);
+                successCount++;
+                
+                // Add interests to the user
+                if (interestIds && interestIds.length > 0) {
+                  let interestSuccessCount = 0;
+                  for (const interestId of interestIds) {
+                    try {
+                      await axios.post(\`\${baseUrl}/api/users/\${newUser.id}/interests\`, { interestId });
+                      interestSuccessCount++;
+                    } catch (interestError) {
+                      console.error(\`Failed to add interest \${interestId} to user \${newUser.username}: \${interestError.message}\`);
+                    }
+                  }
+                  console.log(\`Added \${interestSuccessCount} interests to user \${newUser.username}\`);
+                }
+              }
+            } catch (userError) {
+              console.error(\`Failed to create user \${userData.username}: \${userError.message}\`);
+              if (userError.response) {
+                console.error(\`Response data: \${JSON.stringify(userError.response.data)}\`);
+              }
+              failCount++;
+            }
+          }
+          
+          console.log('User creation process completed!');
+          console.log(\`Successfully created \${successCount} users, \${failCount} failures\`);
+          rl.close();
+        } catch (error) {
+          console.error('Error creating users:', error.message);
+          rl.close();
+        }
+      }
+      
+      createEnhancedUsers();
+      `;
+      
+      fs.writeFileSync(path.join(__dirname, 'create-enhanced-users.js'), createUsersScript);
+      console.log('Created create-enhanced-users.js script for inserting users into the database');
+      
+      console.log('Run the following command to install axios if not already installed:');
+      console.log('npm install axios --save-dev');
+      console.log('');
+      console.log('Then run the enhanced users script:');
+      console.log('node create-enhanced-users.js');
     }
-    
-    createEnhancedUsers();
-    `;
-    
-    fs.writeFileSync(path.join(__dirname, 'create-enhanced-users.js'), createUsersScript);
-    console.log('Created create-enhanced-users.js script for inserting users into the database');
-    
-    console.log('Run the following command to install axios if not already installed:');
-    console.log('npm install axios --save-dev');
-    console.log('');
-    console.log('Then run the enhanced users script:');
-    console.log('node create-enhanced-users.js');
     
     return { success: true, count, message: 'Successfully generated enriched user profiles' };
   } catch (error) {
@@ -608,10 +640,17 @@ async function generateEnrichedUsers(count = 25) {
   }
 }
 
+// The preview mode is already checked inside the function
+
 // Execute the function
 generateEnrichedUsers(25).then(result => {
   if (result.success) {
-    console.log('✓ ' + result.message);
+    if (process.argv.includes('--preview')) {
+      console.log('✓ PREVIEW MODE: ' + result.message);
+      console.log('No users were saved to the database.');
+    } else {
+      console.log('✓ ' + result.message);
+    }
   } else {
     console.error('✗ Failed to generate users: ' + result.error);
   }
