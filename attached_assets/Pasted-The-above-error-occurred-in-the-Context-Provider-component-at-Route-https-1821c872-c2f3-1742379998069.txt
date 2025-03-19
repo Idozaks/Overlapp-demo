@@ -1,0 +1,29 @@
+The above error occurred in the <Context.Provider> component:
+
+    at Route (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a1bf3b59:323:16)
+    at Switch (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a1bf3b59:379:17)
+    at Router (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=LcOkS_4G43HUQeRBEpLU0:73:20)
+    at main
+    at div
+    at AuthProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-auth.tsx:26:32)
+    at QueryClientProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=a1bf3b59:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+at Route (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a1bf3b59:323:16)
+at Switch (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a1bf3b59:379:17)
+at Router (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=LcOkS_4G43HUQeRBEpLU0:73:20)
+at main
+at div
+at AuthProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-auth.tsx:26:32)
+at QueryClientProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=a1bf3b59:2805:3)
+at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+at t.value (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/__replco/static/

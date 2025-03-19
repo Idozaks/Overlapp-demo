@@ -1,5 +1,6 @@
-import { Switch, Route, useLocation } from "wouter";
-import { lazy } from "react";
+import { Switch, Route, useLocation, useRoute } from "wouter";
+import React, { lazy } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -84,7 +85,8 @@ function Router() {
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
       <Route path="/wallet" component={WalletDashboard} />
       <Route path="/marketplace" component={Marketplace} />
-      <Route path="/marketplace/entity/:id" component={lazy(() => import('./pages/marketplace/entity/[id]'))} />
+      <Route path="/marketplace/entity/:id" component={lazy(() => import('./pages/marketplace/entity/[id]'))}>
+      </Route>
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
       <Route path="/engage" component={lazy(() => import('./pages/engage/EngageIndex'))} />
       <Route path="/engage/persona" component={lazy(() => import('./pages/engage/EngagePersona'))} />
