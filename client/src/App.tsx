@@ -1,6 +1,9 @@
-import { Switch, Route, useLocation, useRoute } from "wouter";
+import { Switch, Route, useLocation, useRoute, Link } from "wouter";
 import React, { lazy } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -85,8 +88,114 @@ function Router() {
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
       <Route path="/wallet" component={WalletDashboard} />
       <Route path="/marketplace" component={Marketplace} />
-      <Route path="/marketplace/entity/:id" component={lazy(() => import('./pages/marketplace/entity/[id]'))}>
-      </Route>
+      <Route path="/marketplace/entity/:id" component={() => {
+        const [, params] = useRoute('/marketplace/entity/:id');
+        const entityId = params?.id ? parseInt(params.id) : 0;
+        
+        const { data, isLoading } = useQuery({
+          queryKey: [`/api/marketplace/entities/${entityId}`],
+          enabled: !!entityId,
+        });
+        
+        const entity = data?.entity;
+        
+        if (isLoading) {
+          return (
+            <div className="container mx-auto px-4 py-8">
+              <div className="flex items-center mb-6">
+                <Loader2 className="h-8 w-8 animate-spin mr-2" />
+                <p>Loading entity details...</p>
+              </div>
+            </div>
+          );
+        }
+        
+        if (!entity) {
+          return (
+            <div className="container mx-auto px-4 py-8 text-center">
+              <h1 className="text-2xl font-bold mb-4">Entity Not Found</h1>
+              <p className="mb-6">The entity you are looking for doesn't exist or may have been removed.</p>
+              <Link href="/marketplace">
+                <Button>Back to Marketplace</Button>
+              </Link>
+            </div>
+          );
+        }
+        
+        return (
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+              <div className="flex items-center mb-4 md:mb-0">
+                <Link href="/marketplace">
+                  <Button variant="ghost" size="sm">Back to Marketplace</Button>
+                </Link>
+                <h1 className="text-2xl font-bold ml-4">{entity.name}</h1>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-2">
+                <div className="bg-card rounded-lg shadow-sm p-6 mb-6">
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    <Badge variant="secondary">{entity.category}</Badge>
+                    <Badge variant="outline">
+                      {entity.type === 'physical' ? 'Physical Location' : 'Digital Entity'}
+                    </Badge>
+                  </div>
+                  
+                  <h2 className="text-xl font-semibold mb-2">About</h2>
+                  <p className="text-muted-foreground mb-4">{entity.description}</p>
+                </div>
+                
+                <div className="bg-card rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold mb-4">Content</h2>
+                  <div className="space-y-4">
+                    {entity.content?.map(item => (
+                      <Card key={item.id}>
+                        <CardContent className="p-4">
+                          <div className="flex justify-between mb-2">
+                            <Badge variant="outline">
+                              {item.contentType.charAt(0).toUpperCase() + item.contentType.slice(1)}
+                            </Badge>
+                          </div>
+                          <p>{item.content}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    
+                    {!entity.content?.length && (
+                      <p className="text-muted-foreground text-center py-4">
+                        No content available for this entity.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <div className="bg-card rounded-lg shadow-sm p-6">
+                  <h2 className="text-lg font-semibold mb-3">Entity Information</h2>
+                  <Separator className="my-3" />
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium">Type</p>
+                      <p className="text-sm text-muted-foreground">
+                        {entity.type === 'physical' ? 'Physical Location' : 'Digital Entity'}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium">Category</p>
+                      <p className="text-sm text-muted-foreground">{entity.category}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
       <Route path="/engage" component={lazy(() => import('./pages/engage/EngageIndex'))} />
       <Route path="/engage/persona" component={lazy(() => import('./pages/engage/EngagePersona'))} />
