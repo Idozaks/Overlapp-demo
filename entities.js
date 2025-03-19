@@ -387,7 +387,7 @@ if (isPreviewMode) {
   // Generate some sample entities
   const previewEntities = [];
   
-  for (const category of Object.keys(ENTITY_CATEGORIES)) {
+  for (const category of ENTITY_CATEGORIES) {
     const entityName = generateEntityName(category);
     const entityDescription = generateEntityDescription(entityName, category);
     const coordinates = generateRandomCoordinates();
@@ -395,7 +395,7 @@ if (isPreviewMode) {
     previewEntities.push({
       name: entityName,
       description: entityDescription,
-      type: ENTITY_CATEGORIES[category].type,
+      type: ENTITY_TYPES[category] || 'PHYSICAL',
       category: category,
       coordinates
     });
