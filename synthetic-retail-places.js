@@ -9,7 +9,7 @@
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { db } from './server/db.js';
+import { db } from './server/db.ts';
 
 dotenv.config();
 
