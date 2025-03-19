@@ -231,20 +231,98 @@ async function updateUserPreferences() {
   }
 }
 
-// Execute the function
-updateUserPreferences()
-  .then((result) => {
-    console.log('User retail preference update complete!');
-    console.log(`Updated ${result.updatedUsers.length} users with retail preferences`);
-    console.log(`Generated ${result.retailStores.length} retail stores for reference`);
+// Check if we're in preview mode
+const isPreviewMode = process.argv.includes('--preview');
+
+if (isPreviewMode) {
+  // Preview mode - don't save to database
+  console.log('PREVIEW MODE: Generating sample retail data without saving to database');
+  
+  // Generate some sample retail stores
+  const sampleStores = [];
+  
+  // For each retail category, create a sample store
+  for (const category of RETAIL_CATEGORIES) {
+    const storeType = STORE_TYPES[Math.floor(Math.random() * STORE_TYPES.length)];
+    const name = generateStoreName(category);
+    const description = generateStoreDescription(name, category, storeType);
+    const products = generateStoreProducts(category);
     
-    // Save retail stores data to a file for reference
-    fs.writeFileSync('retail-data.json', JSON.stringify(result.retailStores, null, 2));
-    console.log('Saved retail store data to retail-data.json');
+    sampleStores.push({
+      name,
+      category,
+      type: storeType,
+      description,
+      products
+    });
     
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('Failed to update user retail preferences:', error);
-    process.exit(1);
-  });
+    console.log(`[PREVIEW] Retail Store: ${name} (${category})`);
+    console.log(`  Type: ${storeType}`);
+    console.log(`  Description: ${description}`);
+    console.log(`  Products: ${products.join(', ')}`);
+    console.log('');
+  }
+  
+  // Sample user preferences
+  const sampleUsers = [
+    { id: 1, username: 'user1', preferences: { interests: ['Music', 'Art'] } },
+    { id: 2, username: 'user2', preferences: { interests: ['Technology', 'Travel'] } },
+    { id: 3, username: 'user3', preferences: { interests: ['Food', 'Sports'] } }
+  ];
+  
+  // For each sample user, assign retail preferences
+  for (const user of sampleUsers) {
+    // Determine how many retail preferences to assign (2-3)
+    const numPreferences = Math.floor(Math.random() * 2) + 2;
+    
+    // Extract categories for preferences
+    const retailCategories = RETAIL_CATEGORIES.map(category => 
+      category.replace('_', ' ')
+    );
+    
+    // Assign random retail preferences
+    const retailPreferences = [];
+    for (let i = 0; i < numPreferences; i++) {
+      const randomIndex = Math.floor(Math.random() * retailCategories.length);
+      const preference = retailCategories[randomIndex];
+      
+      // Only add if not already in the list
+      if (!retailPreferences.includes(preference)) {
+        retailPreferences.push(preference);
+      }
+    }
+    
+    console.log(`[PREVIEW] User ${user.username} (ID: ${user.id}):`);
+    console.log(`  Current interests: ${user.preferences.interests.join(', ')}`);
+    console.log(`  Would add retail preferences: ${retailPreferences.join(', ')}`);
+    console.log('');
+  }
+  
+  console.log(`[PREVIEW] Would generate ${sampleStores.length} retail stores`);
+  console.log('[PREVIEW] Would update user preferences (not saved)');
+  
+  // In preview mode, still save sample data to file for reference
+  fs.writeFileSync('retail-data-preview.json', JSON.stringify(sampleStores, null, 2));
+  console.log('Saved preview retail store data to retail-data-preview.json');
+  
+  process.exit(0);
+} else {
+  // Normal mode - save to database
+  // Execute the function
+  updateUserPreferences()
+    .then((result) => {
+      console.log('User retail preference update complete!');
+      console.log(`Updated ${result.updatedUsers.length} users with retail preferences`);
+      console.log(`Generated ${result.retailStores.length} retail stores for reference`);
+      
+      // Save retail stores data to a file for reference
+      fs.writeFileSync('retail-data.json', JSON.stringify(result.retailStores, null, 2));
+      console.log('Saved retail store data to retail-data.json');
+      
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Failed to update user retail preferences:', error);
+      process.exit(1);
+    });
+}
