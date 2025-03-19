@@ -36,11 +36,11 @@ const scripts = [
 // Function to run a script and return a promise
 function runScript(scriptPath, args = []) {
   return new Promise((resolve, reject) => {
-    const commandArgs = [scriptPath, ...args];
-    console.log(`\n🚀 Running: node ${commandArgs.join(' ')}`);
+    const commandArgs = ['tsx', scriptPath, ...args];
+    console.log(`\n🚀 Running: npx ${commandArgs.join(' ')}`);
     
-    // Use Node.js to run the script
-    const child = spawn('node', commandArgs, { stdio: 'inherit' });
+    // Use tsx to run the TypeScript files
+    const child = spawn('npx', commandArgs, { stdio: 'inherit' });
     
     child.on('close', (code) => {
       if (code === 0) {
