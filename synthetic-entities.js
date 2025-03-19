@@ -8,7 +8,7 @@
 
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as schema from './shared/schema.ts';
+import * as schema from './shared/schema.js';
 
 // Create connection pool
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -267,18 +267,32 @@ function generateEntityContent(entityId, entityName, category) {
 }
 
 // Create entities and their content
-async function createEntities() {
-  console.log('Starting entity generation...');
+async function createEntities(previewMode = false) {
+  if (previewMode) {
+    console.log('PREVIEW MODE: Generating sample entities without saving to database');
+  } else {
+    console.log('Starting entity generation...');
+  }
   
   const createdEntities = [];
   const createdContent = [];
   
   try {
-    // For each category, create 3-5 entities
-    for (const category of ENTITY_CATEGORIES) {
-      const numEntities = Math.floor(Math.random() * 3) + 3; // 3-5 entities per category
+    // For preview mode, only create a sample of entities
+    const categoriesToUse = previewMode 
+      ? ENTITY_CATEGORIES.slice(0, 3) // Use just first 3 categories for preview
+      : ENTITY_CATEGORIES;
+    
+    // For each category, create entities
+    for (const category of categoriesToUse) {
+      // Limit number of entities in preview mode
+      const numEntities = previewMode ? 2 : Math.floor(Math.random() * 3) + 3; // 3-5 entities in regular mode
       
-      console.log(`Creating ${numEntities} entities for category ${category}...`);
+      if (previewMode) {
+        console.log(`\n[PREVIEW] Entity: ${generateEntityName(category)} (${category})`);
+      } else {
+        console.log(`Creating ${numEntities} entities for category ${category}...`);
+      }
       
       for (let i = 0; i < numEntities; i++) {
         const entityName = generateEntityName(category);
@@ -288,42 +302,71 @@ async function createEntities() {
         const categoryBase = category.toLowerCase();
         const iconUrl = `https://source.unsplash.com/random/100x100/?${categoryBase},icon`;
         
-        try {
-          // Insert the entity as an interest
-          const [entity] = await db
-            .insert(schema.interests)
-            .values({
-              name: entityName,
-              category,
-              description: entityDescription,
-              iconUrl,
-            })
-            .returning();
+        if (previewMode) {
+          console.log(`  Description: ${entityDescription}`);
           
-          createdEntities.push(entity);
-          console.log(`Created entity: ${entityName} (ID: ${entity.id})`);
-          
-          // Create 2-4 content items for each entity
-          const numContentItems = Math.floor(Math.random() * 3) + 2; // 2-4 content items
+          // Show sample content in preview mode
+          const contentSamples = [];
+          const numContentItems = 2; // Just show 2 samples in preview
           
           for (let j = 0; j < numContentItems; j++) {
-            const contentData = generateEntityContent(entity.id, entityName, category);
-            
-            const [content] = await db
-              .insert(schema.interestContent)
-              .values(contentData)
+            const contentData = generateEntityContent(j+1, entityName, category);
+            contentSamples.push(contentData.title);
+          }
+          
+          console.log(`  Content: ${contentSamples.join(', ')}`);
+          
+          // Still store in memory for reporting
+          createdEntities.push({
+            id: createdEntities.length + 1,
+            name: entityName,
+            category,
+            description: entityDescription,
+            iconUrl
+          });
+        } else {
+          try {
+            // Insert the entity as an interest
+            const [entity] = await db
+              .insert(schema.interests)
+              .values({
+                name: entityName,
+                category,
+                description: entityDescription,
+                iconUrl,
+              })
               .returning();
             
-            createdContent.push(content);
-            console.log(`Created content: ${content.title} for entity ${entityName}`);
+            createdEntities.push(entity);
+            console.log(`Created entity: ${entityName} (ID: ${entity.id})`);
+            
+            // Create 2-4 content items for each entity
+            const numContentItems = Math.floor(Math.random() * 3) + 2; // 2-4 content items
+            
+            for (let j = 0; j < numContentItems; j++) {
+              const contentData = generateEntityContent(entity.id, entityName, category);
+              
+              const [content] = await db
+                .insert(schema.interestContent)
+                .values(contentData)
+                .returning();
+              
+              createdContent.push(content);
+              console.log(`Created content: ${content.title} for entity ${entityName}`);
+            }
+          } catch (error) {
+            console.error(`Error creating entity ${entityName}:`, error);
           }
-        } catch (error) {
-          console.error(`Error creating entity ${entityName}:`, error);
         }
       }
     }
     
-    console.log(`Successfully created ${createdEntities.length} entities with ${createdContent.length} content items`);
+    if (previewMode) {
+      console.log(`\n[PREVIEW] Would create ${createdEntities.length} entities (not saved)`);
+    } else {
+      console.log(`Successfully created ${createdEntities.length} entities with ${createdContent.length} content items`);
+    }
+    
     return { entities: createdEntities, content: createdContent };
     
   } catch (error) {
@@ -332,11 +375,18 @@ async function createEntities() {
   }
 }
 
+// Check for preview mode flag
+const isPreviewMode = process.argv.includes('--preview');
+
 // Call the function to create entities
-createEntities()
+createEntities(isPreviewMode)
   .then((result) => {
-    console.log('Entity generation complete!');
-    console.log(`Created ${result.entities.length} entities and ${result.content.length} content items`);
+    if (isPreviewMode) {
+      console.log('Preview complete - no data was saved to the database');
+    } else {
+      console.log('Entity generation complete!');
+      console.log(`Created ${result.entities.length} entities and ${result.content.length} content items`);
+    }
     process.exit(0);
   })
   .catch((error) => {

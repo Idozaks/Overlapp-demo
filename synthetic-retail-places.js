@@ -120,14 +120,22 @@ function generateStoreProducts(category) {
 }
 
 // Create data structure for retail stores
-async function generateRetailData() {
-  console.log('Generating retail store data...');
+async function generateRetailData(previewMode = false) {
+  if (previewMode) {
+    console.log('PREVIEW MODE: Generating sample retail data without saving to database');
+  } else {
+    console.log('Generating retail store data...');
+  }
   
   const retailStores = [];
   
-  // For each retail category, create 2-3 stores
-  for (const category of RETAIL_CATEGORIES) {
-    const numStores = Math.floor(Math.random() * 2) + 2; // 2-3 stores per category
+  // Limit categories in preview mode
+  const categoriesToUse = previewMode ? RETAIL_CATEGORIES.slice(0, 5) : RETAIL_CATEGORIES;
+  
+  // For each retail category, create stores
+  for (const category of categoriesToUse) {
+    // Fewer stores in preview mode
+    const numStores = previewMode ? 1 : Math.floor(Math.random() * 2) + 2;
     
     for (let i = 0; i < numStores; i++) {
       const storeType = STORE_TYPES[Math.floor(Math.random() * STORE_TYPES.length)];
@@ -135,54 +143,76 @@ async function generateRetailData() {
       const description = generateStoreDescription(name, category, storeType);
       const products = generateStoreProducts(category);
       
-      retailStores.push({
+      const store = {
         name,
         category,
         type: storeType,
         description,
         products
-      });
+      };
+      
+      if (previewMode) {
+        console.log(`[PREVIEW] Retail Store: ${name} (${category})`);
+        console.log(`  Type: ${storeType}`);
+        console.log(`  Description: ${description}`);
+        console.log(`  Products: ${products.join(', ')}`);
+        console.log('');
+      }
+      
+      retailStores.push(store);
     }
   }
   
-  console.log(`Generated ${retailStores.length} retail stores`);
+  if (!previewMode) {
+    console.log(`Generated ${retailStores.length} retail stores`);
+  }
+  
   return retailStores;
 }
 
 // Update user preferences with retail preferences
-async function updateUserPreferences() {
-  console.log('Starting update of user retail preferences...');
+async function updateUserPreferences(previewMode = false) {
+  if (!previewMode) {
+    console.log('Starting update of user retail preferences...');
+  }
   
   try {
-    // Get all users
-    const allUsers = await db.select().from(schema.users);
+    // In preview mode, use sample users
+    const sampleUsers = [
+      { id: 1, username: 'user1', preferences: { interests: ['Music', 'Art'] } },
+      { id: 2, username: 'user2', preferences: { interests: ['Technology', 'Travel'] } },
+      { id: 3, username: 'user3', preferences: { interests: ['Food', 'Sports'] } }
+    ];
     
-    if (allUsers.length === 0) {
+    // Get actual users or use sample users in preview mode
+    const allUsers = previewMode ? sampleUsers : await db.select().from(schema.users);
+    
+    if (!previewMode && allUsers.length === 0) {
       console.log('No users found in the database. Please create users first.');
-      return [];
+      return { updatedUsers: [], retailStores: [] };
     }
     
-    console.log(`Found ${allUsers.length} users. Updating with retail preferences...`);
+    if (!previewMode) {
+      console.log(`Found ${allUsers.length} users. Updating with retail preferences...`);
+    }
     
     // Generate retail data
-    const retailStores = await generateRetailData();
+    const retailStores = await generateRetailData(previewMode);
     
     // Extract just the retail categories for preferences
-    const retailCategories = RETAIL_CATEGORIES.map(category => {
-      // Convert from CATEGORY to display format
-      return category.replace('_', ' ');
-    });
+    const retailCategories = RETAIL_CATEGORIES.map(category => category);
     
     const updatedUsers = [];
     
-    // For each user, assign 2-4 random retail preferences
+    // For each user, assign retail preferences
     for (const user of allUsers) {
       try {
         // Get current preferences or initialize empty
         const currentPreferences = user.preferences || { interests: [], retailPreferences: [] };
+        const currentInterests = currentPreferences.interests || [];
         
-        // Determine how many retail preferences to assign (2-4)
-        const numPreferences = Math.floor(Math.random() * 3) + 2;
+        // Determine how many retail preferences to assign (2-3)
+        const numPreferences = Math.floor(Math.random() * 2) + 2;
         
         // Assign random retail preferences
         const retailPreferences = [];
@@ -201,24 +231,51 @@ async function updateUserPreferences() {
           }
         }
         
-        // Update user preferences
-        const newPreferences = {
-          interests: currentPreferences.interests || [],
-          retailPreferences: retailPreferences
-        };
-        
-        // Update in database
-        const [updatedUser] = await db
-          .update(schema.users)
-          .set({ preferences: newPreferences })
-          .where(db.eq(schema.users.id, user.id))
-          .returning();
-        
-        updatedUsers.push(updatedUser);
-        console.log(`Updated user ${user.username} with retail preferences: ${retailPreferences.join(', ')}`);
+        if (previewMode) {
+          console.log(`[PREVIEW] User ${user.username} (ID: ${user.id}):`);
+          console.log(`  Current interests: ${currentInterests.join(', ')}`);
+          console.log(`  Would add retail preferences: ${retailPreferences.join(', ')}`);
+          console.log('');
+          
+          // Still store the data for reporting
+          updatedUsers.push({
+            ...user,
+            preferences: {
+              interests: currentInterests,
+              retailPreferences: retailPreferences
+            }
+          });
+        } else {
+          // Update user preferences
+          const newPreferences = {
+            interests: currentPreferences.interests || [],
+            retailPreferences: retailPreferences
+          };
+          
+          // Update in database
+          const [updatedUser] = await db
+            .update(schema.users)
+            .set({ preferences: newPreferences })
+            .where(db.eq(schema.users.id, user.id))
+            .returning();
+          
+          updatedUsers.push(updatedUser);
+          console.log(`Updated user ${user.username} with retail preferences: ${retailPreferences.join(', ')}`);
+        }
       } catch (error) {
-        console.error(`Error updating preferences for user ${user.username}:`, error);
+        if (!previewMode) {
+          console.error(`Error updating preferences for user ${user.username}:`, error);
+        }
       }
+    }
+    
+    if (previewMode) {
+      console.log(`[PREVIEW] Would generate ${retailStores.length} retail stores`);
+      console.log(`[PREVIEW] Would update user preferences (not saved)`);
+      
+      // Save preview data to a file
+      fs.writeFileSync('retail-data-preview.json', JSON.stringify(retailStores, null, 2));
+      console.log('Saved preview retail store data to retail-data-preview.json');
     }
     
     return { updatedUsers, retailStores };
@@ -228,16 +285,21 @@ async function updateUserPreferences() {
   }
 }
 
+// Check for preview mode flag
+const isPreviewMode = process.argv.includes('--preview');
+
 // Execute the function
-updateUserPreferences()
+updateUserPreferences(isPreviewMode)
   .then((result) => {
-    console.log('User retail preference update complete!');
-    console.log(`Updated ${result.updatedUsers.length} users with retail preferences`);
-    console.log(`Generated ${result.retailStores.length} retail stores for reference`);
-    
-    // Save retail stores data to a file for reference
-    fs.writeFileSync('retail-data.json', JSON.stringify(result.retailStores, null, 2));
-    console.log('Saved retail store data to retail-data.json');
+    if (!isPreviewMode) {
+      console.log('User retail preference update complete!');
+      console.log(`Updated ${result.updatedUsers.length} users with retail preferences`);
+      console.log(`Generated ${result.retailStores.length} retail stores for reference`);
+      
+      // Save retail stores data to a file for reference
+      fs.writeFileSync('retail-data.json', JSON.stringify(result.retailStores, null, 2));
+      console.log('Saved retail store data to retail-data.json');
+    }
     
     process.exit(0);
   })

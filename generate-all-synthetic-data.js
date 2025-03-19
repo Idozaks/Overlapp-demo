@@ -34,12 +34,13 @@ const scripts = [
 ];
 
 // Function to run a script and return a promise
-function runScript(scriptPath) {
+function runScript(scriptPath, args = []) {
   return new Promise((resolve, reject) => {
-    console.log(`\n🚀 Running: ${scriptPath}`);
+    const commandArgs = [scriptPath, ...args];
+    console.log(`\n🚀 Running: node ${commandArgs.join(' ')}`);
     
     // Use Node.js to run the script
-    const child = spawn('node', [scriptPath], { stdio: 'inherit' });
+    const child = spawn('node', commandArgs, { stdio: 'inherit' });
     
     child.on('close', (code) => {
       if (code === 0) {
@@ -58,14 +59,61 @@ function runScript(scriptPath) {
   });
 }
 
+// Preview mode function to run scripts with --preview flag
+async function previewTestData() {
+  console.log('=== 👁️ PREVIEW MODE: Synthetic Data Generation ===');
+  console.log('This will show sample data without saving to the database');
+  
+  try {
+    // Run each script with preview flag
+    for (const script of scripts) {
+      console.log(`\n=== PREVIEW: ${script.description} ===`);
+      const scriptPath = join(__dirname, script.file);
+      await runScript(scriptPath, ['--preview']);
+    }
+    
+    console.log('\n✅ Preview generation complete!');
+    console.log('No data has been saved to the database.');
+    console.log('Run this script without --preview to save the data.');
+    
+  } catch (error) {
+    console.error('\n❌ Preview generation failed:', error);
+    process.exit(1);
+  }
+}
+
 // Run the scripts in sequence
 async function generateAllTestData() {
-  console.log('=== Starting Test Data Generation ===');
-  console.log('This process will create test data for the platform');
+  // Check if we're in preview mode
+  const isPreviewMode = process.argv.includes('--preview');
+  
+  if (isPreviewMode) {
+    await previewTestData();
+    return;
+  }
+  
+  // Regular data generation mode
+  console.log('=== Starting Synthetic Data Generation ===');
+  console.log('This process will create synthetic test data for the platform');
   console.log('for digital and physical entities, locations, and retail places.');
   
-  // fs module is now imported at the top of the file
-  // No need to check for it since it's a built-in Node.js module
+  // Ask for confirmation before proceeding
+  const readline = await import('readline');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  
+  await new Promise((resolve) => {
+    rl.question('\n⚠️ WARNING: This will write synthetic data directly to your database.\nAre you sure you want to continue? (yes/no): ', (answer) => {
+      if (answer.toLowerCase() !== 'yes') {
+        console.log('Operation cancelled. Try running with --preview to see sample data without saving.');
+        process.exit(0);
+      }
+      rl.close();
+      resolve();
+    });
+  });
   
   try {
     // Run each script sequentially
@@ -75,12 +123,12 @@ async function generateAllTestData() {
       await runScript(scriptPath);
     }
     
-    console.log('\n🎉 All test data generation complete!');
+    console.log('\n🎉 All synthetic data generation complete!');
     console.log('The database now contains entities for testing the overlap analysis features.');
     console.log('All test data is designed to work seamlessly with the platform.');
     
   } catch (error) {
-    console.error('\n❌ Test data generation failed:', error);
+    console.error('\n❌ Synthetic data generation failed:', error);
     process.exit(1);
   }
 }
