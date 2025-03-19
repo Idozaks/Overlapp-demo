@@ -334,14 +334,57 @@ async function createEntities() {
   }
 }
 
-// Call the function to create entities
-createEntities()
-  .then((result) => {
-    console.log('Entity generation complete!');
-    console.log(`Created ${result.entities.length} entities and ${result.content.length} content items`);
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('Failed to generate entities:', error);
-    process.exit(1);
-  });
+// Check if we're in preview mode
+const isPreviewMode = process.argv.includes('--preview');
+
+if (isPreviewMode) {
+  // Preview mode - don't save to database
+  console.log('PREVIEW MODE: Generating sample entities without saving to database');
+  
+  // Generate some sample entities
+  const previewEntities = [];
+  
+  for (const category of Object.keys(ENTITY_CATEGORIES)) {
+    const entityName = generateEntityName(category);
+    const entityDescription = generateEntityDescription(entityName, category);
+    const coordinates = generateRandomCoordinates();
+    
+    previewEntities.push({
+      name: entityName,
+      description: entityDescription,
+      type: ENTITY_CATEGORIES[category].type,
+      category: category,
+      coordinates
+    });
+    
+    // Generate 1-2 sample content items
+    const contentItems = [];
+    const numContent = Math.floor(Math.random() * 2) + 1;
+    
+    for (let i = 0; i < numContent; i++) {
+      const contentTitle = generateEntityContent(999, entityName, category).title;
+      contentItems.push(contentTitle);
+    }
+    
+    console.log(`[PREVIEW] Entity: ${entityName} (${category})`);
+    console.log(`  Description: ${entityDescription}`);
+    console.log(`  Content: ${contentItems.join(', ')}`);
+    console.log('');
+  }
+  
+  console.log(`[PREVIEW] Would create ${previewEntities.length} entities (not saved)`);
+  process.exit(0);
+} else {
+  // Normal mode - save to database
+  // Call the function to create entities
+  createEntities()
+    .then((result) => {
+      console.log('Entity generation complete!');
+      console.log(`Created ${result.entities.length} entities and ${result.content.length} content items`);
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Failed to generate entities:', error);
+      process.exit(1);
+    });
+}

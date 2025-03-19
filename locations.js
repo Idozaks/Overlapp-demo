@@ -226,14 +226,55 @@ async function createLocationPosts() {
   }
 }
 
-// Execute the function
-createLocationPosts()
-  .then((posts) => {
-    console.log('Location post generation complete!');
-    console.log(`Created ${posts.length} location posts`);
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('Failed to generate location posts:', error);
-    process.exit(1);
-  });
+// Check if we're in preview mode
+const isPreviewMode = process.argv.includes('--preview');
+
+if (isPreviewMode) {
+  // Preview mode - don't save to database
+  console.log('PREVIEW MODE: Generating sample location posts without saving to database');
+  
+  // Generate some sample location posts
+  const sampleUsers = [
+    { id: 1, username: 'user1' },
+    { id: 2, username: 'user2' },
+    { id: 3, username: 'user3' }
+  ];
+  
+  // For each sample user, create 1-2 sample location posts
+  for (const user of sampleUsers) {
+    const numPosts = Math.floor(Math.random() * 2) + 1; // 1-2 posts per user
+    
+    console.log(`[PREVIEW] Creating ${numPosts} location posts for user ${user.username} (ID: ${user.id})...`);
+    
+    for (let i = 0; i < numPosts; i++) {
+      // Select a random location type
+      const locationType = LOCATION_TYPES[Math.floor(Math.random() * LOCATION_TYPES.length)];
+      
+      const locationName = generateLocationName(locationType);
+      const city = CITIES[Math.floor(Math.random() * CITIES.length)];
+      const placeName = `${locationName}, ${city}`;
+      const content = generatePostContent(locationName, locationType);
+      
+      console.log(`[PREVIEW] Sample post for ${user.username}:`);
+      console.log(`  Location: ${placeName}`);
+      console.log(`  Content: ${content}`);
+      console.log('');
+    }
+  }
+  
+  console.log('[PREVIEW] No data has been saved to the database');
+  process.exit(0);
+} else {
+  // Normal mode - save to database
+  // Execute the function
+  createLocationPosts()
+    .then((posts) => {
+      console.log('Location post generation complete!');
+      console.log(`Created ${posts.length} location posts`);
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Failed to generate location posts:', error);
+      process.exit(1);
+    });
+}
