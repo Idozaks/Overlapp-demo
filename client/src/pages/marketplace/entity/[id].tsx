@@ -313,7 +313,7 @@ export default function EntityDetail() {
               <div>
                 <p className="text-sm font-medium">Type</p>
                 <p className="text-sm text-muted-foreground">
-                  {entity.type === 'physical' ? 'Physical Location' : 'Digital Entity'}
+                  {entity.entityType === 'PHYSICAL' ? 'Physical Location' : 'Digital Entity'}
                 </p>
               </div>
               
@@ -327,11 +327,11 @@ export default function EntityDetail() {
                 <p className="text-sm text-muted-foreground">{formatDate(entity.createdAt)}</p>
               </div>
               
-              {entity.latitude && entity.longitude && (
+              {entity.coordinates && (
                 <div>
                   <p className="text-sm font-medium">Coordinates</p>
                   <p className="text-sm text-muted-foreground">
-                    {entity.latitude.toFixed(6)}, {entity.longitude.toFixed(6)}
+                    {entity.coordinates.lat}, {entity.coordinates.lng}
                   </p>
                 </div>
               )}
