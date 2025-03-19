@@ -250,3 +250,55 @@ export type TransactionWithDetails = Transaction & {
 
 export type InterestWithContent = Interest & { content: InterestContent[] };
 export type UserWithInterests = User & { interests: Interest[] };
+
+// Entity Tables for Synthetic Data
+export const entities = pgTable("entities", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  category: text("category").notNull(),
+  description: text("description"),
+  entityType: text("entity_type").notNull(), // PHYSICAL or DIGITAL
+  iconUrl: text("icon_url"),
+  coordinates: jsonb("coordinates").$type<{
+    latitude: string;
+    longitude: string;
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const entityContent = pgTable("entity_content", {
+  id: serial("id").primaryKey(),
+  entityId: integer("entity_id").references(() => entities.id),
+  title: text("title").notNull(),
+  description: text("description"),
+  url: text("url"),
+  thumbnailUrl: text("thumbnail_url"),
+  type: text("type").notNull(), // product, service, article, etc.
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Entity schemas
+export const insertEntitySchema = createInsertSchema(entities).pick({
+  name: true,
+  category: true,
+  description: true,
+  entityType: true,
+  iconUrl: true,
+  coordinates: true,
+});
+
+export const insertEntityContentSchema = createInsertSchema(entityContent).pick({
+  entityId: true,
+  title: true,
+  description: true,
+  url: true,
+  thumbnailUrl: true,
+  type: true,
+});
+
+// Entity types
+export type InsertEntity = z.infer<typeof insertEntitySchema>;
+export type InsertEntityContent = z.infer<typeof insertEntityContentSchema>;
+export type Entity = typeof entities.$inferSelect;
+export type EntityContent = typeof entityContent.$inferSelect;
+export type EntityWithContent = Entity & { content: EntityContent[] };

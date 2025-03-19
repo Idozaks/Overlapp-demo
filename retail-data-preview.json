@@ -1,123 +1,120 @@
 [
   {
-    "name": "Velvet",
+    "name": "Refined World",
     "category": "FASHION",
-    "type": "physical_store",
-    "description": "Welcome to Velvet, where passion for fashion meets exceptional retail experience in our carefully designed physical store.",
+    "type": "outlet",
+    "description": "At Refined World, we've reimagined what a fashion outlet can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
-      "Premium Cotton Shirts",
-      "Seasonal Dresses",
       "Handcrafted Shoes",
-      "Statement Accessories",
+      "Premium Cotton Shirts",
       "Designer Jeans"
     ]
   },
   {
-    "name": "Future",
+    "name": "Nova Collective",
     "category": "ELECTRONICS",
-    "type": "outlet",
-    "description": "Future brings a fresh perspective to the electronics market as a distinctive outlet featuring thoughtfully selected items for discerning customers.",
-    "products": [
-      "Smartphones",
-      "Smart Home Speakers",
-      "Wireless Headphones",
-      "Digital Cameras"
-    ]
-  },
-  {
-    "name": "Oasis Place",
-    "category": "HOME_GOODS",
     "type": "marketplace",
-    "description": "At Oasis Place, we've reimagined what a home goods marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
+    "description": "Nova Collective is a premier marketplace specializing in high-quality electronics products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Gourmet Kitchenware",
-      "Stylish Home Decor",
-      "Luxury Bedding",
+      "Digital Cameras",
+      "Smartphones",
+      "Wireless Headphones",
+      "Smart Home Speakers"
+    ]
+  },
+  {
+    "name": "Harmony",
+    "category": "HOME_GOODS",
+    "type": "online_shop",
+    "description": "Harmony brings a fresh perspective to the home goods market as a distinctive online shop featuring thoughtfully selected items for discerning customers.",
+    "products": [
+      "Artisan Furniture",
       "Designer Lighting",
-      "Artisan Furniture"
+      "Gourmet Kitchenware",
+      "Luxury Bedding"
     ]
   },
   {
-    "name": "Allure Outlet",
+    "name": "Luxe Emporium",
     "category": "BEAUTY",
-    "type": "department_store",
-    "description": "At Allure Outlet, we've reimagined what a beauty department store can be, focusing on quality, sustainability, and customer satisfaction.",
+    "type": "boutique",
+    "description": "Discover the unique shopping experience at Luxe Emporium, a beauty boutique dedicated to bringing you the finest products and personalized service.",
     "products": [
-      "Signature Fragrances",
       "Spa Essentials",
-      "Premium Cosmetics",
-      "Organic Skincare",
-      "Professional Hair Products"
+      "Signature Fragrances",
+      "Premium Cosmetics"
     ]
   },
   {
-    "name": "Apex Co.",
+    "name": "Dynamic Store",
     "category": "SPORTS",
-    "type": "department_store",
-    "description": "At Apex Co., we've reimagined what a sports department store can be, focusing on quality, sustainability, and customer satisfaction.",
+    "type": "marketplace",
+    "description": "Welcome to Dynamic Store, where passion for sports meets exceptional retail experience in our carefully designed marketplace.",
     "products": [
       "Professional Equipment",
-      "Training Supplements",
-      "Outdoor Gear",
-      "Performance Activewear"
+      "Fitness Accessories",
+      "Training Supplements"
     ]
   },
   {
-    "name": "Story Studio",
+    "name": "Novel World",
     "category": "BOOKS",
-    "type": "marketplace",
-    "description": "At Story Studio, we've reimagined what a books marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
+    "type": "physical_store",
+    "description": "At Novel World, we've reimagined what a books physical store can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
       "Graphic Novels",
       "Journals & Planners",
+      "Educational Resources",
       "Reference Works"
     ]
   },
   {
-    "name": "Playful Hub",
+    "name": "Discovery & Co",
     "category": "TOYS",
-    "type": "outlet",
-    "description": "Playful Hub brings a fresh perspective to the toys market as a distinctive outlet featuring thoughtfully selected items for discerning customers.",
+    "type": "marketplace",
+    "description": "Discovery & Co is a premier marketplace specializing in high-quality toys products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Limited Edition Collectibles",
       "Outdoor Play Equipment",
+      "Limited Edition Collectibles",
+      "Collectible Figures",
+      "Educational Toys",
       "Strategy Board Games"
     ]
   },
   {
-    "name": "Garden Depot",
+    "name": "Basket",
     "category": "GROCERY",
-    "type": "outlet",
-    "description": "Garden Depot is a premier outlet specializing in high-quality grocery products, offering exceptional customer service and a curated selection.",
+    "type": "marketplace",
+    "description": "Welcome to Basket, where passion for grocery meets exceptional retail experience in our carefully designed marketplace.",
     "products": [
-      "Gourmet Pantry Items",
-      "Organic Produce",
       "Ready-to-Serve Meals",
-      "Craft Beverages"
+      "Gourmet Pantry Items",
+      "Artisanal Snacks"
     ]
   },
   {
-    "name": "Renew Center",
+    "name": "Wellness World",
     "category": "HEALTH",
-    "type": "department_store",
-    "description": "Welcome to Renew Center, where passion for health meets exceptional retail experience in our carefully designed department store.",
+    "type": "online_shop",
+    "description": "Discover the unique shopping experience at Wellness World, a health online shop dedicated to bringing you the finest products and personalized service.",
     "products": [
-      "Performance Supplements",
-      "Wellness Accessories",
       "Fitness Equipment",
       "Organic Health Foods",
+      "Performance Supplements",
       "Natural Vitamins"
     ]
   },
   {
-    "name": "Nature Depot",
+    "name": "Planet Collective",
     "category": "ECO_FRIENDLY",
     "type": "physical_store",
-    "description": "At Nature Depot, we've reimagined what a eco friendly physical store can be, focusing on quality, sustainability, and customer satisfaction.",
+    "description": "Discover the unique shopping experience at Planet Collective, a eco friendly physical store dedicated to bringing you the finest products and personalized service.",
     "products": [
+      "Renewable Energy Gadgets",
+      "Zero-Waste Essentials",
+      "Sustainable Home Products",
       "Eco-Conscious Fashion",
-      "Recycled Decor Items",
-      "Sustainable Home Products"
+      "Recycled Decor Items"
     ]
   }
 ]
