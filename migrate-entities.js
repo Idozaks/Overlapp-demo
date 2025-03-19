@@ -64,7 +64,11 @@ const ENTITY_CATEGORIES = [
   'AIRPORT',
   'TRAIN_STATION',
   'BUS_TERMINAL',
-  'SPORTS_COMPLEX'
+  'SPORTS_COMPLEX',
+  // Additional categories found in the database
+  'HEALTHCARE',
+  'ONLINE',
+  'HOSPITALITY'
 ];
 
 async function cleanEntitiesOnly() {
@@ -85,6 +89,7 @@ async function cleanEntitiesOnly() {
     
     // For each entity interest, check if it has a corresponding entity in the entities table
     let deletedCount = 0;
+    let migratedCount = 0;
     let skippedCount = 0;
     
     for (const entityInterest of interestEntities) {
@@ -96,33 +101,99 @@ async function cleanEntitiesOnly() {
           .execute()
           .then(results => results[0]);
         
+        let entityId;
+        
         if (existingEntity) {
-          // First delete related content
-          const contentDeleteResult = await db
-            .delete(interestContent)
-            .where(eq(interestContent.interestId, entityInterest.id))
-            .returning()
-            .execute();
-          
-          // Then delete the interest itself
-          const interestDeleteResult = await db
-            .delete(interests)
-            .where(eq(interests.id, entityInterest.id))
-            .returning()
-            .execute();
-          
-          console.log(`✅ Deleted entity interest "${entityInterest.name}" (ID: ${entityInterest.id}) and ${contentDeleteResult.length} related content items.`);
-          deletedCount++;
+          // Use existing entity ID
+          entityId = existingEntity.id;
         } else {
-          console.log(`⚠️ No matching entity found for "${entityInterest.name}" in entities table. Skipping deletion.`);
-          skippedCount++;
+          // Create the entity first before deleting
+          console.log(`Creating new entity for "${entityInterest.name}" before cleanup.`);
+          
+          // Determine entity type based on category
+          const isLocationCategory = ['CAFE', 'RESTAURANT', 'BAR', 'PARK', 'LIBRARY', 'MUSEUM', 'GALLERY', 
+                                      'GYM', 'YOGA_STUDIO', 'HOTEL', 'BEACH'].includes(entityInterest.category);
+          
+          const isDigitalCategory = ['ONLINE', 'TECHNOLOGY', 'E_COMMERCE', 'MEDIA'].includes(entityInterest.category);
+          
+          const entityType = isLocationCategory ? 'PHYSICAL' : 
+                             isDigitalCategory ? 'DIGITAL' : 
+                             (Math.random() > 0.5 ? 'PHYSICAL' : 'DIGITAL');
+          
+          // Generate coordinates for physical entities
+          const coordinates = {
+            lat: (Math.random() * 170 - 85).toFixed(6),
+            lng: (Math.random() * 360 - 180).toFixed(6)
+          };
+          
+          // Create the entity in the entities table
+          const newEntity = await db.insert(entities)
+            .values({
+              name: entityInterest.name,
+              category: entityInterest.category,
+              description: entityInterest.description || `${entityInterest.name} is a ${entityInterest.category.toLowerCase().replace('_', '-')} entity.`,
+              coordinates: JSON.stringify(coordinates),
+              entityType: entityType,
+              iconUrl: entityInterest.iconUrl || null
+            })
+            .returning()
+            .execute()
+            .then(results => results[0]);
+          
+          if (!newEntity) {
+            throw new Error(`Failed to create entity for ${entityInterest.name}`);
+          }
+          
+          entityId = newEntity.id;
+          migratedCount++;
+          
+          // Migrate content items
+          const contentItems = await db.select()
+            .from(interestContent)
+            .where(eq(interestContent.interestId, entityInterest.id))
+            .execute();
+          
+          for (const item of contentItems) {
+            await db.insert(entityContent)
+              .values({
+                entityId: entityId,
+                title: item.title || 'Information',
+                description: item.description || null,
+                url: item.url || '#',
+                thumbnailUrl: item.thumbnailUrl || null,
+                type: item.type || 'INFO'
+              })
+              .execute();
+          }
+          
+          console.log(`  Migrated ${contentItems.length} content items for ${entityInterest.name}`);
         }
+        
+        // Now delete the original interest and its content
+        // First delete related content
+        const contentDeleteResult = await db
+          .delete(interestContent)
+          .where(eq(interestContent.interestId, entityInterest.id))
+          .returning()
+          .execute();
+        
+        // Then delete the interest itself
+        const interestDeleteResult = await db
+          .delete(interests)
+          .where(eq(interests.id, entityInterest.id))
+          .returning()
+          .execute();
+        
+        console.log(`✅ Deleted entity interest "${entityInterest.name}" (ID: ${entityInterest.id}) and ${contentDeleteResult.length} related content items.`);
+        deletedCount++;
       } catch (error) {
-        console.error(`Error cleaning up entity interest ${entityInterest.name} (ID: ${entityInterest.id}):`, error.message);
+        console.error(`Error processing entity ${entityInterest.name} (ID: ${entityInterest.id}):`, error.message);
+        skippedCount++;
       }
     }
     
     console.log('\n🧹 Cleanup complete!');
+    console.log(`Successfully migrated ${migratedCount} new entities to entities table.`);
     console.log(`Successfully deleted ${deletedCount} entity interests and skipped ${skippedCount}.`);
     
   } catch (error) {
