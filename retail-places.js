@@ -213,7 +213,7 @@ async function updateUserPreferences() {
         const [updatedUser] = await db
           .update(schema.users)
           .set({ preferences: newPreferences })
-          .where(db.eq(schema.users.id, user.id))
+          .where(eq(schema.users.id, user.id))
           .returning();
         
         updatedUsers.push(updatedUser);
