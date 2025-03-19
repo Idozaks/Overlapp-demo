@@ -29,43 +29,62 @@ function formatDate(date) {
 // Generate different types of content based on entity type and category
 function generateContentForEntity(entity) {
   const contentItems = [];
+  // content types matching the 'type' column in the database
   const contentTypes = ['review', 'event', 'product', 'post', 'promotion', 'update'];
   
   // Number of content items to generate per entity (3-7)
   const numItems = Math.floor(Math.random() * 5) + 3;
   
   for (let i = 0; i < numItems; i++) {
-    const contentType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
+    const type = contentTypes[Math.floor(Math.random() * contentTypes.length)];
     const date = getRandomDate();
-    let content = '';
     
-    switch (contentType) {
+    // Generate title and description based on content type
+    let title = '';
+    let description = '';
+    
+    switch (type) {
       case 'review':
         const ratings = ['excellent', 'good', 'average', 'poor'];
         const rating = ratings[Math.floor(Math.random() * ratings.length)];
-        content = generateReview(entity, rating);
+        title = `${rating.charAt(0).toUpperCase() + rating.slice(1)} Review of ${entity.name}`;
+        description = generateReview(entity, rating);
         break;
       case 'event':
-        content = generateEvent(entity);
+        title = `${entity.name} ${entity.category} Event`;
+        description = generateEvent(entity);
         break;
       case 'product':
-        content = generateProduct(entity);
+        title = `${entity.category} Product from ${entity.name}`;
+        description = generateProduct(entity);
         break;
       case 'post':
-        content = generatePost(entity);
+        title = `${entity.name} ${entity.category} Update`;
+        description = generatePost(entity);
         break;
       case 'promotion':
-        content = generatePromotion(entity);
+        title = `Special Promotion at ${entity.name}`;
+        description = generatePromotion(entity);
         break;
       case 'update':
-        content = generateUpdate(entity);
+        title = `News from ${entity.name}`;
+        description = generateUpdate(entity);
         break;
     }
     
+    // Create thumbnail URL based on entity name
+    const thumbnailUrl = `https://placehold.co/600x400?text=${encodeURIComponent(entity.name)}`;
+    
+    // Create URL based on entity name and content type
+    const url = `https://example.com/${entity.name.toLowerCase().replace(/\s+/g, '-')}/${type}/${i + 1}`;
+    
     contentItems.push({
       entityId: entity.id,
-      contentType,
-      content,
+      title,
+      description,
+      type,
+      url,
+      thumbnailUrl,
       createdAt: formatDate(date)
     });
   }
@@ -193,8 +212,16 @@ async function addContentToAllEntities() {
       // Insert each content item
       for (const item of contentItems) {
         await client.query(
-          'INSERT INTO entity_content (entity_id, content_type, content, created_at) VALUES ($1, $2, $3, $4)',
-          [item.entityId, item.contentType, item.content, item.createdAt]
+          'INSERT INTO entity_content (entity_id, title, description, url, thumbnail_url, type, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+          [
+            item.entityId, 
+            item.title, 
+            item.description, 
+            item.url, 
+            item.thumbnailUrl, 
+            item.type, 
+            item.createdAt
+          ]
         );
       }
       
