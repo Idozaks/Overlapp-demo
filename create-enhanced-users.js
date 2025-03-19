@@ -43,7 +43,8 @@ async function createEnhancedUsers() {
       try {
         // Register the user
         console.log(`Creating user: ${userData.username}...`);
-        const registerResponse = await axios.post('http://localhost:3000/api/register', userToCreate);
+        const baseUrl = process.env.REPLIT_URL || 'http://localhost:3000';
+        const registerResponse = await axios.post(`${baseUrl}/api/register`, userToCreate);
         
         if (registerResponse.status === 201) {
           const newUser = registerResponse.data.user;
@@ -55,7 +56,7 @@ async function createEnhancedUsers() {
             let interestSuccessCount = 0;
             for (const interestId of interestIds) {
               try {
-                await axios.post(`http://localhost:3000/api/users/${newUser.id}/interests`, { interestId });
+                await axios.post(`${baseUrl}/api/users/${newUser.id}/interests`, { interestId });
                 interestSuccessCount++;
               } catch (interestError) {
                 console.error(`Failed to add interest ${interestId} to user ${newUser.username}: ${interestError.message}`);
