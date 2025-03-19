@@ -25,6 +25,16 @@ const ENTITY_CATEGORIES = [
   'HEALTHCARE',   // Hospitals, clinics, etc.
 ];
 
+// Map category to entity type
+const ENTITY_TYPES = {
+  'RETAIL': 'PHYSICAL',
+  'ONLINE': 'DIGITAL',
+  'EDUCATION': 'PHYSICAL',
+  'HOSPITALITY': 'PHYSICAL',
+  'ENTERTAINMENT': 'PHYSICAL',
+  'HEALTHCARE': 'PHYSICAL',
+};
+
 // Generate a realistic name for our entities
 function generateEntityName(category) {
   const prefixes = {
@@ -258,7 +268,7 @@ function generateEntityContent(entityId, entityName, category) {
   const thumbnailUrl = `https://source.unsplash.com/random/300x200/?${contentType},${category.toLowerCase()}`;
   
   return {
-    interestId: entityId,
+    entityId: entityId,
     title,
     description,
     url,
@@ -317,24 +327,38 @@ async function createEntities(previewMode = false) {
           
           console.log(`  Content: ${contentSamples.join(', ')}`);
           
+          // Use the global ENTITY_TYPES mapping
+          
+          // Generate coordinates for physical entities
+          const coordinates = ENTITY_TYPES[category] === 'PHYSICAL' ? generateRandomCoordinates() : null;
+          
           // Still store in memory for reporting
           createdEntities.push({
             id: createdEntities.length + 1,
             name: entityName,
             category,
             description: entityDescription,
+            entityType: ENTITY_TYPES[category],
+            coordinates,
             iconUrl
           });
         } else {
           try {
-            // Insert the entity as an interest
+            // Use the global ENTITY_TYPES mapping
+              
+            // Create the coordinates for physical entities
+            const coordinates = ENTITY_TYPES[category] === 'PHYSICAL' ? generateRandomCoordinates() : null;
+            
+            // Insert the entity in the entities table
             const [entity] = await db
-              .insert(schema.interests)
+              .insert(schema.entities)
               .values({
                 name: entityName,
                 category,
                 description: entityDescription,
+                entityType: ENTITY_TYPES[category],
                 iconUrl,
+                coordinates
               })
               .returning();
             
@@ -348,7 +372,7 @@ async function createEntities(previewMode = false) {
               const contentData = generateEntityContent(entity.id, entityName, category);
               
               const [content] = await db
-                .insert(schema.interestContent)
+                .insert(schema.entityContent)
                 .values(contentData)
                 .returning();
               
