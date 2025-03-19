@@ -26,7 +26,8 @@ const __dirname = dirname(__filename);
 const MODE = {
   DRY_RUN: 'dry-run',         // Only identify and count records, no changes
   MIGRATE_ONLY: 'migrate',     // Create new records without deleting old ones
-  MIGRATE_AND_CLEAN: 'clean'   // Create new records and delete old ones
+  MIGRATE_AND_CLEAN: 'clean',  // Create new records and delete old ones
+  CLEAN_ONLY: 'clean-only'     // Only clean up entities from interests table (no migration)
 };
 
 // Entity categories that may exist in the interest table
@@ -66,10 +67,79 @@ const ENTITY_CATEGORIES = [
   'SPORTS_COMPLEX'
 ];
 
+async function cleanEntitiesOnly() {
+  console.log('🧹 Starting clean-only mode for entities...');
+  
+  try {
+    // Identify entities in interests table that have category
+    const interestEntities = await db.select()
+      .from(interests)
+      .where(inArray(interests.category, ENTITY_CATEGORIES));
+    
+    if (interestEntities.length === 0) {
+      console.log('✅ No entities found in interests table. Nothing to clean up.');
+      return;
+    }
+    
+    console.log(`Found ${interestEntities.length} potential entity interests to clean up.`);
+    
+    // For each entity interest, check if it has a corresponding entity in the entities table
+    let deletedCount = 0;
+    let skippedCount = 0;
+    
+    for (const entityInterest of interestEntities) {
+      try {
+        // Check if entity with same name exists in entities table
+        const existingEntity = await db.select()
+          .from(entities)
+          .where(eq(entities.name, entityInterest.name))
+          .execute()
+          .then(results => results[0]);
+        
+        if (existingEntity) {
+          // First delete related content
+          const contentDeleteResult = await db
+            .delete(interestContent)
+            .where(eq(interestContent.interestId, entityInterest.id))
+            .returning()
+            .execute();
+          
+          // Then delete the interest itself
+          const interestDeleteResult = await db
+            .delete(interests)
+            .where(eq(interests.id, entityInterest.id))
+            .returning()
+            .execute();
+          
+          console.log(`✅ Deleted entity interest "${entityInterest.name}" (ID: ${entityInterest.id}) and ${contentDeleteResult.length} related content items.`);
+          deletedCount++;
+        } else {
+          console.log(`⚠️ No matching entity found for "${entityInterest.name}" in entities table. Skipping deletion.`);
+          skippedCount++;
+        }
+      } catch (error) {
+        console.error(`Error cleaning up entity interest ${entityInterest.name} (ID: ${entityInterest.id}):`, error.message);
+      }
+    }
+    
+    console.log('\n🧹 Cleanup complete!');
+    console.log(`Successfully deleted ${deletedCount} entity interests and skipped ${skippedCount}.`);
+    
+  } catch (error) {
+    console.error('❌ Cleanup failed:', error.message);
+    if (error.stack) console.error(error.stack);
+  }
+}
+
 async function migrateEntities(mode = MODE.DRY_RUN) {
   console.log(`🔄 Starting entity migration in ${mode} mode...`);
   
   try {
+    // If we're in CLEAN_ONLY mode, call the cleanEntitiesOnly function instead
+    if (mode === MODE.CLEAN_ONLY) {
+      return await cleanEntitiesOnly();
+    }
+    
     // Step 1: Identify entities in interests table
     const interestEntities = await db.select()
       .from(interests)
@@ -102,6 +172,7 @@ async function migrateEntities(mode = MODE.DRY_RUN) {
       
       console.log('\n⚠️ Dry run mode - no changes were made.');
       console.log('To migrate entities, run with --migrate or --migrate-and-clean flag.');
+      console.log('To just remove entities from the interests table, run with --clean-only flag.');
       
       return;
     }
@@ -145,33 +216,57 @@ async function migrateEntities(mode = MODE.DRY_RUN) {
           country: 'US'
         };
         
-        // Insert into entities table
-        const [newEntity] = await db.insert(entities)
-          .values({
-            name: entity.name,
-            category: entity.category,
-            description: entity.description || `${entity.name} is a ${entity.category.toLowerCase().replace('_', '-')} entity.`,
-            coordinates: JSON.stringify(location.coordinates),
-            entityType: entityType,
-            iconUrl: entity.iconUrl || null
-          })
-          .returning();
+        // First check if an entity with this name already exists
+        const existingEntities = await db.select()
+          .from(entities)
+          .where(eq(entities.name, entity.name));
+
+        let newEntity;
+        
+        if (existingEntities.length > 0) {
+          console.log(`Entity with name "${entity.name}" already exists. Using existing entity.`);
+          newEntity = existingEntities[0];
+        } else {
+          // Insert into entities table if no duplicate exists
+          const inserted = await db.insert(entities)
+            .values({
+              name: entity.name,
+              category: entity.category,
+              description: entity.description || `${entity.name} is a ${entity.category.toLowerCase().replace('_', '-')} entity.`,
+              coordinates: JSON.stringify(location.coordinates),
+              entityType: entityType,
+              iconUrl: entity.iconUrl || null
+            })
+            .returning();
+          
+          newEntity = inserted[0];
+        }
         
         // Migrate content items
         let contentMigratedForEntity = 0;
         
-        for (const item of contentItems) {
-          await db.insert(entityContent)
-            .values({
-              entityId: newEntity.id,
-              title: item.title || 'Information',
-              description: item.description || null,
-              url: item.url || '#',
-              thumbnailUrl: item.thumbnailUrl || null,
-              type: item.type || 'INFO'
-            });
+        // First check if entity already has content
+        const existingContent = await db.select()
+          .from(entityContent)
+          .where(eq(entityContent.entityId, newEntity.id));
           
-          contentMigratedForEntity++;
+        if (existingContent.length > 0) {
+          console.log(`Entity "${entity.name}" already has ${existingContent.length} content items. Skipping content migration.`);
+          contentMigratedForEntity = existingContent.length;
+        } else {
+          for (const item of contentItems) {
+            await db.insert(entityContent)
+              .values({
+                entityId: newEntity.id,
+                title: item.title || 'Information',
+                description: item.description || null,
+                url: item.url || '#',
+                thumbnailUrl: item.thumbnailUrl || null,
+                type: item.type || 'INFO'
+              });
+            
+            contentMigratedForEntity++;
+          }
         }
         
         migratedCount++;
@@ -230,6 +325,9 @@ async function main() {
     mode = MODE.MIGRATE_ONLY;
   } else if (args.includes('--migrate-and-clean') || args.includes('--clean') || args.includes('-c')) {
     mode = MODE.MIGRATE_AND_CLEAN;
+  } else if (args.includes('--clean-only') || args.includes('--co')) {
+    mode = MODE.CLEAN_ONLY;
+    console.log('Running in clean-only mode - will only remove entities from interests table that already exist in entities table.');
   } else if (args.includes('--dry-run') || args.includes('-d') || args.length === 0) {
     mode = MODE.DRY_RUN;
   } else {
@@ -241,23 +339,30 @@ async function main() {
     console.log('⚠️ WARNING: You are about to migrate entities AND DELETE the original data.');
     console.log('This operation cannot be undone.');
     
-    const readline = await import('readline');
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
+    // Check for force flag or environment variable
+    const forceCleanup = process.argv.includes('--force') || process.env.FORCE_CLEANUP === 'true';
     
-    await new Promise((resolve) => {
-      rl.question('Are you sure you want to proceed? (yes/no): ', (answer) => {
-        const lowerAnswer = answer.toLowerCase();
-        if (lowerAnswer !== 'yes' && lowerAnswer !== 'y') {
-          console.log('Operation cancelled. Using migrate-only mode instead.');
-          mode = MODE.MIGRATE_ONLY;
-        }
-        rl.close();
-        resolve();
+    if (forceCleanup) {
+      console.log('Force flag detected. Proceeding with cleanup without confirmation.');
+    } else {
+      const readline = await import('readline');
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
       });
-    });
+      
+      await new Promise((resolve) => {
+        rl.question('Are you sure you want to proceed? (yes/no): ', (answer) => {
+          const lowerAnswer = answer.toLowerCase();
+          if (lowerAnswer !== 'yes' && lowerAnswer !== 'y') {
+            console.log('Operation cancelled. Using migrate-only mode instead.');
+            mode = MODE.MIGRATE_ONLY;
+          }
+          rl.close();
+          resolve();
+        });
+      });
+    }
   }
   
   await migrateEntities(mode);
