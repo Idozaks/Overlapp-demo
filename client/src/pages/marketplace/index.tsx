@@ -27,9 +27,9 @@ interface Entity {
   name: string;
   category: string;
   description: string;
-  type: string;
-  latitude?: number;
-  longitude?: number;
+  entityType: string;
+  iconUrl?: string;
+  coordinates?: { lat: string; lng: string };
   createdAt: string;
   content?: EntityContent[];
 }

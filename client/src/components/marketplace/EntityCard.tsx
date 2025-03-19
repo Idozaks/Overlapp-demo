@@ -19,9 +19,9 @@ interface Entity {
   name: string;
   category: string;
   description: string;
-  type: string;
-  latitude?: number;
-  longitude?: number;
+  entityType: string;
+  iconUrl?: string;
+  coordinates?: { lat: string; lng: string };
   createdAt: string;
   content?: EntityContent[];
 }
@@ -54,7 +54,7 @@ export default function EntityCard({ entity, onClick }: EntityCardProps) {
       onClick={onClick}
     >
       <div className="bg-muted h-40 flex items-center justify-center">
-        {entity.type === 'physical' ? (
+        {entity.entityType === 'PHYSICAL' ? (
           <MapPin className="h-10 w-10 text-muted-foreground opacity-50" />
         ) : (
           <Globe className="h-10 w-10 text-muted-foreground opacity-50" />
@@ -64,7 +64,7 @@ export default function EntityCard({ entity, onClick }: EntityCardProps) {
       <CardContent className="p-4 flex-grow">
         <div className="flex justify-between items-start mb-1">
           <h3 className="font-semibold text-lg truncate mr-2">{entity.name}</h3>
-          {entity.type === 'physical' ? (
+          {entity.entityType === 'PHYSICAL' ? (
             <MapPin size={16} className="text-muted-foreground flex-shrink-0" />
           ) : (
             <Globe size={16} className="text-muted-foreground flex-shrink-0" />
