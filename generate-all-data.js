@@ -34,12 +34,13 @@ const scripts = [
 ];
 
 // Function to run a script and return a promise
-function runScript(scriptPath) {
+function runScript(scriptPath, args = []) {
   return new Promise((resolve, reject) => {
-    console.log(`\n🚀 Running: ${scriptPath}`);
+    const commandArgs = ['tsx', scriptPath, ...args];
+    console.log(`\n🚀 Running: npx ${commandArgs.join(' ')}`);
     
     // Use tsx to run the TypeScript files
-    const child = spawn('npx', ['tsx', scriptPath], { stdio: 'inherit' });
+    const child = spawn('npx', commandArgs, { stdio: 'inherit' });
     
     child.on('close', (code) => {
       if (code === 0) {
@@ -68,7 +69,7 @@ async function previewTestData() {
     for (const script of scripts) {
       console.log(`\n=== PREVIEW: ${script.description} ===`);
       const scriptPath = join(__dirname, script.file);
-      await runScript(scriptPath + ' --preview');
+      await runScript(scriptPath, ['--preview']);
     }
     
     console.log('\n✅ Preview generation complete!');

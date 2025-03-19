@@ -1,119 +1,122 @@
 [
   {
-    "name": "Classic Studio",
+    "name": "Sleek",
     "category": "FASHION",
-    "type": "physical_store",
-    "description": "At Classic Studio, we've reimagined what a fashion physical store can be, focusing on quality, sustainability, and customer satisfaction.",
-    "products": [
-      "Premium Cotton Shirts",
-      "Statement Accessories",
-      "Seasonal Dresses"
-    ]
-  },
-  {
-    "name": "Digital Shop",
-    "category": "ELECTRONICS",
     "type": "outlet",
-    "description": "Welcome to Digital Shop, where passion for electronics meets exceptional retail experience in our carefully designed outlet.",
+    "description": "Discover the unique shopping experience at Sleek, a fashion outlet dedicated to bringing you the finest products and personalized service.",
     "products": [
-      "Smart Home Speakers",
-      "Ultrabook Laptops",
-      "Smartphones",
-      "Wireless Headphones",
-      "Digital Cameras"
+      "Handcrafted Shoes",
+      "Statement Accessories",
+      "Designer Jeans",
+      "Seasonal Dresses",
+      "Premium Cotton Shirts"
     ]
   },
   {
-    "name": "Haven Hub",
-    "category": "HOME_GOODS",
+    "name": "Wave Shop",
+    "category": "ELECTRONICS",
     "type": "marketplace",
-    "description": "At Haven Hub, we've reimagined what a home goods marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
+    "description": "Wave Shop is a premier marketplace specializing in high-quality electronics products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Gourmet Kitchenware",
+      "Digital Cameras",
+      "Ultrabook Laptops",
+      "Smartphones"
+    ]
+  },
+  {
+    "name": "Harmony Emporium",
+    "category": "HOME_GOODS",
+    "type": "department_store",
+    "description": "Harmony Emporium is a premier department store specializing in high-quality home goods products, offering exceptional customer service and a curated selection.",
+    "products": [
+      "Stylish Home Decor",
+      "Designer Lighting",
       "Artisan Furniture",
       "Luxury Bedding",
-      "Stylish Home Decor"
+      "Gourmet Kitchenware"
     ]
   },
   {
-    "name": "Bloom Emporium",
+    "name": "Serene",
     "category": "BEAUTY",
-    "type": "boutique",
-    "description": "Bloom Emporium is a premier boutique specializing in high-quality beauty products, offering exceptional customer service and a curated selection.",
+    "type": "department_store",
+    "description": "Serene is a premier department store specializing in high-quality beauty products, offering exceptional customer service and a curated selection.",
     "products": [
       "Premium Cosmetics",
       "Spa Essentials",
       "Organic Skincare",
-      "Signature Fragrances",
       "Professional Hair Products"
     ]
   },
   {
-    "name": "Vigor",
+    "name": "Active",
     "category": "SPORTS",
     "type": "online_shop",
-    "description": "Vigor is a premier online shop specializing in high-quality sports products, offering exceptional customer service and a curated selection.",
+    "description": "Discover the unique shopping experience at Active, a sports online shop dedicated to bringing you the finest products and personalized service.",
     "products": [
-      "Fitness Accessories",
+      "Outdoor Gear",
       "Professional Equipment",
-      "Performance Activewear"
+      "Training Supplements",
+      "Fitness Accessories"
     ]
   },
   {
-    "name": "Bookish World",
+    "name": "Chapter Co.",
     "category": "BOOKS",
-    "type": "department_store",
-    "description": "Bookish World is a premier department store specializing in high-quality books products, offering exceptional customer service and a curated selection.",
+    "type": "online_shop",
+    "description": "Welcome to Chapter Co., where passion for books meets exceptional retail experience in our carefully designed online shop.",
     "products": [
-      "Reference Works",
-      "Journals & Planners",
       "Graphic Novels",
-      "Educational Resources"
+      "Journals & Planners",
+      "Educational Resources",
+      "Reference Works",
+      "Bestselling Fiction"
     ]
   },
   {
-    "name": "Discovery Hub",
+    "name": "Joy",
     "category": "TOYS",
-    "type": "physical_store",
-    "description": "Discover the unique shopping experience at Discovery Hub, a toys physical store dedicated to bringing you the finest products and personalized service.",
+    "type": "outlet",
+    "description": "Joy is a premier outlet specializing in high-quality toys products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Limited Edition Collectibles",
+      "Outdoor Play Equipment",
       "Collectible Figures",
       "Strategy Board Games",
-      "Outdoor Play Equipment"
+      "Limited Edition Collectibles"
     ]
   },
   {
-    "name": "Basket Store",
+    "name": "Bounty Collective",
     "category": "GROCERY",
-    "type": "popup_store",
-    "description": "Basket Store is a premier popup store specializing in high-quality grocery products, offering exceptional customer service and a curated selection.",
+    "type": "boutique",
+    "description": "Bounty Collective is a premier boutique specializing in high-quality grocery products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Gourmet Pantry Items",
       "Artisanal Snacks",
-      "Organic Produce"
+      "Organic Produce",
+      "Ready-to-Serve Meals",
+      "Craft Beverages"
     ]
   },
   {
-    "name": "Balance Collective",
+    "name": "Renew Place",
     "category": "HEALTH",
-    "type": "popup_store",
-    "description": "Discover the unique shopping experience at Balance Collective, a health popup store dedicated to bringing you the finest products and personalized service.",
+    "type": "boutique",
+    "description": "Renew Place is a premier boutique specializing in high-quality health products, offering exceptional customer service and a curated selection.",
     "products": [
-      "Performance Supplements",
       "Fitness Equipment",
+      "Performance Supplements",
       "Organic Health Foods"
     ]
   },
   {
-    "name": "Eco Market",
+    "name": "Nature Place",
     "category": "ECO_FRIENDLY",
     "type": "marketplace",
-    "description": "At Eco Market, we've reimagined what a eco friendly marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
+    "description": "At Nature Place, we've reimagined what a eco friendly marketplace can be, focusing on quality, sustainability, and customer satisfaction.",
     "products": [
+      "Eco-Conscious Fashion",
       "Sustainable Home Products",
-      "Renewable Energy Gadgets",
-      "Recycled Decor Items"
+      "Zero-Waste Essentials"
     ]
   }
 ]
