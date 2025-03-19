@@ -303,7 +303,7 @@ function generateEntityContent(entityId, entityName, category) {
   const thumbnailUrl = `https://source.unsplash.com/random/300x200/?${contentType},${category.toLowerCase()}`;
   
   return {
-    interestId: entityId,
+    entityId: entityId,
     title,
     description,
     url,
@@ -338,8 +338,8 @@ async function createEntities() {
           // Check if entity with this name already exists
           const existingEntity = await db
             .select()
-            .from(schema.interests)
-            .where(eq(schema.interests.name, entityName))
+            .from(schema.entities)
+            .where(eq(schema.entities.name, entityName))
             .limit(1);
             
           let entity;
@@ -349,14 +349,19 @@ async function createEntities() {
             entity = existingEntity[0];
             console.log(`Using existing entity: ${entityName} (ID: ${entity.id})`);
           } else {
-            // Insert the entity as a new interest
+            // Create the coordinates for physical entities
+            const coordinates = ENTITY_TYPES[category] === 'PHYSICAL' ? generateRandomCoordinates() : null;
+            
+            // Insert the entity in the dedicated entities table
             const [newEntity] = await db
-              .insert(schema.interests)
+              .insert(schema.entities)
               .values({
                 name: entityName,
                 category,
                 description: entityDescription,
+                entityType: ENTITY_TYPES[category],
                 iconUrl,
+                coordinates
               })
               .returning();
             
@@ -372,9 +377,17 @@ async function createEntities() {
           for (let j = 0; j < numContentItems; j++) {
             const contentData = generateEntityContent(entity.id, entityName, category);
             
+            // Update the content creation to use the entity_content table
             const [content] = await db
-              .insert(schema.interestContent)
-              .values(contentData)
+              .insert(schema.entityContent)
+              .values({
+                entityId: entity.id,
+                title: contentData.title,
+                description: contentData.description,
+                url: contentData.url,
+                thumbnailUrl: contentData.thumbnailUrl,
+                type: contentData.type
+              })
               .returning();
             
             createdContent.push(content);
