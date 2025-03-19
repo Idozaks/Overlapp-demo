@@ -1361,6 +1361,64 @@ Example response format:
     }
   });
 
+  // Marketplace API routes
+  app.get("/api/marketplace/categories", async (req: Request, res: Response) => {
+    try {
+      const entities = await storage.getAllEntities();
+      const categories = [...new Set(entities.map(entity => entity.category))];
+      res.status(200).json({ categories });
+    } catch (error) {
+      log("Error fetching entity categories:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch entity categories" });
+    }
+  });
+
+  app.get("/api/marketplace/entities", async (req: Request, res: Response) => {
+    try {
+      const category = req.query.category as string;
+      let entities;
+      
+      if (category && category !== 'all') {
+        entities = await storage.getEntitiesByCategory(category);
+      } else {
+        entities = await storage.getAllEntities();
+      }
+      
+      res.status(200).json({ entities });
+    } catch (error) {
+      log("Error fetching entities:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch entities" });
+    }
+  });
+
+  app.get("/api/marketplace/entities/:id", async (req: Request, res: Response) => {
+    try {
+      const entityId = Number(req.params.id);
+      
+      if (isNaN(entityId)) {
+        return res.status(400).json({ message: "Invalid entity ID" });
+      }
+      
+      const entity = await storage.getEntity(entityId);
+      
+      if (!entity) {
+        return res.status(404).json({ message: "Entity not found" });
+      }
+      
+      const content = await storage.getEntityContent(entityId);
+      
+      res.status(200).json({ 
+        entity: {
+          ...entity,
+          content
+        } 
+      });
+    } catch (error) {
+      log("Error fetching entity details:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch entity details" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
