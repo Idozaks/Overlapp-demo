@@ -24,16 +24,22 @@ const scripts = [
     description: 'Generating enhanced user profiles'
   },
   {
-    file: 'entities.js',
-    description: 'Generating entities (digital/physical places)'
+    file: 'synthetic-entities.js',
+    description: 'Generating business entities (retail, online, education, etc.)'
   },
   {
-    file: 'locations.js',
-    description: 'Generating location posts'
+    file: 'synthetic-location-entities.js',
+    description: 'Generating location entities (cafes, parks, venues, etc.)'
   },
   {
-    file: 'retail-places.js',
+    file: 'synthetic-retail-places.js',
     description: 'Generating retail places and user preferences'
+  },
+  {
+    file: 'migrate-entities.js',
+    description: 'Migrating any legacy entities (if needed)',
+    skipPreview: true,
+    args: ['--dry-run'] // In normal mode, use --migrate-and-clean
   }
 ];
 
@@ -71,6 +77,12 @@ async function previewTestData() {
   try {
     // Run each script with preview flag
     for (const script of scripts) {
+      // Skip scripts marked to skip in preview mode
+      if (script.skipPreview) {
+        console.log(`\n=== SKIPPING: ${script.description} (not needed in preview mode) ===`);
+        continue;
+      }
+      
       console.log(`\n=== PREVIEW: ${script.description} ===`);
       const scriptPath = join(__dirname, script.file);
       await runScript(scriptPath, ['--preview']);
@@ -125,7 +137,17 @@ async function generateAllTestData() {
     for (const script of scripts) {
       console.log(`\n=== ${script.description} ===`);
       const scriptPath = join(__dirname, script.file);
-      await runScript(scriptPath);
+      
+      if (script.file === 'migrate-entities.js') {
+        // For the migration script, use migrate-and-clean in normal mode
+        await runScript(scriptPath, ['--migrate-and-clean']);
+      } else if (script.args) {
+        // Use provided arguments if any
+        await runScript(scriptPath, script.args);
+      } else {
+        // No special arguments
+        await runScript(scriptPath);
+      }
     }
     
     console.log('\n🎉 All test data generation complete!');
