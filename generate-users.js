@@ -164,10 +164,10 @@ function generateBio(interests, occupation, personalValues) {
   return `${getRandomElement(intros)} ${selectedInterests.join(' and ')} ${getRandomElement(middles)} ${occupation}. ${getRandomElement(endings)} ${selectedValues.join(' and ')}.`;
 }
 
-// Generate 20 unique synthetic users
+// Generate 50 unique synthetic users
 const users = [];
 
-for (let i = 1; i <= 20; i++) {
+for (let i = 1; i <= 50; i++) {
   // Generate first and last name with diverse cultural backgrounds
   const firstNames = ['Alex', 'Jordan', 'Taylor', 'Jamie', 'Morgan', 'Riley', 'Casey', 'Avery', 'Quinn', 'Skyler', 'Dakota', 'Reese', 'Parker', 'Hayden', 'Finley', 'Kai', 'Zephyr', 'Sage', 'Nova', 'Blake'];
   const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'];
