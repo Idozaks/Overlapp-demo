@@ -371,7 +371,7 @@ export default function Matches() {
               <Link href={`/profile/${match.userId}`}>
                 <Button variant="outline">View Profile</Button>
               </Link>
-              <Link href={`/overlap/${match.userId}`}>
+              <Link href={`/social/overlap?targetId=${match.userId}`}>
                 <Button>View Overlap</Button>
               </Link>
             </CardFooter>
