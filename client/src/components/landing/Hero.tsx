@@ -153,7 +153,35 @@ export default function Hero() {
               <iframe 
                 width="560" 
                 height="315" 
-                src="https://www.youtube.com/embed/yWqN2HUGDZw?si=9P_LGAMYm0SJM2w_" 
+                src="https://www.youtube.com/embed/yWqN2HUGDZw" 
+                title="YouTube video player" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerPolicy="strict-origin-when-cross-origin" 
+                allowFullScreen
+                className="w-full aspect-video max-w-3xl"
+              ></iframe>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            className="w-full flex justify-center"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.7 }}
+          >
+            <div className="rounded-xl overflow-hidden shadow-2xl border border-muted">
+              <iframe 
+                width="560" 
+                height="315" 
+                src="https://www.youtube.com/embed/Rk7t0TWYNDg?si=bNbaZOgkWQlIIJH2" 
+                title="YouTube video player" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerPolicy="strict-origin-when-cross-origin" 
+                allowFullScreen
+                className="w-full aspect-video max-w-3xl"
+              ></iframe>P_LGAMYm0SJM2w_" 
                 title="YouTube video player" 
                 frameBorder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
