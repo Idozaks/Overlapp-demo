@@ -115,14 +115,14 @@ function getRandomElements(array, min, max) {
   const count = Math.floor(Math.random() * (max - min + 1)) + min;
   const result = [];
   const arrayCopy = [...array];
-  
+
   for (let i = 0; i < count; i++) {
     if (arrayCopy.length === 0) break;
     const randomIndex = Math.floor(Math.random() * arrayCopy.length);
     result.push(arrayCopy[randomIndex]);
     arrayCopy.splice(randomIndex, 1);
   }
-  
+
   return result;
 }
 
@@ -171,10 +171,10 @@ for (let i = 1; i <= 20; i++) {
   // Generate first and last name with diverse cultural backgrounds
   const firstNames = ['Alex', 'Jordan', 'Taylor', 'Jamie', 'Morgan', 'Riley', 'Casey', 'Avery', 'Quinn', 'Skyler', 'Dakota', 'Reese', 'Parker', 'Hayden', 'Finley', 'Kai', 'Zephyr', 'Sage', 'Nova', 'Blake'];
   const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'];
-  
+
   const firstName = getRandomElement(firstNames);
   const lastName = getRandomElement(lastNames);
-  
+
   // Select random attributes
   const gender = getRandomElement(genders);
   const ageRange = getRandomElement(ageRanges);
@@ -193,14 +193,14 @@ for (let i = 1; i <= 20; i++) {
   const learningStyle = getRandomElement(learningStyles);
   const occupation = getRandomElement(occupations);
   const location = getRandomElement(locations);
-  
+
   // Select random interests
   const userInterests = getRandomElements(interests, 3, 10);
   const interestNames = userInterests.map(interest => interest.name);
-  
+
   // Select retail preferences
   const userRetailPreferences = getRandomElements(retailPreferences, 2, 5);
-  
+
   // Create identity preferences with randomized importance
   const identityAttributes = [
     'gender', 'ageRange', 'countryOfOrigin', 'languagesSpoken', 'culturalBackground',
@@ -208,12 +208,12 @@ for (let i = 1; i <= 20; i++) {
     'collaborationStyle', 'personalValues', 'digitalIdentity', 'physicalActivityLevel',
     'culturalExperiences', 'learningStyle'
   ];
-  
+
   const attributeImportance = {};
   identityAttributes.forEach(attr => {
     attributeImportance[attr] = Math.floor(Math.random() * 10) + 1; // 1-10 importance scale
   });
-  
+
   // Create a user object
   const username = generateUsername(firstName, lastName);
   const user = {
@@ -249,7 +249,7 @@ for (let i = 1; i <= 20; i++) {
     },
     interestIds: userInterests.map(interest => interest.id)
   };
-  
+
   users.push(user);
 }
 
@@ -271,21 +271,21 @@ const __dirname = path.dirname(__filename);
 async function createUsers() {
   try {
     const usersData = JSON.parse(fs.readFileSync(path.join(__dirname, 'synthetic-users.json'), 'utf8'));
-    
+
     console.log(\`Preparing to create \${usersData.length} users...\`);
-    
+
     for (const userData of usersData) {
       const { interestIds, ...userToCreate } = userData;
-      
+
       try {
         // Register the user
         console.log(\`Creating user: \${userData.username}...\`);
         const registerResponse = await axios.post('http://localhost:3000/api/register', userToCreate);
-        
+
         if (registerResponse.status === 201) {
           const newUser = registerResponse.data.user;
           console.log(\`Successfully created user \${newUser.username} with ID \${newUser.id}\`);
-          
+
           // Add interests to the user
           if (interestIds && interestIds.length > 0) {
             for (const interestId of interestIds) {
@@ -305,7 +305,7 @@ async function createUsers() {
         }
       }
     }
-    
+
     console.log('User creation process completed!');
   } catch (error) {
     console.error('Error creating users:', error.message);
