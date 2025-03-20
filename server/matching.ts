@@ -151,22 +151,23 @@ export async function calculateInterestScore(
   user1Id: number,
   user2Id: number
 ): Promise<{ score: number; sharedInterests: string[] }> {
-  // Get user1 interests
+  // Get user1 interests from userInterests table
   const user1Interests = await db.query.userInterests.findMany({
-    where: eq(connections.followerId, user1Id),
+    where: eq(userInterests.userId, user1Id),
     with: {
       interest: true
     }
   });
 
-  // Get user2 interests
+  // Get user2 interests from userInterests table
   const user2Interests = await db.query.userInterests.findMany({
-    where: eq(connections.followerId, user2Id),
+    where: eq(userInterests.userId, user2Id),
     with: {
       interest: true
     }
   });
 
+  // Extract interest names
   const user1InterestNames = user1Interests.map(ui => ui.interest.name);
   const user2InterestNames = user2Interests.map(ui => ui.interest.name);
 
@@ -175,9 +176,45 @@ export async function calculateInterestScore(
     user2InterestNames.includes(interest)
   );
 
-  // Calculate score based on number of shared interests
+  // Calculate base score based on number of shared interests
   const totalInterestCount = new Set([...user1InterestNames, ...user2InterestNames]).size;
-  const score = totalInterestCount > 0 ? sharedInterests.length / totalInterestCount : 0;
+  let score = totalInterestCount > 0 ? sharedInterests.length / totalInterestCount : 0;
+
+  // Enhance score with semantic weighting
+  // Higher weights for rare interests that match
+  if (sharedInterests.length > 0) {
+    // Get all interests to identify the rare ones
+    const allInterests = await db.select({ 
+      name: interests.name,
+      count: sql<number>`count(${userInterests.id})` 
+    })
+    .from(interests)
+    .leftJoin(userInterests, eq(interests.id, userInterests.interestId))
+    .groupBy(interests.name);
+    
+    // Create a map of interest name to frequency
+    const interestFrequency = new Map<string, number>();
+    allInterests.forEach(i => {
+      interestFrequency.set(i.name, i.count || 0);
+    });
+    
+    // Calculate rarity bonus (shared rare interests give higher score)
+    let rarityScore = 0;
+    let totalPossibleRarityScore = 0;
+    
+    for (const interest of sharedInterests) {
+      const frequency = interestFrequency.get(interest) || 1;
+      const rarityValue = 1 - Math.min(0.9, frequency / 20); // 0.1 to 1, with 1 being rarest
+      rarityScore += rarityValue;
+      totalPossibleRarityScore += 1;
+    }
+    
+    // Adjust score with rarity bonus (max 25% boost)
+    const rarityBonus = totalPossibleRarityScore > 0 ? 
+      (rarityScore / totalPossibleRarityScore) * 0.25 : 0;
+    
+    score = Math.min(1, score + rarityBonus);
+  }
 
   return {
     score,
@@ -193,71 +230,11 @@ export async function findMatches(
     identityWeight?: number;
     interestWeight?: number;
     minIdentityMatches?: number;
+    includeCompatibilityInsights?: boolean;
   } = {}
 ): Promise<MatchResult[]> {
-  const {
-    limit = 20,
-    identityWeight = 0.7,
-    interestWeight = 0.3,
-    minIdentityMatches = 2
-  } = options;
-
-  // Get the current user
-  const [currentUser] = await db
-    .select()
-    .from(connections.followerId)
-    .where(eq(connections.followerId, userId));
-
-  if (!currentUser) {
-    throw new Error('User not found');
-  }
-
-  // Get all users excluding the current user
-  const allUsers = await db
-    .select()
-    .from(connections.followerId)
-    .where(not(eq(connections.followerId, userId)));
-
-  // Get user's importance weights for identity attributes
-  const attributeImportance = currentUser.identityPreferences?.attributeImportance || {};
-
-  const results: MatchResult[] = [];
-
-  for (const user of allUsers) {
-    // Calculate identity match score
-    const identityResult = calculateIdentityScore(currentUser, user, attributeImportance);
-    
-    // Skip users who don't meet minimum identity matches threshold
-    if (identityResult.commonIdentities.length < minIdentityMatches) {
-      continue;
-    }
-
-    // Calculate interest match score
-    const interestResult = await calculateInterestScore(userId, user.id);
-
-    // Combine scores with specified weights
-    const combinedScore = (identityWeight * identityResult.score) + 
-                          (interestWeight * interestResult.score);
-
-    results.push({
-      userId: user.id,
-      username: user.username,
-      displayName: user.displayName,
-      avatar: user.avatar,
-      bio: user.bio,
-      matchScore: combinedScore,
-      sharedIdentityCount: identityResult.commonIdentities.length,
-      identityScore: identityResult.score,
-      interestScore: interestResult.score,
-      sharedInterests: interestResult.sharedInterests,
-      commonIdentities: identityResult.commonIdentities
-    });
-  }
-
-  // Sort by match score
-  return results
-    .sort((a, b) => b.matchScore - a.matchScore)
-    .slice(0, limit);
+  // Forward to the enhanced getPotentialMatches function
+  return getPotentialMatches(userId, options);
 }
 
 // Generate compatibility insights using AI
@@ -342,6 +319,132 @@ function calculateEngagementScore(
   
   // Combined score with bonuses
   return Math.min(1, baseScore + interestBonus + identityBonus);
+}
+
+// Store match feedback for adaptive learning
+export interface MatchFeedback {
+  userId: number;
+  targetUserId: number;
+  score: number; // -1 (negative), 0 (neutral), 1 (positive)
+  timestamp: Date;
+  interactionType: 'explicit' | 'implicit';
+  interactionDetails?: string;
+}
+
+// Update matching weights based on user feedback
+export async function updateMatchingWeights(
+  userId: number,
+  recentFeedback: MatchFeedback[]
+): Promise<void> {
+  try {
+    // Get current user with preferences
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    
+    if (!user || !user.identityPreferences) {
+      return;
+    }
+    
+    // Get current attribute importance
+    const currentPreferences = user.identityPreferences as { attributeImportance: Record<string, number> };
+    
+    // Initialize success rates for each attribute
+    const attributeSuccessRates: Record<string, { 
+      positiveCount: number;
+      negativeCount: number;
+      totalCount: number;
+      successRate: number;
+    }> = {};
+    
+    // Setup attributes to track
+    const identityAttributes = [
+      'gender', 'ageRange', 'countryOfOrigin', 'languagesSpoken', 
+      'culturalBackground', 'education', 'professionalField', 
+      'communityAffiliations', 'eventPreferences', 'collaborationStyle', 
+      'personalValues', 'digitalIdentity', 'physicalActivityLevel', 
+      'culturalExperiences', 'learningStyle'
+    ];
+    
+    identityAttributes.forEach(attr => {
+      attributeSuccessRates[attr] = {
+        positiveCount: 0,
+        negativeCount: 0,
+        totalCount: 0,
+        successRate: 0
+      };
+    });
+    
+    // Process each feedback entry
+    for (const feedback of recentFeedback) {
+      // Get the target user
+      const [targetUser] = await db.select().from(users).where(eq(users.id, feedback.targetUserId));
+      if (!targetUser) continue;
+      
+      // Check each identity attribute for matches
+      for (const attribute of identityAttributes) {
+        const attr = attribute as keyof typeof user;
+        
+        // Skip if either user doesn't have this attribute
+        if (!user[attr] || !targetUser[attr]) {
+          continue;
+        }
+        
+        // Check if attribute matches
+        const isMatch = user[attr] === targetUser[attr];
+        if (isMatch) {
+          attributeSuccessRates[attribute].totalCount++;
+          
+          if (feedback.score > 0) {
+            attributeSuccessRates[attribute].positiveCount++;
+          } else if (feedback.score < 0) {
+            attributeSuccessRates[attribute].negativeCount++;
+          }
+        }
+      }
+    }
+    
+    // Calculate success rates for each attribute
+    for (const attribute of Object.keys(attributeSuccessRates)) {
+      const stats = attributeSuccessRates[attribute];
+      stats.successRate = stats.totalCount > 0 
+        ? stats.positiveCount / stats.totalCount 
+        : 0;
+    }
+    
+    // Create new preferences with adjusted weights
+    const newAttributeImportance = { ...currentPreferences.attributeImportance };
+    
+    for (const attribute of Object.keys(attributeSuccessRates)) {
+      const stats = attributeSuccessRates[attribute];
+      
+      // Only adjust if we have enough data (5+ feedback entries)
+      if (stats.totalCount >= 5) {
+        const currentWeight = currentPreferences.attributeImportance[attribute] || 5;
+        
+        // Increase weight for attributes that lead to positive matches
+        if (stats.successRate > 0.7) {
+          newAttributeImportance[attribute] = Math.min(10, currentWeight + 1);
+        } 
+        // Decrease weight for attributes that don't correlate with positive matches
+        else if (stats.successRate < 0.3) {
+          newAttributeImportance[attribute] = Math.max(0, currentWeight - 1);
+        }
+      }
+    }
+    
+    // Update user's identity preferences with new weights
+    await db.update(users)
+      .set({ 
+        identityPreferences: { 
+          attributeImportance: newAttributeImportance 
+        } 
+      })
+      .where(eq(users.id, userId));
+      
+    log(`Updated identity preferences for user ${userId} based on feedback`);
+    
+  } catch (error) {
+    log("Error updating matching weights:", error instanceof Error ? error.message : String(error));
+  }
 }
 
 // Get potential user matches that prioritize identity attributes
