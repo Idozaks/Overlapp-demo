@@ -1,5 +1,5 @@
 
-import { openai } from './server/openai.js';
+import { openai } from './server/openai.ts';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
