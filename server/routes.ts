@@ -672,7 +672,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Identity-based matching
+  // Identity-based matching with enhanced algorithm
   app.get("/api/identity-matches/:userId", async (req: Request, res: Response) => {
     try {
       const userId = Number(req.params.userId);
@@ -685,13 +685,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const identityWeight = req.query.identityWeight ? Number(req.query.identityWeight) : undefined;
       const interestWeight = req.query.interestWeight ? Number(req.query.interestWeight) : undefined;
       const minIdentityMatches = req.query.minIdentityMatches ? Number(req.query.minIdentityMatches) : undefined;
+      const includeCompatibilityInsights = req.query.includeCompatibilityInsights === 'true';
       
       // Create options object
       const options = {
         limit,
         identityWeight,
         interestWeight,
-        minIdentityMatches
+        minIdentityMatches,
+        includeCompatibilityInsights
       };
       
       // Filter out undefined values
@@ -699,7 +701,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         Object.entries(options).filter(([_, v]) => v !== undefined)
       );
       
-      const matches = await storage.getIdentityMatches(userId, filteredOptions);
+      // Use the direct matching function instead of going through storage
+      // This allows us to leverage the enhanced algorithm
+      const matches = await import('./matching').then(({ getPotentialMatches }) => {
+        return getPotentialMatches(userId, filteredOptions);
+      });
+      
       res.json({ matches });
     } catch (error) {
       log("Error fetching identity matches:", String(error));
@@ -725,6 +732,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       log("Error updating identity preferences:", String(error));
       res.status(500).json({ message: "Unable to update identity preferences" });
+    }
+  });
+  
+  // Submit feedback on match quality for adaptive learning
+  app.post("/api/matches/:userId/feedback", async (req: Request, res: Response) => {
+    try {
+      const userId = Number(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      const { 
+        targetUserId, 
+        score, 
+        interactionType, 
+        interactionDetails 
+      } = req.body;
+      
+      if (typeof targetUserId !== 'number' || 
+          typeof score !== 'number' || 
+          ![-1, 0, 1].includes(score)) {
+        return res.status(400).json({ 
+          message: "Invalid feedback data. Required: targetUserId (number) and score (-1, 0, or 1)" 
+        });
+      }
+      
+      // Create feedback object
+      const feedback = {
+        userId,
+        targetUserId,
+        score,
+        timestamp: new Date(),
+        interactionType: interactionType || 'explicit',
+        interactionDetails
+      };
+      
+      // Get recent feedback for this user to use in adapting weights
+      // In a real system, you would store feedback in the database
+      // Here we'll just use the current feedback for demonstration
+      const recentFeedback = [feedback];
+      
+      // Update matching weights based on feedback
+      await import('./matching').then(({ updateMatchingWeights }) => {
+        return updateMatchingWeights(userId, recentFeedback);
+      });
+      
+      res.json({ 
+        success: true, 
+        message: "Feedback received and preferences updated" 
+      });
+    } catch (error) {
+      log("Error processing match feedback:", String(error));
+      res.status(500).json({ message: "Unable to process match feedback" });
     }
   });
 
