@@ -1,14 +1,18 @@
-# Overlapp Project Status
+# Overlapp Project
 
+## Documentation
 
-## Interactive Feature Simulations
-🎮 Click on any of the features below to see an interactive simulation:
+### Core Documents
+- [Events System Blueprint](./docs/events-blueprint.md)
+- [Matching Algorithm Enhancements](./docs/matching-algorithm-enhancements.md)
+- [Data Relationship Diagram](./docs/data-relationship-diagram.md)
+- [Synthetic Data Generation Guide](./docs/synthetic-data-generation.md)
+- [Tasks and Issues](./docs/tasks.md)
 
-- [User Overlap Analysis](./simulations/markdown/user-overlap.md) - See how our comprehensive profile comparison system works
-- [AI-Powered Interest Matching](./simulations/markdown/interest-matching.md) - Experience our intelligent interest recommendation system
-- [Multilanguage Support](./simulations/markdown/multilanguage.md) - Try the application in multiple languages with RTL support
-
-[View All Feature Simulations](./simulations/markdown/README.md)
+### Feature Simulations
+- [User Overlap Analysis](./simulations/markdown/user-overlap.md)
+- [Interest Matching](./simulations/markdown/interest-matching.md)
+- [Multilanguage Support](./simulations/markdown/multilanguage.md)
 
 ## Recent Updates (March 2024)
 
@@ -133,22 +137,15 @@
 - AI Integration: OpenAI API
 
 ## Core Features
-- [Comprehensive user overlap analysis](./simulations/markdown/user-overlap.md)
-- [AI-powered interest matching](./simulations/markdown/interest-matching.md)
-- [Multi-language support](./simulations/markdown/multilanguage.md)
+- Comprehensive user overlap analysis
+- AI-powered interest matching
+- Multi-language support with RTL
 - Profile comparison system
 - Collaboration suggestions
 - Modern UI components
 - Mobile-responsive design
 
-## Technical Implementation
-- React with TypeScript
-- Modern component architecture
-- Efficient state management
-- AI integration for matching
-- Secure user authentication
-- Profile data management
-- Responsive design system
+For detailed technical information and implementation guides, please refer to the documentation links above.
 
 ## Next Steps
 1. Complete direct messaging system
