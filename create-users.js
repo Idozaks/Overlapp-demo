@@ -20,7 +20,7 @@ async function createUsers() {
       try {
         // Register the user
         console.log(`Creating user: ${userData.username}...`);
-        const registerResponse = await axios.post('http://0.0.0.0:5000/api/register', userToCreate);
+        const registerResponse = await axios.post('http://localhost:3000/api/register', userToCreate);
 
         if (registerResponse.status === 201) {
           const newUser = registerResponse.data.user;
@@ -30,7 +30,7 @@ async function createUsers() {
           if (interestIds && interestIds.length > 0) {
             for (const interestId of interestIds) {
               try {
-                await axios.post(`http://0.0.0.0:5000/api/users/${newUser.id}/interests`, { interestId });
+                await axios.post(`http://localhost:3000/api/users/${newUser.id}/interests`, { interestId });
                 console.log(`Added interest ID ${interestId} to user ${newUser.username}`);
               } catch (interestError) {
                 console.error(`Failed to add interest ${interestId} to user ${newUser.username}: ${interestError.message}`);
