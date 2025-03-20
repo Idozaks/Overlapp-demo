@@ -73,7 +73,7 @@ export async function generateEntityUserOverlapAnalysis(
 
     log("Generating entity-user overlap analysis with OpenAI");
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
