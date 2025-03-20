@@ -151,28 +151,30 @@ export async function calculateInterestScore(
   user1Id: number,
   user2Id: number
 ): Promise<{ score: number; sharedInterests: string[] }> {
-  // Get user1 interests from userInterests table
-  const user1Interests = await db.query.userInterests.findMany({
-    where: eq(userInterests.userId, user1Id),
-    with: {
-      interest: true
-    }
-  });
+  // Get user1 interests - using standard select instead of query builder
+  const user1InterestsData = await db
+    .select({
+      interest: interests
+    })
+    .from(userInterests)
+    .innerJoin(interests, eq(userInterests.interestId, interests.id))
+    .where(eq(userInterests.userId, user1Id));
 
-  // Get user2 interests from userInterests table
-  const user2Interests = await db.query.userInterests.findMany({
-    where: eq(userInterests.userId, user2Id),
-    with: {
-      interest: true
-    }
-  });
+  // Get user2 interests - using standard select instead of query builder
+  const user2InterestsData = await db
+    .select({
+      interest: interests
+    })
+    .from(userInterests)
+    .innerJoin(interests, eq(userInterests.interestId, interests.id))
+    .where(eq(userInterests.userId, user2Id));
 
   // Extract interest names
-  const user1InterestNames = user1Interests.map(ui => ui.interest.name);
-  const user2InterestNames = user2Interests.map(ui => ui.interest.name);
+  const user1InterestNames = user1InterestsData.map((ui: { interest: { name: string } }) => ui.interest.name);
+  const user2InterestNames = user2InterestsData.map((ui: { interest: { name: string } }) => ui.interest.name);
 
   // Find shared interests
-  const sharedInterests = user1InterestNames.filter(interest => 
+  const sharedInterests = user1InterestNames.filter((interest: string) => 
     user2InterestNames.includes(interest)
   );
 
