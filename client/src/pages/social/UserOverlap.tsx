@@ -14,7 +14,7 @@ export default function UserOverlap() {
   const [location] = useLocation();
   // Make sure to handle URL parameters correctly
   const searchParams = new URLSearchParams(window.location.search);
-  const targetUserId = searchParams.get('targetUserId');
+  const targetUserId = searchParams.get('targetId');
   const { user: currentUser } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
 
