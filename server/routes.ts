@@ -928,7 +928,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "For example, if 'Sports' is given, suggest specific sports or related activities.";
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
