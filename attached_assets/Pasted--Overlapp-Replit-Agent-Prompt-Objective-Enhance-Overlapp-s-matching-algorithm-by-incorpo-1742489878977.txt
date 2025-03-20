@@ -1,0 +1,77 @@
+**Overlapp Replit Agent Prompt**
+
+**Objective:**
+Enhance Overlapp's matching algorithm by incorporating a basic identity layer to improve connection recommendations between users.
+
+**Context:**
+Overlapp is a social connection platform that bridges digital and physical interactions through shared interests, events, and user engagement. The goal is to refine the matching system to provide more meaningful and accurate connections by leveraging identity attributes.
+
+**Key Requirements:**
+1. **Documentation First Approach:**
+   - Before implementation, generate a comprehensive technical documentation outlining the architecture, data flow, and key functionalities.
+   - Include API endpoints, data models, and expected behaviors.
+   - Ensure clarity for future development and integration.
+
+2. **Identity Layer Implementation:**
+   - Establish a structured identity framework.
+   - Capture core user attributes such as name, age, location, and primary interests.
+   - Allow for flexible identity expansion with additional attributes like profession, skill sets, or hobbies.
+
+3. **Enhanced Matching Algorithm:**
+   - Utilize AI-driven analysis to compare identity layers.
+   - Prioritize overlapping interests, proximity, and activity levels.
+   - Factor in social engagement patterns, such as event participation and group interactions.
+   - Ensure user preferences dictate matching priorities.
+
+4. **Structured Data Output:**
+   - Generate structured JSON responses to facilitate seamless integration with the Overlapp UI.
+   - Include ranked match suggestions with relevant metadata.
+
+5. **Privacy & Security Considerations:**
+   - Implement user consent-based data sharing.
+   - Maintain compliance with privacy laws and best practices.
+   - Allow users to control visibility of specific identity attributes.
+
+6. **Adaptive Learning Mechanism:**
+   - Continuously refine matching accuracy through feedback loops.
+   - Implement a scoring system that evolves based on user interaction and reported satisfaction.
+   
+7. **UI/UX Considerations:**
+   - Ensure smooth integration with the Shared Interests Map.
+   - Display matches in an intuitive and engaging manner.
+   - Support interactive elements like Connection Challenges.
+
+**Technical Stack:**
+- **Frontend:** React.js, React Native
+- **Backend:** Node.js, Express
+- **Database:** PostgreSQL, MongoDB
+- **AI/ML:** TensorFlow/PyTorch, OpenAI API
+- **Security:** OAuth2, JWT Authentication, End-to-End Encryption
+
+**Expected Output Format:**
+```json
+{
+  "matches": [
+    {
+      "user_id": "12345",
+      "name": "John Doe",
+      "overlap_score": 87,
+      "shared_interests": ["hiking", "AI research"],
+      "proximity": "5 km away",
+      "activity_level": "high",
+      "engagement_score": 75
+    }
+  ]
+}
+```
+
+**Additional Features for Future Consideration:**
+- Integration with external social platforms to enrich identity layers.
+- Gamified elements to encourage engagement and interactions.
+- AI-driven content recommendations based on user interests.
+
+---
+
+**Instructions:**
+Ensure the Replit agent follows this structured approach when processing user data, generating recommendations, and presenting results. Maintain efficiency, scalability, and user-friendliness in all outputs.
+
