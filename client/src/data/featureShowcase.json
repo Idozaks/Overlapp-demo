@@ -1,0 +1,153 @@
+
+{
+  "currentFeatures": [
+    {
+      "id": "user-overlap",
+      "title": "User Overlap Analysis",
+      "description": "Comprehensive profile comparison system that identifies common interests and collaboration opportunities between users.",
+      "keyPoints": [
+        "Analyzes shared interests between profiles",
+        "Generates collaboration suggestions",
+        "Shows compatibility percentage",
+        "Enhanced with progress indicators"
+      ],
+      "status": "implemented",
+      "components": ["UserOverlap.tsx", "OverlapAnalysis.tsx"],
+      "icon": "Users",
+      "color": "#4F46E5"
+    },
+    {
+      "id": "interest-matching",
+      "title": "AI-Powered Interest Matching",
+      "description": "Intelligent algorithm that suggests new interests based on existing preferences and identifies connections between users.",
+      "keyPoints": [
+        "Analyzes user interests for meaningful patterns",
+        "Suggests relevant new interests to explore",
+        "Powered by AI for personalized recommendations",
+        "Helps discover like-minded individuals"
+      ],
+      "status": "implemented",
+      "components": ["InterestMatching.tsx", "InterestSuggestions.tsx"],
+      "icon": "Sparkles",
+      "color": "#8B5CF6"
+    },
+    {
+      "id": "multilanguage",
+      "title": "Multilanguage Support",
+      "description": "Internationalization system supporting multiple languages including English, Spanish, French, Russian, and Hebrew.",
+      "keyPoints": [
+        "Translation for key interface elements",
+        "Language switching functionality",
+        "Text wrapping for different languages",
+        "RTL support for Hebrew"
+      ],
+      "status": "partially implemented",
+      "components": ["i18n.ts", "LanguageSwitcher.tsx"],
+      "icon": "Globe",
+      "color": "#10B981"
+    },
+    {
+      "id": "digital-identity",
+      "title": "Digital Contact Card",
+      "description": "Instantly shareable digital identity via QR code for seamless real-world connections.",
+      "keyPoints": [
+        "One-tap QR code sharing",
+        "Instant profile connections",
+        "Combines digital and physical networking",
+        "Mobile-friendly design"
+      ],
+      "status": "implemented",
+      "components": ["QRCodeCard.tsx", "ProfileShare.tsx"],
+      "icon": "QrCode",
+      "color": "#EC4899"
+    },
+    {
+      "id": "social-identity-layer",
+      "title": "Identity-Based Matching",
+      "description": "Enhanced matching algorithm that considers multiple identity attributes for more nuanced connections.",
+      "keyPoints": [
+        "User-defined importance of identity attributes",
+        "Compatibility scoring across multiple dimensions",
+        "Adaptive learning based on user feedback",
+        "Privacy-respecting preference settings"
+      ],
+      "status": "implemented",
+      "components": ["IdentityMatching.tsx", "PreferenceSettings.tsx"],
+      "icon": "Fingerprint",
+      "color": "#F59E0B"
+    }
+  ],
+  "mvpFeatures": [
+    {
+      "id": "entity-overlap",
+      "title": "Entity-User Overlap Analysis",
+      "description": "Analyze compatibility between users and entities like businesses, events, or experiences.",
+      "userBenefit": "Helps users discover relevant businesses and events that align with their interests and identity.",
+      "status": "implemented",
+      "mockupScreens": ["EntityOverlapView", "BusinessRecommendations"]
+    },
+    {
+      "id": "marketplace",
+      "title": "Marketplace Entities",
+      "description": "Platform for discovering and interacting with businesses, events, and other entities.",
+      "userBenefit": "Creates a central hub for engaging with relevant real-world opportunities and digital content.",
+      "status": "partially implemented",
+      "mockupScreens": ["MarketplaceView", "EntityDetailView"]
+    },
+    {
+      "id": "wallet-integration",
+      "title": "Digital Wallet",
+      "description": "Integrated wallet functionality for transactions and NFT management.",
+      "userBenefit": "Enables secure digital transactions and ownership of digital assets within the platform.",
+      "status": "partially implemented",
+      "mockupScreens": ["WalletView", "TransactionHistory"]
+    },
+    {
+      "id": "events-system",
+      "title": "Events System",
+      "description": "Comprehensive event creation, discovery, and management capabilities.",
+      "userBenefit": "Allows users to create, join, and manage events with like-minded individuals.",
+      "status": "planned",
+      "mockupScreens": ["EventCreation", "EventDiscovery"]
+    },
+    {
+      "id": "phygital-experience",
+      "title": "Phygital Experience",
+      "description": "Blended digital and physical experiences through location-based features and real-world integration.",
+      "userBenefit": "Bridges online connections with offline interactions for a more meaningful networking experience.",
+      "status": "planned",
+      "mockupScreens": ["LocationBasedFeatures", "RealWorldCheckIn"]
+    }
+  ],
+  "designSystem": {
+    "colors": {
+      "primary": "#4F46E5",
+      "secondary": "#8B5CF6",
+      "accent": "#EC4899",
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444",
+      "background": "#F9FAFB",
+      "surface": "#FFFFFF",
+      "text": "#111827"
+    },
+    "components": [
+      "Button",
+      "Card",
+      "Avatar",
+      "Progress",
+      "Badge",
+      "Dropdown",
+      "Modal",
+      "Tabs",
+      "TextField",
+      "Toggle"
+    ],
+    "mobileUIComponents": [
+      "BottomNavigation",
+      "SwipeableCard",
+      "MobileMenu",
+      "ResponsiveGrid"
+    ]
+  }
+}
