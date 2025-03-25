@@ -1,4 +1,4 @@
-import { pgTable, text, serial, jsonb, timestamp, integer, decimal, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, jsonb, timestamp, integer, decimal, boolean, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -302,3 +302,168 @@ export type InsertEntityContent = z.infer<typeof insertEntityContentSchema>;
 export type Entity = typeof entities.$inferSelect;
 export type EntityContent = typeof entityContent.$inferSelect;
 export type EntityWithContent = Entity & { content: EntityContent[] };
+
+// Chat Tables
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  name: text("name"),
+  type: text("type").notNull().default("user_to_user"), // "user_to_user", "ai_companion"
+  createdBy: integer("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  metadata: jsonb("metadata").$type<{
+    iconUrl?: string;
+    activeIdentityContext?: string;
+    aiPersonality?: string;
+    customSettings?: Record<string, any>;
+  }>(),
+});
+
+export const conversationParticipants = pgTable("conversation_participants", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull().references(() => conversations.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  joinedAt: timestamp("joined_at").defaultNow(),
+  role: text("role").notNull().default("member"), // "member", "admin", "ai"
+  lastReadMessageId: integer("last_read_message_id"),
+  lastSeenAt: timestamp("last_seen_at"),
+  isActive: boolean("is_active").default(true),
+  settings: jsonb("settings").$type<{
+    notifications: boolean;
+    muteUntil?: string;
+    activeIdentityContext?: string;
+  }>(),
+});
+
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull().references(() => conversations.id),
+  senderId: integer("sender_id").references(() => users.id),
+  content: text("content").notNull(),
+  contentType: text("content_type").notNull().default("text"), // "text", "media", "action"
+  mediaUrl: text("media_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  editedAt: timestamp("edited_at"),
+  isDeleted: boolean("is_deleted").default(false),
+  metadata: jsonb("metadata").$type<{
+    identityContext?: string;
+    attachments?: Array<{
+      type: string;
+      url: string;
+      name: string;
+      size?: number;
+    }>;
+    reactions?: Record<string, string[]>; // emoji: [userId1, userId2]
+    replyToMessageId?: number;
+    aiGenerationParams?: Record<string, any>;
+  }>(),
+});
+
+export const messageStatus = pgTable("message_status", {
+  id: serial("id").primaryKey(),
+  messageId: integer("message_id").notNull().references(() => messages.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  status: text("status").notNull().default("sent"), // "sent", "delivered", "read"
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    unq: primaryKey({ columns: [table.messageId, table.userId] })
+  };
+});
+
+export const aiCompanions = pgTable("ai_companions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  avatarUrl: text("avatar_url"),
+  createdBy: integer("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  personality: text("personality").notNull(),
+  systemPrompt: text("system_prompt").notNull(),
+  isPublic: boolean("is_public").default(false),
+  settings: jsonb("settings").$type<{
+    model: string;
+    temperature: number;
+    contextWindow: number;
+    customAttributes: Record<string, any>;
+  }>(),
+});
+
+export const aiConversationContext = pgTable("ai_conversation_context", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull().references(() => conversations.id),
+  summary: text("summary"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  keyPoints: jsonb("key_points").$type<string[]>(),
+  userIdentitySnapshot: jsonb("user_identity_snapshot").$type<Record<string, any>>(),
+  interactionCount: integer("interaction_count").default(0),
+});
+
+// Chat Schemas
+export const insertConversationSchema = createInsertSchema(conversations).pick({
+  name: true,
+  type: true,
+  createdBy: true,
+  metadata: true,
+});
+
+export const insertConversationParticipantSchema = createInsertSchema(conversationParticipants).pick({
+  conversationId: true,
+  userId: true,
+  role: true,
+  settings: true,
+});
+
+export const insertMessageSchema = createInsertSchema(messages).pick({
+  conversationId: true,
+  senderId: true,
+  content: true,
+  contentType: true,
+  mediaUrl: true,
+  metadata: true,
+});
+
+export const insertMessageStatusSchema = createInsertSchema(messageStatus).pick({
+  messageId: true,
+  userId: true,
+  status: true,
+});
+
+export const insertAiCompanionSchema = createInsertSchema(aiCompanions).pick({
+  name: true,
+  description: true,
+  avatarUrl: true,
+  createdBy: true,
+  personality: true,
+  systemPrompt: true,
+  isPublic: true,
+  settings: true,
+});
+
+export const insertAiConversationContextSchema = createInsertSchema(aiConversationContext).pick({
+  conversationId: true,
+  summary: true,
+  keyPoints: true,
+  userIdentitySnapshot: true,
+});
+
+// Chat Types
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type InsertConversationParticipant = z.infer<typeof insertConversationParticipantSchema>;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type InsertMessageStatus = z.infer<typeof insertMessageStatusSchema>;
+export type InsertAiCompanion = z.infer<typeof insertAiCompanionSchema>;
+export type InsertAiConversationContext = z.infer<typeof insertAiConversationContextSchema>;
+
+export type Conversation = typeof conversations.$inferSelect;
+export type ConversationParticipant = typeof conversationParticipants.$inferSelect;
+export type Message = typeof messages.$inferSelect;
+export type MessageStatus = typeof messageStatus.$inferSelect;
+export type AiCompanion = typeof aiCompanions.$inferSelect;
+export type AiConversationContext = typeof aiConversationContext.$inferSelect;
+
+// Combined Types
+export type MessageWithSender = Message & { sender: User };
+export type ConversationWithParticipants = Conversation & { participants: (ConversationParticipant & { user: User })[] };
+export type ConversationWithLastMessage = Conversation & { lastMessage: Message | null, unreadCount: number };
