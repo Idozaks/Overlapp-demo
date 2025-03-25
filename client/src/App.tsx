@@ -60,12 +60,14 @@ import {
   Share2,
   RefreshCw,
   Store,
-  ShoppingBag
+  ShoppingBag,
+  MessageCircle
 } from "lucide-react";
 import "./lib/i18n";
 import About from "@/pages/About"; // Import the About component
 import Marketplace from "@/pages/marketplace"; // Import the Marketplace component
 import EntityOverlap from "@/pages/marketplace/EntityOverlap"; // Import the EntityOverlap component
+import ChatPage from "@/pages/chat"; // Import the Chat component
 
 
 function Router() {
@@ -211,6 +213,7 @@ function Router() {
       <Route path="/engage/persona" component={lazy(() => import('./pages/engage/EngagePersona'))} />
       <Route path="/engage/online" component={lazy(() => import('./pages/engage/EngageOnline'))} />
       <Route path="/engage/offline" component={lazy(() => import('./pages/engage/EngageOffline'))} />
+      <Route path="/chat" component={ChatPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -244,6 +247,9 @@ function Header() {
           </a>
           <a href="/wallet" className="text-foreground hover:text-primary whitespace-nowrap">
             Wallet
+          </a>
+          <a href="/chat" className="text-foreground hover:text-primary whitespace-nowrap flex items-center">
+            <MessageCircle className="w-4 h-4 mr-1" /> Chat
           </a>
           {user.isAdmin && (
             <a href="/admin/interests" className="text-foreground hover:text-primary whitespace-nowrap">
@@ -343,6 +349,10 @@ function Header() {
                     <DropdownMenuItem onClick={() => navigate('/marketplace')}>
                       <Store className="w-4 h-4 mr-2" />
                       Marketplace
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/chat')}>
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Chat
                     </DropdownMenuItem>
                     {user.isAdmin && (
                       <>
