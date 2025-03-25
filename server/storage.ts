@@ -96,6 +96,41 @@ export interface IStorage {
   getEntityContent(entityId: number): Promise<EntityContent[]>;
   addEntityContent(content: InsertEntityContent): Promise<EntityContent>;
   deleteEntity(id: number): Promise<void>;
+  
+  // Chat operations
+  // Conversation operations
+  createConversation(conversation: InsertConversation): Promise<Conversation>;
+  getConversation(id: number): Promise<Conversation | undefined>;
+  getUserConversations(userId: number): Promise<ConversationWithLastMessage[]>;
+  updateConversation(id: number, data: Partial<InsertConversation>): Promise<Conversation>;
+  deleteConversation(id: number): Promise<void>;
+  
+  // Conversation participants
+  addConversationParticipant(participant: InsertConversationParticipant): Promise<ConversationParticipant>;
+  getConversationParticipants(conversationId: number): Promise<(ConversationParticipant & { user: User })[]>;
+  updateParticipantSettings(participantId: number, settings: any): Promise<ConversationParticipant>;
+  removeParticipantFromConversation(conversationId: number, userId: number): Promise<void>;
+  
+  // Message operations
+  sendMessage(message: InsertMessage): Promise<Message>;
+  getConversationMessages(conversationId: number, limit?: number, before?: number): Promise<MessageWithSender[]>;
+  updateMessageStatus(statusUpdate: InsertMessageStatus): Promise<MessageStatus>;
+  getUnreadMessageCount(conversationId: number, userId: number): Promise<number>;
+  markMessagesAsRead(conversationId: number, userId: number, messageId?: number): Promise<void>;
+  deleteMessage(messageId: number): Promise<void>;
+  
+  // AI Companion operations
+  createAiCompanion(companion: InsertAiCompanion): Promise<AiCompanion>;
+  getAiCompanion(id: number): Promise<AiCompanion | undefined>;
+  getPublicAiCompanions(): Promise<AiCompanion[]>;
+  getUserAiCompanions(userId: number): Promise<AiCompanion[]>;
+  updateAiCompanion(id: number, data: Partial<InsertAiCompanion>): Promise<AiCompanion>;
+  deleteAiCompanion(id: number): Promise<void>;
+  
+  // AI Conversation context
+  saveAiConversationContext(context: InsertAiConversationContext): Promise<AiConversationContext>;
+  getAiConversationContext(conversationId: number): Promise<AiConversationContext | undefined>;
+  updateAiConversationContext(id: number, data: Partial<InsertAiConversationContext>): Promise<AiConversationContext>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1088,6 +1123,707 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(entities)
       .where(eq(entities.id, id));
+  }
+
+  // Chat Implementation
+  // Conversation operations
+  async createConversation(conversation: InsertConversation): Promise<Conversation> {
+    try {
+      const [newConversation] = await db
+        .insert(conversations)
+        .values({
+          name: conversation.name,
+          type: conversation.type,
+          createdBy: conversation.createdBy,
+          metadata: conversation.metadata,
+          updatedAt: new Date()
+        })
+        .returning();
+      return newConversation;
+    } catch (error) {
+      log("Error creating conversation:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getConversation(id: number): Promise<Conversation | undefined> {
+    const [conversation] = await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, id));
+    return conversation;
+  }
+
+  async getUserConversations(userId: number): Promise<ConversationWithLastMessage[]> {
+    try {
+      // First get all conversation IDs the user is part of
+      const userParticipations = await db
+        .select({
+          conversationId: conversationParticipants.conversationId
+        })
+        .from(conversationParticipants)
+        .where(eq(conversationParticipants.userId, userId));
+
+      const conversationIds = userParticipations.map(p => p.conversationId);
+
+      if (conversationIds.length === 0) {
+        return [];
+      }
+
+      // Get all conversations with their participants
+      const result = await db
+        .select({
+          conversation: conversations,
+          participant: conversationParticipants,
+          user: users
+        })
+        .from(conversations)
+        .innerJoin(conversationParticipants, eq(conversationParticipants.conversationId, conversations.id))
+        .innerJoin(users, eq(users.id, conversationParticipants.userId))
+        .where(inArray(conversations.id, conversationIds))
+        .orderBy(desc(conversations.updatedAt));
+
+      // Group by conversation
+      const conversationsMap = new Map<number, ConversationWithParticipants>();
+      
+      for (const { conversation, participant, user } of result) {
+        if (!conversationsMap.has(conversation.id)) {
+          conversationsMap.set(conversation.id, {
+            ...conversation,
+            participants: [],
+            lastMessage: null,
+            unreadCount: 0
+          });
+        }
+        
+        const existingConversation = conversationsMap.get(conversation.id)!;
+        existingConversation.participants.push({
+          ...participant,
+          user
+        });
+      }
+
+      // Get last message for each conversation
+      const conversationsWithLastMessage: ConversationWithLastMessage[] = [];
+      
+      for (const conversation of conversationsMap.values()) {
+        const lastMessages = await db
+          .select({
+            message: messages,
+            sender: users
+          })
+          .from(messages)
+          .leftJoin(users, eq(users.id, messages.senderId))
+          .where(eq(messages.conversationId, conversation.id))
+          .orderBy(desc(messages.createdAt))
+          .limit(1);
+
+        // Get unread count
+        const participant = conversation.participants.find(p => p.userId === userId);
+        let unreadCount = 0;
+        
+        if (participant) {
+          const lastReadId = participant.lastReadMessageId || 0;
+          const unreadResult = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(messages)
+            .where(
+              and(
+                eq(messages.conversationId, conversation.id),
+                messages.id > lastReadId
+              )
+            );
+          
+          unreadCount = unreadResult[0]?.count || 0;
+        }
+
+        conversationsWithLastMessage.push({
+          ...conversation,
+          lastMessage: lastMessages.length > 0 ? 
+            { ...lastMessages[0].message, sender: lastMessages[0].sender } : null,
+          unreadCount
+        });
+      }
+
+      return conversationsWithLastMessage;
+    } catch (error) {
+      log("Error getting user conversations:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async updateConversation(id: number, data: Partial<InsertConversation>): Promise<Conversation> {
+    try {
+      const [conversation] = await db
+        .update(conversations)
+        .set({
+          name: data.name,
+          type: data.type,
+          metadata: data.metadata,
+          updatedAt: new Date()
+        })
+        .where(eq(conversations.id, id))
+        .returning();
+      
+      return conversation;
+    } catch (error) {
+      log("Error updating conversation:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async deleteConversation(id: number): Promise<void> {
+    try {
+      await db.transaction(async (tx) => {
+        // Delete all messages status records
+        const messageIds = await tx
+          .select({ id: messages.id })
+          .from(messages)
+          .where(eq(messages.conversationId, id));
+        
+        if (messageIds.length > 0) {
+          const ids = messageIds.map(m => m.id);
+          await tx.delete(messageStatus).where(inArray(messageStatus.messageId, ids));
+        }
+        
+        // Delete all messages
+        await tx.delete(messages).where(eq(messages.conversationId, id));
+        
+        // Delete all participants
+        await tx.delete(conversationParticipants).where(eq(conversationParticipants.conversationId, id));
+        
+        // Delete AI conversation context if exists
+        await tx.delete(aiConversationContext).where(eq(aiConversationContext.conversationId, id));
+        
+        // Delete the conversation
+        await tx.delete(conversations).where(eq(conversations.id, id));
+      });
+    } catch (error) {
+      log("Error deleting conversation:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  // Conversation participants
+  async addConversationParticipant(participant: InsertConversationParticipant): Promise<ConversationParticipant> {
+    try {
+      const [newParticipant] = await db
+        .insert(conversationParticipants)
+        .values({
+          conversationId: participant.conversationId,
+          userId: participant.userId,
+          role: participant.role,
+          settings: participant.settings
+        })
+        .returning();
+      
+      return newParticipant;
+    } catch (error) {
+      log("Error adding conversation participant:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getConversationParticipants(conversationId: number): Promise<(ConversationParticipant & { user: User })[]> {
+    try {
+      const participants = await db
+        .select({
+          participant: conversationParticipants,
+          user: users
+        })
+        .from(conversationParticipants)
+        .innerJoin(users, eq(users.id, conversationParticipants.userId))
+        .where(eq(conversationParticipants.conversationId, conversationId));
+      
+      return participants.map(({ participant, user }) => ({
+        ...participant,
+        user
+      }));
+    } catch (error) {
+      log("Error getting conversation participants:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async updateParticipantSettings(participantId: number, settings: any): Promise<ConversationParticipant> {
+    try {
+      const [participant] = await db
+        .update(conversationParticipants)
+        .set({
+          settings,
+          lastSeenAt: new Date()
+        })
+        .where(eq(conversationParticipants.id, participantId))
+        .returning();
+      
+      return participant;
+    } catch (error) {
+      log("Error updating participant settings:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async removeParticipantFromConversation(conversationId: number, userId: number): Promise<void> {
+    try {
+      await db.delete(conversationParticipants)
+        .where(
+          and(
+            eq(conversationParticipants.conversationId, conversationId),
+            eq(conversationParticipants.userId, userId)
+          )
+        );
+    } catch (error) {
+      log("Error removing participant from conversation:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  // Message operations
+  async sendMessage(message: InsertMessage): Promise<Message> {
+    try {
+      // First, insert the message
+      const [newMessage] = await db
+        .insert(messages)
+        .values({
+          conversationId: message.conversationId,
+          senderId: message.senderId,
+          content: message.content,
+          contentType: message.contentType || 'text',
+          mediaUrl: message.mediaUrl,
+          metadata: message.metadata
+        })
+        .returning();
+      
+      // Then, update the conversation's updatedAt timestamp
+      await db
+        .update(conversations)
+        .set({ updatedAt: new Date() })
+        .where(eq(conversations.id, message.conversationId));
+      
+      // Finally, create message status entries for all participants
+      const participants = await db
+        .select()
+        .from(conversationParticipants)
+        .where(eq(conversationParticipants.conversationId, message.conversationId));
+      
+      for (const participant of participants) {
+        // Set status to 'read' for the sender, 'sent' for others
+        const status = participant.userId === message.senderId ? 'read' : 'sent';
+        
+        await db
+          .insert(messageStatus)
+          .values({
+            messageId: newMessage.id,
+            userId: participant.userId,
+            status
+          });
+        
+        // Update lastReadMessageId for the sender
+        if (participant.userId === message.senderId) {
+          await db
+            .update(conversationParticipants)
+            .set({
+              lastReadMessageId: newMessage.id,
+              lastSeenAt: new Date()
+            })
+            .where(eq(conversationParticipants.id, participant.id));
+        }
+      }
+      
+      return newMessage;
+    } catch (error) {
+      log("Error sending message:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getConversationMessages(conversationId: number, limit: number = 50, before?: number): Promise<MessageWithSender[]> {
+    try {
+      let query = db
+        .select({
+          message: messages,
+          sender: users
+        })
+        .from(messages)
+        .leftJoin(users, eq(users.id, messages.senderId))
+        .where(eq(messages.conversationId, conversationId));
+      
+      if (before) {
+        query = query.where(messages.id < before);
+      }
+      
+      const result = await query
+        .orderBy(desc(messages.createdAt))
+        .limit(limit);
+      
+      // Return in chronological order (oldest first)
+      return result
+        .map(({ message, sender }) => ({
+          ...message,
+          sender
+        }))
+        .reverse();
+    } catch (error) {
+      log("Error getting conversation messages:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async updateMessageStatus(statusUpdate: InsertMessageStatus): Promise<MessageStatus> {
+    try {
+      // First check if status exists
+      const existingStatus = await db
+        .select()
+        .from(messageStatus)
+        .where(
+          and(
+            eq(messageStatus.messageId, statusUpdate.messageId),
+            eq(messageStatus.userId, statusUpdate.userId)
+          )
+        );
+      
+      if (existingStatus.length > 0) {
+        // Update existing status
+        const [updatedStatus] = await db
+          .update(messageStatus)
+          .set({
+            status: statusUpdate.status,
+            updatedAt: new Date()
+          })
+          .where(
+            and(
+              eq(messageStatus.messageId, statusUpdate.messageId),
+              eq(messageStatus.userId, statusUpdate.userId)
+            )
+          )
+          .returning();
+        
+        return updatedStatus;
+      } else {
+        // Create new status
+        const [newStatus] = await db
+          .insert(messageStatus)
+          .values({
+            messageId: statusUpdate.messageId,
+            userId: statusUpdate.userId,
+            status: statusUpdate.status
+          })
+          .returning();
+        
+        return newStatus;
+      }
+    } catch (error) {
+      log("Error updating message status:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getUnreadMessageCount(conversationId: number, userId: number): Promise<number> {
+    try {
+      // Get the participant to find the lastReadMessageId
+      const [participant] = await db
+        .select()
+        .from(conversationParticipants)
+        .where(
+          and(
+            eq(conversationParticipants.conversationId, conversationId),
+            eq(conversationParticipants.userId, userId)
+          )
+        );
+      
+      if (!participant) {
+        return 0;
+      }
+      
+      const lastReadId = participant.lastReadMessageId || 0;
+      
+      // Count messages newer than lastReadId
+      const result = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(messages)
+        .where(
+          and(
+            eq(messages.conversationId, conversationId),
+            messages.id > lastReadId
+          )
+        );
+      
+      return result[0]?.count || 0;
+    } catch (error) {
+      log("Error getting unread message count:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async markMessagesAsRead(conversationId: number, userId: number, messageId?: number): Promise<void> {
+    try {
+      // Find the participant
+      const [participant] = await db
+        .select()
+        .from(conversationParticipants)
+        .where(
+          and(
+            eq(conversationParticipants.conversationId, conversationId),
+            eq(conversationParticipants.userId, userId)
+          )
+        );
+      
+      if (!participant) {
+        return;
+      }
+      
+      // If messageId is provided, use that; otherwise find the latest message
+      let lastMessageId = messageId;
+      
+      if (!lastMessageId) {
+        const latestMessages = await db
+          .select()
+          .from(messages)
+          .where(eq(messages.conversationId, conversationId))
+          .orderBy(desc(messages.createdAt))
+          .limit(1);
+        
+        if (latestMessages.length > 0) {
+          lastMessageId = latestMessages[0].id;
+        } else {
+          return; // No messages to mark as read
+        }
+      }
+      
+      // Update participant's lastReadMessageId
+      await db
+        .update(conversationParticipants)
+        .set({
+          lastReadMessageId: lastMessageId,
+          lastSeenAt: new Date()
+        })
+        .where(eq(conversationParticipants.id, participant.id));
+      
+      // Update message statuses
+      await db
+        .update(messageStatus)
+        .set({
+          status: 'read',
+          updatedAt: new Date()
+        })
+        .where(
+          and(
+            eq(messageStatus.userId, userId),
+            inArray(
+              messageStatus.messageId,
+              db
+                .select({ id: messages.id })
+                .from(messages)
+                .where(
+                  and(
+                    eq(messages.conversationId, conversationId),
+                    messages.id <= lastMessageId!
+                  )
+                )
+            )
+          )
+        );
+    } catch (error) {
+      log("Error marking messages as read:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async deleteMessage(messageId: number): Promise<void> {
+    try {
+      // Soft delete - just mark as deleted
+      await db
+        .update(messages)
+        .set({
+          isDeleted: true,
+          content: "[This message was deleted]",
+          mediaUrl: null
+        })
+        .where(eq(messages.id, messageId));
+    } catch (error) {
+      log("Error deleting message:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  // AI Companion operations
+  async createAiCompanion(companion: InsertAiCompanion): Promise<AiCompanion> {
+    try {
+      const [newCompanion] = await db
+        .insert(aiCompanions)
+        .values({
+          name: companion.name,
+          description: companion.description,
+          avatarUrl: companion.avatarUrl,
+          createdBy: companion.createdBy,
+          personality: companion.personality,
+          systemPrompt: companion.systemPrompt,
+          isPublic: companion.isPublic,
+          settings: companion.settings
+        })
+        .returning();
+      
+      return newCompanion;
+    } catch (error) {
+      log("Error creating AI companion:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getAiCompanion(id: number): Promise<AiCompanion | undefined> {
+    try {
+      const [companion] = await db
+        .select()
+        .from(aiCompanions)
+        .where(eq(aiCompanions.id, id));
+      
+      return companion;
+    } catch (error) {
+      log("Error getting AI companion:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getPublicAiCompanions(): Promise<AiCompanion[]> {
+    try {
+      return await db
+        .select()
+        .from(aiCompanions)
+        .where(eq(aiCompanions.isPublic, true));
+    } catch (error) {
+      log("Error getting public AI companions:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getUserAiCompanions(userId: number): Promise<AiCompanion[]> {
+    try {
+      return await db
+        .select()
+        .from(aiCompanions)
+        .where(
+          or(
+            eq(aiCompanions.createdBy, userId),
+            eq(aiCompanions.isPublic, true)
+          )
+        );
+    } catch (error) {
+      log("Error getting user AI companions:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async updateAiCompanion(id: number, data: Partial<InsertAiCompanion>): Promise<AiCompanion> {
+    try {
+      const [companion] = await db
+        .update(aiCompanions)
+        .set({
+          name: data.name,
+          description: data.description,
+          avatarUrl: data.avatarUrl,
+          personality: data.personality,
+          systemPrompt: data.systemPrompt,
+          isPublic: data.isPublic,
+          settings: data.settings
+        })
+        .where(eq(aiCompanions.id, id))
+        .returning();
+      
+      return companion;
+    } catch (error) {
+      log("Error updating AI companion:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async deleteAiCompanion(id: number): Promise<void> {
+    try {
+      await db
+        .delete(aiCompanions)
+        .where(eq(aiCompanions.id, id));
+    } catch (error) {
+      log("Error deleting AI companion:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  // AI Conversation context
+  async saveAiConversationContext(context: InsertAiConversationContext): Promise<AiConversationContext> {
+    try {
+      // Check if context already exists
+      const existingContext = await db
+        .select()
+        .from(aiConversationContext)
+        .where(eq(aiConversationContext.conversationId, context.conversationId));
+      
+      if (existingContext.length > 0) {
+        // Update existing context
+        const [updatedContext] = await db
+          .update(aiConversationContext)
+          .set({
+            summary: context.summary,
+            keyPoints: context.keyPoints,
+            userIdentitySnapshot: context.userIdentitySnapshot,
+            updatedAt: new Date(),
+            interactionCount: sql`${aiConversationContext.interactionCount} + 1`
+          })
+          .where(eq(aiConversationContext.id, existingContext[0].id))
+          .returning();
+        
+        return updatedContext;
+      } else {
+        // Create new context
+        const [newContext] = await db
+          .insert(aiConversationContext)
+          .values({
+            conversationId: context.conversationId,
+            summary: context.summary,
+            keyPoints: context.keyPoints,
+            userIdentitySnapshot: context.userIdentitySnapshot,
+            interactionCount: 1
+          })
+          .returning();
+        
+        return newContext;
+      }
+    } catch (error) {
+      log("Error saving AI conversation context:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async getAiConversationContext(conversationId: number): Promise<AiConversationContext | undefined> {
+    try {
+      const [context] = await db
+        .select()
+        .from(aiConversationContext)
+        .where(eq(aiConversationContext.conversationId, conversationId));
+      
+      return context;
+    } catch (error) {
+      log("Error getting AI conversation context:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  async updateAiConversationContext(id: number, data: Partial<InsertAiConversationContext>): Promise<AiConversationContext> {
+    try {
+      const [context] = await db
+        .update(aiConversationContext)
+        .set({
+          summary: data.summary,
+          keyPoints: data.keyPoints,
+          userIdentitySnapshot: data.userIdentitySnapshot,
+          updatedAt: new Date()
+        })
+        .where(eq(aiConversationContext.id, id))
+        .returning();
+      
+      return context;
+    } catch (error) {
+      log("Error updating AI conversation context:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
   }
 }
 

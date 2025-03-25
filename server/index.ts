@@ -6,6 +6,7 @@ import { setupAuth } from "./auth";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import { storage } from "./storage";
+import { setupSocketServer } from "./socket";
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
@@ -83,6 +84,11 @@ setupAuth(app);
 
     log("Setting up server environment...");
     const server = await registerRoutes(app);
+    
+    // Initialize Socket.io server
+    log("Setting up Socket.io server...");
+    const socketManager = setupSocketServer(server);
+    log("Socket.io server initialized");
 
     if (app.get("env") === "development") {
       log("Setting up Vite in development mode...");
