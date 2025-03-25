@@ -2,7 +2,15 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, UserCircle, Store, Network, Users, ShoppingBag, Share2 } from "lucide-react";
+import {
+  ChevronRight,
+  UserCircle,
+  Store,
+  Network,
+  Users,
+  ShoppingBag,
+  Share2,
+} from "lucide-react";
 
 const slides = [
   {
@@ -11,7 +19,7 @@ const slides = [
     gradientColors: "from-blue-500 to-purple-500",
     icon: <UserCircle />,
     secondaryIcon: <Users />,
-    emoji: "🧑‍💼"
+    emoji: "🧑‍💼",
   },
   {
     title: "common.landing.hero.slide2.title",
@@ -19,7 +27,7 @@ const slides = [
     gradientColors: "from-green-500 to-teal-500",
     icon: <Store />,
     secondaryIcon: <ShoppingBag />,
-    emoji: "🛍️"
+    emoji: "🛍️",
   },
   {
     title: "common.landing.hero.slide3.title",
@@ -27,8 +35,8 @@ const slides = [
     gradientColors: "from-amber-500 to-red-500",
     icon: <Network />,
     secondaryIcon: <Share2 />,
-    emoji: "🤝"
-  }
+    emoji: "🤝",
+  },
 ];
 
 export default function Hero() {
@@ -49,8 +57,12 @@ export default function Hero() {
     <section className="relative min-h-[90vh] overflow-hidden bg-gradient-to-b from-background to-background/80">
       {/* Background gradient squares */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className={`absolute top-10 right-10 h-64 w-64 rounded-3xl bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-10 blur-3xl`} />
-        <div className={`absolute bottom-10 left-10 h-64 w-64 rounded-3xl bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-10 blur-3xl`} />
+        <div
+          className={`absolute top-10 right-10 h-64 w-64 rounded-3xl bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-10 blur-3xl`}
+        />
+        <div
+          className={`absolute bottom-10 left-10 h-64 w-64 rounded-3xl bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-10 blur-3xl`}
+        />
       </div>
 
       <div className="container relative z-10 mx-auto grid min-h-[90vh] items-center px-4 py-24 md:py-32">
@@ -100,8 +112,8 @@ export default function Hero() {
                   animate={{ scale: 1, opacity: 1 }}
                   className="bg-white/10 rounded-full p-6"
                 >
-                  {React.cloneElement(slides[currentSlide].icon, { 
-                    className: "w-48 h-48 text-white stroke-[1.5]"
+                  {React.cloneElement(slides[currentSlide].icon, {
+                    className: "w-48 h-48 text-white stroke-[1.5]",
                   })}
                 </motion.div>
                 <motion.div
@@ -110,11 +122,13 @@ export default function Hero() {
                   transition={{ delay: 0.2 }}
                   className="bg-black/10 rounded-full p-6"
                 >
-                  {React.cloneElement(slides[currentSlide].secondaryIcon, { 
-                    className: "w-48 h-48 text-white stroke-[1.5]"
+                  {React.cloneElement(slides[currentSlide].secondaryIcon, {
+                    className: "w-48 h-48 text-white stroke-[1.5]",
                   })}
                 </motion.div>
-                <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-30`} />
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-30`}
+                />
               </div>
             </motion.div>
           </div>
@@ -122,83 +136,62 @@ export default function Hero() {
 
         {/* YouTube Video Section */}
         <div className="mt-12 flex flex-col items-center gap-8">
-          <motion.div 
+          <motion.div
             className="w-full flex justify-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
             <div className="rounded-xl overflow-hidden shadow-2xl border border-muted">
-              <iframe 
-                width="560" 
-                height="315" 
-                src="https://www.youtube.com/embed/Rk7t0TWYNDg?si=bNbaZOgkWQlIIJH2" 
-                title="YouTube video player" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/Rk7t0TWYNDg?si=bNbaZOgkWQlIIJH2"
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
                 className="w-full aspect-video max-w-3xl"
               ></iframe>
             </div>
           </motion.div>
-          <motion.div 
+          <motion.div
             className="w-full flex justify-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.5 }}
           >
             <div className="rounded-xl overflow-hidden shadow-2xl border border-muted">
-              <iframe 
-                width="560" 
-                height="315" 
-                src="https://www.youtube.com/embed/J-ACL_Q2UXw?si=WmLfMHrJxVhNfd1l" 
-                title="YouTube video player" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                referrerPolicy="strict-origin-when-cross-origin" 
+              <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/J-ACL_Q2UXw?si=WmLfMHrJxVhNfd1l"
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
                 className="w-full aspect-video max-w-3xl"
               ></iframe>
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="w-full flex justify-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.7 }}
           >
             <div className="rounded-xl overflow-hidden shadow-2xl border border-muted">
-              <iframe 
-                width="560" 
-                height="315" 
-                src="https://www.youtube.com/embed/yWqN2HUGDZw" 
-                title="YouTube video player" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                referrerPolicy="strict-origin-when-cross-origin" 
-                allowFullScreen
-                className="w-full aspect-video max-w-3xl"
-              ></iframe>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            className="w-full flex justify-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.9 }}
-          >
-            <div className="rounded-xl overflow-hidden shadow-2xl border border-muted">
-              <iframe 
-                width="560" 
-                height="315" 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-                title="YouTube video player" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                referrerPolicy="strict-origin-when-cross-origin" 
+              <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/yWqN2HUGDZw"
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
                 className="w-full aspect-video max-w-3xl"
               ></iframe>
