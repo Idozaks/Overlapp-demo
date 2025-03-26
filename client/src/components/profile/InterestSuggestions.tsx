@@ -41,6 +41,49 @@ export default function InterestSuggestions({
     return () => clearTimeout(timer);
   }, []);
 
+  const generateEmojisMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/interests/generate-emojis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          interests: suggestions.map(s => ({
+            id: 0,
+            name: s.name
+          }))
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate emojis');
+      }
+      
+      const data = await response.json();
+      return data.interests;
+    },
+    onSuccess: (data) => {
+      setSuggestions(prev => 
+        prev.map(suggestion => {
+          const match = data.find(d => d.name === suggestion.name);
+          return match ? { ...suggestion, emoji: match.emoji } : suggestion;
+        })
+      );
+      toast({
+        title: "Success",
+        description: "Added emojis to interests",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
   const enrichInterestsMutation = useMutation({
     mutationFn: async (interests: string[]) => {
       try {
@@ -257,6 +300,18 @@ export default function InterestSuggestions({
             disabled={selectedSuggestions.size === 0 || isLoading}
           >
             {t("common.save")}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => generateEmojisMutation.mutate()}
+            disabled={generateEmojisMutation.isPending}
+          >
+            {generateEmojisMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            ) : (
+              <Sparkles className="w-4 h-4 mr-2" />
+            )}
+            Add Emojis
           </Button>
         </div>
       </Card>
