@@ -41,7 +41,28 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     try {
-      const res = await fetch(queryKey[0] as string, {
+      // Handle array queryKeys by constructing the proper URL
+      let url = queryKey[0] as string;
+      
+      // If queryKey has more parts, construct the URL
+      if (queryKey.length > 1) {
+        // For pattern like ['/api/conversations', id, 'messages']
+        for (let i = 1; i < queryKey.length; i++) {
+          if (typeof queryKey[i] === 'string' && queryKey[i].startsWith('?')) {
+            // Handle query params
+            url += queryKey[i];
+          } else if (i === queryKey.length - 1 && typeof queryKey[i] === 'string') {
+            // Last item is a string (e.g., 'messages', 'participants')
+            url += `/${queryKey[i]}`;
+          } else if (queryKey[i] !== null && queryKey[i] !== undefined) {
+            // Middle items are likely IDs
+            url += `/${queryKey[i]}`;
+          }
+        }
+      }
+      
+      console.log(`Making fetch request to: ${url}`);
+      const res = await fetch(url, {
         credentials: "include",
       });
 
