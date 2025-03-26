@@ -343,14 +343,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Not authenticated" });
       }
       
-      const { name, userIds, type } = req.body;
+      const { name, userIds, type, companionId } = req.body;
       const userId = (req.user as User).id;
       
       // Create conversation
       const conversation = await storage.createConversation({
         name: name || null,
         type: type || 'direct',
-        createdBy: userId
+        createdBy: userId,
+        metadata: type === 'ai_companion' ? { aiCompanionId: companionId } : undefined
       });
       
       // Add creator as participant
@@ -363,18 +364,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      // Add other participants
-      if (Array.isArray(userIds) && userIds.length > 0) {
-        for (const participantId of userIds) {
-          if (participantId !== userId) {
-            await storage.addConversationParticipant({
-              conversationId: conversation.id,
-              userId: participantId,
-              role: 'member',
-              settings: {
-                notifications: true
-              }
-            });
+      // Handle AI conversation (add AI companion as participant)
+      if (type === 'ai_companion' && companionId) {
+        try {
+          // Get the AI companion details
+          const aiCompanion = await storage.getAiCompanion(companionId);
+          
+          if (!aiCompanion) {
+            return res.status(404).json({ message: "AI companion not found" });
+          }
+          
+          // Get or create AI user
+          const aiUserId = 1; // Assuming AI user has ID 1, adjust as needed
+          
+          // Add AI as participant
+          await storage.addConversationParticipant({
+            conversationId: conversation.id,
+            userId: aiUserId,
+            role: 'ai',
+            settings: {
+              notifications: false
+            }
+          });
+          
+          // Store conversation context for the AI
+          await storage.saveAiConversationContext({
+            conversationId: conversation.id,
+            aiCompanionId: companionId,
+            context: JSON.stringify({
+              systemPrompt: aiCompanion.systemPrompt,
+              personality: aiCompanion.personality,
+              messages: []
+            }),
+            settings: aiCompanion.settings || {}
+          });
+          
+          // Send initial welcome message
+          await storage.sendMessage({
+            conversationId: conversation.id,
+            senderId: aiUserId,
+            content: `Hello! I'm ${aiCompanion.name}. ${aiCompanion.description || "How can I help you today?"}`,
+            contentType: 'text'
+          });
+        } catch (aiError) {
+          log("Error setting up AI conversation:", aiError instanceof Error ? aiError.message : String(aiError));
+          // We'll continue even if AI setup fails - can be handled as a fallback
+        }
+      } else {
+        // Add other human participants for regular conversations
+        if (Array.isArray(userIds) && userIds.length > 0) {
+          for (const participantId of userIds) {
+            if (participantId !== userId) {
+              await storage.addConversationParticipant({
+                conversationId: conversation.id,
+                userId: participantId,
+                role: 'member',
+                settings: {
+                  notifications: true
+                }
+              });
+            }
           }
         }
       }

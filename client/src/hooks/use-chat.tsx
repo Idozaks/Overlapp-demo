@@ -293,13 +293,23 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   // Start AI conversation mutation
   const startAIConversationMutation = useMutation({
     mutationFn: async (companionId: number): Promise<Conversation> => {
-      const response = await apiRequest('/api/ai/conversations', {
+      const response = await apiRequest('/api/conversations', {
         method: 'POST',
-        body: { companionId }
+        body: { 
+          companionId,
+          type: 'ai_companion',
+          name: 'AI Conversation' 
+        }
       });
       
       if (!response.ok) {
-        throw new Error('Failed to start AI conversation');
+        // Try to get error message from response
+        try {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to start AI conversation');
+        } catch (e) {
+          throw new Error('Failed to start AI conversation');
+        }
       }
       
       return response.json();
