@@ -660,28 +660,8 @@ export class SocketManager {
   
   private async getOrCreateAiUser(): Promise<User> {
     try {
-      // Try to get the AI user by username
-      const aiUser = await storage.getUserByUsername('ai_assistant');
-      
-      if (aiUser) {
-        return aiUser;
-      }
-      
-      // If the AI user doesn't exist, create it
-      const newAiUser = await storage.createUser({
-        username: 'ai_assistant',
-        password: `ai_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`,
-        displayName: 'AI Assistant',
-        avatar: '/ai_avatar.png',
-        bio: 'AI assistant for chat conversations',
-        isAdmin: false,
-        preferences: {
-          interests: [],
-          retailPreferences: []
-        }
-      });
-      
-      return newAiUser;
+      // Use the storage implementation to get or create AI user
+      return await storage.getOrCreateAiUser();
     } catch (error) {
       log(`[SOCKET] Error getting or creating AI user: ${error instanceof Error ? error.message : String(error)}`);
       throw error;
