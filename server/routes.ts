@@ -337,6 +337,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  app.get("/api/conversations/:id/participants", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const userId = (req.user as User).id;
+      const conversationId = parseInt(req.params.id);
+      
+      if (isNaN(conversationId)) {
+        return res.status(400).json({ message: "Invalid conversation ID" });
+      }
+      
+      // Fetch conversation to check if user is a participant
+      const conversation = await storage.getConversation(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+      
+      // Get participants for the conversation
+      const participants = await storage.getConversationParticipants(conversationId);
+      
+      // Check if user is a participant
+      const isParticipant = participants.some(p => p.userId === userId);
+      if (!isParticipant && !((req.user as User).isAdmin)) {
+        return res.status(403).json({ message: "You are not a participant in this conversation" });
+      }
+      
+      res.json({ participants });
+    } catch (error) {
+      log("Error fetching conversation participants:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch conversation participants" });
+    }
+  });
+  
+  app.get("/api/conversations/:id/messages", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const userId = (req.user as User).id;
+      const conversationId = parseInt(req.params.id);
+      
+      if (isNaN(conversationId)) {
+        return res.status(400).json({ message: "Invalid conversation ID" });
+      }
+      
+      // Get limit and before parameters for pagination
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const before = req.query.before ? parseInt(req.query.before as string) : undefined;
+      
+      // Fetch conversation to check if user is a participant
+      const conversation = await storage.getConversation(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+      
+      // Get participants for the conversation to check if user is a participant
+      const participants = await storage.getConversationParticipants(conversationId);
+      const isParticipant = participants.some(p => p.userId === userId);
+      
+      if (!isParticipant && !((req.user as User).isAdmin)) {
+        return res.status(403).json({ message: "You are not a participant in this conversation" });
+      }
+      
+      // Fetch messages for the conversation
+      const messages = await storage.getConversationMessages(conversationId, limit, before);
+      
+      // Mark messages as read for the user
+      await storage.markMessagesAsRead(conversationId, userId);
+      
+      res.json({ messages });
+    } catch (error) {
+      log("Error fetching conversation messages:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch conversation messages" });
+    }
+  });
+  
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
       if (!req.isAuthenticated()) {
