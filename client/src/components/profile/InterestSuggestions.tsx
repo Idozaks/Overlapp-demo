@@ -78,10 +78,6 @@ export default function InterestSuggestions({
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ interestIds }),
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ 
           interests: suggestions.map(s => ({
             id: 0,
