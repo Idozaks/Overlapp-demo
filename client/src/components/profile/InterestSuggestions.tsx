@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -28,7 +28,7 @@ export default function InterestSuggestions({
   const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   const [suggestedInterests, setSuggestedInterests] = useState<InterestSuggestion[]>([]);
   const [selectedSuggestions, setSelectedSuggestions] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
@@ -44,12 +44,12 @@ export default function InterestSuggestions({
   const enrichInterestsMutation = useMutation({
     mutationFn: async (interests: string[]) => {
       console.log('Sending interests to enrich:', interests);
-      
+
       // Clean up interest strings to ensure they're properly formatted
       const cleanedInterests = interests.map(interest => 
         typeof interest === 'string' ? interest.trim() : interest
       );
-      
+
       const response = await fetch('/api/interests/enrich', {
         method: 'POST',
         headers: {
@@ -68,7 +68,7 @@ export default function InterestSuggestions({
     },
     onSuccess: (data) => {
       console.log('Received enriched interests:', data);
-      
+
       if (!data.suggestions) {
         console.error('No suggestions property in response:', data);
         toast({
@@ -80,7 +80,7 @@ export default function InterestSuggestions({
         setShowAiThinking(false);
         return;
       }
-      
+
       if (!Array.isArray(data.suggestions)) {
         console.error('Suggestions is not an array:', data.suggestions);
         toast({
@@ -92,47 +92,31 @@ export default function InterestSuggestions({
         setShowAiThinking(false);
         return;
       }
-      
-      // Process the suggestions from the server
-      const validSuggestions = data.suggestions.map((suggestion: any) => {
-        // If it's already an object with name and emoji, use it directly
-        if (suggestion && typeof suggestion === 'object' && 
-            typeof suggestion.name === 'string' && suggestion.name.trim().length > 0 &&
-            typeof suggestion.emoji === 'string' && suggestion.emoji.trim().length > 0) {
-          return { 
-            name: suggestion.name.trim(), 
-            emoji: suggestion.emoji.trim() 
+
+      // Process suggestions
+      const jsonData = await response.json();
+      const { suggestions } = jsonData;
+
+      const validSuggestions = suggestions
+        .filter((suggestion: string | { name: string; emoji: string }) => {
+          const name = typeof suggestion === 'string' ? suggestion : suggestion.name;
+          return name && name.length > 0 && !currentInterests.includes(name);
+        })
+        .map((suggestion: string | { name: string; emoji: string }) => {
+          if (typeof suggestion === 'string') {
+            return {
+              name: suggestion.trim(),
+              emoji: generateInterestEmoji(suggestion)
+            };
+          }
+          return {
+            name: suggestion.name.trim(),
+            emoji: suggestion.emoji || generateInterestEmoji(suggestion.name)
           };
-        }
-        
-        // Otherwise, construct a valid object with fallbacks
-        let name = 'Unknown Interest';
-        let emoji = '✨'; // Default fallback
-        
-        // If it's a string, use it as the name
-        if (typeof suggestion === 'string') {
-          name = suggestion.trim();
-        } 
-        // If it's an object with at least a name
-        else if (suggestion && typeof suggestion === 'object') {
-          if (typeof suggestion.name === 'string' && suggestion.name.trim().length > 0) {
-            name = suggestion.name.trim();
-          }
-          
-          if (typeof suggestion.emoji === 'string' && suggestion.emoji.trim().length > 0) {
-            emoji = suggestion.emoji.trim();
-          }
-        }
-        
-        return { name, emoji };
-      }).filter((suggestion: { name: string }) => 
-        suggestion.name !== 'Unknown Interest' && 
-        suggestion.name.length > 0 && 
-        !currentInterests.includes(suggestion.name)
-      );
-      
+        });
+
       console.log('Processed suggestions:', validSuggestions);
-      
+
       if (validSuggestions.length === 0) {
         toast({
           title: t("profile.enrichError"),
@@ -168,7 +152,7 @@ export default function InterestSuggestions({
 
   useEffect(() => {
     console.log('Current interests in InterestSuggestions:', currentInterests);
-    
+
     // Check if we have interests and proceed - use a more robust check
     if (Array.isArray(currentInterests) && currentInterests.length > 0) {
       // Only trigger once to avoid loops and save API credits
@@ -209,13 +193,32 @@ export default function InterestSuggestions({
   const handleSaveSelections = async () => {
     // First call the callback to add interests to database
     await onInterestsSelected(Array.from(selectedSuggestions));
-    
+
     // Then navigate back to edit page
     setLocation(`/profile/${userId}/edit?refresh=true`);
   };
 
   const handleGoBack = () => {
     setLocation(`/profile/${userId}/edit`);
+  };
+
+  // Placeholder for emoji generation - needs implementation
+  const generateInterestEmoji = (interest: string): string => {
+    // Implement your emoji generation logic here based on the interest
+    // For example, a simple mapping:
+    const emojiMap: { [key: string]: string } = {
+      "Gaming": "🎮",
+      "Reading": "📚",
+      "Coding": "💻",
+      "Movies": "🎬",
+      "Music": "🎵",
+      "Sports": "⚽️",
+      "Travel": "✈️",
+      "Cooking": "🍳",
+      "Art": "🎨",
+      "default": "✨"
+    };
+    return emojiMap[interest] || emojiMap["default"];
   };
 
   return (
@@ -249,7 +252,7 @@ export default function InterestSuggestions({
               <p className="text-sm text-muted-foreground mb-4">
                 {t("profile.tapToSelectInterests")}
               </p>
-              
+
               <div className="flex flex-wrap gap-2 mb-6">
                 {suggestedInterests.map((suggestion, index) => (
                   <Badge
@@ -261,7 +264,7 @@ export default function InterestSuggestions({
                     {suggestion.emoji} {suggestion.name}
                   </Badge>
                 ))}
-                
+
                 {suggestedInterests.length === 0 && !isLoading && (
                   <p className="text-sm text-muted-foreground">
                     {t("profile.noSuggestionsFound")}
