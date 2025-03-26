@@ -43,16 +43,22 @@ export default function InterestSuggestions({
 
   const enrichInterestsMutation = useMutation({
     mutationFn: async (interests: string[]) => {
+      console.log('Sending interests to enrich:', interests);
+      const payload = { interests };
+      console.log('Request payload:', payload);
+      
       const response = await apiRequest('/api/interests/enrich', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ interests })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
-        throw new Error('Failed to enrich interests');
+        const errorText = await response.text();
+        console.error('Enrich API error:', errorText);
+        throw new Error(`Failed to enrich interests: ${errorText}`);
       }
 
       return response.json();
