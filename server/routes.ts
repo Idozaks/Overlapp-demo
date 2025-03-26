@@ -1221,7 +1221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           // Update the interest in the database by adding the emoji to iconUrl field
           // Find interest by name and update
-          const existingInterest = await storage.findInterestByName(interest.name);
+          const existingInterest = await storage.getInterestByName(interest.name);
           if (existingInterest) {
             await storage.updateInterest(existingInterest.id, { 
               iconUrl: interest.emoji 
