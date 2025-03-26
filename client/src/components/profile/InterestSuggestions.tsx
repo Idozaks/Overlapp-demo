@@ -45,6 +45,9 @@ export default function InterestSuggestions({
     mutationFn: async (interests: string[]) => {
       const response = await apiRequest('/api/interests/enrich', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ interests })
       });
 
