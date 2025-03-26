@@ -33,6 +33,7 @@ export default function InterestSuggestions({
   const [selectedSuggestions, setSelectedSuggestions] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
+  const [progress, setProgress] = useState(0); // Added progress state
 
   // Initialize animations and UI state
   useEffect(() => {
@@ -68,15 +69,22 @@ export default function InterestSuggestions({
           }))
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to generate emojis');
       }
-      
+
       const data = await response.json();
       return data.interests;
     },
+    onMutate: () => {
+      setProgress(0);
+    },
+    onSettled: () => {
+      setProgress(0); // Reset progress on completion or error
+    },
     onSuccess: (data) => {
+      setProgress(100); // Set progress to 100% on success
       setSuggestions(prev => 
         prev.map(suggestion => {
           const match = data.find(d => d.name === suggestion.name);
@@ -320,11 +328,25 @@ export default function InterestSuggestions({
             disabled={generateEmojisMutation.isPending}
           >
             {generateEmojisMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              <div className="flex items-center">
+                <div className="relative w-6 h-6 mr-2">
+                  <div className="absolute inset-0">
+                    <svg className="w-full h-full" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" r="16" fill="none" className="stroke-current" strokeWidth="2" strokeDasharray="100" strokeDashoffset={100 - progress}/>
+                    </svg>
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">
+                    {progress}%
+                  </div>
+                </div>
+                Generating...
+              </div>
             ) : (
-              <Sparkles className="w-4 h-4 mr-2" />
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Add Emojis
+              </>
             )}
-            Add Emojis
           </Button>
         </div>
       </Card>
