@@ -375,7 +375,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           // Get or create AI user
-          const aiUserId = 1; // Assuming AI user has ID 1, adjust as needed
+          const aiUser = await storage.getOrCreateAiUser();
+          const aiUserId = aiUser.id;
           
           // Add AI as participant
           await storage.addConversationParticipant({

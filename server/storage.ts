@@ -24,6 +24,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User>;
   updateUserIdentityPreferences(userId: number, attributeImportance: Record<string, number>): Promise<User>;
+  getOrCreateAiUser(): Promise<User>;
 
   // Social operations
   followUser(followerId: number, followingId: number): Promise<Connection>;
@@ -389,6 +390,42 @@ export class DatabaseStorage implements IStorage {
       return updatedUser;
     } catch (error) {
       log("Error updating user identity preferences:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+
+  /**
+   * Gets or creates a special AI user account for AI companions
+   * 
+   * @returns The AI user
+   */
+  async getOrCreateAiUser(): Promise<User> {
+    try {
+      // Try to find the existing AI user (using ID 1 as the standard AI user ID)
+      const existingUser = await this.getUser(1);
+      if (existingUser) {
+        log("Found existing AI user:", existingUser.username);
+        return existingUser;
+      }
+
+      // Create AI user if not found
+      log("AI user not found, creating...");
+      // Generate a secure random password
+      const randomPassword = Math.random().toString(36).substring(2, 15) + 
+                            Math.random().toString(36).substring(2, 15);
+      
+      const aiUser = await this.createUser({
+        username: "ai_assistant", 
+        displayName: "AI Assistant",
+        password: randomPassword, // Random password that won't be used
+        isAdmin: false,
+        avatar: null // Could set a default AI avatar
+      });
+
+      log("Created AI user:", aiUser.username);
+      return aiUser;
+    } catch (error) {
+      log("Error getting/creating AI user:", error instanceof Error ? error.message : String(error));
       throw error;
     }
   }
