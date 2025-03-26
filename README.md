@@ -1,22 +1,26 @@
 # Overlapp Project
 
-> ## ⚠️ IMPORTANT: Chat Implementation Notes ⚠️
-> 
-> ### Database Schema Alignment
-> 
-> The chat functionality has been updated to align with the actual database schema structure:
-> 
-> - **AI Conversation Context**: Updated schema to match the database structure with a proper `context` JSONB field.
-> - **Conversation Participants**: Added missing `is_active` column to ensure proper participant tracking.
-> - **Socket Handler**: Modified to use the correct context format for AI conversations.
-> 
-> When working with the chat feature, make sure any code interacting with these database tables follows the updated schema structure. If you encounter issues with conversations not appearing or messages not being delivered, verify the schema alignment first.
-> 
-> **Related Files:**
-> - `shared/schema.ts` - Contains the database schema definitions
-> - `server/storage.ts` - Implements database operations for chat features
-> - `server/socket.ts` - Handles real-time messaging with Socket.io
-> - `server/routes.ts` - Defines API endpoints for conversation management
+> *Bridging digital and physical identity to create meaningful connections*
+
+Overlapp is a mobile-first platform that helps users discover meaningful connections through intelligent identity matching. By analyzing both shared interests and identity attributes, Overlapp creates a more authentic social experience that extends beyond the digital realm.
+
+## 🌟 Key Features
+
+### 💬 Real-Time Chat & AI Companions
+Connect instantly with other users through our seamless chat experience or engage with AI companions that understand your digital identity. Send messages, see typing indicators, and get real-time delivery confirmations - all designed to deepen connections between users with shared interests.
+
+### 🔄 Smart Identity Matching
+Our two-layer matching algorithm finds meaningful connections based on both shared interests and identity attributes, helping users discover people with authentic overlapping values.
+
+### 🌐 Multi-Language Support
+Connect across cultures with our multi-language platform supporting English, Hebrew, Arabic, Russian, French, and Spanish with full RTL capabilities.
+
+### 📊 Personal Overlap Analysis
+Visualize your connections with other users through our overlap analysis tool, highlighting shared interests and common identity traits.
+
+---
+
+> **For Developers**: Recent updates to the chat system include important database schema alignments for the `ai_conversation_context` table (now using a JSONB `context` field) and `conversation_participants` table (added `is_active` tracking). See "Recent Updates" section for details.
 
 ## Documentation
 
