@@ -1245,10 +1245,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/interests/enrich", async (req: Request, res: Response) => {
     try {
+      log("[DEBUG] Received interests enrichment request body:", JSON.stringify(req.body));
+      
+      if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({ message: "Invalid request body format" });
+      }
+      
       const { interests } = req.body;
-
+      
+      log("[DEBUG] Extracted interests:", interests);
+      
       if (!Array.isArray(interests) || interests.length === 0) {
-        return res.status(400).json({ message: "Invalid interests format" });
+        return res.status(400).json({ message: "Invalid interests format - must be a non-empty array" });
       }
 
       const prompt = `Given these interests: ${interests.join(", ")}\n\n` +
