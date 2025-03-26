@@ -73,17 +73,14 @@ export default function InterestSuggestions({
         .map(suggestion => interestMap.get(suggestion))
         .filter(id => id !== undefined);
 
-      const response = await fetch('/api/interests/generate-emojis', {
+      const response = await apiRequest('/api/interests/generate-emojis', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
+        body: { 
           interests: suggestions.map(s => ({
             id: 0,
             name: s.name
           }))
-        })
+        }
       });
 
       if (!response.ok) {
@@ -135,12 +132,9 @@ export default function InterestSuggestions({
           throw new Error('No valid interests provided');
         }
 
-        const response = await fetch('/api/interests/enrich', {
+        const response = await apiRequest('/api/interests/enrich', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ interests: cleanedInterests })
+          body: { interests: cleanedInterests }
         });
 
         if (!response.ok) {
