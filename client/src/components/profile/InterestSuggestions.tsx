@@ -43,6 +43,13 @@ export default function InterestSuggestions({
 
   const [suggestions, setSuggestions] = useState<Array<{name: string, emoji?: string}>>([]);
 
+  useEffect(() => {
+    setSuggestions(suggestedInterests.map(interest => ({
+      name: interest.name,
+      emoji: interest.emoji
+    })));
+  }, [suggestedInterests]);
+
   const generateEmojisMutation = useMutation({
     mutationFn: async () => {
       if (!suggestions.length) {
