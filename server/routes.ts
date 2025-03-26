@@ -283,11 +283,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         personality: "Helpful, insightful, and focused on identity exploration",
         systemPrompt: "You are an AI assistant that helps users understand and develop their digital identity. Draw connections between interests, values, and experiences. Always be respectful and encouraging.",
         isPublic: true,
-        settings: JSON.stringify({
+        settings: {
           model: "gpt-4o",
           temperature: 0.7,
-          maxResponseTokens: 1000
-        })
+          contextWindow: 8000,
+          customAttributes: {}
+        }
       });
       
       res.status(201).json({ companion, message: "Demo companion created successfully" });
