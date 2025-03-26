@@ -58,6 +58,15 @@ export default function InterestSuggestions({
       const totalBatches = Math.ceil(totalInterests / batchSize);
       let currentBatch = 1;
 
+      // Create a progress updater function
+      const updateProgress = () => {
+        setProgress(Math.round((currentBatch / totalBatches) * 100));
+        currentBatch++;
+      };
+
+      // Initial progress update
+      updateProgress();
+
       const response = await fetch('/api/interests/generate-emojis', {
         method: 'POST',
         headers: {
@@ -75,10 +84,10 @@ export default function InterestSuggestions({
         throw new Error('Failed to generate emojis');
       }
 
-      // Calculate progress based on current batch
-      setProgress(Math.round((currentBatch / totalBatches) * 100));
-
       const data = await response.json();
+      
+      // Final progress update
+      setProgress(100);
       return data.interests;
     },
     onMutate: () => {
