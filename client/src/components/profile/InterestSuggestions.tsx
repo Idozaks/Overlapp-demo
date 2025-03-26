@@ -56,9 +56,29 @@ export default function InterestSuggestions({
       const totalInterests = suggestions.length;
       // Let the server handle the batching
       setProgress(0);
+      
+      // First get all existing interests
+      const interestsResponse = await fetch('/api/interests');
+      const interestsData = await interestsResponse.json();
+      const existingInterests = interestsData.interests || [];
+      
+      // Map names to IDs
+      const interestMap = new Map();
+      existingInterests.forEach(interest => {
+        interestMap.set(interest.name, interest.id);
+      });
+      
+      // Get IDs for our suggestions
+      const interestIds = suggestions
+        .map(suggestion => interestMap.get(suggestion))
+        .filter(id => id !== undefined);
 
       const response = await fetch('/api/interests/generate-emojis', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ interestIds })
         headers: {
           'Content-Type': 'application/json'
         },
