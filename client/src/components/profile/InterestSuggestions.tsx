@@ -53,9 +53,10 @@ export default function InterestSuggestions({
 
   const generateEmojisMutation = useMutation({
     mutationFn: async () => {
-      if (!suggestions.length) {
-        throw new Error('No suggestions available to generate emojis for');
-      }
+      const totalInterests = suggestions.length;
+      const batchSize = 20;
+      const totalBatches = Math.ceil(totalInterests / batchSize);
+      let currentBatch = 1;
 
       const response = await fetch('/api/interests/generate-emojis', {
         method: 'POST',
@@ -73,6 +74,9 @@ export default function InterestSuggestions({
       if (!response.ok) {
         throw new Error('Failed to generate emojis');
       }
+
+      // Calculate progress based on current batch
+      setProgress(Math.round((currentBatch / totalBatches) * 100));
 
       const data = await response.json();
       return data.interests;
