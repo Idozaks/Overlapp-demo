@@ -45,12 +45,17 @@ export default function InterestSuggestions({
     mutationFn: async (interests: string[]) => {
       console.log('Sending interests to enrich:', interests);
       
-      const response = await apiRequest('/api/interests/enrich', {
+      // Clean up interest strings to ensure they're properly formatted
+      const cleanedInterests = interests.map(interest => 
+        typeof interest === 'string' ? interest.trim() : interest
+      );
+      
+      const response = await fetch('/api/interests/enrich', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ interests })
+        body: JSON.stringify({ interests: cleanedInterests })
       });
 
       if (!response.ok) {
