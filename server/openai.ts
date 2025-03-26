@@ -323,14 +323,20 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
 
         // Process batch results
         for (const interest of parsed.interests) {
-          if (!interest || typeof interest !== 'object') continue;
-          if (!interest.id || !interest.name || typeof interest.name !== 'string' || interest.name.trim() === '') continue;
+          try {
+            if (!interest || typeof interest !== 'object') continue;
+            if (!interest.name || typeof interest.name !== 'string' || interest.name.trim() === '') continue;
 
-          const id = interest.id;
-          const name = interest.name.trim();
-          const emoji = (interest.emoji && typeof interest.emoji === 'string') ? interest.emoji.trim() : '✨';
+            // Use name instead of ID for matching
+            const name = interest.name.trim();
+            const emoji = (interest.emoji && typeof interest.emoji === 'string') ? interest.emoji.trim() : '✨';
 
-          processedInterests.push({ id, name, emoji });
+            processedInterests.push({ name, emoji });
+          } catch (err) {
+            log(`[OpenAI] Error processing interest: ${err}`);
+            // Continue with next interest even if this one fails
+            continue;
+          }
         }
       } catch (parseError) {
         log(`[OpenAI] Error processing batch: ${parseError}`);

@@ -1220,9 +1220,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const interest of result.interests) {
         try {
           // Update the interest in the database by adding the emoji to iconUrl field
-          await storage.updateInterest(interest.id, { 
-            iconUrl: interest.emoji 
-          });
+          // Find interest by name and update
+          const existingInterest = await storage.findInterestByName(interest.name);
+          if (existingInterest) {
+            await storage.updateInterest(existingInterest.id, { 
+              iconUrl: interest.emoji 
+            });
+          }
           updatedCount++;
         } catch (error) {
           log(`Error updating interest ${interest.id} with emoji:`, error);
