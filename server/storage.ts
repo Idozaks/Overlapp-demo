@@ -1798,11 +1798,8 @@ export class DatabaseStorage implements IStorage {
         const [updatedContext] = await db
           .update(aiConversationContext)
           .set({
-            summary: context.summary,
-            keyPoints: context.keyPoints,
-            userIdentitySnapshot: context.userIdentitySnapshot,
-            updatedAt: new Date(),
-            interactionCount: sql`${aiConversationContext.interactionCount} + 1`
+            context: context.context,
+            updatedAt: new Date()
           })
           .where(eq(aiConversationContext.id, existingContext[0].id))
           .returning();
@@ -1814,10 +1811,7 @@ export class DatabaseStorage implements IStorage {
           .insert(aiConversationContext)
           .values({
             conversationId: context.conversationId,
-            summary: context.summary,
-            keyPoints: context.keyPoints,
-            userIdentitySnapshot: context.userIdentitySnapshot,
-            interactionCount: 1
+            context: context.context
           })
           .returning();
         
@@ -1848,9 +1842,7 @@ export class DatabaseStorage implements IStorage {
       const [context] = await db
         .update(aiConversationContext)
         .set({
-          summary: data.summary,
-          keyPoints: data.keyPoints,
-          userIdentitySnapshot: data.userIdentitySnapshot,
+          context: data.context,
           updatedAt: new Date()
         })
         .where(eq(aiConversationContext.id, id))
