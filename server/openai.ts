@@ -71,47 +71,47 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
     if (!content) {
       throw new Error("No content received from OpenAI");
     }
-    
+
     // Log the raw response for debugging
     log("[OpenAI] Raw response received:", content.substring(0, 100) + "...");
-    
+
     // Handle various content formats and sanitize
     let sanitizedContent = content.trim();
-    
+
     // Remove markdown code blocks if present
     if (sanitizedContent.startsWith("```json")) {
       sanitizedContent = sanitizedContent.replace(/```json\s*/, "").replace(/\s*```\s*$/, "");
     } else if (sanitizedContent.startsWith("```")) {
       sanitizedContent = sanitizedContent.replace(/```\s*/, "").replace(/\s*```\s*$/, "");
     }
-    
+
     // Fix common JSON issues
     sanitizedContent = sanitizedContent
       // Fix trailing commas (common JSON error)
       .replace(/,\s*}/g, '}')
       .replace(/,\s*\]/g, ']');
-      
+
     // Find the first opening brace and last closing brace
     const openBraceIndex = sanitizedContent.indexOf('{');
     const closeBraceIndex = sanitizedContent.lastIndexOf('}');
-    
+
     // Extract only the JSON part if both braces are found
     if (openBraceIndex !== -1 && closeBraceIndex !== -1 && closeBraceIndex > openBraceIndex) {
       sanitizedContent = sanitizedContent.substring(openBraceIndex, closeBraceIndex + 1);
     }
-    
+
     // Parse the JSON
     try {
       const parsed = JSON.parse(sanitizedContent);
-      
+
       // Basic validation
       if (!parsed.suggestions || !Array.isArray(parsed.suggestions)) {
         throw new Error("Invalid response format: missing suggestions array");
       }
-      
+
       // Process and validate the suggestions
       let validSuggestions = [];
-      
+
       // Process each suggestion
       for (const suggestion of parsed.suggestions) {
         // String suggestion case
@@ -122,21 +122,21 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
           });
           continue;
         }
-        
+
         // Invalid object case
         if (!suggestion || typeof suggestion !== 'object') {
           continue;
         }
-        
+
         // Missing name case
         if (!suggestion.name || typeof suggestion.name !== 'string' || suggestion.name.trim() === '') {
           continue;
         }
-        
+
         // Create a properly formatted suggestion with normalized emoji
         const name = suggestion.name.trim();
         let emoji = '✨'; // Default fallback
-        
+
         if (suggestion.emoji && typeof suggestion.emoji === 'string') {
           // Ensure we get just the first emoji if multiple are returned
           const trimmedEmoji = suggestion.emoji.trim();
@@ -145,13 +145,13 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
             emoji = emojiMatch[0];
           }
         }
-        
+
         validSuggestions.push({ name, emoji });
       }
-      
+
       // Filter out duplicates and existing interests
       validSuggestions = validSuggestions.filter(s => !interests.includes(s.name));
-      
+
       // If we couldn't get any valid suggestions, provide fallbacks
       if (validSuggestions.length === 0) {
         const fallbacks = [
@@ -161,16 +161,16 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
           { name: "Poetry", emoji: "📝" },
           { name: "Art Exhibitions", emoji: "🖼️" }
         ].filter(s => !interests.includes(s.name));
-        
+
         validSuggestions = fallbacks;
       }
-      
+
       log("[OpenAI] Final suggestions count: " + validSuggestions.length);
       return { suggestions: validSuggestions };
-      
+
     } catch (parseError) {
       log("[OpenAI] JSON parse error: " + parseError);
-      
+
       // Use fallbacks if JSON parsing fails
       const fallbacks = [
         { name: "Creative Writing", emoji: "✍️" },
@@ -179,13 +179,13 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         { name: "Poetry", emoji: "📝" },
         { name: "Art Exhibitions", emoji: "🖼️" }
       ].filter(s => !interests.includes(s.name));
-      
+
       log("[OpenAI] Using fallback suggestions");
       return { suggestions: fallbacks };
     }
   } catch (error) {
     log("[OpenAI] Error enriching interests: " + error);
-    
+
     // Provide fallbacks even in case of complete API failure
     const fallbacks = [
       { name: "Creative Writing", emoji: "✍️" },
@@ -194,7 +194,7 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
       { name: "Poetry", emoji: "📝" },
       { name: "Art Exhibitions", emoji: "🖼️" }
     ].filter(s => !Array.isArray(interests) ? true : !interests.includes(s.name));
-    
+
     return { suggestions: fallbacks };
   }
 }
@@ -222,7 +222,7 @@ export async function generateEmojisForInterests(interests: Array<{id: number, n
 
       // Make API call to OpenAI for current batch
       const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -282,52 +282,52 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
       if (!content) {
         throw new Error("No content received from OpenAI");
       }
-      
+
       // Log the raw response for debugging
       log("[OpenAI] Raw emoji response received:", content.substring(0, 100) + "...");
-      
+
       // Handle various content formats and sanitize
       let sanitizedContent = content.trim();
-      
+
       // Remove markdown code blocks if present
       if (sanitizedContent.startsWith("```json")) {
         sanitizedContent = sanitizedContent.replace(/```json\s*/, "").replace(/\s*```\s*$/, "");
       } else if (sanitizedContent.startsWith("```")) {
         sanitizedContent = sanitizedContent.replace(/```\s*/, "").replace(/\s*```\s*$/, "");
       }
-      
+
       // Fix common JSON issues
       sanitizedContent = sanitizedContent
         .replace(/,\s*}/g, '}')
         .replace(/,\s*\]/g, ']');
-        
+
       // Find the first opening brace and last closing brace
       const openBraceIndex = sanitizedContent.indexOf('{');
       const closeBraceIndex = sanitizedContent.lastIndexOf('}');
-      
+
       // Extract only the JSON part if both braces are found
       if (openBraceIndex !== -1 && closeBraceIndex !== -1 && closeBraceIndex > openBraceIndex) {
         sanitizedContent = sanitizedContent.substring(openBraceIndex, closeBraceIndex + 1);
       }
-      
+
       // Parse the JSON
       try {
         const parsed = JSON.parse(sanitizedContent);
-        
+
         // Basic validation
         if (!parsed.interests || !Array.isArray(parsed.interests)) {
           throw new Error("Invalid response format: missing interests array");
         }
-        
+
         // Process batch results
         for (const interest of parsed.interests) {
           if (!interest || typeof interest !== 'object') continue;
           if (!interest.id || !interest.name || typeof interest.name !== 'string' || interest.name.trim() === '') continue;
-          
+
           const id = interest.id;
           const name = interest.name.trim();
           const emoji = (interest.emoji && typeof interest.emoji === 'string') ? interest.emoji.trim() : '✨';
-          
+
           processedInterests.push({ id, name, emoji });
         }
       } catch (parseError) {
@@ -335,13 +335,13 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         // Continue with next batch even if this one fails
       }
     }
-    
+
     log(`[OpenAI] Successfully generated emojis for ${processedInterests.length} interests`);
     return { interests: processedInterests };
-      
+
     } catch (error) {
       log("[OpenAI] Error generating emojis for interests:", error);
-      
+
       // Return the original interests with no emoji on error
       return { 
         interests: interests.map(interest => ({
