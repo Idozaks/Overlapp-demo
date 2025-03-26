@@ -463,9 +463,12 @@ export class SocketManager {
       
       await storage.saveAiConversationContext({
         conversationId: conversation.id,
-        summary: `Conversation started with ${companion.name}`,
-        keyPoints: [],
-        userIdentitySnapshot
+        context: JSON.stringify({
+          systemPrompt: companion.systemPrompt,
+          personality: companion.personality,
+          userIdentitySnapshot,
+          messages: []
+        })
       });
       
       // Make the user join the conversation
