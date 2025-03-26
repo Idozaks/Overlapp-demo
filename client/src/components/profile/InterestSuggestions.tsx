@@ -41,8 +41,14 @@ export default function InterestSuggestions({
     return () => clearTimeout(timer);
   }, []);
 
+  const [suggestions, setSuggestions] = useState<Array<{name: string, emoji?: string}>>([]);
+
   const generateEmojisMutation = useMutation({
     mutationFn: async () => {
+      if (!suggestions.length) {
+        throw new Error('No suggestions available to generate emojis for');
+      }
+
       const response = await fetch('/api/interests/generate-emojis', {
         method: 'POST',
         headers: {
