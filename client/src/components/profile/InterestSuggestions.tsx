@@ -93,18 +93,24 @@ export default function InterestSuggestions({
         return;
       }
 
-      // Process suggestions and remove duplicates
-      const uniqueSuggestions = Array.from(new Set(data.suggestions));
-      const validSuggestions = uniqueSuggestions
-        .filter((suggestion: string) => 
-          suggestion && 
-          suggestion.trim().length > 0 && 
-          !currentInterests.includes(suggestion.trim())
-        )
-        .map((suggestion: string) => ({
-          name: suggestion.trim(),
-          emoji: generateInterestEmoji(suggestion.trim())
-        }));
+      // Process suggestions
+      const validSuggestions = data.suggestions
+        .filter((suggestion: string | { name: string; emoji: string }) => {
+          const name = typeof suggestion === 'string' ? suggestion : suggestion.name;
+          return name && name.length > 0 && !currentInterests.includes(name);
+        })
+        .map((suggestion: string | { name: string; emoji: string }) => {
+          if (typeof suggestion === 'string') {
+            return {
+              name: suggestion.trim(),
+              emoji: generateInterestEmoji(suggestion)
+            };
+          }
+          return {
+            name: suggestion.name.trim(),
+            emoji: suggestion.emoji || generateInterestEmoji(suggestion.name)
+          };
+        });
 
       console.log('Processed suggestions:', validSuggestions);
 
