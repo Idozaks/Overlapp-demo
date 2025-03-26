@@ -78,7 +78,7 @@ export default function InterestSuggestions({
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ interestIds })
+        body: JSON.stringify({ interestIds }),
         headers: {
           'Content-Type': 'application/json'
         },
