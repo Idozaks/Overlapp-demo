@@ -391,13 +391,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Store conversation context for the AI
           await storage.saveAiConversationContext({
             conversationId: conversation.id,
-            aiCompanionId: companionId,
             context: JSON.stringify({
               systemPrompt: aiCompanion.systemPrompt,
               personality: aiCompanion.personality,
-              messages: []
-            }),
-            settings: aiCompanion.settings || {}
+              messages: [],
+              settings: aiCompanion.settings || {}
+            })
           });
           
           // Send initial welcome message
