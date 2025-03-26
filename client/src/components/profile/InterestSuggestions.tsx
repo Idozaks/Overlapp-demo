@@ -44,15 +44,13 @@ export default function InterestSuggestions({
   const enrichInterestsMutation = useMutation({
     mutationFn: async (interests: string[]) => {
       console.log('Sending interests to enrich:', interests);
-      const payload = { interests };
-      console.log('Request payload:', payload);
       
       const response = await apiRequest('/api/interests/enrich', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ interests })
       });
 
       if (!response.ok) {
