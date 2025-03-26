@@ -74,8 +74,11 @@ export default function InterestSuggestionsPage() {
           });
         } else {
           // Create new interest
-          const newInterestResponse = await apiRequest('/api/interests', {
+          const newInterestResponse = await fetch('/api/interests', {
             method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
               name: interest,
               category: 'AI_GENERATED',
