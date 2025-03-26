@@ -243,6 +243,147 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/health", (_req: Request, res: Response) => {
     res.json({ status: "ok" });
   });
+  
+  // AI Companions routes
+  app.get("/api/ai/companions", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const companions = await storage.getPublicAiCompanions();
+      res.json({ companions });
+    } catch (error) {
+      log("Error fetching AI companions:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch AI companions" });
+    }
+  });
+  
+  // Create a demo AI companion for testing
+  app.post("/api/ai/companions/demo", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      // Check if a demo companion already exists
+      const existingCompanions = await storage.getPublicAiCompanions();
+      const demoCompanion = existingCompanions.find(c => c.name === "Identity Assistant");
+      
+      if (demoCompanion) {
+        return res.json({ companion: demoCompanion, message: "Demo companion already exists" });
+      }
+      
+      // Create a new demo companion
+      const companion = await storage.createAiCompanion({
+        name: "Identity Assistant",
+        description: "I'm your personal digital identity assistant. I can help you understand your identity traits and explore connections with others.",
+        avatarUrl: null,
+        createdBy: (req.user as User).id,
+        personality: "Helpful, insightful, and focused on identity exploration",
+        systemPrompt: "You are an AI assistant that helps users understand and develop their digital identity. Draw connections between interests, values, and experiences. Always be respectful and encouraging.",
+        isPublic: true,
+        settings: JSON.stringify({
+          model: "gpt-4o",
+          temperature: 0.7,
+          maxResponseTokens: 1000
+        })
+      });
+      
+      res.status(201).json({ companion, message: "Demo companion created successfully" });
+    } catch (error) {
+      log("Error creating demo AI companion:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to create demo AI companion" });
+    }
+  });
+  
+  app.get("/api/ai/companions/:id", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const companionId = parseInt(req.params.id);
+      if (isNaN(companionId)) {
+        return res.status(400).json({ message: "Invalid companion ID" });
+      }
+      
+      const companion = await storage.getAiCompanion(companionId);
+      if (!companion) {
+        return res.status(404).json({ message: "AI companion not found" });
+      }
+      
+      res.json({ companion });
+    } catch (error) {
+      log("Error fetching AI companion:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch AI companion" });
+    }
+  });
+  
+  // Conversations routes
+  app.get("/api/conversations", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const userId = (req.user as User).id;
+      const conversations = await storage.getUserConversations(userId);
+      res.json({ conversations });
+    } catch (error) {
+      log("Error fetching conversations:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch conversations" });
+    }
+  });
+  
+  app.post("/api/conversations", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const { name, userIds, type } = req.body;
+      const userId = (req.user as User).id;
+      
+      // Create conversation
+      const conversation = await storage.createConversation({
+        name: name || null,
+        type: type || 'direct',
+        createdBy: userId
+      });
+      
+      // Add creator as participant
+      await storage.addConversationParticipant({
+        conversationId: conversation.id,
+        userId: userId,
+        role: 'admin',
+        settings: {
+          notifications: true
+        }
+      });
+      
+      // Add other participants
+      if (Array.isArray(userIds) && userIds.length > 0) {
+        for (const participantId of userIds) {
+          if (participantId !== userId) {
+            await storage.addConversationParticipant({
+              conversationId: conversation.id,
+              userId: participantId,
+              role: 'member',
+              settings: {
+                notifications: true
+              }
+            });
+          }
+        }
+      }
+      
+      res.status(201).json({ conversation });
+    } catch (error) {
+      log("Error creating conversation:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to create conversation" });
+    }
+  });
   app.post("/api/debug/generate-users", async (req: Request, res: Response) => {
     try {
       log("Starting synthetic user generation...");

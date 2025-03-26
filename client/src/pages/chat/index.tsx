@@ -121,7 +121,39 @@ function NewConversationDialog({
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => setSelectedUsers([1])}
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/users');
+                      const data = await response.json();
+                      if (data.users && data.users.length > 0) {
+                        // Find a user other than the current user
+                        const currentUser = user?.id;
+                        const otherUsers = data.users.filter(u => u.id !== currentUser);
+                        if (otherUsers.length > 0) {
+                          const demoUser = otherUsers[0];
+                          setSelectedUsers([demoUser.id]);
+                          toast({
+                            title: "Demo user selected",
+                            description: `Selected ${demoUser.displayName || demoUser.username}`,
+                          });
+                        } else {
+                          // If no other users, create AI demo
+                          handleAiDemo();
+                        }
+                      } else {
+                        // If no users, create AI demo
+                        handleAiDemo();
+                      }
+                    } catch (error) {
+                      console.error("Error fetching users:", error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to fetch users. Using AI companion instead.",
+                        variant: "destructive",
+                      });
+                      handleAiDemo();
+                    }
+                  }}
                 >
                   <UsersIcon className="h-4 w-4 mr-2" />
                   Select Demo User
