@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeftIcon, PlusIcon, UsersIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 function NewConversationDialog({ 
   open, 
@@ -32,10 +33,46 @@ function NewConversationDialog({
   onOpenChange: (open: boolean) => void 
 }) {
   const { createConversation, startAIConversation, aiCompanions } = useChat();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [conversationType, setConversationType] = useState<'direct' | 'group' | 'ai'>('direct');
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [groupName, setGroupName] = useState('');
   const [selectedAiCompanion, setSelectedAiCompanion] = useState<number | null>(null);
+
+  // Handle AI demo conversation creation
+  const handleAiDemo = async () => {
+    try {
+      setConversationType('ai');
+      
+      // Request to create a demo AI companion if one doesn't exist
+      const response = await fetch('/api/ai/companions/demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create demo AI companion');
+      }
+      
+      const data = await response.json();
+      setSelectedAiCompanion(data.companion.id);
+      
+      toast({
+        title: "AI Companion Selected",
+        description: `Selected ${data.companion.name}`,
+      });
+    } catch (error) {
+      console.error('Error creating AI demo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create AI companion. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleCreateConversation = async () => {
     if (conversationType === 'ai' && selectedAiCompanion) {
@@ -128,7 +165,7 @@ function NewConversationDialog({
                       if (data.users && data.users.length > 0) {
                         // Find a user other than the current user
                         const currentUser = user?.id;
-                        const otherUsers = data.users.filter(u => u.id !== currentUser);
+                        const otherUsers = data.users.filter((u: any) => u.id !== currentUser);
                         if (otherUsers.length > 0) {
                           const demoUser = otherUsers[0];
                           setSelectedUsers([demoUser.id]);
