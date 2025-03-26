@@ -94,10 +94,7 @@ export default function InterestSuggestions({
       }
 
       // Process suggestions
-      const jsonData = await response.json();
-      const { suggestions } = jsonData;
-
-      const validSuggestions = suggestions
+      const validSuggestions = data.suggestions
         .filter((suggestion: string | { name: string; emoji: string }) => {
           const name = typeof suggestion === 'string' ? suggestion : suggestion.name;
           return name && name.length > 0 && !currentInterests.includes(name);
