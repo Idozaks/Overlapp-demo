@@ -217,8 +217,10 @@ export async function generateEmojisForInterests(interests: Array<{id: number, n
     const processedInterests = [];
 
     // Process each batch
-    for (const batch of batches) {
-      log(`[OpenAI] Processing batch of ${batch.length} interests for emoji generation`);
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      const progress = Math.round(((i + 1) / batches.length) * 100);
+      log(`[OpenAI] Processing batch ${i + 1}/${batches.length} (${progress}%) for emoji generation`);
 
       // Make API call to OpenAI for current batch
       const response = await openai.chat.completions.create({
