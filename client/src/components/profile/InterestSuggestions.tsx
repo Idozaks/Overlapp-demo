@@ -54,21 +54,31 @@ export default function InterestSuggestions({
   const generateEmojisMutation = useMutation({
     mutationFn: async () => {
       const totalInterests = suggestions.length;
-      const batchSize = 20;
-      const totalBatches = Math.ceil(totalInterests / batchSize);
-      let currentBatch = 1;
-
-      // Create a progress updater function
-      const updateProgress = () => {
-        setProgress(Math.round((currentBatch / totalBatches) * 100));
-        currentBatch++;
-      };
-
-      // Initial progress update
-      updateProgress();
+      // Let the server handle the batching
+      setProgress(0);
+      
+      // First get all existing interests
+      const interestsResponse = await fetch('/api/interests');
+      const interestsData = await interestsResponse.json();
+      const existingInterests = interestsData.interests || [];
+      
+      // Map names to IDs
+      const interestMap = new Map();
+      existingInterests.forEach(interest => {
+        interestMap.set(interest.name, interest.id);
+      });
+      
+      // Get IDs for our suggestions
+      const interestIds = suggestions
+        .map(suggestion => interestMap.get(suggestion))
+        .filter(id => id !== undefined);
 
       const response = await fetch('/api/interests/generate-emojis', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ interestIds }),
         headers: {
           'Content-Type': 'application/json'
         },
