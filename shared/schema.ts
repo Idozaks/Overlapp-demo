@@ -343,7 +343,7 @@ export const messages = pgTable("messages", {
   contentType: text("content_type").notNull().default("text"), // "text", "media", "action"
   mediaUrl: text("media_url"),
   createdAt: timestamp("created_at").defaultNow(),
-  editedAt: timestamp("edited_at"),
+  updatedAt: timestamp("updated_at").defaultNow(),
   isDeleted: boolean("is_deleted").default(false),
   metadata: jsonb("metadata").$type<{
     identityContext?: string;
@@ -392,12 +392,9 @@ export const aiCompanions = pgTable("ai_companions", {
 export const aiConversationContext = pgTable("ai_conversation_context", {
   id: serial("id").primaryKey(),
   conversationId: integer("conversation_id").notNull().references(() => conversations.id),
-  summary: text("summary"),
+  context: jsonb("context"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  keyPoints: jsonb("key_points").$type<string[]>(),
-  userIdentitySnapshot: jsonb("user_identity_snapshot").$type<Record<string, any>>(),
-  interactionCount: integer("interaction_count").default(0),
 });
 
 // Chat Schemas
@@ -443,9 +440,7 @@ export const insertAiCompanionSchema = createInsertSchema(aiCompanions).pick({
 
 export const insertAiConversationContextSchema = createInsertSchema(aiConversationContext).pick({
   conversationId: true,
-  summary: true,
-  keyPoints: true,
-  userIdentitySnapshot: true,
+  context: true,
 });
 
 // Chat Types
