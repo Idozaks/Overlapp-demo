@@ -70,7 +70,7 @@ export default function InterestSuggestionsPage() {
           // Add existing interest to user
           await apiRequest(`/api/users/${userId}/interests`, {
             method: 'POST',
-            body: JSON.stringify({ interestId: existingInterest.id })
+            body: { interestId: existingInterest.id }
           });
         } else {
           // Create new interest
@@ -92,9 +92,9 @@ export default function InterestSuggestionsPage() {
             // Add newly created interest to user
             await apiRequest(`/api/users/${userId}/interests`, {
               method: 'POST',
-              body: JSON.stringify({ 
+              body: { 
                 interestId: newInterest.interest?.id || newInterest.id 
-              })
+              }
             });
           }
         }
