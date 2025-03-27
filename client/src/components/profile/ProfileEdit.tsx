@@ -241,19 +241,33 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const updateMutation = useMutation({
     mutationFn: async (formData: FormData) => {
       if (!user?.id) {
+        console.error("User ID not found");
         throw new Error("Invalid user ID");
       }
       
-      const response = await fetch(`/api/users/${user.id}`, {
-        method: "PATCH",
-        body: formData
-      });
+      console.log(`Sending PATCH request to /api/users/${user.id}`);
       
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
+      try {
+        const response = await fetch(`/api/users/${user.id}`, {
+          method: "PATCH",
+          body: formData
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Server error response:', errorText);
+          throw new Error(`Failed to update profile: ${response.status} ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Server response:', result);
+        return result;
+      } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
       }
-      
-      return response.json();
     },
     onSuccess: (updatedUser) => {
       toast({
@@ -382,6 +396,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
   const onSubmit = async (data: ProfileUpdateData) => {
     try {
+      console.log('Submitting profile data:', data);
       const formData = new FormData();
       
       // Handle all fields
@@ -390,13 +405,17 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
           if (key === 'avatar') {
             if (value instanceof File) {
               formData.append('avatar', value);
+              console.log('Adding avatar file to form data');
             } else if (typeof value === 'string') {
               formData.append('avatar', value);
+              console.log('Adding avatar URL to form data:', value);
             }
           } else if (typeof value === 'object') {
             formData.append(key, JSON.stringify(value));
+            console.log(`Adding ${key} object to form data:`, value);
           } else {
             formData.append(key, String(value));
+            console.log(`Adding ${key} to form data:`, value);
           }
         }
       });
@@ -404,8 +423,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       const headers = new Headers();
       headers.append('Accept', 'application/json');
       
+      console.log('Sending update request to server...');
       const result = await updateMutation.mutateAsync(formData);
+      console.log('Update response from server:', result);
+      
       if (result?.user) {
+        console.log('Update successful, invalidating queries');
         // Force a refetch of user data
         queryClient.invalidateQueries({ queryKey: ['user'] });
       }
@@ -417,7 +440,10 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={(e) => {
+        console.log('Form submit triggered');
+        return form.handleSubmit(onSubmit)(e);
+      }} className="space-y-6">
         <FormField
           control={form.control}
           name="displayName"
@@ -1195,6 +1221,13 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
           type="submit"
           disabled={updateMutation.isPending}
           className="w-full mt-6"
+          onClick={() => {
+            console.log('Button clicked directly');
+            if (!form.formState.isSubmitting) {
+              console.log('Manual form submission');
+              void form.handleSubmit(onSubmit)();
+            }
+          }}
         >
           {updateMutation.isPending ? (
             <>
