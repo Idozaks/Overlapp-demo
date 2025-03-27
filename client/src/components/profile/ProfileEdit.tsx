@@ -61,7 +61,9 @@ const profileUpdateSchema = z.object({
   physicalActivityLevel: z.enum(["Very active", "Moderately active", "Occasionally active", "Primarily sedentary"]).optional().or(z.literal("")),
   culturalExperiences: z.enum(["Well-traveled", "Local expert", "Cultural explorer", "Limited travel"]).optional().or(z.literal("")),
   learningStyle: z.enum(["Self-taught", "Formal education", "Hands-on learner", "Visual learner"]).optional().or(z.literal("")),
-  identityPreferences: z.record(z.string(), z.number()).optional(),
+  identityPreferences: z.object({
+    attributeImportance: z.record(z.string(), z.number()).optional(),
+  }).optional().or(z.record(z.string(), z.unknown()).optional()).or(z.literal({})),
   preferences: z.object({
     retailPreferences: z.array(z.string())
   }).optional()
@@ -210,28 +212,51 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     }
   }, [shouldRefreshInterests, user.id, queryClient, toast, t]);
 
+  // Helper function to safely cast string values to enum types
+  const safeEnumCast = <T extends string>(value: string | null | undefined, enumValues: readonly T[]): T | "" => {
+    if (!value) return "";
+    return enumValues.includes(value as T) ? value as T : "";
+  };
+  
+  // Define the enum values for validation
+  const genderValues = ["Male", "Female", "Non-binary", "Prefer not to say"] as const;
+  const ageRangeValues = ["18-25", "26-35", "36-45", "46+"] as const;
+  const educationValues = ["High School", "Bachelor's", "Master's", "PhD", "Other", "Prefer not to say"] as const;
+  const eventPrefValues = ["In-person gatherings", "Virtual meetups", "Small groups", "Large conferences", "Any"] as const;
+  const collabStyleValues = ["Solo worker", "Team player", "Mentor/mentee", "Adaptable"] as const;
+  const digitalIdValues = ["Early adopter", "Casual user", "Content creator", "Privacy-focused"] as const;
+  const activityValues = ["Very active", "Moderately active", "Occasionally active", "Primarily sedentary"] as const;
+  const cultExpValues = ["Well-traveled", "Local expert", "Cultural explorer", "Limited travel"] as const;
+  const learnStyleValues = ["Self-taught", "Formal education", "Hands-on learner", "Visual learner"] as const;
+
+  // Convert identityPreferences to the proper format
+  const safeIdentityPreferences = user.identityPreferences && 
+    typeof user.identityPreferences === 'object' && 
+    !Array.isArray(user.identityPreferences) ? 
+    user.identityPreferences : {};
+
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
       displayName: user.displayName || "",
       bio: user.bio || "",
       avatar: user.avatar || "",
-      gender: user.gender || "",
-      ageRange: user.ageRange || "",
+      gender: safeEnumCast(user.gender, genderValues),
+      ageRange: safeEnumCast(user.ageRange, ageRangeValues),
       countryOfOrigin: user.countryOfOrigin || "",
       languagesSpoken: user.languagesSpoken || "",
       culturalBackground: user.culturalBackground || "",
-      education: user.education || "",
+      education: safeEnumCast(user.education, educationValues),
       professionalField: user.professionalField || "",
       communityAffiliations: user.communityAffiliations || "",
-      eventPreferences: user.eventPreferences || "",
-      collaborationStyle: user.collaborationStyle || "",
+      eventPreferences: safeEnumCast(user.eventPreferences, eventPrefValues),
+      collaborationStyle: safeEnumCast(user.collaborationStyle, collabStyleValues),
       personalValues: user.personalValues || "",
-      digitalIdentity: user.digitalIdentity || "",
-      physicalActivityLevel: user.physicalActivityLevel || "",
-      culturalExperiences: user.culturalExperiences || "",
-      learningStyle: user.learningStyle || "",
-      identityPreferences: user.identityPreferences || {},
+      digitalIdentity: safeEnumCast(user.digitalIdentity, digitalIdValues),
+      physicalActivityLevel: safeEnumCast(user.physicalActivityLevel, activityValues),
+      culturalExperiences: safeEnumCast(user.culturalExperiences, cultExpValues),
+      learningStyle: safeEnumCast(user.learningStyle, learnStyleValues),
+      identityPreferences: safeIdentityPreferences,
       preferences: {
         retailPreferences: user.preferences?.retailPreferences || []
       }
@@ -1215,7 +1240,20 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
           className="w-full mt-6"
           onClick={() => {
             console.log('Button clicked directly');
-            form.handleSubmit(onSubmit)();
+            // Check for form validation errors
+            console.log('Form validation errors:', form.formState.errors);
+            
+            // Custom submit handler with error logging
+            const submitHandler = async (data: ProfileUpdateData) => {
+              try {
+                console.log('Custom submit handler called with data:', data);
+                await onSubmit(data);
+              } catch (error) {
+                console.error('Error in custom submit handler:', error);
+              }
+            };
+            
+            form.handleSubmit(submitHandler)();
           }}
         >
           {updateMutation.isPending ? (
