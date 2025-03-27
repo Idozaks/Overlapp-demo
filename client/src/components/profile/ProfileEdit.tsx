@@ -916,7 +916,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Not important</span>
-                  <<span>Very important</span>
+                  <span>Very important</span>
                 </div>
               </div>
 
