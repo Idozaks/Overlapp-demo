@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { Loader2, Sparkles, Plus, Search } from "lucide-react";
+import { Loader2, Sparkles, Plus, Search as SearchIcon } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { User, Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
@@ -1140,7 +1140,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 className="pr-10"
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
-                <Search className="h-4 w-4" />
+                <SearchIcon className="h-4 w-4" />
               </div>
               <div className="text-xs text-muted-foreground mt-1">
                 {t("profile.searchInterestsHelp") || "Type to search across all interest categories"}
