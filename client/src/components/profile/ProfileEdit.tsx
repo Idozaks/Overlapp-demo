@@ -440,10 +440,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={(e) => {
-        console.log('Form submit triggered');
-        return form.handleSubmit(onSubmit)(e);
-      }} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="displayName"
@@ -1218,15 +1215,12 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         </div>
 
         <Button
-          type="submit"
+          type="button"
           disabled={updateMutation.isPending}
           className="w-full mt-6"
           onClick={() => {
             console.log('Button clicked directly');
-            if (!form.formState.isSubmitting) {
-              console.log('Manual form submission');
-              void form.handleSubmit(onSubmit)();
-            }
+            form.handleSubmit(onSubmit)();
           }}
         >
           {updateMutation.isPending ? (
