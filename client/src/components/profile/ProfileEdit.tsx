@@ -71,7 +71,7 @@ type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 
 interface ProfileEditFormProps {
   user: User;
-  onSuccess?: () => void;
+  onSuccess?: (updatedUser: User) => void;
 }
 
 const RETAIL_PREFERENCES = [
@@ -156,7 +156,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
     return grouped;
   }, [allInterests?.interests]);
-  
+
   // Filter interests based on search query
   useEffect(() => {
     if (searchQuery.trim() === '') {
@@ -165,18 +165,18 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     } else {
       const lowercaseQuery = searchQuery.toLowerCase().trim();
       const filtered: Record<string, Interest[]> = {};
-      
+
       // Filter interests in each category
       Object.keys(interestsByCategory).forEach(category => {
         const matches = interestsByCategory[category].filter(interest =>
           interest.name.toLowerCase().includes(lowercaseQuery)
         );
-        
+
         if (matches.length > 0) {
           filtered[category] = matches;
         }
       });
-      
+
       setFilteredInterestsByCategory(filtered);
     }
   }, [interestsByCategory, searchQuery]);
@@ -244,23 +244,23 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         console.error("User ID not found");
         throw new Error("Invalid user ID");
       }
-      
+
       console.log(`Sending PATCH request to /api/users/${user.id}`);
-      
+
       try {
         const response = await fetch(`/api/users/${user.id}`, {
           method: "PATCH",
           body: formData
         });
-        
+
         console.log('Response status:', response.status);
-        
+
         if (!response.ok) {
           const errorText = await response.text();
           console.error('Server error response:', errorText);
           throw new Error(`Failed to update profile: ${response.status} ${errorText}`);
         }
-        
+
         const result = await response.json();
         console.log('Server response:', result);
         return result;
@@ -276,7 +276,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       });
       queryClient.invalidateQueries({ queryKey: ['user'] });
       queryClient.invalidateQueries({ queryKey: ['interests'] });
-      onSuccess?.();
+      onSuccess?.(updatedUser.user);
     },
     onError: (error: Error) => {
       console.error('Profile update error:', error);
@@ -398,7 +398,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     try {
       console.log('Submitting profile data:', data);
       const formData = new FormData();
-      
+
       // Handle all fields
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== '') {
@@ -422,16 +422,11 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
       const headers = new Headers();
       headers.append('Accept', 'application/json');
-      
+
       console.log('Sending update request to server...');
-      const result = await updateMutation.mutateAsync(formData);
-      console.log('Update response from server:', result);
-      
-      if (result?.user) {
-        console.log('Update successful, invalidating queries');
-        // Force a refetch of user data
-        queryClient.invalidateQueries({ queryKey: ['user'] });
-      }
+      await updateMutation.mutateAsync(formData);
+      console.log('Update request sent');
+
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;
@@ -921,7 +916,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Not important</span>
-                  <span>Very important</span>
+                  <<span>Very important</span>
                 </div>
               </div>
 
@@ -1134,7 +1129,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               </Button>
             </div>
           </div>
-          
+
           <div className="mb-4">
             <div className="relative">
               <Input
