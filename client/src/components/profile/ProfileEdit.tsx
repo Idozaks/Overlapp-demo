@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { Loader2, Sparkles, Plus } from "lucide-react";
+import { Loader2, Sparkles, Plus, Search } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { User, Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
@@ -94,6 +94,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const [aiGeneratedInterests, setAiGeneratedInterests] = useState<Set<string>>(new Set());
   const [pendingInterests, setPendingInterests] = useState<Set<string>>(new Set());
   const [interestEmojis, setInterestEmojis] = useState<Map<string, string>>(new Map());
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filteredInterestsByCategory, setFilteredInterestsByCategory] = useState<Record<string, Interest[]>>({});
 
   const { data: allInterests, isLoading: loadingInterests } = useQuery<{ interests: Interest[] }>({
     queryKey: ['/api/interests'],
@@ -149,6 +151,30 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
     return grouped;
   }, [allInterests?.interests]);
+  
+  // Filter interests based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      // If search query is empty, use the original grouping
+      setFilteredInterestsByCategory(interestsByCategory);
+    } else {
+      const lowercaseQuery = searchQuery.toLowerCase().trim();
+      const filtered: Record<string, Interest[]> = {};
+      
+      // Filter interests in each category
+      Object.keys(interestsByCategory).forEach(category => {
+        const matches = interestsByCategory[category].filter(interest =>
+          interest.name.toLowerCase().includes(lowercaseQuery)
+        );
+        
+        if (matches.length > 0) {
+          filtered[category] = matches;
+        }
+      });
+      
+      setFilteredInterestsByCategory(filtered);
+    }
+  }, [interestsByCategory, searchQuery]);
 
   const availableInterests = allInterests?.interests?.map((interest: Interest) => interest.name) || [];
   const userSelectedInterests = userInterests?.interests?.map((interest: Interest) => interest.name) || [];
@@ -1181,14 +1207,29 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               </Button>
             </div>
           </div>
+          
+          <div className="mb-4">
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder={t("profile.searchInterests") || "Search interests..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pr-10"
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
+                <Search className="h-4 w-4" />
+              </div>
+            </div>
+          </div>
 
           {loadingInterests ? (
             <div className="flex items-center justify-center py-4">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          ) : Object.keys(interestsByCategory).length > 0 ? (
+          ) : Object.keys(filteredInterestsByCategory).length > 0 ? (
             <Accordion type="multiple" className="w-full">
-              {Object.keys(interestsByCategory).sort().map((category) => (
+              {Object.keys(filteredInterestsByCategory).sort().map((category) => (
                 <AccordionItem key={category} value={category}>
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-2">
@@ -1202,9 +1243,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {interestsByCategory[category].map((interest, index) => ( // Added index here
+                      {filteredInterestsByCategory[category].map((interest, index) => (
                         <Badge
-                          key={`interest-${interest.id}-${category}-${index}`} // Added index to key
+                          key={`interest-${interest.id}-${category}-${index}`}
                           variant={pendingInterests.has(interest.name) ? "default" : "outline"}
                           className="cursor-pointer hover:shadow-sm transition-all"
                           onClick={() => toggleInterest(interest.name)}
