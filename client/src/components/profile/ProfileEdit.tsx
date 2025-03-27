@@ -40,7 +40,12 @@ const profileUpdateSchema = z.object({
     .max(500, { message: "Bio must be less than 500 characters" })
     .optional()
     .or(z.literal("")),
-  avatar: z.union([z.string().url({ message: "Please enter a valid URL" }), z.instanceof(File)]).optional().or(z.literal("")),
+  avatar: z.union([
+    z.string().refine(val => val.startsWith('/uploads/') || val.startsWith('http') || val === '', {
+      message: "Please enter a valid URL or select a file"
+    }), 
+    z.instanceof(File)
+  ]).optional().or(z.literal("")),
   gender: z.enum(["Male", "Female", "Non-binary", "Prefer not to say"]).optional().or(z.literal("")),
   ageRange: z.enum(["18-25", "26-35", "36-45", "46+"]).optional().or(z.literal("")),
   countryOfOrigin: z.string().optional().or(z.literal("")),
@@ -249,106 +254,6 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       }
       
       return response.json();
-
-      if (data.avatar instanceof File) {
-        const formData = new FormData();
-        formData.append('avatar', data.avatar);
-        if (data.displayName) formData.append('displayName', data.displayName);
-        if (data.bio) formData.append('bio', data.bio);
-        if (data.preferences) formData.append('preferences', JSON.stringify(data.preferences));
-        body = formData;
-      } else {
-        body = JSON.stringify(data);
-        requestOptions.headers = {
-          'Content-Type': 'application/json'
-        };
-      }
-
-      requestOptions.body = body;
-
-      const result = await (await apiRequest(`/api/users/${user.id}`, requestOptions)).json();
-      if (!result.user) {
-        throw new Error("Invalid response from server");
-      }
-
-      const currentInterestNames = new Set(userSelectedInterests);
-      const pendingInterestNames = pendingInterests;
-      const interestNames = Array.from(pendingInterests);
-      let newInterests = [];
-
-      for (const interest of interestNames) {
-        const existingInterest = allInterests?.interests?.find(i => i.name === interest);
-        if (!existingInterest && aiGeneratedInterests.has(interest)) {
-          try {
-            const response = await apiRequest('/api/interests', {
-              method: 'POST',
-              body: JSON.stringify({
-                name: interest,
-                category: 'AI_GENERATED',
-                description: 'AI-suggested interest based on user preferences',
-                isAiGenerated: true
-              })
-            });
-
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.message || errorData.error || 'Failed to create interest');
-            }
-
-            const newInterest = await response.json();
-            if (newInterest.interest) { 
-              newInterests.push(newInterest.interest);
-            } else {
-              newInterests.push(newInterest);
-            }
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error('Error creating interest:', errorMessage);
-            toast({
-              title: t("profile.error"),
-              description: t("profile.errorCreatingInterest", {
-                interest,
-                error: errorMessage
-              }),
-              variant: "destructive"
-            });
-            continue;
-          }
-        }
-      }
-
-      const allAvailableInterests = [
-        ...(allInterests?.interests || []),
-        ...newInterests
-      ];
-
-      for (const interest of currentInterestNames) {
-        if (!pendingInterestNames.has(interest)) {
-          const interestObj = allAvailableInterests.find(i => i.name === interest);
-          if (interestObj) {
-            await apiRequest(`/api/users/${user.id}/interests/${interestObj.id}`, {
-              method: 'DELETE'
-            });
-          }
-        }
-      }
-
-      for (const interest of pendingInterestNames) {
-        if (!currentInterestNames.has(interest)) {
-          const interestObj = allAvailableInterests.find(i => i.name === interest);
-          if (interestObj) {
-            await apiRequest(`/api/users/${user.id}/interests`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ interestId: interestObj.id })
-            });
-          }
-        }
-      }
-
-      return result.user;
     },
     onSuccess: (updatedUser) => {
       toast({
@@ -502,7 +407,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       const result = await updateMutation.mutateAsync(formData);
       if (result?.user) {
         // Force a refetch of user data
-        queryClient.invalidateQueries(['user']);
+        queryClient.invalidateQueries({ queryKey: ['user'] });
       }
     } catch (error) {
       console.error('Profile update error:', error);
@@ -1188,9 +1093,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         </div>
 
         <div className="space-y-4">
-          <FormLabel>{t("profile.interests")}</FormLabel>
-          <div className="flex justify-between items-center">
-            <FormLabel>{t("profile.interests")}</FormLabel>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-medium">{t("profile.interests")}</h3>
             <div className="flex gap-2">
               <Button 
                 variant="outline" 
@@ -1219,6 +1123,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
                 <Search className="h-4 w-4" />
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {t("profile.searchInterestsHelp") || "Type to search across all interest categories"}
               </div>
             </div>
           </div>
@@ -1266,18 +1173,21 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         </div>
 
         <div className="space-y-4">
-          <FormLabel>{t("profile.retailPreferences")}</FormLabel>
+          <h3 className="text-lg font-medium mb-2">{t("profile.retailPreferences")}</h3>
           <div className="flex flex-wrap gap-2">
             {RETAIL_PREFERENCES.map(preference => (
               <Badge
                 key={preference}
                 variant={form.watch("preferences.retailPreferences")?.includes(preference) ? "default" : "outline"}
-                className="cursor-pointer"
+                className="cursor-pointer hover:shadow-sm transition-all"
                 onClick={() => toggleRetailPreference(preference)}
               >
                 {preference}
               </Badge>
             ))}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            {t("profile.retailPreferencesHelp") || "Select the types of stores and products you prefer"}
           </div>
         </div>
 
