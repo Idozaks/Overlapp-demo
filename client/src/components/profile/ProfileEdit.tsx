@@ -260,8 +260,8 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
         title: t("profile.updateSuccess"),
         description: t("profile.updateSuccessMessage")
       });
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${user.id}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${user.id}/interests`] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['interests'] });
       onSuccess?.();
     },
     onError: (error: Error) => {
