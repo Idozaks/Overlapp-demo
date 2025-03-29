@@ -10,6 +10,9 @@ import {
   Users,
   ShoppingBag,
   Share2,
+  Globe,
+  Search,
+  Laptop,
 } from "lucide-react";
 
 const slides = [
@@ -19,30 +22,31 @@ const slides = [
     gradientColors: "from-blue-500 to-purple-500",
     icon: <UserCircle />,
     secondaryIcon: <Users />,
-    emoji: "🧑‍💼",
+    emoji: "👤",
   },
   {
     title: "common.landing.hero.slide2.title",
     description: "common.landing.hero.slide2.subtitle",
     gradientColors: "from-green-500 to-teal-500",
-    icon: <Store />,
-    secondaryIcon: <ShoppingBag />,
-    emoji: "🛍️",
+    icon: <Search />,
+    secondaryIcon: <Network />,
+    emoji: "🔍",
   },
   {
     title: "common.landing.hero.slide3.title",
     description: "common.landing.hero.slide3.subtitle",
     gradientColors: "from-amber-500 to-red-500",
-    icon: <Network />,
-    secondaryIcon: <Share2 />,
-    emoji: "🤝",
+    icon: <Globe />,
+    secondaryIcon: <Laptop />,
+    emoji: "🌐",
   },
 ];
 
 export default function Hero() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
+  const isHebrew = i18n.language === 'he';
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -86,11 +90,24 @@ export default function Hero() {
             >
               {t(slides[currentSlide].description)}
             </motion.p>
+            
+            {isHebrew && currentSlide === 0 && (
+              <motion.p
+                key={`full-desc-${animationKey}`}
+                className="max-w-[600px] text-sm text-muted-foreground md:text-base"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                {t("common.landing.hero.description")}
+              </motion.p>
+            )}
+            
             <motion.div
               key={`cta-${animationKey}-${currentSlide}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              transition={{ duration: 0.5, delay: isHebrew ? 0.3 : 0.2 }}
             >
               <Button size="lg" className="mr-4">
                 {t(`common.landing.hero.slide${currentSlide + 1}.cta`)}

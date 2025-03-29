@@ -25,19 +25,22 @@
     "updating": "Updating...",
     "landing": {
       "hero": {
+        "title": "Overlapp - Your Personal Digital Persona!",
+        "subtitle": "The Smart Way to Find Your Perfect Matches",
+        "description": "Overlapp lets you create a digital persona that reflects your interests, expertise, and way of life, allowing you to find meaningful overlaps with people, websites, and apps that share common ground in the areas that matter most to you. Whether for networking, collaboration, or personal growth, Overlapp helps you connect with others who align with your defined interests and values. Your internet browsing experience also becomes smarter and more relevant—websites can present content, offers, and recommendations that truly matter to you. On eCommerce platforms, Overlapp ensures that products, deals, and ads perfectly match your needs, making every interaction seamless, efficient, and personalized.",
         "slide1": {
-          "title": "Your Digital Identity, Reimagined",
-          "subtitle": "Seamlessly bridge your digital and physical worlds with AI-powered personalization.",
+          "title": "Overlapp - Your Personal Digital Persona!",
+          "subtitle": "The Smart Way to Find Your Perfect Matches",
           "cta": "Get Started"
         },
         "slide2": {
-          "title": "Secure & Future-Ready",
-          "subtitle": "Control your identity with quantum-resistant encryption and advanced privacy controls.",
+          "title": "Find Meaningful Overlaps",
+          "subtitle": "Connect with people, websites and apps that share your interests",
           "cta": "Learn More"
         },
         "slide3": {
-          "title": "Seamless Physical Integration",
-          "subtitle": "Merge real-world interactions with smart location-based features for on-the-spot convenience.",
+          "title": "Smarter Browsing Experience",
+          "subtitle": "Get more relevant content, offers and recommendations across the web",
           "cta": "Explore Features"
         },
         "slide4": {
