@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, createContext, useContext } from 'react';
+import React, { useEffect, useRef, useState, createContext, useContext, useCallback } from 'react';
 import p5 from 'p5';
 
 // Define node types for the visualization
@@ -97,17 +97,23 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
   const [nodes, setNodes] = useState<NodeData[]>([]);
   const [hoveredNodeId, setHoveredNodeId] = useState<number | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
+  
+  // Check if we're on a mobile device
+  const isMobile = useCallback(() => {
+    return window.innerWidth < 768 || 
+           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
     
     const sketch = (p: p5) => {
-      // Animation state variables
+      // Animation state variables with reduced complexity for mobile
       const myceliumBranches: MyceliumBranch[] = [];
-      const myceliumCount = 12;
+      const myceliumCount = isMobile() ? 6 : 12;
       const nodes: Node[] = [];
       const connections: Connection[] = [];
-      const nodeCount = 30; // Increased for more variety
+      const nodeCount = isMobile() ? 15 : 30; // Fewer nodes on mobile
       
       let scrollY = 0;
       let lastScrollY = 0;
@@ -566,31 +572,58 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
             this.velocityX = p.map(noiseValueX, 0, 1, -0.03, 0.03);
             this.velocityY = p.map(noiseValueY, 0, 1, -0.03, 0.03);
             
-            // Add repel force from other nodes
-            for (const otherNode of nodes) {
-              if (otherNode.id !== this.id) {
-                const dx = this.x - otherNode.x;
-                const dy = this.y - otherNode.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                // Only apply force if nodes are close to each other (within repel radius)
-                const repelRadius = this.size + otherNode.size + 60; // Increased margin for stronger repel effect
-                
-                if (distance < repelRadius) {
-                  // Normalize direction vector
-                  const nx = dx / distance || 0;
-                  const ny = dy / distance || 0;
+            // Mobile optimization: Less intensive physics calculations
+            if (isMobile()) {
+              // Add repel force but only check against a subset of nodes to save processing power
+              // Skip some nodes by only checking every 2nd or 3rd node
+              for (let i = 0; i < nodes.length; i += 2) { // Check every other node on mobile
+                const otherNode = nodes[i];
+                if (otherNode.id !== this.id) {
+                  const dx = this.x - otherNode.x;
+                  const dy = this.y - otherNode.y;
+                  const distance = Math.sqrt(dx * dx + dy * dy);
                   
-                  // Calculate repel strength inversely proportional to distance
-                  // Increased from 0.8 to 1.5 for stronger repulsion
-                  const strength = 1.5 * (1 - distance / repelRadius);
+                  // Simplified repel with larger minimum distance to avoid clumping
+                  const repelRadius = this.size + otherNode.size + 50;
                   
-                  // Apply repel force with stronger effect as they get closer
-                  // Use squared relationship for stronger close-range repulsion
-                  const closeRangeEffect = Math.min(5, 1 + (3 * Math.pow(1 - distance / repelRadius, 2)));
+                  if (distance < repelRadius) {
+                    // Simple normalized repel force
+                    const nx = dx / distance || 0;
+                    const ny = dy / distance || 0;
+                    const strength = 1.2 * (1 - distance / repelRadius);
+                    
+                    this.velocityX += nx * strength;
+                    this.velocityY += ny * strength;
+                  }
+                }
+              }
+            } else {
+              // Desktop: Full physics with all nodes
+              for (const otherNode of nodes) {
+                if (otherNode.id !== this.id) {
+                  const dx = this.x - otherNode.x;
+                  const dy = this.y - otherNode.y;
+                  const distance = Math.sqrt(dx * dx + dy * dy);
                   
-                  this.velocityX += nx * strength * closeRangeEffect;
-                  this.velocityY += ny * strength * closeRangeEffect;
+                  // Only apply force if nodes are close to each other (within repel radius)
+                  const repelRadius = this.size + otherNode.size + 60; // Increased margin for stronger repel effect
+                  
+                  if (distance < repelRadius) {
+                    // Normalize direction vector
+                    const nx = dx / distance || 0;
+                    const ny = dy / distance || 0;
+                    
+                    // Calculate repel strength inversely proportional to distance
+                    // Increased from 0.8 to 1.5 for stronger repulsion
+                    const strength = 1.5 * (1 - distance / repelRadius);
+                    
+                    // Apply repel force with stronger effect as they get closer
+                    // Use squared relationship for stronger close-range repulsion
+                    const closeRangeEffect = Math.min(5, 1 + (3 * Math.pow(1 - distance / repelRadius, 2)));
+                    
+                    this.velocityX += nx * strength * closeRangeEffect;
+                    this.velocityY += ny * strength * closeRangeEffect;
+                  }
                 }
               }
             }
