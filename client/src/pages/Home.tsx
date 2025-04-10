@@ -4,7 +4,7 @@ import BenefitsSection from "@/components/landing/BenefitsSection";
 import ARDemo from "@/components/landing/ARDemo";
 import RetailerDemo from "@/components/landing/RetailerDemo";
 import PremiumFeatures from "@/components/landing/PremiumFeatures";
-import OverlappAnimation from "@/components/landing/OverlappAnimation";
+import EnhancedOverlappAnimation from "@/components/landing/EnhancedOverlappAnimation";
 import PhysicalDigitalOverlap from "@/components/landing/PhysicalDigitalOverlap";
 
 export default function Home() {
@@ -23,7 +23,7 @@ export default function Home() {
             creating a network of shared experiences.
           </p>
           <div className="mb-8">
-            <OverlappAnimation className="mt-8" />
+            <EnhancedOverlappAnimation className="mt-8" />
           </div>
         </div>
       </div>
