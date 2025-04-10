@@ -212,6 +212,28 @@
   }
 }
 
+/* Demo mode styles */
+@layer components {
+  /* Highlight target element in demo mode */
+  .demo-highlight-target {
+    @apply relative z-30 outline outline-2 outline-primary rounded-sm;
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  /* Animation for the highlight pulse effect */
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb), 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(var(--color-primary-rgb), 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb), 0);
+    }
+  }
+}
+
 .mobile-nav {
   @apply flex-1 flex items-center justify-between px-2 md:px-4 overflow-x-hidden;
 }

@@ -32,7 +32,7 @@ const journeySteps: Record<JourneyType, JourneyStep[]> = {
     {
       id: 'social-intro',
       title: 'Social Discovery',
-      description: 'Welcome to the social discovery journey! We'll guide you through finding and connecting with like-minded people.',
+      description: 'Welcome to the social discovery journey! We\'ll guide you through finding and connecting with like-minded people.',
       targetPath: '/social',
       highlightPosition: 'bottom',
     },
@@ -162,7 +162,7 @@ const journeySteps: Record<JourneyType, JourneyStep[]> = {
     {
       id: 'algorithm-personalization',
       title: 'Algorithm Personalization',
-      description: 'Customize how Overlapp's algorithms interpret your identity and make recommendations.',
+      description: 'Customize how Overlapp\'s algorithms interpret your identity and make recommendations.',
       targetPath: '/profile/1/edit',
       targetElementId: 'algorithm-settings',
       highlightPosition: 'bottom',
@@ -170,7 +170,7 @@ const journeySteps: Record<JourneyType, JourneyStep[]> = {
     {
       id: 'privacy-controls',
       title: 'Privacy Controls',
-      description: 'Control who can see your information and how it's used in the Overlapp ecosystem.',
+      description: 'Control who can see your information and how it\'s used in the Overlapp ecosystem.',
       targetPath: '/profile/1/edit',
       targetElementId: 'privacy-settings',
       highlightPosition: 'right',
@@ -416,14 +416,16 @@ export const DemoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       'follow', 'like', 'comment', 'overlap_detected', 'message'
     ];
     
+    const randomType = types[Math.floor(Math.random() * types.length)];
+    
     return {
       sourceUserId: Math.floor(Math.random() * 20) + 1, // Random user ID between 1-20
       targetUserId: Math.floor(Math.random() * 20) + 1, // Random user ID between 1-20
-      type: types[Math.floor(Math.random() * types.length)],
+      type: randomType,
       timestamp: new Date(),
       metadata: {
-        content: type === 'comment' ? 'Great post!' : undefined,
-        matchScore: type === 'overlap_detected' ? Math.floor(Math.random() * 100) : undefined
+        content: randomType === 'comment' ? 'Great post!' : undefined,
+        matchScore: randomType === 'overlap_detected' ? Math.floor(Math.random() * 100) : undefined
       }
     };
   };
