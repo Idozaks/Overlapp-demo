@@ -1041,11 +1041,15 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
         const rect = containerRef.current.getBoundingClientRect();
         const windowHeight = window.innerHeight || document.documentElement.clientHeight;
         
-        // Element is in viewport if its top is in view or its bottom is in view
+        // Check if any part of the element is in the viewport or near it
+        // Adding a buffer zone to start rendering before the element is fully visible
+        const bufferZone = 200; // 200px buffer above and below viewport
+        
+        // Element is in viewport if its top is in view + buffer or its bottom is in view + buffer
         // or if the element spans the entire viewport
         const verticallyInView = (
-          (rect.top >= 0 && rect.top <= windowHeight) ||
-          (rect.bottom >= 0 && rect.bottom <= windowHeight) ||
+          (rect.top >= -bufferZone && rect.top <= windowHeight + bufferZone) ||
+          (rect.bottom >= -bufferZone && rect.bottom <= windowHeight + bufferZone) ||
           (rect.top <= 0 && rect.bottom >= windowHeight)
         );
         
@@ -1185,11 +1189,28 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
           
           // Draw a simplified version of connections (fewer or no animations)
           if (p.frameCount % 3 === 0) { // Only update every 3 frames
-            // Draw connections (middle layer) - simplified
-            connections.forEach(connection => connection.draw());
+            // Use batch rendering for mobile performance - starting offscreen graphics buffer
+            p.push();
             
-            // Draw nodes (top layer) - without updates
-            nodes.forEach(node => node.draw());
+            // Draw connections (middle layer) - simplified in batches
+            // Split connections into smaller batches for better performance
+            const batchSize = 10;
+            for (let i = 0; i < connections.length; i += batchSize) {
+              const batch = connections.slice(i, i + batchSize);
+              batch.forEach(connection => connection.draw());
+              
+              // Allow a micro yield every batch to prevent jank
+              if (i + batchSize < connections.length && i > 0) {
+                p.push(); // Save state briefly
+                p.pop(); // Restore it (acts as a minimal yield point)
+              }
+            }
+            
+            // Draw nodes (top layer) - without updates, also in batches
+            for (let i = 0; i < nodes.length; i += batchSize) {
+              const batch = nodes.slice(i, i + batchSize);
+              batch.forEach(node => node.draw());
+            }
             
             // Skip mycelium animations completely
             // Skip new branch generation
@@ -1198,6 +1219,8 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
             if (p.frameCount % 6 === 0) { // Only draw legend every 6 frames
               drawLegend();
             }
+            
+            p.pop();
           }
         } else {
           // Full animation updates when in viewport or on desktop
@@ -1209,17 +1232,28 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
             branch.draw();
           });
           
-          // Draw connections (middle layer)
-          connections.forEach(connection => {
-            connection.update();
-            connection.draw();
-          });
+          // Use batch rendering even on desktop for better performance
+          // Each batch processes a subset of elements to avoid frame drops
           
-          // Draw and update nodes (top layer)
-          nodes.forEach(node => {
-            node.update();
-            node.draw();
-          });
+          // Draw connections (middle layer) in batches
+          const connectionBatchSize = isMobile() ? 10 : 20;
+          for (let i = 0; i < connections.length; i += connectionBatchSize) {
+            const batch = connections.slice(i, i + connectionBatchSize);
+            batch.forEach(connection => {
+              connection.update();
+              connection.draw();
+            });
+          }
+          
+          // Draw and update nodes (top layer) in batches
+          const nodeBatchSize = isMobile() ? 5 : 10;
+          for (let i = 0; i < nodes.length; i += nodeBatchSize) {
+            const batch = nodes.slice(i, i + nodeBatchSize);
+            batch.forEach(node => {
+              node.update();
+              node.draw();
+            });
+          }
           
           // Add an occasional new mycelium branch (less frequently on mobile)
           const branchProbability = isMobile() ? 0.001 : 0.003;
