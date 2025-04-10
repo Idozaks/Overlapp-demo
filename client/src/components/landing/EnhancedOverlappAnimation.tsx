@@ -1533,4 +1533,18 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
   );
 };
 
-export default EnhancedOverlappAnimation;
+// Wrap component with a function that checks for mobile device
+// This ensures the component is only mounted on desktop/tablet
+const DesktopOnlyAnimation = (props: OverlappAnimationProps) => {
+  const isMobileView = typeof window !== 'undefined' && window.innerWidth < 768;
+  
+  // Return empty div on mobile to prevent any rendering
+  if (isMobileView) {
+    return null;
+  }
+  
+  // Return the actual component on desktop/tablet
+  return <EnhancedOverlappAnimation {...props} />;
+};
+
+export default DesktopOnlyAnimation;

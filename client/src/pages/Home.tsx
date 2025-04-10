@@ -28,18 +28,21 @@ export default function Home() {
       </div>
       
       {/* Mobile-only text version of the connections section */}
-      <div className="block md:hidden py-8 bg-gradient-to-b from-background to-background/90">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">
+      <div 
+        className="block md:hidden py-8 bg-gradient-to-b from-background to-background/90"
+        style={{ touchAction: 'auto', pointerEvents: 'auto' }}
+      >
+        {/* Significantly reduced height for mobile */}
+        <div className="container mx-auto px-4 py-2">
+          <h2 className="text-2xl font-bold text-center mb-2">
             Visualizing <span className="text-primary">Connections</span>
           </h2>
-          <p className="text-center text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
-            Overlapp discovers meaningful connections between people, businesses, and interests, 
-            creating a network of shared experiences.
+          <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto mb-2">
+            Discover meaningful connections between people, businesses, and interests
           </p>
-          <div className="text-center mb-4">
-            <span className="inline-block bg-primary/10 text-primary px-4 py-2 rounded-md">
-              Interactive visualization available on larger screens
+          <div className="text-center mb-2">
+            <span className="inline-block bg-primary/10 text-primary text-xs px-3 py-1 rounded-md">
+              Visualization available on desktop
             </span>
           </div>
         </div>
