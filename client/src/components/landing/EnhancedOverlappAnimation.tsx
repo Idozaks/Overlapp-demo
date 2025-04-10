@@ -1103,7 +1103,19 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
           containerRef.current?.offsetWidth || window.innerWidth,
           400 // Controlled height to stay contained within section
         );
+        
         canvas.parent(containerRef.current!);
+        
+        // Apply pointer-events: none to the canvas element to ensure it doesn't interfere with scrolling
+        // Wait for next frame to make sure the canvas is in the DOM
+        setTimeout(() => {
+          // Use the animation-container ID we added
+          const canvasElement = document.querySelector('#animation-container canvas');
+          if (canvasElement) {
+            (canvasElement as HTMLElement).style.pointerEvents = 'none';
+            (canvasElement as HTMLElement).style.touchAction = 'auto';
+          }
+        }, 0);
         
         // Set appropriate frame rate for device
         p.frameRate(isMobile() ? mobileFrameRate : desktopFrameRate);
@@ -1504,9 +1516,11 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
   return (
     <AnimationContext.Provider value={animationContextValue}>
       <div 
+        id="animation-container"
         ref={containerRef} 
-        className={`relative w-full h-[400px] overflow-hidden ${className}`}
+        className={`relative w-full h-[400px] overflow-hidden ${className} pointer-events-none`}
         aria-hidden="true" // Animation is decorative
+        style={{ touchAction: 'auto' }} // Ensure touch scrolling is not prevented
       >
         <div className="absolute bottom-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
           Explore how interests connect people & businesses
