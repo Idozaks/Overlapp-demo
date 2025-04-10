@@ -116,32 +116,34 @@ export default function Hero() {
             </motion.div>
           </div>
           <div className="relative h-[300px] md:h-[450px]">
-            <motion.div
-              key={`animation-${animationKey}`}
-              className="absolute inset-0"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
+            {/* Static container for YouTube video - doesn't re-render on slide change */}
+            <div className="absolute inset-0 z-10">
               <div className="relative h-full w-full rounded-xl overflow-hidden">
-                {/* Replace animation with first YouTube video */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-10`} />
-                <div className="relative z-10 h-full">
-                  <div className="p-2">
-                    <iframe
-                      width="560"
-                      height="315"
-                      src="https://www.youtube.com/embed/Rk7t0TWYNDg?si=bNbaZOgkWQlIIJH2"
-                      title="YouTube video player"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      allowFullScreen
-                      className="w-full h-[400px] border-0"
-                    ></iframe>
-                  </div>
+                <div className="p-2">
+                  <iframe
+                    width="560"
+                    height="315"
+                    src="https://www.youtube.com/embed/Rk7t0TWYNDg?si=bNbaZOgkWQlIIJH2"
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                    className="w-full h-[400px] border-0"
+                  ></iframe>
                 </div>
               </div>
+            </div>
+            
+            {/* Animated background that changes with slides */}
+            <motion.div
+              key={`bg-${animationKey}`}
+              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-10 rounded-xl`} />
             </motion.div>
           </div>
         </div>
