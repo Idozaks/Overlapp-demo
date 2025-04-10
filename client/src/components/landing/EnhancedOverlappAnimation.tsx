@@ -98,30 +98,65 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
   const [hoveredNodeId, setHoveredNodeId] = useState<number | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
   
-  // Check if we're on a mobile device
+  // Enhanced mobile device detection with performance tiers
   const isMobile = useCallback(() => {
-    return window.innerWidth < 768 || 
-           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // Check screen size
+    const isSmallScreen = window.innerWidth < 768;
+    
+    // Check for touch capability (more reliable than user agent)
+    const hasTouch = 'ontouchstart' in window || 
+                     navigator.maxTouchPoints > 0 ||
+                     (navigator as any).msMaxTouchPoints > 0;
+    
+    // Check for mobile user agent (additional signal)
+    const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Also detect tablets - they need similar optimizations
+    const isTablet = (window.innerWidth < 1024 && window.innerWidth >= 768) && 
+                    (hasTouch || mobileUA);
+    
+    return isSmallScreen || mobileUA || isTablet;
   }, []);
+  
+  // Device performance classification for tiered rendering
+  const getDevicePerformanceTier = useCallback(() => {
+    // Get rough estimate of device performance capability
+    const isLowPower = isMobile() && window.innerWidth < 480;
+    const isMidPower = isMobile() && !isLowPower;
+    const isHighPower = !isMobile();
+    
+    return { isLowPower, isMidPower, isHighPower };
+  }, [isMobile]);
 
   useEffect(() => {
     if (!containerRef.current) return;
     
     const sketch = (p: p5) => {
-      // Animation state variables with reduced complexity for mobile
+      // Get device performance tier for adaptive complexity
+      const { isLowPower, isMidPower, isHighPower } = getDevicePerformanceTier();
+      
+      // Animation state variables with adaptive complexity based on device capability
       const myceliumBranches: MyceliumBranch[] = [];
-      const myceliumCount = isMobile() ? 6 : 12;
+      
+      // Adapt complexity based on performance tier
+      const myceliumCount = isLowPower ? 4 : (isMidPower ? 6 : 12);
+      
       const nodes: Node[] = [];
       const connections: Connection[] = [];
-      const nodeCount = isMobile() ? 15 : 30; // Fewer nodes on mobile
+      
+      // Adaptive node count based on device capability
+      // Ultra low power: 10 nodes, Low power: 15 nodes, Mid power: 20 nodes, High power: 30 nodes
+      const nodeCount = isLowPower 
+        ? (window.innerWidth < 380 ? 10 : 15) 
+        : (isMidPower ? 20 : 30);
       
       let scrollY = 0;
       let lastScrollY = 0;
       let scrollVelocity = 0;
       
-      // Frame rate control - lower for mobile
+      // Adaptive frame rate control based on device capability
       const desktopFrameRate = 30;
-      const mobileFrameRate = 15;
+      const mobileFrameRate = isLowPower ? 12 : 15; // Ultra low power devices get even lower frame rate
       
       // Track if animation is in view
       let isInViewport = false;
@@ -1176,8 +1211,27 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
         
         p.clear();
         
+        // Get device performance tier for selective rendering
+        const { isLowPower, isMidPower, isHighPower } = getDevicePerformanceTier();
+        
         // For mobile devices, only do full updates when in viewport
         const shouldReduceUpdates = isMobile() && !isInViewport;
+        
+        // Ultra-optimization for very low-power devices (smaller screens)
+        const isUltraLowPower = isLowPower && window.innerWidth < 380;
+        
+        // Selective frame rendering based on device capability
+        // Skip rendering on certain frames to reduce power consumption
+        if (isUltraLowPower && p.frameCount % 4 !== 0) {
+          // Ultra low power devices only render every 4th frame when not in focus
+          if (!isInViewport) return;
+        } else if (isLowPower && p.frameCount % 3 !== 0) {
+          // Low power devices only render every 3rd frame when not in focus
+          if (!isInViewport) return;
+        } else if (isMidPower && !isInViewport && p.frameCount % 2 !== 0) {
+          // Mid-power devices skip every other frame when not in viewport
+          return;
+        }
         
         // Update scroll velocity (ease to zero)
         scrollVelocity = scrollVelocity * 0.92;
@@ -1274,11 +1328,32 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
       };
       
       // Draw a legend showing what each shape/color represents
+      // With adaptive display based on device capability
       function drawLegend() {
+        const { isLowPower, isMidPower } = getDevicePerformanceTier();
+        
+        // For low power devices, show a simplified legend with fewer entries
         const legendX = 10;
         const legendY = 20;
         const lineHeight = 16;
-        const nodeTypes = Object.keys(nodeColors) as NodeType[];
+        
+        // On low-power devices, show only main node types (user, business, interest)
+        // On mid-power devices, show 5 types
+        // On high-power devices, show all types
+        let nodeTypesToShow: NodeType[];
+        if (isLowPower && window.innerWidth < 380) {
+          // Ultra-low power: Show only 3 most important types
+          nodeTypesToShow = ['user', 'business', 'interest'];
+        } else if (isLowPower) {
+          // Low power: Show 4 types
+          nodeTypesToShow = ['user', 'business', 'interest', 'location'];
+        } else if (isMidPower) {
+          // Mid power: Show 5 types
+          nodeTypesToShow = ['user', 'business', 'interest', 'location', 'event'];
+        } else {
+          // High power: Show all types
+          nodeTypesToShow = Object.keys(nodeColors) as NodeType[];
+        }
         
         p.push();
         p.textAlign(p.LEFT, p.CENTER);
@@ -1286,7 +1361,7 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
         p.fill(0, 0, 0, 180);
         p.text("Node Types:", legendX, legendY - 10);
         
-        nodeTypes.forEach((type, i) => {
+        nodeTypesToShow.forEach((type, i) => {
           const y = legendY + i * lineHeight;
           const iconSize = 8;
           
