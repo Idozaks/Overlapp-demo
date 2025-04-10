@@ -312,7 +312,7 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
         // Create responsive canvas
         const canvas = p.createCanvas(
           containerRef.current?.offsetWidth || window.innerWidth,
-          500
+          750 // 150% of original height (500 * 1.5 = 750)
         );
         canvas.parent(containerRef.current!);
         
@@ -445,7 +445,7 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
       p.windowResized = () => {
         p.resizeCanvas(
           containerRef.current?.offsetWidth || window.innerWidth,
-          500
+          750 // 150% of original height
         );
         // Recenter
         userX = p.width / 2;
@@ -500,7 +500,7 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
   return (
     <div 
       ref={containerRef} 
-      className={`relative w-full h-[500px] ${className}`}
+      className={`relative w-full h-[750px] ${className}`}
       aria-hidden="true" // Animation is decorative
     >
       <div className="absolute top-2 left-2 bg-black/30 text-white text-xs px-2 py-1 rounded">

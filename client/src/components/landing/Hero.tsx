@@ -117,35 +117,29 @@ export default function Hero() {
           </div>
           <div className="relative h-[300px] md:h-[450px]">
             <motion.div
-              key={`scene-${animationKey}-${currentSlide}`}
+              key={`animation-${animationKey}`}
               className="absolute inset-0"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative h-full w-full rounded-xl overflow-hidden flex items-center justify-center gap-8 p-8">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="bg-white/10 rounded-full p-6"
-                >
-                  {React.cloneElement(slides[currentSlide].icon, {
-                    className: "w-48 h-48 text-white stroke-[1.5]",
-                  })}
-                </motion.div>
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="bg-black/10 rounded-full p-6"
-                >
-                  {React.cloneElement(slides[currentSlide].secondaryIcon, {
-                    className: "w-48 h-48 text-white stroke-[1.5]",
-                  })}
-                </motion.div>
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-30`}
-                />
+              <div className="relative h-full w-full rounded-xl overflow-hidden">
+                {/* Replace cards with enhanced animation */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-10`} />
+                <div className="relative z-10 h-full">
+                  {/* Import EnhancedOverlappAnimation component */}
+                  <div className="p-2">
+                    <div className="text-xs text-white/70 absolute top-2 right-2 bg-black/30 px-2 py-1 rounded z-20">
+                      Click and drag nodes to interact
+                    </div>
+                    <iframe
+                      src="/animation"
+                      title="Overlapp Connections Visualization"
+                      className="w-full h-[400px] border-0"
+                      aria-hidden="true"
+                    />
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
