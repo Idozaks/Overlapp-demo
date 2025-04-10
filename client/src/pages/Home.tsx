@@ -11,8 +11,8 @@ export default function Home() {
     <div className="min-h-screen">
       <Hero />
       
-      {/* Connection visualization */}
-      <div className="py-8 md:py-16 bg-gradient-to-b from-background to-background/90">
+      {/* Connection visualization - Hidden on mobile */}
+      <div className="hidden md:block py-8 md:py-16 bg-gradient-to-b from-background to-background/90">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
             Visualizing <span className="text-primary">Connections</span>
@@ -23,6 +23,24 @@ export default function Home() {
           </p>
           <div className="mb-8">
             <EnhancedOverlappAnimation className="mt-8" />
+          </div>
+        </div>
+      </div>
+      
+      {/* Mobile-only text version of the connections section */}
+      <div className="block md:hidden py-8 bg-gradient-to-b from-background to-background/90">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-4">
+            Visualizing <span className="text-primary">Connections</span>
+          </h2>
+          <p className="text-center text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+            Overlapp discovers meaningful connections between people, businesses, and interests, 
+            creating a network of shared experiences.
+          </p>
+          <div className="text-center mb-4">
+            <span className="inline-block bg-primary/10 text-primary px-4 py-2 rounded-md">
+              Interactive visualization available on larger screens
+            </span>
           </div>
         </div>
       </div>
