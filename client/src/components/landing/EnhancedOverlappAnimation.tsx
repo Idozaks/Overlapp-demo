@@ -414,9 +414,13 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
         velocityY: number;
         noiseOffsetX: number;
         noiseOffsetY: number;
+        dragging: boolean;
+        hovered: boolean;
         
         constructor(id: number) {
           this.id = id;
+          this.dragging = false;
+          this.hovered = false;
           
           // Assign a node type based on distribution
           const typeDistribution: NodeType[] = [
@@ -434,11 +438,11 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
             ? typeDistribution[id] 
             : typeDistribution[Math.floor(p.random(typeDistribution.length))];
           
-          // Positioning - cluster by type
+          // Positioning - with more spacing, spread out nodes more
           const typeIndex = Object.keys(nodeColors).indexOf(this.type);
           const typeCount = Object.keys(nodeColors).length;
-          const angle = (typeIndex / typeCount) * p.TWO_PI + p.random(-0.3, 0.3);
-          const radius = p.random(80, 150);
+          const angle = (typeIndex / typeCount) * p.TWO_PI + p.random(-0.5, 0.5);
+          const radius = p.random(100, 180); // Increased radius for more spacing
           
           this.x = p.width/2 + p.cos(angle) * radius;
           this.y = p.height/2 + p.sin(angle) * radius;
@@ -472,29 +476,58 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
           this.noiseOffsetY = p.random(1000);
         }
         
+        // Check if mouse is over this node
+        isMouseOver() {
+          return p.dist(p.mouseX, p.mouseY, this.x, this.y) < this.size / 2 + 5;
+        }
+        
+        // Start dragging this node
+        startDrag() {
+          if (this.isMouseOver()) {
+            this.dragging = true;
+          }
+        }
+        
+        // Stop dragging this node
+        stopDrag() {
+          this.dragging = false;
+        }
+        
         update() {
-          // Use Perlin noise for extremely minimal movement
-          const noiseScale = 0.0003; // Very slow movement
-          const noiseValueX = p.noise(this.noiseOffsetX + p.frameCount * noiseScale);
-          const noiseValueY = p.noise(this.noiseOffsetY + p.frameCount * noiseScale);
-          
-          // Convert noise (0-1) to very minimal direction (-0.03 to 0.03)
-          this.velocityX = p.map(noiseValueX, 0, 1, -0.03, 0.03);
-          this.velocityY = p.map(noiseValueY, 0, 1, -0.03, 0.03);
-          
-          // Move nodes very slowly
-          this.x += this.velocityX * 0.3;
-          this.y += this.velocityY * 0.3;
-          
-          // Barely respond to scroll velocity
-          this.y += scrollVelocity * 0.01;
+          // Handle dragging
+          if (this.dragging) {
+            this.x = p.mouseX;
+            this.y = p.mouseY;
+            // Reset velocity when dragging
+            this.velocityX = 0;
+            this.velocityY = 0;
+          } else {
+            // Check if hovered
+            this.hovered = this.isMouseOver();
+            
+            // Use Perlin noise for extremely minimal movement when not dragging
+            const noiseScale = 0.0003; // Very slow movement
+            const noiseValueX = p.noise(this.noiseOffsetX + p.frameCount * noiseScale);
+            const noiseValueY = p.noise(this.noiseOffsetY + p.frameCount * noiseScale);
+            
+            // Convert noise (0-1) to very minimal direction (-0.03 to 0.03)
+            this.velocityX = p.map(noiseValueX, 0, 1, -0.03, 0.03);
+            this.velocityY = p.map(noiseValueY, 0, 1, -0.03, 0.03);
+            
+            // Move nodes very slowly
+            this.x += this.velocityX * 0.3;
+            this.y += this.velocityY * 0.3;
+            
+            // Barely respond to scroll velocity
+            this.y += scrollVelocity * 0.01;
+          }
           
           // Bounce off edges with padding
           const padding = 20;
-          if (this.x < padding) this.velocityX = Math.abs(this.velocityX) * 0.5;
-          if (this.x > p.width - padding) this.velocityX = -Math.abs(this.velocityX) * 0.5;
-          if (this.y < padding) this.velocityY = Math.abs(this.velocityY) * 0.5;
-          if (this.y > p.height - padding) this.velocityY = -Math.abs(this.velocityY) * 0.5;
+          if (this.x < padding) this.x = padding;
+          if (this.x > p.width - padding) this.x = p.width - padding;
+          if (this.y < padding) this.y = padding;
+          if (this.y > p.height - padding) this.y = p.height - padding;
         }
         
         draw() {
@@ -709,6 +742,26 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
         }
       }
       
+      // Mouse handlers
+      p.mousePressed = () => {
+        // Try to start dragging a node
+        for (const node of nodes) {
+          if (node.isMouseOver()) {
+            node.startDrag();
+            break; // Only drag one node at a time
+          }
+        }
+        return false; // Return false to prevent default browser behavior
+      };
+      
+      p.mouseReleased = () => {
+        // Stop dragging all nodes
+        for (const node of nodes) {
+          node.stopDrag();
+        }
+        return false;
+      };
+
       p.setup = () => {
         // Create responsive canvas with a strict height
         const canvas = p.createCanvas(
@@ -722,7 +775,7 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
           myceliumBranches.push(new MyceliumBranch());
         }
         
-        // Create nodes
+        // Create nodes with better spacing distribution
         for (let i = 0; i < nodeCount; i++) {
           nodes.push(new Node(i));
         }
@@ -981,6 +1034,9 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
     >
       <div className="absolute bottom-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
         Network visualization of Overlapp connections
+      </div>
+      <div className="absolute top-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
+        Click and drag nodes to interact
       </div>
     </div>
   );
