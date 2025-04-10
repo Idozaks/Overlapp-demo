@@ -933,18 +933,35 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
       
       // Touch handlers for mobile devices
       p.touchStarted = () => {
+        // Check if we're touching a node
+        const isNodeTouched = nodes.some(node => p.dist(p.mouseX, p.mouseY, node.x, node.y) < node.size / 2 + 5);
+        
         // For p5.js mobile, we can just use mouseX/mouseY as they are mapped to touch events
-        handleInteractionStart(p.mouseX, p.mouseY);
-        return false; // Prevent default
+        if (isNodeTouched) {
+          handleInteractionStart(p.mouseX, p.mouseY);
+          return true; // Prevent default only when interacting with nodes
+        }
+        
+        // Allow normal scrolling when touching empty canvas areas
+        return false;
       };
       
       p.touchEnded = () => {
+        // Check if any node was being dragged
+        const wasNodeDragged = nodes.some(node => node.dragging);
+        
+        // End interaction
         handleInteractionEnd();
-        return false;
+        
+        // Only prevent default if we were interacting with a node
+        return wasNodeDragged;
       };
       
       // Handle touch moving (dragging)
       p.touchMoved = () => {
+        // Check if any node is being dragged
+        const isNodeBeingDragged = nodes.some(node => node.dragging);
+        
         // Update any node that is being dragged
         for (const node of nodes) {
           if (node.dragging) {
@@ -952,8 +969,10 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
             node.y = p.mouseY;
           }
         }
-        // This ensures the canvas isn't scrolled during touch interactions
-        return false;
+        
+        // Only prevent default scrolling if we're interacting with a node
+        // This allows normal page scrolling when touching empty areas
+        return isNodeBeingDragged;
       };
 
       p.setup = () => {
