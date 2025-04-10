@@ -438,14 +438,20 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
             ? typeDistribution[id] 
             : typeDistribution[Math.floor(p.random(typeDistribution.length))];
           
-          // Positioning - with more spacing, spread out nodes more
+          // Positioning - with significantly more initial spacing for repel forces to work better
           const typeIndex = Object.keys(nodeColors).indexOf(this.type);
           const typeCount = Object.keys(nodeColors).length;
-          const angle = (typeIndex / typeCount) * p.TWO_PI + p.random(-0.5, 0.5);
-          const radius = p.random(100, 180); // Increased radius for more spacing
+          const angle = (typeIndex / typeCount) * p.TWO_PI + p.random(-0.3, 0.3);
+          const radius = p.random(120, 200); // Further increased radius for more spacing
           
+          // Position nodes in a more structured pattern based on their type
+          // Different types are placed in different regions to reduce initial overlap
           this.x = p.width/2 + p.cos(angle) * radius;
           this.y = p.height/2 + p.sin(angle) * radius;
+          
+          // Add slight randomization to avoid perfect circles
+          this.x += p.random(-30, 30);
+          this.y += p.random(-30, 30);
           
           // Visual properties
           const typeColorData = nodeColors[this.type];
@@ -522,7 +528,7 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 // Only apply force if nodes are close to each other (within repel radius)
-                const repelRadius = this.size + otherNode.size + 40; // Size plus some extra margin
+                const repelRadius = this.size + otherNode.size + 60; // Increased margin for stronger repel effect
                 
                 if (distance < repelRadius) {
                   // Normalize direction vector
@@ -530,18 +536,22 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
                   const ny = dy / distance || 0;
                   
                   // Calculate repel strength inversely proportional to distance
-                  const strength = 0.8 * (1 - distance / repelRadius);
+                  // Increased from 0.8 to 1.5 for stronger repulsion
+                  const strength = 1.5 * (1 - distance / repelRadius);
                   
-                  // Apply repel force
-                  this.velocityX += nx * strength;
-                  this.velocityY += ny * strength;
+                  // Apply repel force with stronger effect as they get closer
+                  // Use squared relationship for stronger close-range repulsion
+                  const closeRangeEffect = Math.min(5, 1 + (3 * Math.pow(1 - distance / repelRadius, 2)));
+                  
+                  this.velocityX += nx * strength * closeRangeEffect;
+                  this.velocityY += ny * strength * closeRangeEffect;
                 }
               }
             }
             
             // Keep nodes inside canvas with some buffer
             const buffer = this.size * 2;
-            const maxVelocity = 2; // Cap maximum velocity
+            const maxVelocity = 4; // Increased from 2 to 4 to allow stronger movement
             
             // Constrain velocity to prevent excessive movement
             this.velocityX = p.constrain(this.velocityX, -maxVelocity, maxVelocity);
