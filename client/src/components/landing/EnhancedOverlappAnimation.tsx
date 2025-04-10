@@ -890,11 +890,11 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
         setHoveredNodeId(hoveredNode ? hoveredNode.id : null);
       };
       
-      // Mouse handlers
-      p.mousePressed = () => {
-        // Check for clicking on nodes
+      // Helper function to handle both mouse and touch interactions
+      const handleInteractionStart = (x: number, y: number) => {
+        // Check for clicking/touching nodes
         for (const node of nodes) {
-          if (node.isMouseOver()) {
+          if (p.dist(x, y, node.x, node.y) < node.size / 2 + 5) {
             // Handle node selection
             setSelectedNodeId(node.id);
             
@@ -907,18 +907,52 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
             }
             
             // Start dragging the node
-            node.startDrag();
+            node.dragging = true;
             break; // Only interact with one node at a time
           }
         }
-        return false; // Return false to prevent default browser behavior
       };
       
-      p.mouseReleased = () => {
+      const handleInteractionEnd = () => {
         // Stop dragging all nodes
         for (const node of nodes) {
           node.stopDrag();
         }
+      };
+      
+      // Mouse handlers
+      p.mousePressed = () => {
+        handleInteractionStart(p.mouseX, p.mouseY);
+        return false; // Return false to prevent default browser behavior
+      };
+      
+      p.mouseReleased = () => {
+        handleInteractionEnd();
+        return false;
+      };
+      
+      // Touch handlers for mobile devices
+      p.touchStarted = () => {
+        // For p5.js mobile, we can just use mouseX/mouseY as they are mapped to touch events
+        handleInteractionStart(p.mouseX, p.mouseY);
+        return false; // Prevent default
+      };
+      
+      p.touchEnded = () => {
+        handleInteractionEnd();
+        return false;
+      };
+      
+      // Handle touch moving (dragging)
+      p.touchMoved = () => {
+        // Update any node that is being dragged
+        for (const node of nodes) {
+          if (node.dragging) {
+            node.x = p.mouseX;
+            node.y = p.mouseY;
+          }
+        }
+        // This ensures the canvas isn't scrolled during touch interactions
         return false;
       };
 
@@ -1211,7 +1245,7 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
           Network visualization of Overlapp connections
         </div>
         <div className="absolute top-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
-          Click and drag nodes to interact
+          Click/touch and drag nodes to interact
         </div>
       </div>
     </AnimationContext.Provider>
