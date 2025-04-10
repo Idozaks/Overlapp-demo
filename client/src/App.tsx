@@ -68,6 +68,7 @@ import About from "@/pages/About"; // Import the About component
 import Marketplace from "@/pages/marketplace"; // Import the Marketplace component
 import EntityOverlap from "@/pages/marketplace/EntityOverlap"; // Import the EntityOverlap component
 import ChatPage from "@/pages/chat"; // Import the Chat component
+import { SimulationController } from "@/components/demo"; // Import the SimulationController component
 
 
 function Router() {
@@ -408,6 +409,7 @@ function App() {
             <Router />
           </main>
         </div>
+        <SimulationController />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
