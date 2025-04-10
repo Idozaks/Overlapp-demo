@@ -119,6 +119,13 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
       let lastScrollY = 0;
       let scrollVelocity = 0;
       
+      // Frame rate control - lower for mobile
+      const desktopFrameRate = 30;
+      const mobileFrameRate = 15;
+      
+      // Track if animation is in view
+      let isInViewport = false;
+      
       // Sample data for different node types
       const nodeLabels: Record<NodeType, string[]> = {
         user: [
@@ -817,40 +824,57 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
             
             p.push();
             
-            // Draw connection with subtle curve to suggest neural network
+            // Draw connection: simplified for mobile when out of viewport
+            const useSimplifiedDrawing = isMobile() && !isInViewport;
+            
             p.noFill();
             // Use black stroke with appropriate alpha
             p.stroke(0, 0, 0, currentAlpha);
             p.strokeWeight(this.strength);
             
-            // Calculate control points for curved path
-            const ctrl1X = p.lerp(this.source.x, this.target.x, 0.25) + p.sin(p.frameCount * 0.01 + this.pulsePhase) * 5;
-            const ctrl1Y = p.lerp(this.source.y, this.target.y, 0.25) + p.cos(p.frameCount * 0.01 + this.pulsePhase) * 5;
-            const ctrl2X = p.lerp(this.source.x, this.target.x, 0.75) - p.sin(p.frameCount * 0.01 + this.pulsePhase) * 5;
-            const ctrl2Y = p.lerp(this.source.y, this.target.y, 0.75) - p.cos(p.frameCount * 0.01 + this.pulsePhase) * 5;
-            
-            p.beginShape();
-            p.vertex(this.source.x, this.source.y);
-            p.bezierVertex(ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, this.target.x, this.target.y);
-            p.endShape();
+            if (useSimplifiedDrawing) {
+              // Simplified straight line for mobile when not in viewport
+              p.beginShape();
+              p.vertex(this.source.x, this.source.y);
+              p.vertex(this.target.x, this.target.y);
+              p.endShape();
+            } else {
+              // Full curved connection for desktop or when in viewport
+              // Calculate control points for curved path
+              const ctrl1X = p.lerp(this.source.x, this.target.x, 0.25) + p.sin(p.frameCount * 0.01 + this.pulsePhase) * 5;
+              const ctrl1Y = p.lerp(this.source.y, this.target.y, 0.25) + p.cos(p.frameCount * 0.01 + this.pulsePhase) * 5;
+              const ctrl2X = p.lerp(this.source.x, this.target.x, 0.75) - p.sin(p.frameCount * 0.01 + this.pulsePhase) * 5;
+              const ctrl2Y = p.lerp(this.source.y, this.target.y, 0.75) - p.cos(p.frameCount * 0.01 + this.pulsePhase) * 5;
+              
+              p.beginShape();
+              p.vertex(this.source.x, this.source.y);
+              p.bezierVertex(ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, this.target.x, this.target.y);
+              p.endShape();
+            }
             
             // Draw connection label at midpoint
             p.noStroke();
             
-            // Create a small background for the label for better readability
-            p.fill(255, 255, 255, 180);
-            p.rectMode(p.CENTER);
-            const labelWidth = this.connectionLabel.length * 5;
-            p.rect(midX, midY, labelWidth, 14, 4);
+            // On mobile when not in viewport, only draw labels for stronger connections
+            const shouldDrawLabel = !useSimplifiedDrawing || this.overlap > 0.5;
             
-            // Draw the connection label
-            p.fill(0, 0, 0, 220);
-            p.textAlign(p.CENTER, p.CENTER);
-            p.textSize(8);
-            p.text(this.connectionLabel, midX, midY);
+            if (shouldDrawLabel) {
+              // Create a small background for the label for better readability
+              p.fill(255, 255, 255, 180);
+              p.rectMode(p.CENTER);
+              const labelWidth = this.connectionLabel.length * 5;
+              p.rect(midX, midY, labelWidth, 14, 4);
+              
+              // Draw the connection label
+              p.fill(0, 0, 0, 220);
+              p.textAlign(p.CENTER, p.CENTER);
+              p.textSize(8);
+              p.text(this.connectionLabel, midX, midY);
+            }
             
             // Draw dots along the connection to show data flow
-            if (this.overlap > 0.3) {
+            // Only when animated connections are needed (desktop or in viewport)
+            if (!useSimplifiedDrawing && this.overlap > 0.3) {
               // Create multiple pulse dots for stronger connections
               const pulseCount = Math.floor(this.overlap * 5) + 1;
               for (let i = 0; i < pulseCount; i++) {
@@ -858,11 +882,13 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
                 const pulseOffset = i / pulseCount;
                 const pulsePhase = ((p.frameCount * pulseSpeed + this.pulsePhase + pulseOffset) % 1);
                 
-                // Calculate position along bezier curve
-                const t = pulsePhase;
-                const t1 = 1 - t;
-                const pulseX = t1*t1*t1*this.source.x + 3*t1*t1*t*ctrl1X + 3*t1*t*t*ctrl2X + t*t*t*this.target.x;
-                const pulseY = t1*t1*t1*this.source.y + 3*t1*t1*t*ctrl1Y + 3*t1*t*t*ctrl2Y + t*t*t*this.target.y;
+                // Calculate position along the curve
+                let pulseX, pulseY;
+                
+                // Linear interpolation for straight lines is always used in simplified mode
+                // or when calculating bezier curve points would cause errors
+                pulseX = p.lerp(this.source.x, this.target.x, pulsePhase);
+                pulseY = p.lerp(this.source.y, this.target.y, pulsePhase);
                 
                 // Draw pulse dot
                 const pulseSize = 3;
@@ -1008,6 +1034,25 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
         return isNodeBeingDragged;
       };
 
+      // Check if element is in viewport for lazy rendering
+      const checkIsInViewport = () => {
+        if (!containerRef.current) return false;
+        
+        const rect = containerRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        
+        // Element is in viewport if its top is in view or its bottom is in view
+        // or if the element spans the entire viewport
+        const verticallyInView = (
+          (rect.top >= 0 && rect.top <= windowHeight) ||
+          (rect.bottom >= 0 && rect.bottom <= windowHeight) ||
+          (rect.top <= 0 && rect.bottom >= windowHeight)
+        );
+        
+        isInViewport = verticallyInView;
+        return verticallyInView;
+      };
+      
       p.setup = () => {
         // Create responsive canvas with a strict height
         const canvas = p.createCanvas(
@@ -1015,6 +1060,9 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
           400 // Controlled height to stay contained within section
         );
         canvas.parent(containerRef.current!);
+        
+        // Set appropriate frame rate for device
+        p.frameRate(isMobile() ? mobileFrameRate : desktopFrameRate);
         
         // Create mycelium branches
         for (let i = 0; i < myceliumCount; i++) {
@@ -1025,6 +1073,9 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
         for (let i = 0; i < nodeCount; i++) {
           nodes.push(new Node(i));
         }
+        
+        // Initial viewport check
+        checkIsInViewport();
         
         // Create connections with more strategic linking
         // First ensure each node has at least one connection
@@ -1114,41 +1165,76 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
       }
       
       p.draw = () => {
+        // Check if in viewport every 60 frames (roughly once every 1-4 seconds depending on frame rate)
+        if (p.frameCount % 60 === 0) {
+          checkIsInViewport();
+        }
+        
         p.clear();
+        
+        // For mobile devices, only do full updates when in viewport
+        const shouldReduceUpdates = isMobile() && !isInViewport;
         
         // Update scroll velocity (ease to zero)
         scrollVelocity = scrollVelocity * 0.92;
         
-        // Update and draw mycelium branches first (background layer)
-        myceliumBranches.forEach(branch => {
-          branch.applyScrollForce(scrollVelocity);
-          branch.grow();
-          branch.draw();
-        });
-        
-        // Draw connections (middle layer)
-        connections.forEach(connection => {
-          connection.update();
-          connection.draw();
-        });
-        
-        // Draw and update nodes (top layer)
-        nodes.forEach(node => {
-          node.update();
-          node.draw();
-        });
-        
-        // Add an occasional new mycelium branch
-        if (p.random() < 0.003 && myceliumBranches.length < 20) {
-          myceliumBranches.push(new MyceliumBranch());
+        // On mobile, when out of viewport, only update what's needed 
+        if (shouldReduceUpdates) {
+          // Minimal updates - just draw existing state
+          // Skip animation updates for performance
+          
+          // Draw a simplified version of connections (fewer or no animations)
+          if (p.frameCount % 3 === 0) { // Only update every 3 frames
+            // Draw connections (middle layer) - simplified
+            connections.forEach(connection => connection.draw());
+            
+            // Draw nodes (top layer) - without updates
+            nodes.forEach(node => node.draw());
+            
+            // Skip mycelium animations completely
+            // Skip new branch generation
+            
+            // Simplified legend
+            if (p.frameCount % 6 === 0) { // Only draw legend every 6 frames
+              drawLegend();
+            }
+          }
+        } else {
+          // Full animation updates when in viewport or on desktop
+          
+          // Update and draw mycelium branches first (background layer)
+          myceliumBranches.forEach(branch => {
+            branch.applyScrollForce(scrollVelocity);
+            branch.grow();
+            branch.draw();
+          });
+          
+          // Draw connections (middle layer)
+          connections.forEach(connection => {
+            connection.update();
+            connection.draw();
+          });
+          
+          // Draw and update nodes (top layer)
+          nodes.forEach(node => {
+            node.update();
+            node.draw();
+          });
+          
+          // Add an occasional new mycelium branch (less frequently on mobile)
+          const branchProbability = isMobile() ? 0.001 : 0.003;
+          const maxBranches = isMobile() ? 10 : 20;
+          if (p.random() < branchProbability && myceliumBranches.length < maxBranches) {
+            myceliumBranches.push(new MyceliumBranch());
+          }
+          
+          // Draw legend showing node types and shapes
+          drawLegend();
         }
-        
-        // Draw legend showing node types and shapes
-        drawLegend();
         
         // Update React state with current node data
         // Only do this occasionally to avoid performance issues
-        if (p.frameCount % 30 === 0) { // Update about twice per second
+        if (p.frameCount % (isMobile() ? 60 : 30) === 0) { // Less frequent updates on mobile
           updateExternalState();
         }
       };
@@ -1266,6 +1352,20 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
       };
     };
     
+    // Add scroll event listener for viewport detection
+    const handleScrollForViewport = () => {
+      // Check if animation is in viewport on scroll
+      if (canvasRef.current) {
+        const p5Instance = canvasRef.current as any;
+        if (p5Instance.checkIsInViewport) {
+          p5Instance.checkIsInViewport();
+        }
+      }
+    };
+    
+    // Add throttled scroll event listener for viewport detection
+    window.addEventListener('scroll', handleScrollForViewport, { passive: true });
+    
     // Initialize the p5 instance
     canvasRef.current = new p5(sketch, containerRef.current!);
     
@@ -1275,6 +1375,7 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
         canvasRef.current.remove();
         canvasRef.current = null;
       }
+      window.removeEventListener('scroll', handleScrollForViewport);
     };
   }, [onNodeSelect, setNodes, setHoveredNodeId, setSelectedNodeId]);
   
