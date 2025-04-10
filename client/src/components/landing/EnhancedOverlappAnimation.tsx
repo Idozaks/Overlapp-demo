@@ -1,8 +1,52 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, createContext, useContext } from 'react';
 import p5 from 'p5';
+
+// Define node types for the visualization
+type NodeType = 'user' | 'business' | 'interest' | 'location' | 'event' | 'brand' | 'product';
+
+// Define interface for exposed node data
+export interface NodeData {
+  id: number;
+  type: NodeType;
+  label: string;
+  connections: ConnectionData[];
+  isHovered: boolean;
+}
+
+// Define interface for exposed connection data
+export interface ConnectionData {
+  sourceId: number;
+  targetId: number;
+  sourceType: NodeType;
+  targetType: NodeType;
+  sourceLabel: string;
+  targetLabel: string;
+  connectionType: ConnectionType;
+  connectionLabel: string;
+  strength: number;
+  overlap: number;
+}
+
+// Create a context to share animation data
+interface AnimationContextType {
+  nodes: NodeData[];
+  selectedNodeId: number | null;
+  setSelectedNodeId: (id: number | null) => void;
+  hoveredNodeId: number | null;
+}
+
+export const AnimationContext = createContext<AnimationContextType>({
+  nodes: [],
+  selectedNodeId: null,
+  setSelectedNodeId: () => {},
+  hoveredNodeId: null
+});
+
+export const useAnimationContext = () => useContext(AnimationContext);
 
 type OverlappAnimationProps = {
   className?: string;
+  onNodeSelect?: (nodeData: NodeData) => void;
 };
 
 // Define all possible connection types
@@ -45,8 +89,7 @@ type ConnectionType =
   | 'related_to'
   | 'complementary_to';
 
-// Define node types for the visualization
-type NodeType = 'user' | 'business' | 'interest' | 'location' | 'event' | 'brand' | 'product';
+// NodeType already defined above
 
 const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
