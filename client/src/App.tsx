@@ -68,6 +68,7 @@ import About from "@/pages/About"; // Import the About component
 import Marketplace from "@/pages/marketplace"; // Import the Marketplace component
 import EntityOverlap from "@/pages/marketplace/EntityOverlap"; // Import the EntityOverlap component
 import ChatPage from "@/pages/chat"; // Import the Chat component
+import Animation from "./pages/Animation"; // Import the Animation component
 import { SimulationController } from "@/components/demo"; // Import the SimulationController component
 
 
@@ -215,6 +216,7 @@ function Router() {
       <Route path="/engage/online" component={lazy(() => import('./pages/engage/EngageOnline'))} />
       <Route path="/engage/offline" component={lazy(() => import('./pages/engage/EngageOffline'))} />
       <Route path="/chat" component={ChatPage} />
+      <Route path="/animation" component={Animation} />
       <Route component={NotFound} />
     </Switch>
   );
