@@ -848,19 +848,32 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
           const d = p.dist(this.source.x, this.source.y, this.target.x, this.target.y);
           const maxDist = 250; // Visible connection distance
           
-          if (d < maxDist) {
+          // Get device performance tier for adaptive drawing complexity
+          const { isLowPower, isMidPower, isHighPower } = getDevicePerformanceTier();
+          
+          // Ultra-low power devices have even shorter connection distance to reduce drawing
+          const adjustedMaxDist = isLowPower && window.innerWidth < 380 ? 200 : maxDist;
+          
+          if (d < adjustedMaxDist) {
             // Calculate fade based on distance
-            const fadeByDistance = p.map(d, 0, maxDist, 1, 0);
+            const fadeByDistance = p.map(d, 0, adjustedMaxDist, 1, 0);
             const currentAlpha = this.alpha * fadeByDistance;
             
-            // Calculate the position of the overlap indicator
+            // Calculate the position of the overlap indicator (only used for non-simplified rendering)
             const midX = p.lerp(this.source.x, this.target.x, 0.5);
             const midY = p.lerp(this.source.y, this.target.y, 0.5);
             
             p.push();
             
-            // Draw connection: simplified for mobile when out of viewport
-            const useSimplifiedDrawing = isMobile() && !isInViewport;
+            // Adaptive drawing based on device capability and viewport visibility
+            // Ultra-low power: Always simplified drawing
+            // Low power: Simplified when not in viewport
+            // Mid power: Full drawing when in viewport, simplified bezier when not
+            // High power: Always full drawing
+            const isUltraLowPower = isLowPower && window.innerWidth < 380;
+            const useSimplifiedDrawing = isUltraLowPower || 
+                                        (isLowPower && !isInViewport) || 
+                                        (isMidPower && !isInViewport);
             
             p.noFill();
             // Use black stroke with appropriate alpha
@@ -868,18 +881,30 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
             p.strokeWeight(this.strength);
             
             if (useSimplifiedDrawing) {
-              // Simplified straight line for mobile when not in viewport
+              // Simplified straight line for mobile optimization
               p.beginShape();
               p.vertex(this.source.x, this.source.y);
               p.vertex(this.target.x, this.target.y);
               p.endShape();
+            } else if (isMidPower) {
+              // Mid-power devices: Use simple bezier without animation
+              const ctrl1X = p.lerp(this.source.x, this.target.x, 0.3);
+              const ctrl1Y = p.lerp(this.source.y, this.target.y, 0.3);
+              const ctrl2X = p.lerp(this.source.x, this.target.x, 0.7);
+              const ctrl2Y = p.lerp(this.source.y, this.target.y, 0.7);
+              
+              p.beginShape();
+              p.vertex(this.source.x, this.source.y);
+              p.bezierVertex(ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, this.target.x, this.target.y);
+              p.endShape();
             } else {
-              // Full curved connection for desktop or when in viewport
-              // Calculate control points for curved path
-              const ctrl1X = p.lerp(this.source.x, this.target.x, 0.25) + p.sin(p.frameCount * 0.01 + this.pulsePhase) * 5;
-              const ctrl1Y = p.lerp(this.source.y, this.target.y, 0.25) + p.cos(p.frameCount * 0.01 + this.pulsePhase) * 5;
-              const ctrl2X = p.lerp(this.source.x, this.target.x, 0.75) - p.sin(p.frameCount * 0.01 + this.pulsePhase) * 5;
-              const ctrl2Y = p.lerp(this.source.y, this.target.y, 0.75) - p.cos(p.frameCount * 0.01 + this.pulsePhase) * 5;
+              // High-power devices: Full animated bezier curve
+              // Calculate control points for curved path with animation
+              const animScale = isHighPower ? 5 : 3; // Reduce animation scale on mid-tier devices
+              const ctrl1X = p.lerp(this.source.x, this.target.x, 0.25) + p.sin(p.frameCount * 0.01 + this.pulsePhase) * animScale;
+              const ctrl1Y = p.lerp(this.source.y, this.target.y, 0.25) + p.cos(p.frameCount * 0.01 + this.pulsePhase) * animScale;
+              const ctrl2X = p.lerp(this.source.x, this.target.x, 0.75) - p.sin(p.frameCount * 0.01 + this.pulsePhase) * animScale;
+              const ctrl2Y = p.lerp(this.source.y, this.target.y, 0.75) - p.cos(p.frameCount * 0.01 + this.pulsePhase) * animScale;
               
               p.beginShape();
               p.vertex(this.source.x, this.source.y);
@@ -890,8 +915,15 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
             // Draw connection label at midpoint
             p.noStroke();
             
-            // On mobile when not in viewport, only draw labels for stronger connections
-            const shouldDrawLabel = !useSimplifiedDrawing || this.overlap > 0.5;
+            // Adaptive label rendering based on device capability
+            // Ultra-low power: Only most important connections (overlap > 0.7)
+            // Low power: Only stronger connections (overlap > 0.5)
+            // Mid power: Most connections when in viewport (overlap > 0.3 or in viewport)
+            // High power: All connections
+            const shouldDrawLabel = isHighPower || 
+                                   (isMidPower && (isInViewport || this.overlap > 0.3)) ||
+                                   (isLowPower && this.overlap > 0.5) ||
+                                   (isUltraLowPower && this.overlap > 0.7);
             
             if (shouldDrawLabel) {
               // Create a small background for the label for better readability
