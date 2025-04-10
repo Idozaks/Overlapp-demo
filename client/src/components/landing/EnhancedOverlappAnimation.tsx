@@ -514,9 +514,55 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
             this.velocityX = p.map(noiseValueX, 0, 1, -0.03, 0.03);
             this.velocityY = p.map(noiseValueY, 0, 1, -0.03, 0.03);
             
-            // Move nodes very slowly
-            this.x += this.velocityX * 0.3;
-            this.y += this.velocityY * 0.3;
+            // Add repel force from other nodes
+            for (const otherNode of nodes) {
+              if (otherNode.id !== this.id) {
+                const dx = this.x - otherNode.x;
+                const dy = this.y - otherNode.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Only apply force if nodes are close to each other (within repel radius)
+                const repelRadius = this.size + otherNode.size + 40; // Size plus some extra margin
+                
+                if (distance < repelRadius) {
+                  // Normalize direction vector
+                  const nx = dx / distance || 0;
+                  const ny = dy / distance || 0;
+                  
+                  // Calculate repel strength inversely proportional to distance
+                  const strength = 0.8 * (1 - distance / repelRadius);
+                  
+                  // Apply repel force
+                  this.velocityX += nx * strength;
+                  this.velocityY += ny * strength;
+                }
+              }
+            }
+            
+            // Keep nodes inside canvas with some buffer
+            const buffer = this.size * 2;
+            const maxVelocity = 2; // Cap maximum velocity
+            
+            // Constrain velocity to prevent excessive movement
+            this.velocityX = p.constrain(this.velocityX, -maxVelocity, maxVelocity);
+            this.velocityY = p.constrain(this.velocityY, -maxVelocity, maxVelocity);
+            
+            // Apply velocity with damping factor
+            this.x += this.velocityX * 0.5;
+            this.y += this.velocityY * 0.5;
+            
+            // Apply boundary forces to keep nodes on screen
+            if (this.x < buffer) {
+              this.velocityX += (buffer - this.x) * 0.02;
+            } else if (this.x > p.width - buffer) {
+              this.velocityX -= (this.x - (p.width - buffer)) * 0.02;
+            }
+            
+            if (this.y < buffer) {
+              this.velocityY += (buffer - this.y) * 0.02;
+            } else if (this.y > p.height - buffer) {
+              this.velocityY -= (this.y - (p.height - buffer)) * 0.02;
+            }
             
             // Barely respond to scroll velocity
             this.y += scrollVelocity * 0.01;
