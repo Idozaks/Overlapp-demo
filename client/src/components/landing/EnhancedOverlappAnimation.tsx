@@ -91,9 +91,12 @@ type ConnectionType =
 
 // NodeType already defined above
 
-const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) => {
+const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAnimationProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<p5 | null>(null);
+  const [nodes, setNodes] = useState<NodeData[]>([]);
+  const [hoveredNodeId, setHoveredNodeId] = useState<number | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -841,13 +844,71 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
         }
       }
       
+      // Function to convert internal nodes to exposed NodeData format
+      const convertToNodeData = () => {
+        const nodeDataArray: NodeData[] = nodes.map(node => {
+          // Find all connections for this node
+          const nodeConnections = connections.filter(conn => 
+            conn.source.id === node.id || conn.target.id === node.id
+          );
+          
+          // Convert internal connections to ConnectionData format
+          const connectionDataArray: ConnectionData[] = nodeConnections.map(conn => ({
+            sourceId: conn.source.id,
+            targetId: conn.target.id,
+            sourceType: conn.source.type,
+            targetType: conn.target.type,
+            sourceLabel: conn.source.label,
+            targetLabel: conn.target.label,
+            connectionType: conn.connectionType,
+            connectionLabel: conn.connectionLabel,
+            strength: conn.strength,
+            overlap: conn.overlap
+          }));
+          
+          return {
+            id: node.id,
+            type: node.type,
+            label: node.label,
+            connections: connectionDataArray,
+            isHovered: node.hovered
+          };
+        });
+        
+        return nodeDataArray;
+      };
+      
+      // Update the React state with node data
+      const updateExternalState = () => {
+        const nodeDataArray = convertToNodeData();
+        
+        // Set nodes data in React state
+        setNodes(nodeDataArray);
+        
+        // Update hovered node ID
+        const hoveredNode = nodes.find(n => n.hovered);
+        setHoveredNodeId(hoveredNode ? hoveredNode.id : null);
+      };
+      
       // Mouse handlers
       p.mousePressed = () => {
-        // Try to start dragging a node
+        // Check for clicking on nodes
         for (const node of nodes) {
           if (node.isMouseOver()) {
+            // Handle node selection
+            setSelectedNodeId(node.id);
+            
+            // If onNodeSelect callback exists, call it with the node data
+            if (onNodeSelect) {
+              const nodeData = convertToNodeData().find(n => n.id === node.id);
+              if (nodeData) {
+                onNodeSelect(nodeData);
+              }
+            }
+            
+            // Start dragging the node
             node.startDrag();
-            break; // Only drag one node at a time
+            break; // Only interact with one node at a time
           }
         }
         return false; // Return false to prevent default browser behavior
@@ -998,6 +1059,12 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
         
         // Draw legend showing node types and shapes
         drawLegend();
+        
+        // Update React state with current node data
+        // Only do this occasionally to avoid performance issues
+        if (p.frameCount % 30 === 0) { // Update about twice per second
+          updateExternalState();
+        }
       };
       
       // Draw a legend showing what each shape/color represents
@@ -1123,21 +1190,31 @@ const EnhancedOverlappAnimation = ({ className = '' }: OverlappAnimationProps) =
         canvasRef.current = null;
       }
     };
-  }, []);
+  }, [onNodeSelect, setNodes, setHoveredNodeId, setSelectedNodeId]);
   
+  // Create animation context value
+  const animationContextValue = {
+    nodes,
+    selectedNodeId,
+    setSelectedNodeId,
+    hoveredNodeId
+  };
+
   return (
-    <div 
-      ref={containerRef} 
-      className={`relative w-full h-[400px] overflow-hidden ${className}`}
-      aria-hidden="true" // Animation is decorative
-    >
-      <div className="absolute bottom-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
-        Network visualization of Overlapp connections
+    <AnimationContext.Provider value={animationContextValue}>
+      <div 
+        ref={containerRef} 
+        className={`relative w-full h-[400px] overflow-hidden ${className}`}
+        aria-hidden="true" // Animation is decorative
+      >
+        <div className="absolute bottom-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
+          Network visualization of Overlapp connections
+        </div>
+        <div className="absolute top-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
+          Click and drag nodes to interact
+        </div>
       </div>
-      <div className="absolute top-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
-        Click and drag nodes to interact
-      </div>
-    </div>
+    </AnimationContext.Provider>
   );
 };
 
