@@ -169,28 +169,28 @@ const OverlappAnimation: React.FC<OverlappAnimationProps> = ({ className = '' })
         }
         
         update() {
-          // Use Perlin noise for more natural movement
-          const noiseScale = 0.001;
+          // Use Perlin noise for more natural movement, but much reduced
+          const noiseScale = 0.0005; // Much slower change in movement
           const noiseValueX = p.noise(this.noiseOffsetX + p.frameCount * noiseScale);
           const noiseValueY = p.noise(this.noiseOffsetY + p.frameCount * noiseScale);
           
-          // Convert noise (0-1) to direction (-1 to 1)
-          this.velocityX = p.map(noiseValueX, 0, 1, -0.2, 0.2);
-          this.velocityY = p.map(noiseValueY, 0, 1, -0.2, 0.2);
+          // Convert noise (0-1) to very minimal direction (-0.05 to 0.05)
+          this.velocityX = p.map(noiseValueX, 0, 1, -0.05, 0.05);
+          this.velocityY = p.map(noiseValueY, 0, 1, -0.05, 0.05);
           
-          // Move nodes slowly
-          this.x += this.velocityX;
-          this.y += this.velocityY;
+          // Move nodes very slowly
+          this.x += this.velocityX * 0.3;
+          this.y += this.velocityY * 0.3;
           
-          // Respond to scroll velocity
-          this.y += scrollVelocity * 0.05;
+          // Barely respond to scroll velocity
+          this.y += scrollVelocity * 0.02;
           
           // Bounce off edges with padding
           const padding = 20;
-          if (this.x < padding) this.velocityX = Math.abs(this.velocityX);
-          if (this.x > p.width - padding) this.velocityX = -Math.abs(this.velocityX);
-          if (this.y < padding) this.velocityY = Math.abs(this.velocityY);
-          if (this.y > p.height - padding) this.velocityY = -Math.abs(this.velocityY);
+          if (this.x < padding) this.velocityX = Math.abs(this.velocityX) * 0.5;
+          if (this.x > p.width - padding) this.velocityX = -Math.abs(this.velocityX) * 0.5;
+          if (this.y < padding) this.velocityY = Math.abs(this.velocityY) * 0.5;
+          if (this.y > p.height - padding) this.velocityY = -Math.abs(this.velocityY) * 0.5;
         }
         
         draw() {
@@ -215,7 +215,7 @@ const OverlappAnimation: React.FC<OverlappAnimationProps> = ({ className = '' })
             
             // Show label on hover or sometimes randomly
             if (distToMouse < hoverRange || (p.frameCount % 180 === this.id % 180)) {
-              p.fill(255, 255, 255, 200);
+              p.fill(0, 0, 0, 220); // Black text for better visibility
               p.textAlign(p.CENTER, p.CENTER);
               p.textSize(8);
               p.text(this.label, this.x, this.y + this.size + 10);

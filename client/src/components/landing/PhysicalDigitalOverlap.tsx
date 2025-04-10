@@ -128,23 +128,23 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
             
             // Calculate pulse effect
             const pulse = p.sin(p.frameCount * this.pulseSpeed + this.pulsePhase) * 0.5 + 0.5;
-            const alpha = p.map(pulse, 0, 1, 50, 150);
+            const alpha = p.map(pulse, 0, 1, 30, 100);
             
-            // Draw connection line
-            p.stroke(getCategoryColor(this.category, alpha));
-            p.strokeWeight(this.strength * 1.5);
+            // Draw connection line in black
+            p.stroke(0, 0, 0, alpha);
+            p.strokeWeight(this.strength * 1.2);
             p.line(this.source.x, this.source.y, this.target.x, this.target.y);
             
             // Draw connection node at midpoint
             p.noStroke();
-            p.fill(getCategoryColor(this.category, alpha + 50));
-            const nodeSize = 6 * this.strength * (0.8 + pulse * 0.4);
+            p.fill(0, 0, 0, alpha); // Black nodes too
+            const nodeSize = 5 * this.strength * (0.8 + pulse * 0.3);
             p.ellipse(midX, midY, nodeSize);
             
             // Occasionally show category label
             if (p.random() < 0.001 || (p.mouseX > midX - 30 && p.mouseX < midX + 30 && 
                 p.mouseY > midY - 30 && p.mouseY < midY + 30)) {
-              p.fill(255, 255, 255, 200);
+              p.fill(0, 0, 0, 200); // Black text
               p.textAlign(p.CENTER);
               p.textSize(10);
               p.text(this.category, midX, midY - 15);
@@ -213,18 +213,20 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
         }
         
         update(scrollProgress: number) {
-          // Use noise for more organic, slow movement
-          const noiseScale = 0.0003; // Very slow movement
+          // Use noise for extremely minimal movement
+          const noiseScale = 0.0001; // Extremely slow movement
           const time = p.frameCount * noiseScale;
           const noiseValue = p.noise(this.noiseOffset, time);
           
           const angle = noiseValue * p.TWO_PI * 2;
           const radius = this.type === 'digital' ? digitalProfileRadius : physicalWorldRadius;
-          const orbitDistance = radius * p.map(noiseValue, 0, 1, 0.85, 1.15);
           
-          // Different behavior based on scroll progress
+          // Minimal distance variation 
+          const orbitDistance = radius * p.map(noiseValue, 0, 1, 0.95, 1.05);
+          
+          // Different behavior based on scroll progress, but with much less movement
           if (scrollProgress > 0.7) {
-            // When scrolled far, particles of the same category move closer together
+            // When scrolled far, particles of the same category barely move closer together
             const categoryCenter = { x: 0, y: 0, count: 0 };
             particles.forEach(p => {
               if (p.category === this.category) {
@@ -238,30 +240,34 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
               categoryCenter.x /= categoryCenter.count;
               categoryCenter.y /= categoryCenter.count;
               
-              const pullStrength = p.map(scrollProgress, 0.7, 1.0, 0.0001, 0.001);
+              // Much weaker pull strength (1/10th of original)
+              const pullStrength = p.map(scrollProgress, 0.7, 1.0, 0.00001, 0.0001);
               this.targetX = p.lerp(this.targetX, categoryCenter.x, pullStrength);
               this.targetY = p.lerp(this.targetY, categoryCenter.y, pullStrength);
             }
           } else if (scrollProgress > 0.3) {
-            // Midway through scroll, introduce gentle orbiting
-            const orbitSpeed = 0.00005; // Very slow orbit
+            // Midway through scroll, introduce extremely gentle orbiting
+            const orbitSpeed = 0.00001; // Extremely slow orbit (1/5th of original)
             const t = p.frameCount * orbitSpeed;
+            
+            // Very minimal variation from original position
             const orbitX = p.width/2 + p.cos(angle + t) * orbitDistance;
             const orbitY = p.height/2 + p.sin(angle + t) * orbitDistance;
             
-            const orbitInfluence = p.map(scrollProgress, 0.3, 0.7, 0.1, 0.6);
+            // Much less influence from orbit
+            const orbitInfluence = p.map(scrollProgress, 0.3, 0.7, 0.01, 0.05);
             this.targetX = p.lerp(this.originalX, orbitX, orbitInfluence);
             this.targetY = p.lerp(this.originalY, orbitY, orbitInfluence);
           } else {
-            // Early scroll: just slight motion around original position
-            const drift = 5;
+            // Early scroll: almost imperceptible drift around original position
+            const drift = 2; // Much smaller drift
             this.targetX = this.originalX + p.cos(angle) * drift;
             this.targetY = this.originalY + p.sin(angle) * drift;
           }
           
-          // Move very slowly toward target
-          this.x = p.lerp(this.x, this.targetX, this.speed);
-          this.y = p.lerp(this.y, this.targetY, this.speed);
+          // Move even more slowly toward target 
+          this.x = p.lerp(this.x, this.targetX, this.speed * 0.5); // Half the original speed
+          this.y = p.lerp(this.y, this.targetY, this.speed * 0.5); // Half the original speed
         }
         
         draw() {
@@ -285,7 +291,7 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
           const hoverRadius = 25;
           
           if (distToMouse < hoverRadius || this.size > 12) {
-            p.fill(255, 255, 255, 220);
+            p.fill(0, 0, 0, 220); // Black text for better visibility
             p.textAlign(p.CENTER);
             p.textSize(10);
             p.text(this.text, this.x, this.y + this.size + 8);
@@ -293,7 +299,7 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
             // Also show category for hover
             if (distToMouse < hoverRadius) {
               p.textSize(8);
-              p.fill(getCategoryColor(this.category, 200));
+              p.fill(0, 0, 0, 180); // Black text for category too
               p.text(this.category, this.x, this.y + this.size + 22);
             }
           }
@@ -388,7 +394,7 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
         });
         
         // Draw labels
-        p.fill(255, 255, 255, 180);
+        p.fill(0, 0, 0, 180); // Black text for main labels
         p.textAlign(p.CENTER);
         p.textSize(14);
         p.text("Digital Identity", p.width/2, p.height/2 - digitalProfileRadius - 20);
@@ -407,13 +413,13 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
           const nextStage = progressStages[i + 1] || { threshold: 1.1 };
           
           if (scrollProgress >= stage.threshold && scrollProgress < nextStage.threshold) {
-            const alpha = Math.min(255, p.map(scrollProgress, 
+            const alpha = Math.min(220, p.map(scrollProgress, 
               stage.threshold, 
               stage.threshold + 0.1, 
-              0, 255));
+              0, 220));
             
             p.textSize(16);
-            p.fill(255, 255, 255, alpha);
+            p.fill(0, 0, 0, alpha); // Black text for stage headers
             p.text(stage.text, p.width/2, stage.y);
             break;
           }
@@ -422,15 +428,15 @@ const PhysicalDigitalOverlap: React.FC<PhysicalDigitalOverlapProps> = ({ classNa
         // When scrolled far, show insight summary
         if (scrollProgress > 0.85) {
           const insightText = "Your digital preferences align with physical locations in your area";
-          const alpha = p.map(scrollProgress, 0.85, 0.95, 0, 255);
+          const alpha = p.map(scrollProgress, 0.85, 0.95, 0, 220);
           
           p.textSize(14);
-          p.fill(255, 255, 255, alpha);
+          p.fill(0, 0, 0, alpha); // Black text for insights
           p.text(insightText, p.width/2, p.height - 30);
           
           // Draw central "insight" zone
           p.noFill();
-          p.stroke(255, 255, 255, alpha * 0.5);
+          p.stroke(0, 0, 0, alpha * 0.4); // Black stroke for insight zone
           p.strokeWeight(1);
           p.ellipse(p.width/2, p.height/2, 90 + p.sin(p.frameCount * 0.05) * 5);
         }
