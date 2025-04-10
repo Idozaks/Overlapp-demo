@@ -5,6 +5,12 @@ import ARDemo from "@/components/landing/ARDemo";
 import RetailerDemo from "@/components/landing/RetailerDemo";
 import PremiumFeatures from "@/components/landing/PremiumFeatures";
 import EnhancedOverlappAnimation from "@/components/landing/EnhancedOverlappAnimation";
+// Import new components based on the Overlapp Strategy Overview
+import MarketStrategy from "@/components/landing/MarketStrategy";
+import UXPrinciples from "@/components/landing/UXPrinciples";
+import MonetizationStrategies from "@/components/landing/MonetizationStrategies";
+import BrandingCopy from "@/components/landing/BrandingCopy";
+import CallToAction from "@/components/landing/CallToAction";
 
 export default function Home() {
   return (
@@ -48,12 +54,28 @@ export default function Home() {
         </div>
       </div>
       
+      {/* Market strategy section from the Overlapp Strategy Overview */}
+      <MarketStrategy />
+      
       <BenefitsSection />
       <Features />
       
+      {/* Monetization strategies section from the Overlapp Strategy Overview */}
+      <MonetizationStrategies />
+      
+      {/* UX/UI Design Principles from the Overlapp Strategy Overview */}
+      <UXPrinciples />
+      
       <ARDemo />
       <RetailerDemo />
+      
+      {/* Branding & Copywriting section from the Overlapp Strategy Overview */}
+      <BrandingCopy />
+      
       <PremiumFeatures />
+      
+      {/* Call to Action section from the Overlapp Strategy Overview */}
+      <CallToAction />
     </div>
   );
 }
