@@ -1057,48 +1057,21 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
         return false;
       };
       
-      // Touch handlers for mobile devices
+      // Touch handlers for mobile devices disabled to prevent disrupting scrolling
       p.touchStarted = () => {
-        // Check if we're touching a node
-        const isNodeTouched = nodes.some(node => p.dist(p.mouseX, p.mouseY, node.x, node.y) < node.size / 2 + 5);
-        
-        // For p5.js mobile, we can just use mouseX/mouseY as they are mapped to touch events
-        if (isNodeTouched) {
-          handleInteractionStart(p.mouseX, p.mouseY);
-          return true; // Prevent default only when interacting with nodes
-        }
-        
-        // Allow normal scrolling when touching empty canvas areas
+        // Return false to allow normal scrolling behavior
         return false;
       };
       
       p.touchEnded = () => {
-        // Check if any node was being dragged
-        const wasNodeDragged = nodes.some(node => node.dragging);
-        
-        // End interaction
-        handleInteractionEnd();
-        
-        // Only prevent default if we were interacting with a node
-        return wasNodeDragged;
+        // Return false to allow normal scrolling behavior
+        return false;
       };
       
-      // Handle touch moving (dragging)
+      // Touch movement handler
       p.touchMoved = () => {
-        // Check if any node is being dragged
-        const isNodeBeingDragged = nodes.some(node => node.dragging);
-        
-        // Update any node that is being dragged
-        for (const node of nodes) {
-          if (node.dragging) {
-            node.x = p.mouseX;
-            node.y = p.mouseY;
-          }
-        }
-        
-        // Only prevent default scrolling if we're interacting with a node
-        // This allows normal page scrolling when touching empty areas
-        return isNodeBeingDragged;
+        // Return false to allow normal scrolling behavior
+        return false;
       };
 
       // Check if element is in viewport for lazy rendering
@@ -1536,10 +1509,10 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
         aria-hidden="true" // Animation is decorative
       >
         <div className="absolute bottom-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
-          Network visualization of Overlapp connections
+          Explore how interests connect people & businesses
         </div>
-        <div className="absolute top-2 right-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
-          Click/touch and drag nodes to interact
+        <div className="absolute top-2 left-2 bg-black/20 text-black text-xs px-2 py-1 rounded-md pointer-events-none">
+          Visualizing Overlapp network connections
         </div>
       </div>
     </AnimationContext.Provider>
