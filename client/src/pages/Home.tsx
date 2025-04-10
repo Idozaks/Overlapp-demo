@@ -22,7 +22,9 @@ export default function Home() {
             Overlapp discovers meaningful connections between people, businesses, and interests, 
             creating a network of shared experiences.
           </p>
-          <OverlappAnimation className="mt-8" />
+          <div className="mb-8">
+            <OverlappAnimation className="mt-8" />
+          </div>
         </div>
       </div>
       

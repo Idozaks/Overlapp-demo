@@ -336,10 +336,10 @@ const OverlappAnimation: React.FC<OverlappAnimationProps> = ({ className = '' })
       }
       
       p.setup = () => {
-        // Create responsive canvas
+        // Create responsive canvas with a strict height
         const canvas = p.createCanvas(
           containerRef.current?.offsetWidth || window.innerWidth,
-          450 // Slightly taller for more vertical space
+          400 // Reduced height to stay contained within section
         );
         canvas.parent(containerRef.current!);
         
@@ -416,7 +416,7 @@ const OverlappAnimation: React.FC<OverlappAnimationProps> = ({ className = '' })
       p.windowResized = () => {
         p.resizeCanvas(
           containerRef.current?.offsetWidth || window.innerWidth,
-          450
+          400
         );
       };
       
@@ -447,7 +447,7 @@ const OverlappAnimation: React.FC<OverlappAnimationProps> = ({ className = '' })
   return (
     <div 
       ref={containerRef} 
-      className={`relative w-full h-[450px] ${className}`}
+      className={`relative w-full h-[400px] overflow-hidden ${className}`}
       aria-hidden="true" // Animation is decorative
     >
       <div className="absolute bottom-2 right-2 bg-black/20 text-white text-xs px-2 py-1 rounded-md pointer-events-none">
