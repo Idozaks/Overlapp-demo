@@ -1,0 +1,90 @@
+
+# OVERLAPP PLATFORM CONTEXT
+
+## Core Concept
+Overlapp is a mobile-first platform that bridges digital and physical identity to create meaningful connections. The platform analyzes both shared interests and identity attributes to match users in a more authentic way than traditional social platforms.
+
+## Key Features
+
+### Smart Identity Matching
+- Two-layer matching algorithm finds connections based on shared interests and identity attributes
+- Creates authentic overlapping values between users
+- Uses AI to enhance matching precision and relevance
+- Visualizes connections through overlap analysis tools
+
+### Digital-Physical Integration
+- Bridges online profiles with real-world interactions
+- Location-aware features connect users in physical spaces
+- AR capabilities to enhance physical world interactions
+- Retail integration for location-based discovery
+
+### Real-Time Communication
+- Chat system with both user-to-user and AI companion capabilities
+- Socket.io integration for live messaging and typing indicators
+- Message status tracking (sent, delivered, read)
+- Context-aware AI companions that utilize user identity data
+
+### Multi-Language Support
+- Full internationalization with support for English, Hebrew, Arabic, Russian, French, and Spanish
+- RTL language capability for Hebrew and Arabic interfaces
+
+## Connection Visualization
+
+Overlapp visualizes connections between users through:
+- Interactive network graphs showing relationship strengths
+- Overlap analysis highlighting shared interests and traits
+- Category-based connection visualization (interests grouped by topics)
+- Real-time visualization of proximity-based connections
+
+## User Identity Components
+
+Users in Overlapp have:
+- Digital profile with interests, preferences, and personal attributes
+- Location data for physical world integration
+- Identity attributes that define deeper characteristics
+- Connection data showing relationships to other users
+- Interest categories spanning topics like Arts & Culture, Technology, Food & Drink, etc.
+
+## Simulation Elements
+
+In a conference scenario, Overlapp would:
+1. Detect users in physical proximity
+2. Analyze their digital profiles for potential connections
+3. Highlight meaningful overlaps between attendees
+4. Suggest interactions based on shared interests/attributes
+5. Provide real-time updates as people move through the space
+6. Show connection strength through visual cues
+7. Group users by interest categories for easier navigation
+
+## Technical Implementation Notes
+
+For a Three.js simulation, consider these Overlapp components:
+- Nodes representing individual users with profile data
+- Connections/edges showing relationship strength
+- Color coding by interest categories
+- Distance-based connection rules (proximity triggers)
+- Node sizes based on connection relevance or profile completeness
+- Interactive elements showing profile details on hover/click
+- Animation of connections forming as users move closer
+- Categories displayed as clusters or colored regions
+
+## Visualization Design Principles
+
+From the codebase:
+- Use subtle animations to show relationships forming
+- Implement category-based coloring for better understanding
+- Show connection strength through line thickness or opacity
+- Provide contextual information on connections
+- Balance complexity with clarity in the visualization
+- Integrate real-time updates as connections change
+- Show meaningful labels that explain why connections exist
+
+## Simulation Patterns
+
+The interactive-demo-simulation.md document outlines:
+- Background synthetic activity generation
+- Guided user journeys through the platform
+- Tutorial overlay systems for explaining features
+- Simulation of user interactions in real-time
+
+This context can be used to create a Three.js simulation that authentically represents how Overlapp facilitates meaningful connections between people at a conference, highlighting the platform's core functionality of discovering connections based on shared interests and identity attributes.
