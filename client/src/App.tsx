@@ -70,7 +70,6 @@ import EntityOverlap from "@/pages/marketplace/EntityOverlap"; // Import the Ent
 import ChatPage from "@/pages/chat"; // Import the Chat component
 import Animation from "./pages/Animation"; // Import the Animation component
 import { SimulationController } from "@/components/demo"; // Import the SimulationController component
-import ConferenceSimulation from "./pages/demo/ConferenceSimulation"; // Import the ConferenceSimulation component
 
 
 function Router() {
@@ -98,14 +97,14 @@ function Router() {
       <Route path="/marketplace/entity/:id" component={() => {
         const [, params] = useRoute('/marketplace/entity/:id');
         const entityId = params?.id ? parseInt(params.id) : 0;
-
+        
         const { data, isLoading } = useQuery({
           queryKey: [`/api/marketplace/entities/${entityId}`],
           enabled: !!entityId,
         });
-
+        
         const entity = data?.entity;
-
+        
         if (isLoading) {
           return (
             <div className="container mx-auto px-4 py-8">
@@ -116,7 +115,7 @@ function Router() {
             </div>
           );
         }
-
+        
         if (!entity) {
           return (
             <div className="container mx-auto px-4 py-8 text-center">
@@ -128,7 +127,7 @@ function Router() {
             </div>
           );
         }
-
+        
         return (
           <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -147,7 +146,7 @@ function Router() {
                 </Link>
               )}
             </div>
-
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-2">
                 <div className="bg-card rounded-lg shadow-sm p-6 mb-6">
@@ -157,11 +156,11 @@ function Router() {
                       {entity.type === 'physical' ? 'Physical Location' : 'Digital Entity'}
                     </Badge>
                   </div>
-
+                  
                   <h2 className="text-xl font-semibold mb-2">About</h2>
                   <p className="text-muted-foreground mb-4">{entity.description}</p>
                 </div>
-
+                
                 <div className="bg-card rounded-lg shadow-sm p-6">
                   <h2 className="text-xl font-semibold mb-4">Content</h2>
                   <div className="space-y-4">
@@ -177,7 +176,7 @@ function Router() {
                         </CardContent>
                       </Card>
                     ))}
-
+                    
                     {!entity.content?.length && (
                       <p className="text-muted-foreground text-center py-4">
                         No content available for this entity.
@@ -186,12 +185,12 @@ function Router() {
                   </div>
                 </div>
               </div>
-
+              
               <div>
                 <div className="bg-card rounded-lg shadow-sm p-6">
                   <h2 className="text-lg font-semibold mb-3">Entity Information</h2>
                   <Separator className="my-3" />
-
+                  
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm font-medium">Type</p>
@@ -199,7 +198,7 @@ function Router() {
                         {entity.type === 'physical' ? 'Physical Location' : 'Digital Entity'}
                       </p>
                     </div>
-
+                    
                     <div>
                       <p className="text-sm font-medium">Category</p>
                       <p className="text-sm text-muted-foreground">{entity.category}</p>
@@ -218,7 +217,6 @@ function Router() {
       <Route path="/engage/offline" component={lazy(() => import('./pages/engage/EngageOffline'))} />
       <Route path="/chat" component={ChatPage} />
       <Route path="/animation" component={Animation} />
-      <Route path="/conference-simulation" component={ConferenceSimulation} />
       <Route component={NotFound} />
     </Switch>
   );
