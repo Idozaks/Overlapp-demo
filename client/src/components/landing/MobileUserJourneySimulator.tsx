@@ -41,6 +41,33 @@ export const MobileUserJourneySimulator: React.FC<UserJourneySimulatorProps> = (
   autoPlay = true,
   loop = true,
 }) => {
+  // Skip rendering and animation on mobile devices
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    };
+    
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+    
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
+  
+  if (isMobile) {
+    return null;
+  }
+  
+  return <DesktopJourneySimulator className={className} autoPlay={autoPlay} loop={loop} />;
+};
+
+// Separate component for desktop to avoid conditional hook issues
+const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
+  className = '',
+  autoPlay = true,
+  loop = true,
+}) => {
   const [currentJourneyIndex, setCurrentJourneyIndex] = useState(0);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(autoPlay);
@@ -743,6 +770,8 @@ export const MobileUserJourneySimulator: React.FC<UserJourneySimulatorProps> = (
   useEffect(() => {
     if (!isPlaying || isPaused || !currentScreen) return;
 
+    const startTime = Date.now();
+    
     // Show progress of current screen
     const progressInterval = setInterval(() => {
       const elapsed = Date.now() - startTime;
@@ -763,7 +792,6 @@ export const MobileUserJourneySimulator: React.FC<UserJourneySimulatorProps> = (
     });
 
     // Set timer to advance to the next screen
-    const startTime = Date.now();
     const screenTimer = setTimeout(() => {
       advanceToNextScreen();
       setProgress(0);

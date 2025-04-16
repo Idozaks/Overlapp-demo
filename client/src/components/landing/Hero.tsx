@@ -117,13 +117,26 @@ export default function Hero() {
             </motion.div>
           </div>
           
-          {/* Mobile Device Simulator - replaces the YouTube video */}
-          <div className="relative flex justify-center items-center">
+          {/* Mobile Device Simulator - only shown on larger screens */}
+          <div className="relative hidden md:flex justify-center items-center">
             <MobileUserJourneySimulator 
               autoPlay={true} 
               loop={true} 
               className="max-w-full"
             />
+          </div>
+          
+          {/* Mobile-friendly message for small screens */}
+          <div className="relative md:hidden flex flex-col items-center text-center p-4">
+            <div className="bg-primary/10 rounded-xl p-6 mb-4 w-full">
+              <h3 className="text-xl font-semibold mb-2">Visualizing Connections</h3>
+              <p className="text-muted-foreground">
+                Discover meaningful connections between people, businesses, and interests
+              </p>
+              <div className="inline-block bg-primary/10 text-primary rounded-full px-4 py-1 mt-4 text-sm">
+                Visualization available on desktop
+              </div>
+            </div>
           </div>
         </div>
 
