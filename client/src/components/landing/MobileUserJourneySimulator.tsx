@@ -277,40 +277,40 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
         {
           id: 'event-discovery-home',
           component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
+            <div className={`bg-background text-foreground h-full flex flex-col ${rtl ? 'font-hebrew rtl' : ''}`}>
               <div className="p-4 border-b">
                 <h2 className="text-lg font-bold">Overlapp</h2>
-                <p className="text-xs text-muted-foreground">Weekend Events Nearby</p>
+                <p className="text-xs text-muted-foreground">{t('simulator.weekend_events')}</p>
               </div>
               <div className="flex-1 overflow-y-auto p-4">
                 <div className="bg-primary/5 rounded-lg p-3 mb-4 border border-primary/10">
-                  <h3 className="text-sm font-medium flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    This Weekend (Apr 19-21)
+                  <h3 className={`text-sm font-medium flex items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <Calendar className={`h-4 w-4 ${rtl ? 'ml-2' : 'mr-2'}`} />
+                    {t('simulator.this_weekend')}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    10 events match your interests
+                    {t('simulator.events_match')}
                   </p>
                 </div>
                 
                 <div className="space-y-4 mb-4">
                   <div className="border rounded-lg overflow-hidden">
                     <div className="h-28 bg-primary/10 relative">
-                      <div className="absolute top-2 right-2">
-                        <Badge className="bg-primary text-white">92% match</Badge>
+                      <div className={`absolute top-2 ${rtl ? 'left-2' : 'right-2'}`}>
+                        <Badge className="bg-primary text-white">92% {t('common.match')}</Badge>
                       </div>
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Music className="h-10 w-10 text-primary/40" />
                       </div>
                     </div>
                     <div className="p-3">
-                      <h3 className="text-sm font-bold">Downtown Music Festival</h3>
-                      <div className="flex items-center text-xs text-muted-foreground mt-1 mb-2">
-                        <CalendarDays className="h-3 w-3 mr-1" />
-                        <span>Saturday, Apr 20 • 2:00 PM</span>
+                      <h3 className="text-sm font-bold">{t('simulator.music_festival')}</h3>
+                      <div className={`flex items-center text-xs text-muted-foreground mt-1 mb-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <CalendarDays className={`h-3 w-3 ${rtl ? 'ml-1' : 'mr-1'}`} />
+                        <span>{t('simulator.saturday')}, 20 {t('simulator.this_weekend').split(' ')[2]} • 2:00 PM</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex -space-x-2">
+                      <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <div className={`flex ${rtl ? '-space-x-2 flex-row-reverse space-x-reverse' : '-space-x-2'}`}>
                           {Array.from({ length: 3 }).map((_, i) => (
                             <div key={i} className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center">
                               <UserCircle className="h-3 w-3 text-primary" />
@@ -321,7 +321,7 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
                           </div>
                         </div>
                         <Button size="sm" variant="default" className="h-7 text-xs">
-                          View Details
+                          {t('simulator.view_details')}
                         </Button>
                       </div>
                     </div>
@@ -329,21 +329,21 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
                   
                   <div className="border rounded-lg overflow-hidden">
                     <div className="h-28 bg-primary/5 relative">
-                      <div className="absolute top-2 right-2">
-                        <Badge className="bg-primary/80 text-white">85% match</Badge>
+                      <div className={`absolute top-2 ${rtl ? 'left-2' : 'right-2'}`}>
+                        <Badge className="bg-primary/80 text-white">85% {t('common.match')}</Badge>
                       </div>
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Heart className="h-10 w-10 text-primary/30" />
                       </div>
                     </div>
                     <div className="p-3">
-                      <h3 className="text-sm font-bold">Wellness Seminar</h3>
-                      <div className="flex items-center text-xs text-muted-foreground mt-1 mb-2">
-                        <CalendarDays className="h-3 w-3 mr-1" />
-                        <span>Sunday, Apr 21 • 10:00 AM</span>
+                      <h3 className="text-sm font-bold">{t('simulator.wellness_seminar')}</h3>
+                      <div className={`flex items-center text-xs text-muted-foreground mt-1 mb-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <CalendarDays className={`h-3 w-3 ${rtl ? 'ml-1' : 'mr-1'}`} />
+                        <span>{t('simulator.sunday')}, 21 {t('simulator.this_weekend').split(' ')[2]} • 10:00 AM</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex -space-x-2">
+                      <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <div className={`flex ${rtl ? '-space-x-2 flex-row-reverse space-x-reverse' : '-space-x-2'}`}>
                           {Array.from({ length: 2 }).map((_, i) => (
                             <div key={i} className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center">
                               <UserCircle className="h-3 w-3 text-primary" />
@@ -351,7 +351,7 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
                           ))}
                         </div>
                         <Button size="sm" variant="outline" className="h-7 text-xs">
-                          View Details
+                          {t('simulator.view_details')}
                         </Button>
                       </div>
                     </div>
@@ -368,47 +368,47 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
         {
           id: 'event-detail-view',
           component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">Event Details</h2>
+            <div className={`bg-background text-foreground h-full flex flex-col ${rtl ? 'font-hebrew rtl' : ''}`}>
+              <div className={`p-4 border-b flex items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                <ChevronRight className={`h-5 w-5 ${rtl ? 'rotate-0 ml-2' : 'rotate-180 mr-2'}`} />
+                <h2 className="text-lg font-bold">{t('simulator.event_details')}</h2>
               </div>
               <div className="flex-1 overflow-y-auto">
                 <div className="h-40 bg-primary/10 flex items-center justify-center relative">
                   <Music className="h-12 w-12 text-primary/40" />
-                  <div className="absolute top-3 right-3">
-                    <Badge className="bg-primary text-white">92% match</Badge>
+                  <div className={`absolute top-3 ${rtl ? 'left-3' : 'right-3'}`}>
+                    <Badge className="bg-primary text-white">92% {t('common.match')}</Badge>
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="text-xl font-bold mb-1">Downtown Music Festival</h3>
-                  <div className="flex items-center text-sm text-muted-foreground mb-3">
-                    <CalendarDays className="h-4 w-4 mr-1" />
-                    <span>Saturday, Apr 20 • 2:00 PM - 10:00 PM</span>
+                  <h3 className="text-xl font-bold mb-1">{t('simulator.music_festival')}</h3>
+                  <div className={`flex items-center text-sm text-muted-foreground mb-3 ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <CalendarDays className={`h-4 w-4 ${rtl ? 'ml-1' : 'mr-1'}`} />
+                    <span>{t('simulator.saturday')}, 20 {t('simulator.this_weekend').split(' ')[2]} • 2:00 PM - 10:00 PM</span>
                   </div>
                   
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium mb-2">Interest Overlap Analysis</h4>
+                    <h4 className="text-sm font-medium mb-2">{t('simulator.interest_overlap')}</h4>
                     <div className="bg-primary/5 rounded-lg p-3 border border-primary/10">
                       <div className="relative h-20 w-full mb-2">
                         <div className="absolute left-1/3 top-1/2 -translate-y-1/2 w-1/3 h-16 bg-primary/20 rounded-full flex items-center justify-center overflow-hidden">
-                          <div className="bg-primary/40 w-full h-full absolute left-0 scale-[0.65]" />
+                          <div className={`bg-primary/40 w-full h-full absolute ${rtl ? 'right-0' : 'left-0'} scale-[0.65]`} />
                           <span className="relative font-bold text-primary z-10">92%</span>
                         </div>
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-16 aspect-square rounded-full bg-primary/5 flex items-center justify-center">
+                        <div className={`absolute ${rtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 h-16 aspect-square rounded-full bg-primary/5 flex items-center justify-center`}>
                           <UserCircle className="h-6 w-6 text-primary" />
                         </div>
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 h-16 aspect-square rounded-full bg-primary/5 flex items-center justify-center">
+                        <div className={`absolute ${rtl ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 h-16 aspect-square rounded-full bg-primary/5 flex items-center justify-center`}>
                           <Music className="h-6 w-6 text-primary" />
                         </div>
                       </div>
                       <div className="text-sm">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>Music Genre Match</span>
+                        <div className={`flex justify-between text-xs mb-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                          <span>{t('simulator.music_genre')} {t('common.match')}</span>
                           <span>97%</span>
                         </div>
                         <Progress value={97} className="h-2 mb-2" />
-                        <div className="flex justify-between text-xs mb-1">
+                        <div className={`flex justify-between text-xs mb-1 ${rtl ? 'flex-row-reverse' : ''}`}>
                           <span>Local Events Interest</span>
                           <span>88%</span>
                         </div>
@@ -418,9 +418,9 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
                   </div>
                   
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium mb-2">Friends Attending</h4>
-                    <div className="flex items-center mb-3">
-                      <div className="flex -space-x-3 mr-3">
+                    <h4 className="text-sm font-medium mb-2">{t('simulator.friends_attending')}</h4>
+                    <div className={`flex items-center mb-3 ${rtl ? 'flex-row-reverse' : ''}`}>
+                      <div className={`flex -space-x-3 ${rtl ? 'ml-3 flex-row-reverse space-x-reverse' : 'mr-3'}`}>
                         {Array.from({ length: 3 }).map((_, i) => (
                           <div key={i} className="h-8 w-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center">
                             <UserCircle className="h-4 w-4 text-primary" />
@@ -431,19 +431,19 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
                         </div>
                       </div>
                       <Button variant="outline" size="sm">
-                        Invite Friends
+                        {t('simulator.invite_friends')}
                       </Button>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className={`flex gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
                     <Button className="flex-1">
-                      <Ticket className="h-4 w-4 mr-2" />
-                      Get Tickets
+                      <Ticket className={`h-4 w-4 ${rtl ? 'ml-2' : 'mr-2'}`} />
+                      {t('simulator.get_tickets')}
                     </Button>
                     <Button variant="outline" className="flex-1">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Add to Calendar
+                      <Calendar className={`h-4 w-4 ${rtl ? 'ml-2' : 'mr-2'}`} />
+                      {t('simulator.add_to_calendar')}
                     </Button>
                   </div>
                 </div>
@@ -458,27 +458,27 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
         {
           id: 'event-ticket-purchase',
           component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">Purchase Tickets</h2>
+            <div className={`bg-background text-foreground h-full flex flex-col ${rtl ? 'font-hebrew rtl' : ''}`}>
+              <div className={`p-4 border-b flex items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                <ChevronRight className={`h-5 w-5 ${rtl ? 'rotate-0 ml-2' : 'rotate-180 mr-2'}`} />
+                <h2 className="text-lg font-bold">{t('simulator.purchase_tickets')}</h2>
               </div>
               <div className="flex-1 overflow-y-auto p-4">
                 <div className="bg-primary/5 rounded-lg p-3 mb-4 border border-primary/10">
-                  <h3 className="text-sm font-medium">Downtown Music Festival</h3>
-                  <div className="flex items-center text-xs text-muted-foreground mt-1">
-                    <CalendarDays className="h-3 w-3 mr-1" />
-                    <span>Saturday, Apr 20 • 2:00 PM</span>
+                  <h3 className="text-sm font-medium">{t('simulator.music_festival')}</h3>
+                  <div className={`flex items-center text-xs text-muted-foreground mt-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <CalendarDays className={`h-3 w-3 ${rtl ? 'ml-1' : 'mr-1'}`} />
+                    <span>{t('simulator.saturday')}, 20 {t('simulator.this_weekend').split(' ')[2]} • 2:00 PM</span>
                   </div>
                 </div>
                 
                 <div className="space-y-3 mb-4">
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">General Admission</p>
-                      <p className="text-xs text-muted-foreground">Access to all stages</p>
+                  <div className={`flex items-center justify-between p-3 border rounded-lg ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <div className={rtl ? 'text-right' : ''}>
+                      <p className="font-medium text-sm">{t('simulator.general_admission')}</p>
+                      <p className="text-xs text-muted-foreground">{t('simulator.access_all')}</p>
                     </div>
-                    <div className="text-right">
+                    <div className={rtl ? 'text-left' : 'text-right'}>
                       <p className="font-bold">$49.99</p>
                       <div className="flex items-center mt-1">
                         <Button size="sm" variant="outline" className="h-7 w-7 p-0">-</Button>
@@ -488,15 +488,15 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between p-3 border rounded-lg bg-primary/5">
-                    <div>
-                      <div className="flex items-center">
-                        <p className="font-medium text-sm">VIP Package</p>
-                        <Badge className="ml-2 text-[10px]" variant="secondary">Recommended</Badge>
+                  <div className={`flex items-center justify-between p-3 border rounded-lg bg-primary/5 ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <div className={rtl ? 'text-right' : ''}>
+                      <div className={`flex items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <p className="font-medium text-sm">{t('simulator.vip_package')}</p>
+                        <Badge className={`${rtl ? 'mr-2' : 'ml-2'} text-[10px]`} variant="secondary">{t('simulator.recommended')}</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">Priority access + lounge</p>
+                      <p className="text-xs text-muted-foreground">{t('simulator.priority_access')}</p>
                     </div>
-                    <div className="text-right">
+                    <div className={rtl ? 'text-left' : 'text-right'}>
                       <p className="font-bold">$99.99</p>
                       <div className="flex items-center mt-1">
                         <Button size="sm" variant="outline" className="h-7 w-7 p-0">-</Button>
@@ -508,25 +508,25 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
                 </div>
                 
                 <div className="border-t pt-3 mb-4">
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm">Subtotal</span>
+                  <div className={`flex justify-between mb-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <span className="text-sm">{t('simulator.subtotal')}</span>
                     <span className="font-medium">$199.97</span>
                   </div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm">Service Fee</span>
+                  <div className={`flex justify-between mb-1 ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <span className="text-sm">{t('simulator.service_fee')}</span>
                     <span className="font-medium">$12.00</span>
                   </div>
-                  <div className="flex justify-between font-bold mt-2">
-                    <span>Total</span>
+                  <div className={`flex justify-between font-bold mt-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <span>{t('simulator.total')}</span>
                     <span>$211.97</span>
                   </div>
                 </div>
                 
                 <Button className="w-full mb-2">
-                  Complete Purchase
+                  {t('simulator.complete_purchase')}
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  Your tickets will be linked to your Overlapp digital identity
+                  {t('simulator.tickets_linked')}
                 </p>
               </div>
             </div>
