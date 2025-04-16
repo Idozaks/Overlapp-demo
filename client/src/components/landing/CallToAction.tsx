@@ -15,8 +15,11 @@ export default function CallToAction() {
           className="text-center max-w-3xl mx-auto"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Call to Action
+            Join the Connection Revolution
           </h2>
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Be part of Overlapp's innovative connection system that proactively links people through shared interests, both online and offline.
+          </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
             <motion.div

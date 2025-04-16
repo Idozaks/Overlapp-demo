@@ -46,7 +46,7 @@ export default function BrandingCopy() {
             Branding & Copywriting
           </h2>
           <div className="text-2xl text-primary font-medium italic max-w-2xl mx-auto mb-6">
-            "Where your world overlaps with others."
+            "Connecting People Through Shared Interests"
           </div>
         </motion.div>
 
@@ -94,7 +94,7 @@ export default function BrandingCopy() {
                 <h3 className="text-xl font-semibold mb-4">Sample Copy</h3>
                 <div className="bg-primary/10 p-5 rounded-lg border-l-4 border-primary">
                   <p className="text-lg">
-                    "Find people who share your passions – from the wildly common to the oddly specific – and turn chance encounters into something real."
+                    "Our innovative connection system turns chance encounters into valuable relationships by proactively identifying and enabling connections based on shared interests."
                   </p>
                 </div>
                 <div className="mt-8 space-y-4">

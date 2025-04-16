@@ -397,11 +397,11 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Social Topics */}
+            {/* Connection Export */}
             <Link to="/social">
               <Button variant="ghost" className="gap-2">
                 <Share2 className="w-4 h-4" />
-                Social Export
+                Connection Export
               </Button>
             </Link>
 
@@ -525,8 +525,8 @@ export default function Header() {
                     
                     <Link to="/social" onClick={closeMobileMenu}>
                       <Button variant="ghost" className="w-full justify-start gap-2">
-                        <Users className="w-4 h-4" />
-                        Social
+                        <Share2 className="w-4 h-4" />
+                        Connection Export
                       </Button>
                     </Link>
                     
