@@ -1,0 +1,64 @@
+Okay, I understand. You want to refine the description to be more precise, acknowledging that while Overlapp facilitates social connections and has network aspects, it's fundamentally a "system" or "application" rather than a traditional "social platform" like Facebook or Instagram. It's a tool for connection, leveraging data, rather than a destination for content sharing in the same way.
+
+Here's the revised description incorporating that nuance:
+
+Overlapp – Connecting People Through Shared Interests
+What We're Building
+
+Overlapp is an innovative connection system designed to seamlessly link people, online and offline, by leveraging the digital profiles users build through their interests, behaviors, and connections. It's an application focused on facilitating meaningful interactions.
+
+The Opportunity
+
+Despite living in an interconnected digital age, meaningful connections often happen by chance. People frequently cross paths without knowing they share significant common interests or goals. Overlapp changes that by proactively identifying and enabling these connections—turning chance encounters into valuable relationships through an intelligent system.
+
+Key Features
+
+Meaningful Offline Connections: Overlapp identifies and alerts users when someone nearby shares their interests or network connections, enabling instant, meaningful interaction.
+
+Browser Extension (Chrome): While browsing online, our extension highlights relevant connections and opportunities directly within web pages, seamlessly integrating personalized recommendations into everyday browsing.
+
+Real-Time Engagement: Connections are surfaced by the system at the right moment and place, eliminating the effort of manual searches and making networking effortless and intuitive.
+
+How It Works
+
+Users create personalized digital profiles reflecting their interests, backgrounds, and goals within the Overlapp application.
+
+Our smart algorithm analyzes profiles and continuously scans for potential matches, either in the user's vicinity or within online content.
+
+Upon detecting a strong match, users instantly receive notifications via the application, enabling immediate interaction.
+
+Unique Visual Experience
+
+Inspired by natural metaphors such as fireflies and star constellations, Overlapp visually represents connections as gentle arcs of light linking individual points—creating a captivating yet minimalistic user experience within the application.
+
+Why Invest Now?
+
+People increasingly crave genuine, meaningful connections in both digital and physical spaces.
+
+Vast market potential in personalized networking, connection facilitation, social discovery, and real-time recommendation technologies.
+
+Overlapp is positioned as a leader in next-generation connection systems, aiming to disrupt the market by delivering authentic interactions seamlessly.
+
+MVP Objectives
+
+Validate core technology and user engagement with the system.
+
+Establish initial user base and demonstrate high-value interactions facilitated by the application.
+
+Prove the platform’s potential to scale rapidly.
+
+Vision
+
+Our ambition is clear: Overlapp aims to redefine how people connect and interact on a global scale. While distinct from traditional social media, by focusing on authentic, interest-driven links, we aim to build a connection network with the pervasive impact envisioned by the next generation's defining platforms.
+
+Key Changes Made:
+
+"Social platform" changed to "connection system" or "application": This addresses the core feedback directly, emphasizing the tool/utility aspect.
+
+Reinforced "System" and "Application": Used these terms in descriptions of features and how it works to maintain consistency.
+
+Refined Market Positioning: Changed "social platforms" to "connection systems" or "connection technologies."
+
+Adjusted Vision Statement: Softened the direct "next generation's Facebook" comparison slightly while retaining the ambition. It now focuses on redefining how people connect and building a powerful connection network, which aligns better with the "system/application" framing that still acknowledges the network aspect your father mentioned (חלק ממנו זה גם רשת).
+
+This revised text should more accurately reflect Overlapp as a sophisticated tool designed to create and facilitate connections, rather than solely a platform for passive content consumption or broad social broadcasting.
