@@ -12,9 +12,44 @@
     font-family: 'Montserrat', sans-serif;
   }
   
-  /* Apply Rubik font for Hebrew language content */
+  /* RTL specific enhancements for Hebrew language */
+  html[dir="rtl"],
   :lang(he) {
     font-family: 'Rubik', sans-serif;
+  }
+  
+  /* RTL text alignment and direction overrides */
+  html[dir="rtl"] body {
+    text-align: right;
+  }
+  
+  /* Special handling for RTL with proper font weights */
+  html[dir="rtl"] h1, 
+  html[dir="rtl"] h2, 
+  html[dir="rtl"] h3, 
+  html[dir="rtl"] h4, 
+  html[dir="rtl"] h5, 
+  html[dir="rtl"] h6 {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700; /* Ensure proper bold rendering in Hebrew */
+  }
+  
+  /* RTL input fields and placeholders */
+  html[dir="rtl"] input, 
+  html[dir="rtl"] textarea, 
+  html[dir="rtl"] select {
+    text-align: right;
+  }
+  
+  /* Fix for RTL with flexbox layouts */
+  html[dir="rtl"] .flex-row {
+    flex-direction: row-reverse;
+  }
+  
+  /* Button icon ordering in RTL */
+  html[dir="rtl"] .button-with-icon,
+  html[dir="rtl"] .btn-with-icon {
+    flex-direction: row-reverse;
   }
   
   /* Add a utility class for Hebrew text */
@@ -285,4 +320,59 @@ header a:hover img {
   .nav-text {
     @apply text-xs;
   }
+}
+
+/* RTL-specific enhancements */
+html[dir="rtl"] {
+  /* Navigation fixes */
+  .nav-link {
+    @apply flex-row-reverse;
+  }
+  
+  /* Button icon positioning */
+  .btn-icon, 
+  button > svg,
+  .button > svg {
+    @apply transform rotate-180;
+  }
+  
+  /* Arrow icons need to be flipped in RTL for proper visual direction */
+  .arrow-icon {
+    @apply transform rotate-180;
+  }
+  
+  /* Fix for dropdown menus in RTL */
+  .dropdown-content {
+    right: 0;
+    left: auto;
+    text-align: right;
+  }
+  
+  /* Mobile simulator for demos should show RTL content */
+  .mobile-simulator-content {
+    direction: rtl;
+    text-align: right;
+  }
+  
+  /* Fix for welcome message in mobile simulator */
+  .welcome-message {
+    direction: rtl;
+    text-align: right;
+  }
+  
+  /* Card content should be right-aligned in RTL */
+  .card-content {
+    text-align: right;
+  }
+  
+  /* Language switcher should highlight Hebrew properly */
+  .lang-item[data-lang="he"] {
+    @apply font-bold bg-gray-100 dark:bg-gray-800;
+  }
+}
+
+/* Fix for buttons with icons - ensure proper icon placement in RTL */
+html[dir="rtl"] button:has(svg),
+html[dir="rtl"] a:has(svg) {
+  @apply flex-row-reverse;
 }
