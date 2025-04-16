@@ -25,37 +25,37 @@
     "updating": "Updating...",
     "landing": {
       "hero": {
-        "title": "Overlapp - Your Personal Digital Persona!",
-        "subtitle": "The Smart Way to Find Your Perfect Matches",
-        "description": "Overlapp lets you create a digital persona that reflects your interests, expertise, and way of life, allowing you to find meaningful overlaps with people, websites, and apps that share common ground in the areas that matter most to you. Whether for networking, collaboration, or personal growth, Overlapp helps you connect with others who align with your defined interests and values. Your internet browsing experience also becomes smarter and more relevant—websites can present content, offers, and recommendations that truly matter to you. On eCommerce platforms, Overlapp ensures that products, deals, and ads perfectly match your needs, making every interaction seamless, efficient, and personalized.",
+        "title": "Overlapp – Connecting People Through Shared Interests",
+        "subtitle": "An Innovative Connection System",
+        "description": "Overlapp is an innovative connection system designed to seamlessly link people, online and offline, by leveraging the digital profiles users build through their interests, behaviors, and connections. It's an application focused on facilitating meaningful interactions. Despite living in an interconnected digital age, meaningful connections often happen by chance. People frequently cross paths without knowing they share significant common interests or goals. Overlapp changes that by proactively identifying and enabling these connections—turning chance encounters into valuable relationships through an intelligent system.",
         "slide1": {
-          "title": "Overlapp - Your Personal Digital Persona!",
-          "subtitle": "The Smart Way to Find Your Perfect Matches",
+          "title": "Overlapp – Connecting People Through Shared Interests",
+          "subtitle": "An Innovative Connection System",
           "cta": "Get Started"
         },
         "slide2": {
-          "title": "Find Meaningful Overlaps",
-          "subtitle": "Connect with people, websites and apps that share your interests",
+          "title": "Meaningful Offline Connections",
+          "subtitle": "Get alerted when someone nearby shares your interests or network connections",
           "cta": "Learn More"
         },
         "slide3": {
-          "title": "Smarter Browsing Experience",
-          "subtitle": "Get more relevant content, offers and recommendations across the web",
+          "title": "Browser Extension & Real-Time Engagement",
+          "subtitle": "Connections surfaced at the right moment and place for effortless networking",
           "cta": "Explore Features"
         },
         "slide4": {
-          "title": "Personalized AI Insights",
-          "subtitle": "Get real-time recommendations, curated product suggestions, and data-driven tips.",
+          "title": "Smart Algorithm Analysis",
+          "subtitle": "Our system continuously scans for potential matches in your vicinity or within online content",
           "cta": "See How It Works"
         },
         "slide5": {
-          "title": "Experience AR Shopping",
-          "subtitle": "Instantly discover prices, reviews, and personalized offers just by pointing your camera.",
+          "title": "Unique Visual Experience",
+          "subtitle": "Inspired by natural metaphors like fireflies and star constellations",
           "cta": "Try the Demo"
         },
         "slide6": {
-          "title": "Choose Your Experience",
-          "subtitle": "Unlock the full potential of Overlapp with our flexible plans.",
+          "title": "Join the Connection Revolution",
+          "subtitle": "Be part of the next generation of authentic, interest-driven links",
           "cta": "Sign Up"
         }
       },

@@ -77,7 +77,7 @@ export default function MarketStrategy() {
                 <ul className="space-y-4">
                   <motion.li variants={itemVariants} className="flex gap-3">
                     <Globe className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span>Global demand for meaningful social connections via shared interests.</span>
+                    <span>Global demand for meaningful connections via shared interests.</span>
                   </motion.li>
                   <motion.li variants={itemVariants} className="flex gap-3">
                     <Map className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
