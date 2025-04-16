@@ -1,0 +1,542 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overlapp - Connect Meaningfully, Effortlessly</title>
+    <style>
+        /* Basic Reset & Defaults */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth; /* Enable smooth scrolling */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            overflow-x: hidden; /* Prevent horizontal scrollbars caused by animations */
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background-image: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            color: #fff;
+            padding: 100px 0 120px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header .logo, header h1, header p.subtitle, header p.intro, header .cta-buttons-container {
+             animation-duration: 0.8s;
+             animation-fill-mode: both;
+             animation-timing-function: ease-out;
+        }
+
+        header .logo { animation-name: fadeInDown; animation-delay: 0.1s; }
+        header h1 { animation-name: fadeInDown; animation-delay: 0.3s; }
+        header p.subtitle { animation-name: fadeInDown; animation-delay: 0.5s; }
+        header p.intro { animation-name: fadeInUp; animation-delay: 0.7s; }
+        header .cta-buttons-container { animation-name: fadeInUp; animation-delay: 0.9s; }
+
+
+        header h1 {
+            font-size: 3.4em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        header .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+
+
+        header p.subtitle {
+            font-size: 1.3em;
+            margin-bottom: 25px;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 1;
+            font-weight: 500;
+        }
+        header p.intro {
+             font-size: 1.1em;
+             margin-bottom: 40px;
+             max-width: 700px;
+             margin-left: auto;
+             margin-right: auto;
+             opacity: 1;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #ffc107;
+            color: #333;
+            padding: 14px 30px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .cta-button:hover {
+            background-color: #e0a800;
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        .cta-button.secondary {
+            background-color: transparent;
+            border: 2px solid #ffc107;
+            color: #ffc107;
+            box-shadow: none;
+        }
+         .cta-button.secondary:hover {
+             background-color: rgba(255, 193, 7, 0.1);
+             color: #e0a800;
+             border-color: #e0a800;
+             box-shadow: 0 4px 10px rgba(255, 193, 7, 0.2);
+         }
+
+
+        /* Sections Styling */
+        section {
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Section Backgrounds */
+        #video-intro, #privacy {
+            background-color: #fff; /* White background for video and privacy */
+        }
+        #features {
+             background-color: #f8f9fa; /* Default light grey for features */
+        }
+
+
+        /* Section Heading Animation */
+        section h2 {
+            font-size: 2.8em;
+            margin-bottom: 50px;
+            color: #333;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        section h2.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        section p.section-intro {
+            font-size: 1.15em;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            color: #555;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s;
+        }
+         section p.section-intro.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Video Section Styling --- */
+        #video-intro {
+            padding: 60px 0; /* Slightly less padding than other sections */
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 800px; /* Max width for the video */
+            margin: 20px auto 0; /* Centering and spacing */
+            border-radius: 10px; /* Optional: rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Optional: add shadow */
+            /* --- Animation Base State --- */
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+        }
+        .video-wrapper.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0; /* Ensure no iframe border */
+        }
+        /* --- End Video Section Styling --- */
+
+
+        .features-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 35px;
+            margin-top: 50px;
+        }
+
+        .feature-item {
+            flex-basis: calc(50% - 40px);
+            max-width: 500px;
+            background-color: #fff; /* Ensure features on grey bg are white */
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+            text-align: left;
+            border-left: 5px solid #667eea;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px) scale(0.98);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.3s ease;
+        }
+        .feature-item.is-visible {
+             opacity: 1;
+             transform: translateY(0) scale(1);
+        }
+        .feature-item:nth-child(1).is-visible { transition-delay: 0.1s; }
+        .feature-item:nth-child(2).is-visible { transition-delay: 0.2s; }
+        .feature-item:nth-child(3).is-visible { transition-delay: 0.3s; }
+        .feature-item:nth-child(4).is-visible { transition-delay: 0.4s; }
+
+        .feature-item:hover {
+             transform: translateY(-6px) scale(1.01);
+             box-shadow: 0 10px 35px rgba(102, 126, 234, 0.15);
+        }
+
+        .feature-item h3 {
+            font-size: 1.5em;
+            margin-bottom: 18px;
+            color: #764ba2;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .feature-item p {
+            font-size: 1.05em;
+            color: #666;
+            line-height: 1.7;
+        }
+
+        .feature-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #667eea;
+            color: #fff;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 0.9em;
+        }
+
+         #privacy {
+             background-color: #eef2f9; /* Keep distinct privacy background */
+         }
+         #privacy .privacy-icon {
+             font-size: 3em;
+             color: #667eea;
+             margin-bottom: 20px;
+             opacity: 0;
+             transform: scale(0.8);
+             transition: opacity 0.6s ease-out 0.1s, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s;
+         }
+          #privacy .privacy-icon.is-visible {
+             opacity: 1;
+             transform: scale(1);
+         }
+
+        /* Call to Action Section */
+        #cta {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: #fff;
+            padding: 90px 0;
+        }
+
+        #cta h2 {
+            color: #fff;
+            opacity: 1;
+            transform: none;
+        }
+
+        #cta p {
+             color: rgba(255, 255, 255, 0.95);
+             opacity: 1;
+             transform: none;
+        }
+         #cta p.section-intro {
+             font-size: 1.2em;
+         }
+
+        .form-container {
+            max-width: 500px;
+            margin: 40px auto 0;
+            padding: 0;
+             opacity: 0;
+             transform: translateY(20px);
+             transition: opacity 0.6s ease-out 0.4s, transform 0.6s ease-out 0.4s;
+        }
+        .form-container.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            text-align: left;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+        }
+
+        .form-container input[type="email"] {
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05em;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+             transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+         .form-container input[type="email"]:focus {
+             background-color: #fff;
+             box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 0 0 3px rgba(102, 126, 234, 0.3);
+             outline: none;
+         }
+
+         .form-container .cta-button {
+             width: 100%;
+             padding: 16px;
+             font-size: 1.15em;
+             margin-top: 10px;
+             background-color: #ffc107;
+         }
+         .form-container .cta-button:hover {
+              background-color: #e0a800;
+         }
+
+        /* Footer */
+        footer {
+            background-color: #343a40;
+            color: #adb5bd;
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 0;
+        }
+
+        footer p {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .feature-item {
+                 flex-basis: calc(50% - 30px);
+            }
+        }
+
+        @media (max-width: 768px) {
+             header {
+                 padding: 80px 0 100px;
+                 background-attachment: scroll;
+             }
+            header h1 { font-size: 2.8em; }
+            header p.subtitle { font-size: 1.15em; }
+            header p.intro { font-size: 1em; }
+            section { padding: 60px 0; }
+            section h2 { font-size: 2.2em; margin-bottom: 40px; }
+            .video-wrapper { max-width: 90%; } /* Adjust video width */
+            .features-grid { flex-direction: column; align-items: center; gap: 25px; }
+            .feature-item { flex-basis: 90%; max-width: 450px; margin-bottom: 0; padding: 30px; }
+            .feature-item:nth-child(1).is-visible { transition-delay: 0.1s; }
+            .feature-item:nth-child(2).is-visible { transition-delay: 0.15s; }
+            .feature-item:nth-child(3).is-visible { transition-delay: 0.2s; }
+            .feature-item:nth-child(4).is-visible { transition-delay: 0.25s; }
+        }
+
+         @media (max-width: 480px) {
+             header h1 { font-size: 2.2em; }
+             header p.subtitle { font-size: 1.05em; }
+             .cta-button { padding: 12px 25px; font-size: 1em; }
+             .feature-item h3 { font-size: 1.3em; }
+             .feature-item p { font-size: 1em; }
+             .form-container input[type="email"] { padding: 14px 18px; font-size: 1em; }
+             .form-container .cta-button { padding: 14px; font-size: 1.05em; }
+         }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header / Hero Section -->
+    <header>
+        <div class="container">
+             <div class="logo">Overlapp</div>
+            <h1>Stop Missing Connections.<br>Start Building Relationships.</h1>
+            <p class="subtitle">Build connections that genuinely resonate—anytime, anywhere.</p>
+            <p class="intro">Overlapp helps you take initiative and discover shared interests and values with others—instantly. Our advanced system enables you and someone else nearby or online to actively uncover what truly connects you, within seconds. This sparks faster, more meaningful conversations and opens the door to real relationships that might otherwise be missed.</p>
+            <div class="cta-buttons-container">
+                <a href="#cta" class="cta-button">Get Early Access</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==== VIDEO INTRO SECTION ==== -->
+    <section id="video-intro">
+        <div class="container">
+            <!-- Optional: Add a small heading or intro text for the video if desired -->
+            <!-- <h2 class="animate-on-scroll">See Overlapp in Action</h2> -->
+            <div class="video-wrapper animate-on-scroll is-visible">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/Rk7t0TWYNDg?si=o69UX-_WE1UO339p&amp;rel=0&amp;modestbranding=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+                </iframe>
+            </div>
+        </div>
+    </section>
+    <!-- ==== END VIDEO INTRO SECTION ==== -->
+
+    <main>
+        <!-- Privacy Control Section -->
+        <section id="privacy">
+            <div class="container">
+                <div class="privacy-icon animate-on-scroll">🛡️</div>
+                <h2 class="animate-on-scroll">Your Data, Your Control</h2>
+                <p class="section-intro animate-on-scroll">Redefining control over personal information with advanced privacy tools and secure data management. With Overlapp, you are always in command of your digital presence.</p>
+            </div>
+        </section>
+
+        <!-- How Overlapp Empowers You Section (Features) -->
+        <section id="features">
+            <div class="container">
+                <h2 class="animate-on-scroll">How Overlapp Empowers You</h2>
+                <div class="features-grid">
+                    <div class="feature-item animate-on-scroll">
+                        <h3><span class="feature-number">1</span> Create &amp; Control Your Digital Persona</h3>
+                        <p>You define it. You enrich it. You control it. Set up your digital persona with what truly matters to you. Our AI enhances it with related passions, communities, and opportunities—and you always decide how and with whom to share it.</p>
+                    </div>
+                    <div class="feature-item animate-on-scroll">
+                        <h3><span class="feature-number">2</span> Discover Connections—Anywhere</h3>
+                        <p>Turn moments into opportunities. With a tap, ignite an 'Overlapp moment' to instantly see who nearby shares your values and passions. Online? Our browser extension reveals relevant people and events based on your persona—right on the sites you visit.</p>
+                    </div>
+                    <div class="feature-item animate-on-scroll">
+                        <h3><span class="feature-number">3</span> Visualize &amp; Navigate Your Network</h3>
+                         <p>See how you're truly connected. Our constellation-inspired 'Shared Interest Map' shows you how your interests align with others—revealing powerful, often unexpected pathways to people who matter.</p>
+                    </div>
+                    <div class="feature-item animate-on-scroll">
+                        <h3><span class="feature-number">4</span> Engage, Grow &amp; Belong</h3>
+                        <p>Meaningful interactions, guided by purpose. Participate in 'Connection Challenges' that spark conversation and build trust. Go beyond small talk to form real, lasting relationships and collaborations.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section id="cta">
+            <div class="container">
+                <h2 class="animate-on-scroll">Ready to experience the real thing?</h2>
+                <p class="section-intro animate-on-scroll">Whether you're exploring your physical surroundings or browsing the digital world, start engaging with people and interests that truly match your passions and values.</p>
+                <p class="animate-on-scroll" style="margin-bottom: 20px; font-weight: bold;">Discover how we do it:</p>
+                <div class="form-container animate-on-scroll">
+                    <form action="#" method="post">
+                        <label for="email">Enter your email for early access &amp; updates:</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" required="">
+                        <button type="submit" class="cta-button">Request Early Access</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>© 2024 Overlapp. All Rights Reserved.</p>
+            <p>Redefining Connection. Respecting Privacy.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Scroll Animations -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1 // Adjust threshold for video if needed (e.g., 0.2)
+            };
+
+            const observerCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            };
+
+            const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+            // Add .video-wrapper to the elements observed
+            const elementsToAnimate = document.querySelectorAll('.animate-on-scroll, section h2, section p.section-intro, .feature-item, #privacy .privacy-icon, .form-container, .video-wrapper');
+            elementsToAnimate.forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+
+
+</body></html>

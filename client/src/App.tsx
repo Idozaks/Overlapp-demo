@@ -61,7 +61,8 @@ import {
   RefreshCw,
   Store,
   ShoppingBag,
-  MessageCircle
+  MessageCircle,
+  Sparkles
 } from "lucide-react";
 import "./lib/i18n";
 import About from "@/pages/About"; // Import the About component
@@ -69,6 +70,7 @@ import Marketplace from "@/pages/marketplace"; // Import the Marketplace compone
 import EntityOverlap from "@/pages/marketplace/EntityOverlap"; // Import the EntityOverlap component
 import ChatPage from "@/pages/chat"; // Import the Chat component
 import Animation from "./pages/Animation"; // Import the Animation component
+import MvpPromo from "@/pages/MvpPromo"; // Import the MVP Promotional page
 import { SimulationController } from "@/components/demo"; // Import the SimulationController component
 
 
@@ -217,6 +219,7 @@ function Router() {
       <Route path="/engage/offline" component={lazy(() => import('./pages/engage/EngageOffline'))} />
       <Route path="/chat" component={ChatPage} />
       <Route path="/animation" component={Animation} />
+      <Route path="/mvp-promo" component={MvpPromo} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -275,6 +278,9 @@ function Header() {
       </a>
       <a href="/about" className="text-foreground hover:text-primary whitespace-nowrap">
         About
+      </a>
+      <a href="/mvp-promo" className="text-foreground hover:text-primary whitespace-nowrap flex items-center font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm">
+        <Sparkles className="w-3 h-3 mr-1" /> MVP Promo
       </a>
     </nav>
   );
