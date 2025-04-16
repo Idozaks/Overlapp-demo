@@ -806,52 +806,54 @@ export const MobileUserJourneySimulator: React.FC<UserJourneySimulatorProps> = (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="mb-8 text-center"
+        className="mb-4 md:mb-8 text-center"
       >
         <h2 className="text-2xl md:text-3xl font-bold mb-2">Experience Overlapp on Mobile</h2>
-        <p className="text-muted-foreground max-w-lg mx-auto">
+        <p className="text-muted-foreground max-w-lg mx-auto px-4">
           Watch a demo of key user journeys and see how Overlapp helps connect your digital and physical worlds.
         </p>
       </motion.div>
 
-      <div className="relative">
+      <div className="relative flex flex-col items-center">
         {/* Mobile Device */}
-        <MobileDeviceSimulator>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${currentJourneyIndex}-${currentScreenIndex}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="h-full"
-            >
-              {currentScreen?.component}
-            </motion.div>
-          </AnimatePresence>
-          
-          {/* Progress bar */}
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted">
-            <motion.div 
-              className="h-full bg-primary"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          
-          {/* Interaction indicator (tap, swipe, etc.) */}
-          {interactionElement}
-        </MobileDeviceSimulator>
+        <div className="w-full max-w-[280px] mx-auto">
+          <MobileDeviceSimulator>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`${currentJourneyIndex}-${currentScreenIndex}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="h-full"
+              >
+                {currentScreen?.component}
+              </motion.div>
+            </AnimatePresence>
+            
+            {/* Progress bar */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted">
+              <motion.div 
+                className="h-full bg-primary"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            
+            {/* Interaction indicator (tap, swipe, etc.) */}
+            {interactionElement}
+          </MobileDeviceSimulator>
+        </div>
         
         {/* Journey Selector & Controls */}
-        <div className="mt-6 flex flex-col items-center">
-          <div className="flex justify-center gap-2 mb-4">
+        <div className="mt-6 w-full flex flex-col items-center">
+          <div className="flex flex-wrap justify-center gap-2 mb-4 max-w-full px-2">
             {journeyTypes.map((type, index) => (
               <Button
                 key={type}
                 variant={index === currentJourneyIndex ? "default" : "outline"}
                 size="sm"
                 onClick={() => jumpToJourney(index)}
-                className="px-3"
+                className="px-3 text-xs md:text-sm whitespace-nowrap"
               >
                 {journeys[type].title}
               </Button>
@@ -873,7 +875,7 @@ export const MobileUserJourneySimulator: React.FC<UserJourneySimulatorProps> = (
             )}
           </Button>
           
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-muted-foreground mt-2 text-center">
             {currentScreen ? (
               <>Showing: {currentJourney.title} - Screen {currentScreenIndex + 1}/{currentJourney.screens.length}</>
             ) : null}

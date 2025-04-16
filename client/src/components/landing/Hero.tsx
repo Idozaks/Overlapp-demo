@@ -139,42 +139,46 @@ export default function Hero() {
               See Overlapp in Action
             </h2>
             <div className="flex flex-wrap justify-center gap-4 mb-10">
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
-                onClick={() => window.location.href = '/demo'}
-              >
-                <Users className="h-6 w-6" />
-                <span>Social Discovery</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
-                onClick={() => window.location.href = '/demo'}
-              >
-                <Store className="h-6 w-6" />
-                <span>Digital-Physical Integration</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
-                onClick={() => window.location.href = '/demo'}
-              >
-                <UserCircle className="h-6 w-6" />
-                <span>Identity Management</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
-                onClick={() => window.location.href = '/demo'}
-              >
-                <ShoppingBag className="h-6 w-6" />
-                <span>Marketplace Engagement</span>
-              </Button>
+              <a href="/demo">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
+                >
+                  <Users className="h-6 w-6" />
+                  <span>Social Discovery</span>
+                </Button>
+              </a>
+              <a href="/demo">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
+                >
+                  <Store className="h-6 w-6" />
+                  <span>Digital-Physical Integration</span>
+                </Button>
+              </a>
+              <a href="/demo">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
+                >
+                  <UserCircle className="h-6 w-6" />
+                  <span>Identity Management</span>
+                </Button>
+              </a>
+              <a href="/demo">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
+                >
+                  <ShoppingBag className="h-6 w-6" />
+                  <span>Marketplace Engagement</span>
+                </Button>
+              </a>
             </div>
           </motion.div>
         </div>
