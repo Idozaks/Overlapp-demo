@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { useTranslation } from 'react-i18next';
+import { isRTL } from '@/lib/i18n';
 
 export type JourneyType = 'shoppingMall' | 'eventDiscovery' | 'fitnessContext' | 'cafeNetworking';
 
@@ -73,12 +75,16 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
   autoPlay = true,
   loop = true,
 }) => {
+  const { t, i18n } = useTranslation();
   const [currentJourneyIndex, setCurrentJourneyIndex] = useState(0);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [interactionElement, setInteractionElement] = useState<JSX.Element | null>(null);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  
+  // Check if current language is RTL
+  const rtl = isRTL(i18n.language);
 
   // Predefined journeys based on digital-physical integration scenarios
   const journeys: Record<JourneyType, { title: string; screens: JourneyScreen[] }> = {
@@ -88,10 +94,10 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
         {
           id: 'mall-entry-notification',
           component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
+            <div className={`bg-background text-foreground h-full flex flex-col ${rtl ? 'font-hebrew rtl' : ''}`}>
               <div className="p-4 border-b">
                 <h2 className="text-lg font-bold">Overlapp</h2>
-                <p className="text-xs text-muted-foreground">Digital-Physical Identity</p>
+                <p className="text-xs text-muted-foreground">{t('common.digital_physical_identity')}</p>
               </div>
               <div className="flex-1 overflow-y-auto">
                 <div className="h-36 bg-primary/10 flex items-center justify-center mb-3">
@@ -99,22 +105,22 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
                 </div>
                 <div className="p-4">
                   <div className="bg-primary/5 rounded-lg p-4 border border-primary/20 mb-4 relative overflow-hidden">
-                    <div className="absolute -right-2 -top-2 h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center">
+                    <div className={`absolute ${rtl ? '-left-2' : '-right-2'} -top-2 h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center`}>
                       <MapPin className="h-6 w-6 text-primary" />
                     </div>
-                    <h3 className="text-lg font-bold">Welcome to Central Mall!</h3>
+                    <h3 className="text-lg font-bold">{t('simulator.welcome_mall')}</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      We've detected you're at Central Mall. Would you like to see personalized recommendations?
+                      {t('simulator.detected_at_mall')}
                     </p>
-                    <div className="mt-4 flex gap-2">
-                      <Button className="flex-1">Yes, please</Button>
-                      <Button variant="outline" className="flex-1">Not now</Button>
+                    <div className={`mt-4 flex gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                      <Button className="flex-1">{t('common.yes_please')}</Button>
+                      <Button variant="outline" className="flex-1">{t('common.not_now')}</Button>
                     </div>
                   </div>
                   <div className="mb-4">
-                    <h3 className="text-sm font-medium mb-2">New deals just for you</h3>
+                    <h3 className="text-sm font-medium mb-2">{t('simulator.new_deals')}</h3>
                     <p className="text-xs text-muted-foreground mb-3">
-                      Based on your interests in sports and electronics
+                      {t('simulator.based_on_interests')}
                     </p>
                   </div>
                 </div>
@@ -129,65 +135,65 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
         {
           id: 'mall-personalized-stores',
           component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
+            <div className={`bg-background text-foreground h-full flex flex-col ${rtl ? 'font-hebrew rtl' : ''}`}>
+              <div className={`p-4 border-b flex items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                <ChevronRight className={`h-5 w-5 ${rtl ? 'rotate-0 ml-2' : 'rotate-180 mr-2'}`} />
                 <div>
-                  <h2 className="text-lg font-bold">Central Mall</h2>
-                  <p className="text-xs text-muted-foreground">Personalized for you</p>
+                  <h2 className="text-lg font-bold">{t('simulator.central_mall')}</h2>
+                  <p className="text-xs text-muted-foreground">{t('simulator.personalized')}</p>
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto p-4">
                 <div className="bg-primary/5 rounded-lg p-3 mb-4 border border-primary/10">
-                  <div className="flex items-center mb-2">
-                    <Gift className="h-5 w-5 text-primary mr-2" />
-                    <p className="text-sm font-medium">5 exclusive offers matched to you</p>
+                  <div className={`flex items-center mb-2 ${rtl ? 'flex-row-reverse' : ''}`}>
+                    <Gift className={`h-5 w-5 text-primary ${rtl ? 'ml-2' : 'mr-2'}`} />
+                    <p className="text-sm font-medium">{t('simulator.exclusive_offers')}</p>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Based on your DIU preferences
+                    {t('simulator.based_on_diu')}
                   </div>
                 </div>
                 
-                <h3 className="text-sm font-medium mb-2">Recommended Stores</h3>
+                <h3 className="text-sm font-medium mb-2">{t('simulator.recommended_stores')}</h3>
                 <div className="space-y-3 mb-4">
-                  <div className="flex items-center gap-3 p-3 border rounded-lg bg-primary/5">
+                  <div className={`flex items-center gap-3 p-3 border rounded-lg bg-primary/5 ${rtl ? 'flex-row-reverse' : ''}`}>
                     <Store className="h-6 w-6 text-primary" />
                     <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium text-sm">Sports World</p>
-                        <Badge variant="outline" className="text-xs">93% match</Badge>
+                      <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <p className="font-medium text-sm">{t('simulator.sports_world')}</p>
+                        <Badge variant="outline" className="text-xs">93% {t('common.match')}</Badge>
                       </div>
-                      <div className="flex items-center">
-                        <p className="text-xs text-muted-foreground">Sports Gear • Floor 2</p>
-                        <Badge className="ml-2 text-[10px] h-4" variant="secondary">20% OFF</Badge>
+                      <div className={`flex items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <p className="text-xs text-muted-foreground">{t('simulator.sports_gear')} • {t('common.floor')} 2</p>
+                        <Badge className={`${rtl ? 'mr-2' : 'ml-2'} text-[10px] h-4`} variant="secondary">20% {t('common.off')}</Badge>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <div className={`flex items-center gap-3 p-3 border rounded-lg ${rtl ? 'flex-row-reverse' : ''}`}>
                     <Store className="h-6 w-6 text-primary" />
                     <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium text-sm">Tech Haven</p>
-                        <Badge variant="outline" className="text-xs">87% match</Badge>
+                      <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <p className="font-medium text-sm">{t('simulator.tech_haven')}</p>
+                        <Badge variant="outline" className="text-xs">87% {t('common.match')}</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">Electronics • Floor 3</p>
+                      <p className="text-xs text-muted-foreground">{t('simulator.electronics')} • {t('common.floor')} 3</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <div className={`flex items-center gap-3 p-3 border rounded-lg ${rtl ? 'flex-row-reverse' : ''}`}>
                     <Store className="h-6 w-6 text-primary" />
                     <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium text-sm">Book Corner</p>
-                        <Badge variant="outline" className="text-xs">76% match</Badge>
+                      <div className={`flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}`}>
+                        <p className="font-medium text-sm">{t('simulator.book_corner')}</p>
+                        <Badge variant="outline" className="text-xs">76% {t('common.match')}</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">Books & Media • Floor 1</p>
+                      <p className="text-xs text-muted-foreground">{t('simulator.books_media')} • {t('common.floor')} 1</p>
                     </div>
                   </div>
                 </div>
                 
-                <Button className="w-full mb-2">View Interactive Mall Map</Button>
+                <Button className="w-full mb-2">{t('simulator.view_map')}</Button>
               </div>
             </div>
           ),
@@ -199,10 +205,10 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
         {
           id: 'mall-interactive-map',
           component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">Interactive Mall Map</h2>
+            <div className={`bg-background text-foreground h-full flex flex-col ${rtl ? 'font-hebrew rtl' : ''}`}>
+              <div className={`p-4 border-b flex items-center ${rtl ? 'flex-row-reverse' : ''}`}>
+                <ChevronRight className={`h-5 w-5 ${rtl ? 'rotate-0 ml-2' : 'rotate-180 mr-2'}`} />
+                <h2 className="text-lg font-bold">{t('simulator.interactive_map')}</h2>
               </div>
               <div className="flex-1 p-4 flex flex-col">
                 <div className="flex-1 relative bg-stone-100 rounded-lg mb-4 overflow-hidden">
@@ -220,41 +226,41 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
                   <div className="absolute left-[60%] top-[60%] h-6 w-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                     <MapPin className="h-3 w-3" />
                   </div>
-                  <div className="absolute right-2 top-2 bg-white/80 rounded p-2 text-xs shadow-sm">
-                    <div className="flex items-center gap-1 mb-1">
+                  <div className={`absolute ${rtl ? 'left-2' : 'right-2'} top-2 bg-white/80 rounded p-2 text-xs shadow-sm`}>
+                    <div className={`flex items-center gap-1 mb-1 ${rtl ? 'flex-row-reverse' : ''}`}>
                       <div className="w-3 h-3 bg-primary/20 rounded-sm" />
-                      <span>Your matches</span>
+                      <span>{t('simulator.your_matches')}</span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className={`flex items-center gap-1 ${rtl ? 'flex-row-reverse' : ''}`}>
                       <div className="w-3 h-3 bg-red-500 rounded-full" />
-                      <span>You are here</span>
+                      <span>{t('simulator.you_are_here')}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div className="bg-primary/5 rounded-lg p-3 mb-4">
-                  <h3 className="text-sm font-medium mb-1">Sports World</h3>
+                  <h3 className="text-sm font-medium mb-1">{t('simulator.sports_world')}</h3>
                   <p className="text-xs text-muted-foreground mb-2">
-                    Current special: 20% off running shoes - matched to your running interest
+                    {t('simulator.current_special')}
                   </p>
-                  <div className="flex gap-2">
+                  <div className={`flex gap-2 ${rtl ? 'flex-row-reverse' : ''}`}>
                     <Button size="sm" className="flex-1 text-xs">
-                      <MapPin className="h-3 w-3 mr-1" /> Directions
+                      <MapPin className={`h-3 w-3 ${rtl ? 'ml-1' : 'mr-1'}`} /> {t('simulator.directions')}
                     </Button>
                     <Button size="sm" variant="outline" className="flex-1 text-xs">
-                      <Info className="h-3 w-3 mr-1" /> Details
+                      <Info className={`h-3 w-3 ${rtl ? 'ml-1' : 'mr-1'}`} /> {t('simulator.details')}
                     </Button>
                   </div>
                 </div>
                 
-                <div className="flex gap-2 mt-auto">
+                <div className={`flex gap-2 mt-auto ${rtl ? 'flex-row-reverse' : ''}`}>
                   <Button className="flex-1">
-                    <Gift className="h-4 w-4 mr-2" />
-                    View All Offers
+                    <Gift className={`h-4 w-4 ${rtl ? 'ml-2' : 'mr-2'}`} />
+                    {t('simulator.view_all_offers')}
                   </Button>
                   <Button variant="outline" className="flex-1">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share Map
+                    <Share2 className={`h-4 w-4 ${rtl ? 'ml-2' : 'mr-2'}`} />
+                    {t('simulator.share_map')}
                   </Button>
                 </div>
               </div>

@@ -1,6 +1,12 @@
 {
   "common": {
     "language": "שפה",
+    "digital_physical_identity": "זהות דיגיטלית-פיזית",
+    "yes_please": "כן, בבקשה",
+    "not_now": "לא עכשיו",
+    "match": "התאמה",
+    "floor": "קומה",
+    "off": "הנחה",
     "nav": {
       "home": "בית",
       "demo": "הדגמה",
@@ -97,5 +103,31 @@
       "your_qr_code": "קוד ה-QR שלך יופיע כאן",
       "qr_description": "תן לאחרים לסרוק את קוד ה-QR שלך כדי להתחבר"
     }
+  },
+  "simulator": {
+    "welcome_mall": "ברוך הבא לקניון המרכזי!",
+    "detected_at_mall": "זיהינו שאתה נמצא בקניון המרכזי. האם תרצה לראות המלצות מותאמות אישית?",
+    "new_deals": "עסקאות חדשות במיוחד בשבילך",
+    "based_on_interests": "מבוסס על העניין שלך בספורט ואלקטרוניקה",
+    "central_mall": "קניון מרכזי",
+    "personalized": "מותאם אישית עבורך",
+    "exclusive_offers": "5 הצעות בלעדיות שהותאמו לך",
+    "based_on_diu": "מבוסס על העדפות הזהות הדיגיטלית שלך",
+    "recommended_stores": "חנויות מומלצות",
+    "sports_world": "עולם הספורט",
+    "sports_gear": "ציוד ספורט",
+    "tech_haven": "מקלט טכנולוגי",
+    "electronics": "אלקטרוניקה",
+    "book_corner": "פינת הספרים",
+    "books_media": "ספרים ומדיה",
+    "view_map": "צפה במפה אינטראקטיבית של הקניון",
+    "interactive_map": "מפה אינטראקטיבית",
+    "your_matches": "ההתאמות שלך",
+    "you_are_here": "אתה נמצא כאן",
+    "current_special": "מבצע נוכחי: 20% הנחה על נעלי ריצה - מותאם לעניין שלך בריצה",
+    "directions": "הוראות",
+    "details": "פרטים",
+    "view_all_offers": "צפה בכל ההצעות",
+    "share_map": "שתף מפה"
   }
 }
