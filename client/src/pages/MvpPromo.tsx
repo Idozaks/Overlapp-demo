@@ -74,9 +74,12 @@ const MvpPromo: React.FC = () => {
           </p>
           <div className="video-wrapper max-w-3xl mx-auto rounded-xl overflow-hidden shadow-xl animate-on-scroll">
             <iframe 
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-              title="Overlapp Demo Video" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              width="560" 
+              height="315" 
+              src="https://www.youtube.com/embed/Rk7t0TWYNDg?si=VQwCYCc8L2LOOKTT&showinfo=0&controls=1" 
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              referrerPolicy="strict-origin-when-cross-origin" 
               allowFullScreen
               className="w-full aspect-video">
             </iframe>
