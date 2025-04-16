@@ -4,14 +4,19 @@ import MobileDeviceSimulator from './MobileDeviceSimulator';
 import { 
   UserCircle, Users, Search, Network, Store, 
   ShoppingBag, Share2, ArrowRight, Heart, MessageCircle,
-  Bell, Map, Tag, Loader2, ChevronRight, Play, Pause
+  Bell, Map, Tag, Loader2, ChevronRight, Play, Pause,
+  MapPin, Calendar, Clock, Ticket, 
+  Coffee, Briefcase, Building,
+  BookOpen, Trophy, Gift, Info
 } from 'lucide-react';
+// Import custom icons for those not available in the current lucide-react version
+import { CalendarDays, Music, Medal, Zap, Running, Dumbbell } from './SimulatorIcons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
-export type JourneyType = 'socialDiscovery' | 'physicalIntegration' | 'identityManagement' | 'marketplace';
+export type JourneyType = 'shoppingMall' | 'eventDiscovery' | 'fitnessContext' | 'cafeNetworking';
 
 // Define the journey screens and interactions
 interface JourneyScreen {
@@ -75,87 +80,42 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Predefined journeys
+  // Predefined journeys based on digital-physical integration scenarios
   const journeys: Record<JourneyType, { title: string; screens: JourneyScreen[] }> = {
-    socialDiscovery: {
-      title: 'Social Discovery',
+    shoppingMall: {
+      title: 'Shopping Mall Experience',
       screens: [
         {
-          id: 'social-home',
+          id: 'mall-entry-notification',
           component: (
             <div className="bg-background text-foreground h-full flex flex-col">
               <div className="p-4 border-b">
-                <h2 className="text-lg font-bold">Social Discovery</h2>
-                <p className="text-xs text-muted-foreground">Find people with similar interests</p>
+                <h2 className="text-lg font-bold">Overlapp</h2>
+                <p className="text-xs text-muted-foreground">Digital-Physical Identity</p>
               </div>
-              <div className="p-4 flex flex-col gap-3 overflow-y-auto">
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Search users..." 
-                    className="w-full px-3 py-2 rounded-lg border text-sm"
-                  />
-                  <Search className="absolute right-3 top-2 h-4 w-4 text-muted-foreground" />
+              <div className="flex-1 overflow-y-auto">
+                <div className="h-36 bg-primary/10 flex items-center justify-center mb-3">
+                  <Building className="h-12 w-12 text-primary/60" />
                 </div>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 border rounded-lg">
-                    <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-                      <UserCircle className="h-6 w-6 text-primary" />
+                <div className="p-4">
+                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/20 mb-4 relative overflow-hidden">
+                    <div className="absolute -right-2 -top-2 h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center">
+                      <MapPin className="h-6 w-6 text-primary" />
                     </div>
-                    <div>
-                      <p className="font-medium text-sm">User {i + 1}</p>
-                      <p className="text-xs text-muted-foreground">Shared interests: Music, Travel</p>
+                    <h3 className="text-lg font-bold">Welcome to Central Mall!</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      We've detected you're at Central Mall. Would you like to see personalized recommendations?
+                    </p>
+                    <div className="mt-4 flex gap-2">
+                      <Button className="flex-1">Yes, please</Button>
+                      <Button variant="outline" className="flex-1">Not now</Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          ),
-          duration: 2500,
-          interactions: [
-            { type: 'tap', x: 200, y: 100, delay: 1000 }
-          ]
-        },
-        {
-          id: 'user-profile',
-          component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">User Profile</h2>
-              </div>
-              <div className="p-4 flex flex-col items-center">
-                <div className="h-20 w-20 rounded-full bg-primary/20 flex items-center justify-center mb-2">
-                  <UserCircle className="h-12 w-12 text-primary" />
-                </div>
-                <h3 className="text-lg font-bold">Alex Johnson</h3>
-                <p className="text-sm text-muted-foreground mb-4">@alexj</p>
-                <div className="flex gap-2 mb-4">
-                  <Button size="sm" className="rounded-full">
-                    <Users className="h-4 w-4 mr-1" /> Connect
-                  </Button>
-                  <Button size="sm" variant="outline" className="rounded-full">
-                    <MessageCircle className="h-4 w-4 mr-1" /> Message
-                  </Button>
-                </div>
-                <div className="w-full">
-                  <h4 className="font-medium text-sm mb-2">Interests</h4>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge>Music</Badge>
-                    <Badge>Photography</Badge>
-                    <Badge>Travel</Badge>
-                    <Badge>Technology</Badge>
-                  </div>
-                  <h4 className="font-medium text-sm mb-2">Shared Connections</h4>
-                  <div className="flex -space-x-2">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="h-8 w-8 rounded-full bg-primary/20 border-2 border-background flex items-center justify-center">
-                        <UserCircle className="h-4 w-4 text-primary" />
-                      </div>
-                    ))}
-                    <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center">
-                      <span className="text-xs font-medium">+2</span>
-                    </div>
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium mb-2">New deals just for you</h3>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Based on your interests in sports and electronics
+                    </p>
                   </div>
                 </div>
               </div>
@@ -163,354 +123,626 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
           ),
           duration: 3000,
           interactions: [
-            { type: 'tap', x: 140, y: 210, delay: 1500 }
+            { type: 'tap', x: 130, y: 235, delay: 2000 }
           ]
         },
         {
-          id: 'overlap-analysis',
+          id: 'mall-personalized-stores',
           component: (
             <div className="bg-background text-foreground h-full flex flex-col">
               <div className="p-4 border-b flex items-center">
                 <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">Overlap Analysis</h2>
-              </div>
-              <div className="p-4 flex flex-col items-center">
-                <div className="relative h-40 w-40 mb-4">
-                  <div className="absolute inset-0 rounded-full bg-primary/10"></div>
-                  <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 rounded-full bg-primary/30 flex items-center justify-center">
-                    <div className="text-lg font-bold">75%</div>
-                  </div>
-                  <div className="absolute top-0 left-0">
-                    <div className="h-12 w-12 rounded-full bg-background border-2 border-primary flex items-center justify-center">
-                      <UserCircle className="h-6 w-6 text-primary" />
-                    </div>
-                  </div>
-                  <div className="absolute bottom-0 right-0">
-                    <div className="h-12 w-12 rounded-full bg-background border-2 border-primary flex items-center justify-center">
-                      <UserCircle className="h-6 w-6 text-primary" />
-                    </div>
-                  </div>
-                </div>
-                <h3 className="text-lg font-bold mb-2">Strong Compatibility</h3>
-                <p className="text-sm text-muted-foreground text-center mb-4">
-                  You and Alex share interests in Music, Travel, and have 3 mutual connections.
-                </p>
-                <div className="w-full space-y-3">
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Music</span>
-                      <span>90%</span>
-                    </div>
-                    <Progress value={90} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Travel</span>
-                      <span>85%</span>
-                    </div>
-                    <Progress value={85} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Technology</span>
-                      <span>60%</span>
-                    </div>
-                    <Progress value={60} className="h-2" />
-                  </div>
+                <div>
+                  <h2 className="text-lg font-bold">Central Mall</h2>
+                  <p className="text-xs text-muted-foreground">Personalized for you</p>
                 </div>
               </div>
-            </div>
-          ),
-          duration: 3500
-        }
-      ]
-    },
-    physicalIntegration: {
-      title: 'Digital-Physical Integration',
-      screens: [
-        {
-          id: 'location-check-in',
-          component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b">
-                <h2 className="text-lg font-bold">Check In</h2>
-                <p className="text-xs text-muted-foreground">Share your location</p>
-              </div>
-              <div className="relative h-40 bg-gray-200 mb-3">
-                <div className="h-full w-full bg-primary/10 flex items-center justify-center">
-                  <Map className="h-8 w-8 text-primary" />
-                </div>
-                <div className="absolute bottom-3 right-3 bg-background rounded-lg shadow-lg p-2">
-                  <Button size="sm" variant="ghost">
-                    <Bell className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="p-4 flex flex-col gap-3">
-                <div className="flex items-center gap-3 p-3 border rounded-lg">
-                  <Store className="h-6 w-6 text-primary" />
-                  <div>
-                    <p className="font-medium text-sm">Café Overlapp</p>
-                    <p className="text-xs text-muted-foreground">Coffee Shop • 0.2 miles away</p>
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="bg-primary/5 rounded-lg p-3 mb-4 border border-primary/10">
+                  <div className="flex items-center mb-2">
+                    <Gift className="h-5 w-5 text-primary mr-2" />
+                    <p className="text-sm font-medium">5 exclusive offers matched to you</p>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Based on your DIU preferences
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 border rounded-lg bg-primary/5">
-                  <Store className="h-6 w-6 text-primary" />
-                  <div>
-                    <p className="font-medium text-sm">Overlapp Bookstore</p>
-                    <p className="text-xs text-muted-foreground">Books • 0.5 miles away</p>
-                  </div>
-                </div>
-                <Button className="w-full">
-                  Check In Here
-                </Button>
-              </div>
-            </div>
-          ),
-          duration: 2500,
-          interactions: [
-            { type: 'tap', x: 180, y: 380, delay: 1500 }
-          ]
-        },
-        {
-          id: 'check-in-confirmation',
-          component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">Overlapp Bookstore</h2>
-              </div>
-              <div className="p-4 flex flex-col items-center">
-                <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                  <Store className="h-12 w-12 text-green-600" />
-                </div>
-                <h3 className="text-lg font-bold mb-1">Check-in Successful!</h3>
-                <p className="text-sm text-muted-foreground text-center mb-4">
-                  You've checked in at Overlapp Bookstore. Share your experience or discover other visitors.
-                </p>
-                <div className="w-full space-y-3 mb-4">
-                  <Button variant="outline" className="w-full flex items-center justify-center">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share Check-in
-                  </Button>
-                  <Button className="w-full flex items-center justify-center">
-                    <Users className="h-4 w-4 mr-2" />
-                    See Who's Here
-                  </Button>
-                </div>
-                <div className="w-full">
-                  <h4 className="font-medium text-sm mb-2">Popular at this location</h4>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge>Fiction</Badge>
-                    <Badge>Coffee</Badge>
-                    <Badge>Reading</Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ),
-          duration: 3000,
-          interactions: [
-            { type: 'tap', x: 180, y: 260, delay: 1800 }
-          ]
-        },
-        {
-          id: 'location-users',
-          component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">People at Bookstore</h2>
-              </div>
-              <div className="p-4 flex flex-col gap-3">
-                <p className="text-sm text-muted-foreground mb-2">
-                  5 people are currently here - 2 share your interests
-                </p>
-                <div className="p-3 border rounded-lg bg-primary/5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-                      <UserCircle className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">Morgan P.</p>
-                      <div className="flex gap-1">
-                        <Badge variant="outline" className="text-xs">Fiction</Badge>
-                        <Badge variant="outline" className="text-xs">Art</Badge>
+                
+                <h3 className="text-sm font-medium mb-2">Recommended Stores</h3>
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center gap-3 p-3 border rounded-lg bg-primary/5">
+                    <Store className="h-6 w-6 text-primary" />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-sm">Sports World</p>
+                        <Badge variant="outline" className="text-xs">93% match</Badge>
+                      </div>
+                      <div className="flex items-center">
+                        <p className="text-xs text-muted-foreground">Sports Gear • Floor 2</p>
+                        <Badge className="ml-2 text-[10px] h-4" variant="secondary">20% OFF</Badge>
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs text-primary font-semibold">82% overlap with your interests</span>
-                    <Button size="sm" variant="ghost">
-                      <Users className="h-3 w-3 mr-1" /> Connect
+                  
+                  <div className="flex items-center gap-3 p-3 border rounded-lg">
+                    <Store className="h-6 w-6 text-primary" />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-sm">Tech Haven</p>
+                        <Badge variant="outline" className="text-xs">87% match</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Electronics • Floor 3</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-3 border rounded-lg">
+                    <Store className="h-6 w-6 text-primary" />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-sm">Book Corner</p>
+                        <Badge variant="outline" className="text-xs">76% match</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Books & Media • Floor 1</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <Button className="w-full mb-2">View Interactive Mall Map</Button>
+              </div>
+            </div>
+          ),
+          duration: 3500,
+          interactions: [
+            { type: 'tap', x: 180, y: 400, delay: 2500 }
+          ]
+        },
+        {
+          id: 'mall-interactive-map',
+          component: (
+            <div className="bg-background text-foreground h-full flex flex-col">
+              <div className="p-4 border-b flex items-center">
+                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
+                <h2 className="text-lg font-bold">Interactive Mall Map</h2>
+              </div>
+              <div className="flex-1 p-4 flex flex-col">
+                <div className="flex-1 relative bg-stone-100 rounded-lg mb-4 overflow-hidden">
+                  {/* Simplified mall map layout */}
+                  <div className="absolute inset-5 bg-white/80 rounded border" />
+                  <div className="absolute left-[30%] top-[20%] w-16 h-10 bg-primary/10 rounded animate-pulse border border-primary flex items-center justify-center">
+                    <Tag className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="absolute right-[25%] bottom-[30%] w-16 h-10 bg-primary/20 rounded animate-pulse border border-primary flex items-center justify-center">
+                    <Store className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="absolute left-[20%] bottom-[20%] w-16 h-10 bg-primary/10 rounded border border-primary flex items-center justify-center">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="absolute left-[60%] top-[60%] h-6 w-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    <MapPin className="h-3 w-3" />
+                  </div>
+                  <div className="absolute right-2 top-2 bg-white/80 rounded p-2 text-xs shadow-sm">
+                    <div className="flex items-center gap-1 mb-1">
+                      <div className="w-3 h-3 bg-primary/20 rounded-sm" />
+                      <span>Your matches</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-red-500 rounded-full" />
+                      <span>You are here</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-primary/5 rounded-lg p-3 mb-4">
+                  <h3 className="text-sm font-medium mb-1">Sports World</h3>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Current special: 20% off running shoes - matched to your running interest
+                  </p>
+                  <div className="flex gap-2">
+                    <Button size="sm" className="flex-1 text-xs">
+                      <MapPin className="h-3 w-3 mr-1" /> Directions
+                    </Button>
+                    <Button size="sm" variant="outline" className="flex-1 text-xs">
+                      <Info className="h-3 w-3 mr-1" /> Details
                     </Button>
                   </div>
                 </div>
                 
-                <div className="p-3 border rounded-lg">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-                      <UserCircle className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">Jamie K.</p>
-                      <div className="flex gap-1">
-                        <Badge variant="outline" className="text-xs">Poetry</Badge>
-                        <Badge variant="outline" className="text-xs">Coffee</Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs text-primary font-semibold">46% overlap with your interests</span>
-                    <Button size="sm" variant="ghost">
-                      <Users className="h-3 w-3 mr-1" /> Connect
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ),
-          duration: 3500
-        }
-      ]
-    },
-    identityManagement: {
-      title: 'Identity Management',
-      screens: [
-        {
-          id: 'identity-profile',
-          component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b">
-                <h2 className="text-lg font-bold">Identity Profile</h2>
-                <p className="text-xs text-muted-foreground">Manage your digital identity</p>
-              </div>
-              <div className="p-4 flex flex-col items-center">
-                <div className="h-20 w-20 rounded-full bg-primary/20 flex items-center justify-center mb-2">
-                  <UserCircle className="h-12 w-12 text-primary" />
-                </div>
-                <h3 className="text-lg font-bold">Your Profile</h3>
-                <p className="text-sm text-muted-foreground mb-4">@username</p>
-                <div className="w-full mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-sm">Profile Completeness</h4>
-                    <span className="text-xs font-medium">75%</span>
-                  </div>
-                  <Progress value={75} className="h-2 mb-2" />
-                  <p className="text-xs text-muted-foreground">
-                    Add more interests to improve your profile
-                  </p>
-                </div>
-                <div className="w-full">
-                  <h4 className="font-medium text-sm mb-2">Primary Interests</h4>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge>Music</Badge>
-                    <Badge>Photography</Badge>
-                    <Badge>Travel</Badge>
-                    <Badge className="bg-muted/50 hover:bg-muted/70">+ Add More</Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ),
-          duration: 2500,
-          interactions: [
-            { type: 'tap', x: 180, y: 330, delay: 1500 }
-          ]
-        },
-        {
-          id: 'interest-recommendations',
-          component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">Interest Suggestions</h2>
-              </div>
-              <div className="p-4 flex flex-col gap-4">
-                <p className="text-sm text-muted-foreground">
-                  Based on your existing interests, we recommend:
-                </p>
-                
-                <Card className="p-3">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium">Jazz Music</h3>
-                    <Badge variant="outline">90% match</Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Recommended because you're interested in Music
-                  </p>
-                  <Button size="sm" className="w-full">Add to Profile</Button>
-                </Card>
-                
-                <Card className="p-3">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium">Street Photography</h3>
-                    <Badge variant="outline">85% match</Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Recommended because you're interested in Photography
-                  </p>
-                  <Button size="sm" className="w-full">Add to Profile</Button>
-                </Card>
-                
-                <Card className="p-3">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium">Culinary Tourism</h3>
-                    <Badge variant="outline">75% match</Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Recommended because you're interested in Travel
-                  </p>
-                  <Button size="sm" className="w-full">Add to Profile</Button>
-                </Card>
-              </div>
-            </div>
-          ),
-          duration: 3000,
-          interactions: [
-            { type: 'tap', x: 180, y: 210, delay: 1500 }
-          ]
-        },
-        {
-          id: 'identity-dashboard',
-          component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">Identity Dashboard</h2>
-              </div>
-              <div className="p-4 flex flex-col gap-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-sm font-medium">Jazz Music</h3>
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Added</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Your digital identity has been updated with new interests.
-                </p>
-                
-                <Card className="p-3 mb-2">
-                  <h3 className="text-sm font-medium mb-2">Identity Status</h3>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs">Profile Completeness</span>
-                    <span className="text-xs font-medium">85%</span>
-                  </div>
-                  <Progress value={85} className="h-2 mb-3" />
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs">Digital Consistency</span>
-                    <span className="text-xs font-medium">90%</span>
-                  </div>
-                  <Progress value={90} className="h-2" />
-                </Card>
-                
-                <div className="flex justify-between gap-2">
+                <div className="flex gap-2 mt-auto">
+                  <Button className="flex-1">
+                    <Gift className="h-4 w-4 mr-2" />
+                    View All Offers
+                  </Button>
                   <Button variant="outline" className="flex-1">
                     <Share2 className="h-4 w-4 mr-2" />
-                    Export
+                    Share Map
                   </Button>
-                  <Button className="flex-1">
-                    <Network className="h-4 w-4 mr-2" />
-                    Find Matches
+                </div>
+              </div>
+            </div>
+          ),
+          duration: 4000
+        }
+      ]
+    },
+    
+    eventDiscovery: {
+      title: 'Event Discovery',
+      screens: [
+        {
+          id: 'event-discovery-home',
+          component: (
+            <div className="bg-background text-foreground h-full flex flex-col">
+              <div className="p-4 border-b">
+                <h2 className="text-lg font-bold">Overlapp</h2>
+                <p className="text-xs text-muted-foreground">Weekend Events Nearby</p>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="bg-primary/5 rounded-lg p-3 mb-4 border border-primary/10">
+                  <h3 className="text-sm font-medium flex items-center">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    This Weekend (Apr 19-21)
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    10 events match your interests
+                  </p>
+                </div>
+                
+                <div className="space-y-4 mb-4">
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="h-28 bg-primary/10 relative">
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-primary text-white">92% match</Badge>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Music className="h-10 w-10 text-primary/40" />
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <h3 className="text-sm font-bold">Downtown Music Festival</h3>
+                      <div className="flex items-center text-xs text-muted-foreground mt-1 mb-2">
+                        <CalendarDays className="h-3 w-3 mr-1" />
+                        <span>Saturday, Apr 20 • 2:00 PM</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex -space-x-2">
+                          {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center">
+                              <UserCircle className="h-3 w-3 text-primary" />
+                            </div>
+                          ))}
+                          <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                            <span className="text-[10px] font-medium">+4</span>
+                          </div>
+                        </div>
+                        <Button size="sm" variant="default" className="h-7 text-xs">
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="h-28 bg-primary/5 relative">
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-primary/80 text-white">85% match</Badge>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Heart className="h-10 w-10 text-primary/30" />
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <h3 className="text-sm font-bold">Wellness Seminar</h3>
+                      <div className="flex items-center text-xs text-muted-foreground mt-1 mb-2">
+                        <CalendarDays className="h-3 w-3 mr-1" />
+                        <span>Sunday, Apr 21 • 10:00 AM</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex -space-x-2">
+                          {Array.from({ length: 2 }).map((_, i) => (
+                            <div key={i} className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center">
+                              <UserCircle className="h-3 w-3 text-primary" />
+                            </div>
+                          ))}
+                        </div>
+                        <Button size="sm" variant="outline" className="h-7 text-xs">
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ),
+          duration: 3000,
+          interactions: [
+            { type: 'tap', x: 300, y: 215, delay: 1800 }
+          ]
+        },
+        {
+          id: 'event-detail-view',
+          component: (
+            <div className="bg-background text-foreground h-full flex flex-col">
+              <div className="p-4 border-b flex items-center">
+                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
+                <h2 className="text-lg font-bold">Event Details</h2>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="h-40 bg-primary/10 flex items-center justify-center relative">
+                  <Music className="h-12 w-12 text-primary/40" />
+                  <div className="absolute top-3 right-3">
+                    <Badge className="bg-primary text-white">92% match</Badge>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="text-xl font-bold mb-1">Downtown Music Festival</h3>
+                  <div className="flex items-center text-sm text-muted-foreground mb-3">
+                    <CalendarDays className="h-4 w-4 mr-1" />
+                    <span>Saturday, Apr 20 • 2:00 PM - 10:00 PM</span>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium mb-2">Interest Overlap Analysis</h4>
+                    <div className="bg-primary/5 rounded-lg p-3 border border-primary/10">
+                      <div className="relative h-20 w-full mb-2">
+                        <div className="absolute left-1/3 top-1/2 -translate-y-1/2 w-1/3 h-16 bg-primary/20 rounded-full flex items-center justify-center overflow-hidden">
+                          <div className="bg-primary/40 w-full h-full absolute left-0 scale-[0.65]" />
+                          <span className="relative font-bold text-primary z-10">92%</span>
+                        </div>
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-16 aspect-square rounded-full bg-primary/5 flex items-center justify-center">
+                          <UserCircle className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 h-16 aspect-square rounded-full bg-primary/5 flex items-center justify-center">
+                          <Music className="h-6 w-6 text-primary" />
+                        </div>
+                      </div>
+                      <div className="text-sm">
+                        <div className="flex justify-between text-xs mb-1">
+                          <span>Music Genre Match</span>
+                          <span>97%</span>
+                        </div>
+                        <Progress value={97} className="h-2 mb-2" />
+                        <div className="flex justify-between text-xs mb-1">
+                          <span>Local Events Interest</span>
+                          <span>88%</span>
+                        </div>
+                        <Progress value={88} className="h-2" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium mb-2">Friends Attending</h4>
+                    <div className="flex items-center mb-3">
+                      <div className="flex -space-x-3 mr-3">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="h-8 w-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center">
+                            <UserCircle className="h-4 w-4 text-primary" />
+                          </div>
+                        ))}
+                        <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                          <span className="text-xs font-medium">+4</span>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        Invite Friends
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button className="flex-1">
+                      <Ticket className="h-4 w-4 mr-2" />
+                      Get Tickets
+                    </Button>
+                    <Button variant="outline" className="flex-1">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Add to Calendar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ),
+          duration: 3500,
+          interactions: [
+            { type: 'tap', x: 180, y: 480, delay: 2500 }
+          ]
+        },
+        {
+          id: 'event-ticket-purchase',
+          component: (
+            <div className="bg-background text-foreground h-full flex flex-col">
+              <div className="p-4 border-b flex items-center">
+                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
+                <h2 className="text-lg font-bold">Purchase Tickets</h2>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="bg-primary/5 rounded-lg p-3 mb-4 border border-primary/10">
+                  <h3 className="text-sm font-medium">Downtown Music Festival</h3>
+                  <div className="flex items-center text-xs text-muted-foreground mt-1">
+                    <CalendarDays className="h-3 w-3 mr-1" />
+                    <span>Saturday, Apr 20 • 2:00 PM</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">General Admission</p>
+                      <p className="text-xs text-muted-foreground">Access to all stages</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold">$49.99</p>
+                      <div className="flex items-center mt-1">
+                        <Button size="sm" variant="outline" className="h-7 w-7 p-0">-</Button>
+                        <span className="mx-2 text-sm">2</span>
+                        <Button size="sm" variant="outline" className="h-7 w-7 p-0">+</Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 border rounded-lg bg-primary/5">
+                    <div>
+                      <div className="flex items-center">
+                        <p className="font-medium text-sm">VIP Package</p>
+                        <Badge className="ml-2 text-[10px]" variant="secondary">Recommended</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Priority access + lounge</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold">$99.99</p>
+                      <div className="flex items-center mt-1">
+                        <Button size="sm" variant="outline" className="h-7 w-7 p-0">-</Button>
+                        <span className="mx-2 text-sm">1</span>
+                        <Button size="sm" variant="outline" className="h-7 w-7 p-0">+</Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="border-t pt-3 mb-4">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">Subtotal</span>
+                    <span className="font-medium">$199.97</span>
+                  </div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">Service Fee</span>
+                    <span className="font-medium">$12.00</span>
+                  </div>
+                  <div className="flex justify-between font-bold mt-2">
+                    <span>Total</span>
+                    <span>$211.97</span>
+                  </div>
+                </div>
+                
+                <Button className="w-full mb-2">
+                  Complete Purchase
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Your tickets will be linked to your Overlapp digital identity
+                </p>
+              </div>
+            </div>
+          ),
+          duration: 3500
+        }
+      ]
+    },
+    
+    fitnessContext: {
+      title: 'Fitness Class Discovery',
+      screens: [
+        {
+          id: 'fitness-notification',
+          component: (
+            <div className="bg-background text-foreground h-full flex flex-col">
+              <div className="p-4 border-b">
+                <h2 className="text-lg font-bold">Overlapp</h2>
+                <p className="text-xs text-muted-foreground">Fitness & Wellness</p>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="h-36 bg-green-50 flex items-center justify-center mb-3">
+                  <Running className="h-16 w-16 text-green-500/40" />
+                </div>
+                <div className="p-4">
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-100 mb-4 relative overflow-hidden">
+                    <div className="absolute -right-2 -top-2 h-16 w-16 bg-green-100 rounded-full flex items-center justify-center">
+                      <Bell className="h-6 w-6 text-green-600" />
+                    </div>
+                    <h3 className="text-lg font-bold text-green-800">5K Run Tonight!</h3>
+                    <p className="text-sm text-green-700/80 mt-1 mb-4">
+                      A community running group is forming at Riverside Park (0.3 miles away) at 6:30 PM.
+                    </p>
+                    <div className="mb-2">
+                      <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Running</Badge>
+                      <Badge className="bg-green-100 text-green-800 hover:bg-green-200 ml-1">Outdoors</Badge>
+                      <Badge className="bg-green-100 text-green-800 hover:bg-green-200 ml-1">Beginner Friendly</Badge>
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <Button className="flex-1 bg-green-600 hover:bg-green-700">Join Group</Button>
+                      <Button variant="outline" className="flex-1 text-green-700 border-green-200">View Details</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium mb-2">Why we notified you</h3>
+                    <div className="bg-muted p-3 rounded-lg">
+                      <div className="flex items-center mb-2">
+                        <UserCircle className="h-5 w-5 text-muted-foreground mr-2" />
+                        <p className="text-sm">Based on your fitness interests</p>
+                      </div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span>Running</span>
+                        <span>95% match</span>
+                      </div>
+                      <Progress value={95} className="h-2 mb-2" />
+                      <div className="flex justify-between text-xs mb-1">
+                        <span>Outdoor Activities</span>
+                        <span>88% match</span>
+                      </div>
+                      <Progress value={88} className="h-2" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ),
+          duration: 3500,
+          interactions: [
+            { type: 'tap', x: 130, y: 265, delay: 2500 }
+          ]
+        },
+        {
+          id: 'fitness-join-group',
+          component: (
+            <div className="bg-background text-foreground h-full flex flex-col">
+              <div className="p-4 border-b flex items-center">
+                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
+                <h2 className="text-lg font-bold">Community 5K Run</h2>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="h-40 bg-green-50 flex items-center justify-center relative">
+                  <Running className="h-16 w-16 text-green-500/40" />
+                  <div className="absolute bottom-3 left-3 flex items-center">
+                    <div className="flex items-center bg-white/80 px-2 py-1 rounded-full text-xs">
+                      <MapPin className="h-3 w-3 text-green-600 mr-1" />
+                      <span>Riverside Park</span>
+                    </div>
+                    <div className="flex items-center bg-white/80 px-2 py-1 rounded-full text-xs ml-2">
+                      <Clock className="h-3 w-3 text-green-600 mr-1" />
+                      <span>Today, 6:30 PM</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="text-xl font-bold mb-1">Community 5K Run</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Join fellow runners for an evening community run. All skill levels welcome! The route follows the scenic riverside path.
+                  </p>
+                  
+                  <div className="space-y-3 mb-4">
+                    <div className="p-3 border rounded-lg bg-green-50/50">
+                      <h4 className="text-sm font-medium mb-2 text-green-800">Quick Registration</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Running className="h-4 w-4 text-green-600 mr-2" />
+                            <span className="text-sm">Running Experience</span>
+                          </div>
+                          <Badge variant="outline" className="bg-white">Beginner</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Trophy className="h-4 w-4 text-green-600 mr-2" />
+                            <span className="text-sm">Preferred Pace</span>
+                          </div>
+                          <Badge variant="outline" className="bg-white">Casual</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Users className="h-4 w-4 text-green-600 mr-2" />
+                            <span className="text-sm">Share DIU Data</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className="bg-white">Fitness</Badge>
+                            <Button size="sm" variant="ghost" className="h-6 p-0">
+                              <Info className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium mb-2">Who's Going</h4>
+                    <div className="flex items-center mb-3">
+                      <div className="flex -space-x-3 mr-3">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <div key={i} className="h-8 w-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center">
+                            <UserCircle className="h-4 w-4 text-primary" />
+                          </div>
+                        ))}
+                        <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                          <span className="text-xs font-medium">+8</span>
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        <span className="text-green-600 font-medium">2 friends</span> are attending
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button className="flex-1 bg-green-600 hover:bg-green-700">
+                      Confirm Participation
+                    </Button>
+                    <Button variant="outline" className="flex-1">
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Invite Friends
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ),
+          duration: 3500,
+          interactions: [
+            { type: 'tap', x: 130, y: 465, delay: 2500 }
+          ]
+        },
+        {
+          id: 'fitness-confirmation',
+          component: (
+            <div className="bg-background text-foreground h-full flex flex-col">
+              <div className="p-4 border-b flex items-center">
+                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
+                <h2 className="text-lg font-bold">Registration Confirmed</h2>
+              </div>
+              <div className="flex-1 p-4 flex flex-col items-center justify-center">
+                <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                  <Medal className="h-10 w-10 text-green-600" />
+                </div>
+                <h3 className="text-xl font-bold mb-1 text-center">You're all set!</h3>
+                <p className="text-sm text-muted-foreground text-center mb-6 max-w-64">
+                  You've successfully registered for the Community 5K Run at Riverside Park tonight.
+                </p>
+                
+                <div className="w-full bg-green-50 rounded-lg p-4 mb-6 border border-green-100">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-green-800">Event</span>
+                    <span className="text-sm">Community 5K Run</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-green-800">Location</span>
+                    <span className="text-sm">Riverside Park (East Entrance)</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-green-800">Date & Time</span>
+                    <span className="text-sm">Today, 6:30 PM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-green-800">Group Size</span>
+                    <span className="text-sm">12 participants</span>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 w-full">
+                  <Button variant="outline" className="flex-1">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Add to Calendar
                   </Button>
+                  <Button className="flex-1 bg-green-600 hover:bg-green-700">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Get Directions
+                  </Button>
+                </div>
+                
+                <div className="mt-6 text-center">
+                  <p className="text-xs text-muted-foreground">
+                    Event details have been linked to your Overlapp digital identity.
+                  </p>
                 </div>
               </div>
             </div>
@@ -519,142 +751,270 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
         }
       ]
     },
-    marketplace: {
-      title: 'Marketplace Engagement',
+    
+    cafeNetworking: {
+      title: 'Café Networking',
       screens: [
         {
-          id: 'marketplace-home',
+          id: 'cafe-check-in',
           component: (
             <div className="bg-background text-foreground h-full flex flex-col">
               <div className="p-4 border-b">
-                <h2 className="text-lg font-bold">Marketplace</h2>
-                <p className="text-xs text-muted-foreground">Discover entities based on your interests</p>
+                <h2 className="text-lg font-bold">Overlapp</h2>
+                <p className="text-xs text-muted-foreground">Professional Networking</p>
               </div>
-              <div className="p-4 flex flex-col gap-3">
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Search marketplace..." 
-                    className="w-full px-3 py-2 rounded-lg border text-sm"
-                  />
-                  <Search className="absolute right-3 top-2 h-4 w-4 text-muted-foreground" />
+              <div className="flex-1 overflow-y-auto">
+                <div className="h-36 bg-amber-50 flex items-center justify-center mb-3">
+                  <Coffee className="h-16 w-16 text-amber-500/40" />
                 </div>
-                <h3 className="text-sm font-medium">Recommended for You</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <Card className="p-3 flex flex-col">
-                    <div className="h-12 flex items-center justify-center mb-1">
-                      <Store className="h-8 w-8 text-primary" />
+                <div className="p-4">
+                  <div className="bg-amber-50 rounded-lg p-4 border border-amber-100 mb-4 relative overflow-hidden">
+                    <div className="absolute -right-2 -top-2 h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center">
+                      <MapPin className="h-6 w-6 text-amber-600" />
                     </div>
-                    <h4 className="text-sm font-medium mb-1">Music Shop</h4>
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      <Badge variant="outline" className="text-xs">Music</Badge>
+                    <h3 className="text-lg font-bold text-amber-800">Now at Coworking Café</h3>
+                    <p className="text-sm text-amber-700/80 mt-1 mb-3">
+                      We've detected you're at Creative Hub Café. 5 other professionals are here who share your interests.
+                    </p>
+                    <div className="mb-3 flex flex-wrap gap-1">
+                      <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Entrepreneurship</Badge>
+                      <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Design</Badge>
+                      <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Technology</Badge>
                     </div>
-                    <span className="text-xs text-primary font-semibold mt-auto">85% match</span>
-                  </Card>
-                  <Card className="p-3 flex flex-col">
-                    <div className="h-12 flex items-center justify-center mb-1">
-                      <ShoppingBag className="h-8 w-8 text-primary" />
+                    <div className="mt-4 flex gap-2">
+                      <Button className="flex-1 bg-amber-600 hover:bg-amber-700">Connect Now</Button>
+                      <Button variant="outline" className="flex-1 text-amber-700 border-amber-200">Not Now</Button>
                     </div>
-                    <h4 className="text-sm font-medium mb-1">Travel Gear</h4>
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      <Badge variant="outline" className="text-xs">Travel</Badge>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium mb-2">Professional Privacy Controls</h3>
+                    <div className="bg-muted p-3 rounded-lg">
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Select which aspects of your professional profile to share
+                      </p>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Briefcase className="h-4 w-4 mr-2 text-amber-600" />
+                            <span className="text-sm">Current Role</span>
+                          </div>
+                          <Button size="sm" variant="outline" className="h-6 text-xs">
+                            Visible
+                          </Button>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Network className="h-4 w-4 mr-2 text-amber-600" />
+                            <span className="text-sm">AI Project Interest</span>
+                          </div>
+                          <Button size="sm" variant="outline" className="h-6 text-xs">
+                            Visible
+                          </Button>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Users className="h-4 w-4 mr-2 text-amber-600" />
+                            <span className="text-sm">Mutual Connections</span>
+                          </div>
+                          <Button size="sm" variant="outline" className="h-6 text-xs">
+                            Hidden
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-xs text-primary font-semibold mt-auto">70% match</span>
-                  </Card>
+                  </div>
                 </div>
               </div>
             </div>
           ),
-          duration: 2500,
+          duration: 3500,
           interactions: [
-            { type: 'tap', x: 100, y: 280, delay: 1500 }
+            { type: 'tap', x: 130, y: 270, delay: 2500 }
           ]
         },
         {
-          id: 'entity-details',
+          id: 'cafe-potential-matches',
           component: (
             <div className="bg-background text-foreground h-full flex flex-col">
               <div className="p-4 border-b flex items-center">
                 <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">Music Shop</h2>
+                <h2 className="text-lg font-bold">Professionals Nearby</h2>
               </div>
-              <div className="relative h-40 bg-primary/10 mb-3 flex items-center justify-center">
-                <Store className="h-12 w-12 text-primary" />
-                <div className="absolute top-2 right-2">
-                  <Badge variant="outline" className="bg-background/80">85% match</Badge>
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="bg-amber-50 rounded-lg p-3 mb-4 border border-amber-100">
+                  <div className="flex items-center mb-2">
+                    <Coffee className="h-5 w-5 text-amber-600 mr-2" />
+                    <p className="text-sm font-medium">Creative Hub Café</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    5 professionals with overlapping interests are here now
+                  </p>
+                </div>
+                
+                <div className="space-y-4 mb-4">
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="p-3 border-b bg-amber-50/50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                            <UserCircle className="h-6 w-6 text-amber-600" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold">Alex Morgan</h3>
+                            <p className="text-xs text-muted-foreground">UX Designer</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-amber-100 text-amber-800">
+                          92% overlap
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <h4 className="text-xs font-medium mb-2">Shared Interests</h4>
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        <Badge variant="outline" className="text-xs">AI Projects</Badge>
+                        <Badge variant="outline" className="text-xs">UX Design</Badge>
+                        <Badge variant="outline" className="text-xs">Startups</Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground mb-3">
+                        "Open to discussing new AI design projects and collaboration opportunities"
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" className="flex-1 text-xs bg-amber-600 hover:bg-amber-700">
+                          Connect
+                        </Button>
+                        <Button size="sm" variant="outline" className="flex-1 text-xs">
+                          View Full Profile
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="p-3 border-b">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <UserCircle className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold">Jamie Chen</h3>
+                            <p className="text-xs text-muted-foreground">Software Developer</p>
+                          </div>
+                        </div>
+                        <Badge variant="outline">
+                          78% overlap
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <h4 className="text-xs font-medium mb-2">Shared Interests</h4>
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        <Badge variant="outline" className="text-xs">Web Development</Badge>
+                        <Badge variant="outline" className="text-xs">AI Projects</Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground mb-3">
+                        "Working on an open-source project, looking for collaborators"
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" className="flex-1 text-xs">
+                          Connect
+                        </Button>
+                        <Button size="sm" variant="outline" className="flex-1 text-xs">
+                          View Full Profile
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="p-4 flex flex-col gap-3">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium">Music Shop</h3>
-                  <Button size="sm" variant="outline">
-                    <Heart className="h-4 w-4" />
+            </div>
+          ),
+          duration: 3500,
+          interactions: [
+            { type: 'tap', x: 130, y: 260, delay: 2500 }
+          ]
+        },
+        {
+          id: 'cafe-connection-request',
+          component: (
+            <div className="bg-background text-foreground h-full flex flex-col">
+              <div className="p-4 border-b flex items-center">
+                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
+                <h2 className="text-lg font-bold">Connect With Alex</h2>
+              </div>
+              <div className="flex-1 p-4 flex flex-col">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
+                    <UserCircle className="h-10 w-10 text-amber-600" />
+                  </div>
+                  <div className="mx-2 text-2xl text-amber-300">⟶</div>
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <UserCircle className="h-10 w-10 text-primary" />
+                  </div>
+                </div>
+                
+                <div className="bg-amber-50 rounded-lg p-4 border border-amber-100 mb-4">
+                  <h3 className="text-md font-bold text-amber-800 mb-1">Connection Request</h3>
+                  <p className="text-sm text-amber-700/80 mb-3">
+                    Send a personalized message to Alex about your shared interests in AI projects and design.
+                  </p>
+                  
+                  <div className="bg-white rounded border p-3 mb-4">
+                    <p className="text-sm">
+                      Hi Alex, I noticed we're both at Creative Hub Café and share interests in AI projects and UX design. I'm working on an AI-powered interface project that might benefit from your design expertise. Would you be open to a quick chat?
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Briefcase className="h-4 w-4 mr-2 text-amber-600" />
+                        <span className="text-sm">Share Current Role</span>
+                      </div>
+                      <Button size="sm" variant="ghost" className="h-6 text-xs">
+                        <Zap className="h-3 w-3 text-amber-500" />
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Network className="h-4 w-4 mr-2 text-amber-600" />
+                        <span className="text-sm">Share Contact Info</span>
+                      </div>
+                      <Button size="sm" variant="ghost" className="h-6 text-xs">
+                        <Zap className="h-3 w-3 text-amber-500" />
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Users className="h-4 w-4 mr-2 text-amber-600" />
+                        <span className="text-sm">Share Portfolio Link</span>
+                      </div>
+                      <Button size="sm" variant="ghost" className="h-6 text-xs opacity-50">
+                        <Zap className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-auto flex gap-2">
+                  <Button className="flex-1 bg-amber-600 hover:bg-amber-700">
+                    Send Connection Request
+                  </Button>
+                  <Button variant="outline" className="flex-1">
+                    Save for Later
                   </Button>
                 </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  A specialty store with instruments, vinyl records, and music accessories.
+                
+                <p className="text-xs text-muted-foreground text-center mt-4">
+                  Your privacy is protected. Only the information you select will be shared.
                 </p>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <Badge>Music</Badge>
-                  <Badge>Retail</Badge>
-                  <Badge>Instruments</Badge>
-                </div>
-                <h4 className="text-sm font-medium mb-2">Featured Products</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="border rounded p-2">
-                    <div className="h-10 flex items-center justify-center mb-1">
-                      <Tag className="h-6 w-6 text-primary" />
-                    </div>
-                    <p className="text-xs font-medium">Acoustic Guitar</p>
-                    <p className="text-xs text-muted-foreground">$299</p>
-                  </div>
-                  <div className="border rounded p-2">
-                    <div className="h-10 flex items-center justify-center mb-1">
-                      <Tag className="h-6 w-6 text-primary" />
-                    </div>
-                    <p className="text-xs font-medium">Vinyl Records</p>
-                    <p className="text-xs text-muted-foreground">From $19.99</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ),
-          duration: 3000,
-          interactions: [
-            { type: 'tap', x: 70, y: 400, delay: 1800 }
-          ]
-        },
-        {
-          id: 'product-details',
-          component: (
-            <div className="bg-background text-foreground h-full flex flex-col">
-              <div className="p-4 border-b flex items-center">
-                <ChevronRight className="h-5 w-5 rotate-180 mr-2" />
-                <h2 className="text-lg font-bold">Acoustic Guitar</h2>
-              </div>
-              <div className="relative h-40 bg-primary/10 mb-3 flex items-center justify-center">
-                <Tag className="h-12 w-12 text-primary" />
-              </div>
-              <div className="p-4 flex flex-col gap-3">
-                <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-medium">Acoustic Guitar</h3>
-                  <span className="font-bold">$299</span>
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant="outline">Music</Badge>
-                  <Badge variant="outline">Instrument</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Perfect for beginners and intermediate players. Includes carrying case and tuner.
-                </p>
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium mb-2">Why this matches your interests</h4>
-                  <div className="flex items-center gap-2 p-2 bg-primary/5 rounded">
-                    <Badge className="bg-primary text-primary-foreground">Music</Badge>
-                    <span className="text-xs">Based on your interest in musical instruments</span>
-                  </div>
-                </div>
-                <Button className="w-full">Add to Cart</Button>
               </div>
             </div>
           ),
@@ -664,8 +1024,8 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
     }
   };
 
-  // Order of journeys for auto-cycling
-  const journeyTypes: JourneyType[] = ['socialDiscovery', 'physicalIntegration', 'identityManagement', 'marketplace'];
+  // Order of journeys for auto-cycling - updated to reflect new digital-physical scenarios
+  const journeyTypes: JourneyType[] = ['shoppingMall', 'eventDiscovery', 'fitnessContext', 'cafeNetworking'];
   
   // Get current journey and screen
   const currentJourney = journeys[journeyTypes[currentJourneyIndex]];
@@ -838,7 +1198,7 @@ const DesktopJourneySimulator: React.FC<UserJourneySimulatorProps> = ({
       >
         <h2 className="text-2xl md:text-3xl font-bold mb-2">Experience Overlapp on Mobile</h2>
         <p className="text-muted-foreground max-w-lg mx-auto px-4">
-          Watch a demo of key user journeys and see how Overlapp helps connect your digital and physical worlds.
+          Watch a demo of how Overlapp connects your digital identity with physical contexts
         </p>
       </motion.div>
 
