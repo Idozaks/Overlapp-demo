@@ -5,6 +5,7 @@ import ARDemo from "@/components/landing/ARDemo";
 import RetailerDemo from "@/components/landing/RetailerDemo";
 import PremiumFeatures from "@/components/landing/PremiumFeatures";
 import EnhancedOverlappAnimation from "@/components/landing/EnhancedOverlappAnimation";
+import HeroPageDemo from "@/components/landing/HeroPageDemo";
 // Import new components based on the Overlapp Strategy Overview
 import MarketStrategy from "@/components/landing/MarketStrategy";
 import UXPrinciples from "@/components/landing/UXPrinciples";

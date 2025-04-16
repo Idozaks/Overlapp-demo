@@ -14,6 +14,7 @@ import {
   Search,
   Laptop,
 } from "lucide-react";
+import MobileUserJourneySimulator from "./MobileUserJourneySimulator";
 
 const slides = [
   {
@@ -69,7 +70,7 @@ export default function Hero() {
         />
       </div>
 
-      <div className="container relative z-10 mx-auto grid min-h-[90vh] items-center px-4 py-24 md:py-32">
+      <div className="container relative z-10 mx-auto grid items-center px-4 py-24 md:py-32">
         <div className="grid items-center gap-8 md:grid-cols-2">
           <div className="flex flex-col space-y-6">
             <motion.h1
@@ -115,80 +116,65 @@ export default function Hero() {
               </Button>
             </motion.div>
           </div>
-          <div className="relative h-[300px] md:h-[450px]">
-            {/* Static container for YouTube video - doesn't re-render on slide change */}
-            <div className="absolute inset-0 z-10">
-              <div className="relative h-full w-full rounded-xl overflow-hidden">
-                <div className="p-2">
-                  <iframe
-                    width="560"
-                    height="315"
-                    src="https://www.youtube.com/embed/Rk7t0TWYNDg?si=bNbaZOgkWQlIIJH2"
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                    className="w-full h-[400px] border-0"
-                  ></iframe>
-                </div>
-              </div>
-            </div>
-            
-            {/* Animated background that changes with slides */}
-            <motion.div
-              key={`bg-${animationKey}`}
-              className="absolute inset-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${slides[currentSlide].gradientColors} opacity-10 rounded-xl`} />
-            </motion.div>
+          
+          {/* Mobile Device Simulator - replaces the YouTube video */}
+          <div className="relative flex justify-center items-center">
+            <MobileUserJourneySimulator 
+              autoPlay={true} 
+              loop={true} 
+              className="max-w-full"
+            />
           </div>
         </div>
 
-        {/* YouTube Video Section */}
-        <div className="mt-12 flex flex-col items-center gap-8">
+        {/* Interactive Demo Section - Below the hero content */}
+        <div className="mt-20 flex flex-col items-center">
           <motion.div
-            className="w-full flex justify-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
+            className="w-full flex flex-col items-center"
           >
-            <div className="rounded-xl overflow-hidden shadow-2xl border border-muted">
-              <iframe
-                width="560"
-                height="315"
-                src="https://www.youtube.com/embed/J-ACL_Q2UXw?si=WmLfMHrJxVhNfd1l"
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-                className="w-full aspect-video max-w-3xl"
-              ></iframe>
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="w-full flex justify-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
-          >
-            <div className="rounded-xl overflow-hidden shadow-2xl border border-muted">
-              <iframe
-                width="560"
-                height="315"
-                src="https://www.youtube.com/embed/yWqN2HUGDZw"
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-                className="w-full aspect-video max-w-3xl"
-              ></iframe>
+            <h2 className="text-3xl font-bold mb-6 text-center">
+              See Overlapp in Action
+            </h2>
+            <div className="flex flex-wrap justify-center gap-4 mb-10">
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
+                onClick={() => window.location.href = '/demo'}
+              >
+                <Users className="h-6 w-6" />
+                <span>Social Discovery</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
+                onClick={() => window.location.href = '/demo'}
+              >
+                <Store className="h-6 w-6" />
+                <span>Digital-Physical Integration</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
+                onClick={() => window.location.href = '/demo'}
+              >
+                <UserCircle className="h-6 w-6" />
+                <span>Identity Management</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="py-6 px-8 w-full md:w-auto flex flex-col items-center gap-2"
+                onClick={() => window.location.href = '/demo'}
+              >
+                <ShoppingBag className="h-6 w-6" />
+                <span>Marketplace Engagement</span>
+              </Button>
             </div>
           </motion.div>
         </div>
