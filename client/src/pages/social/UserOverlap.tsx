@@ -14,7 +14,7 @@ export default function UserOverlap() {
   const [location] = useLocation();
   // Make sure to handle URL parameters correctly
   const searchParams = new URLSearchParams(window.location.search);
-  const targetUserId = searchParams.get('targetId');
+  const targetUserId = searchParams.get('targetUserId');
   const { user: currentUser } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -106,14 +106,20 @@ export default function UserOverlap() {
             <CardTitle className="text-red-600">Error Loading Comparison</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>There was a problem loading the comparison data. Please try again later.</p>
-            <Button 
-              variant="outline" 
-              className="mt-4"
-              onClick={() => window.location.reload()}
-            >
-              Try Again
-            </Button>
+            <p>{userError ? "User not found or no longer available." : "There was a problem loading the comparison data. Please try again later."}</p>
+            <div className="flex gap-3 mt-4">
+              <Link href="/social">
+                <Button variant="outline">
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back to Social
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.reload()}
+              >
+                Try Again
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
