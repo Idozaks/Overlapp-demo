@@ -3,6 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { AIButton } from "@/components/ui/ai-button"; // Import new AI Button
+import { AIInterface, AIResult, AIProcessing } from "@/components/ui/ai-interface"; // Import new AI Interface
 import {
   Form,
   FormControl,
@@ -1139,19 +1141,17 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-medium">{t("profile.interests")}</h3>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+              <AIButton 
                 size="sm" 
                 type="button"
                 onClick={() => {
                   if (!user?.id) return;
                   window.location.href = `/profile/${user.id}/interests/suggestions`;
                 }}
-                className="flex items-center gap-1"
+                showSparkles
               >
-                <Sparkles className="h-4 w-4" />
                 {t("profile.aiSuggestInterests")}
-              </Button>
+              </AIButton>
             </div>
           </div>
 
