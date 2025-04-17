@@ -1089,6 +1089,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get a single interest by ID
+  app.get("/api/interests/:id", async (req: Request, res: Response) => {
+    try {
+      const interestId = parseInt(req.params.id);
+      if (isNaN(interestId)) {
+        return res.status(400).json({ message: "Invalid interest ID" });
+      }
+
+      const interest = await storage.getInterest(interestId);
+      if (!interest) {
+        return res.status(404).json({ message: "Interest not found" });
+      }
+
+      res.json({ interest });
+    } catch (error) {
+      log("Error fetching interest:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch interest" });
+    }
+  });
+
+  // Get content for a specific interest
+  app.get("/api/interests/:id/content", async (req: Request, res: Response) => {
+    try {
+      const interestId = parseInt(req.params.id);
+      if (isNaN(interestId)) {
+        return res.status(400).json({ message: "Invalid interest ID" });
+      }
+
+      const content = await storage.getInterestContent(interestId);
+      res.json({ content });
+    } catch (error) {
+      log("Error fetching interest content:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch interest content" });
+    }
+  });
+
+  // User interest management routes
+  app.post("/api/user/interests/:id", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const interestId = parseInt(req.params.id);
+      if (isNaN(interestId)) {
+        return res.status(400).json({ message: "Invalid interest ID" });
+      }
+
+      const userId = req.user!.id;
+      await storage.addUserInterest(userId, interestId);
+      res.status(200).json({ message: "Interest added successfully" });
+    } catch (error) {
+      log("Error adding user interest:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to add interest" });
+    }
+  });
+
+  app.delete("/api/user/interests/:id", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const interestId = parseInt(req.params.id);
+      if (isNaN(interestId)) {
+        return res.status(400).json({ message: "Invalid interest ID" });
+      }
+
+      const userId = req.user!.id;
+      await storage.removeUserInterest(userId, interestId);
+      res.status(200).json({ message: "Interest removed successfully" });
+    } catch (error) {
+      log("Error removing user interest:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to remove interest" });
+    }
+  });
+
+  app.get("/api/user/interests", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const userId = req.user!.id;
+      const interests = await storage.getUserInterests(userId);
+      res.json({ interests });
+    } catch (error) {
+      log("Error fetching user interests:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch user interests" });
+    }
+  });
+
   // Add DELETE endpoint for interests
   app.delete("/api/interests/:id", async (req: Request, res: Response) => {
     try {
