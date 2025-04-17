@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AIButton } from '@/components/ui/ai-button';
+import { AIInterface, AIResult } from '@/components/ui/ai-interface';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -253,9 +254,9 @@ const InterestCard = ({ interest }: { interest: Interest }) => {
       </CardContent>
       <CardFooter>
         <Link href={`/interests/${interest.id}`}>
-          <Button variant="outline" className="w-full">
+          <AIButton variant="outline" className="w-full">
             View Details
-          </Button>
+          </AIButton>
         </Link>
       </CardFooter>
     </Card>
