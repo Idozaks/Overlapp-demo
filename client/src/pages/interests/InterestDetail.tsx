@@ -236,11 +236,12 @@ const InterestDetail = () => {
             {interest.name}
           </h1>
         </div>
-        <Button
+        <AIButton
           variant={isUserJoined ? "outline" : "default"}
           className="flex items-center gap-2"
           onClick={() => joinInterestMutation.mutate()}
           disabled={joinInterestMutation.isPending}
+          showSparkles={!isUserJoined}
         >
           {joinInterestMutation.isPending ? (
             "Processing..."
@@ -255,7 +256,7 @@ const InterestDetail = () => {
               Follow Interest
             </>
           )}
-        </Button>
+        </AIButton>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -369,10 +370,10 @@ const InterestDetail = () => {
                     ))}
                     
                     <div className="flex justify-center mt-6">
-                      <Button variant="outline" className="w-full">
+                      <AIButton variant="outline" className="w-full">
                         <Users className="w-4 h-4 mr-2" />
                         View All Groups
-                      </Button>
+                      </AIButton>
                     </div>
                   </div>
                 </TabsContent>
@@ -380,10 +381,10 @@ const InterestDetail = () => {
                 <TabsContent value="discussions" className="pt-4">
                   <div className="text-center py-8">
                     <p className="text-muted-foreground mb-4">Join conversations about {interest.name}</p>
-                    <Button variant="outline">
+                    <AIButton variant="outline" showSparkles>
                       <MessageSquare className="w-4 h-4 mr-2" />
                       Start a Discussion
-                    </Button>
+                    </AIButton>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -421,10 +422,10 @@ const InterestDetail = () => {
               ))}
             </CardContent>
             <CardFooter>
-              <Button className="w-full" variant="outline">
+              <AIButton className="w-full" variant="outline">
                 <Users className="w-4 h-4 mr-2" />
                 View All Groups
-              </Button>
+              </AIButton>
             </CardFooter>
           </Card>
           
@@ -436,10 +437,10 @@ const InterestDetail = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Share this interest with your friends and connections
               </p>
-              <Button className="w-full" variant="outline">
+              <AIButton className="w-full" variant="outline" showSparkles>
                 <Share2 className="w-4 h-4 mr-2" />
                 Share Interest
-              </Button>
+              </AIButton>
             </CardContent>
           </Card>
         </div>
