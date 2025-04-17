@@ -24,6 +24,8 @@ import UserOverlap from "@/pages/social/UserOverlap";
 import SocialMediaExportPage from "@/pages/social/SocialMediaExport";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import InterestManager from "@/pages/admin/InterestManager";
+import ExploreInterests from "@/pages/interests/ExploreInterests";
+import InterestDetail from "@/pages/interests/InterestDetail";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Button } from "@/components/ui/button";
 import {
@@ -62,7 +64,8 @@ import {
   Store,
   ShoppingBag,
   MessageCircle,
-  Sparkles
+  Sparkles,
+  BookmarkIcon
 } from "lucide-react";
 import "./lib/i18n";
 import About from "@/pages/About"; // Import the About component
@@ -96,6 +99,8 @@ function Router() {
       <Route path="/wallet" component={WalletDashboard} />
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/marketplace/entity/:id/overlap" component={EntityOverlap} />
+      <Route path="/interests" component={ExploreInterests} />
+      <Route path="/interests/:id" component={InterestDetail} />
       <Route path="/marketplace/entity/:id" component={() => {
         const [, params] = useRoute('/marketplace/entity/:id');
         const entityId = params?.id ? parseInt(params.id) : 0;
@@ -251,6 +256,9 @@ function Header() {
           <a href="/marketplace" className="text-foreground hover:text-primary whitespace-nowrap flex items-center">
             <Store className="w-4 h-4 mr-1" /> Marketplace
           </a>
+          <a href="/interests" className="text-foreground hover:text-primary whitespace-nowrap flex items-center">
+            <BookmarkIcon className="w-4 h-4 mr-1" /> Interests
+          </a>
           <a href="/wallet" className="text-foreground hover:text-primary whitespace-nowrap">
             Wallet
           </a>
@@ -358,6 +366,10 @@ function Header() {
                     <DropdownMenuItem onClick={() => navigate('/marketplace')}>
                       <Store className="w-4 h-4 mr-2" />
                       Marketplace
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/interests')}>
+                      <BookmarkIcon className="w-4 h-4 mr-2" />
+                      Interests
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/chat')}>
                       <MessageCircle className="w-4 h-4 mr-2" />
