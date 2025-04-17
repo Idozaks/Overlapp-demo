@@ -380,9 +380,21 @@ export default function Profile() {
                     <h2 className="text-lg font-semibold mb-2">Interests</h2>
                     <div className="flex flex-wrap gap-2">
                       {interestObjects.map(interest => (
-                        <Badge key={interest.id} variant="secondary">
-                          {interest.iconUrl} {interest.name}
-                        </Badge>
+                        <Link key={interest.id} href={`/interests/${interest.id}`}>
+                          <Badge 
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-primary-foreground transition-colors"
+                          >
+                            {interest.iconUrl && (
+                              <img 
+                                src={interest.iconUrl} 
+                                alt="" 
+                                className="w-4 h-4 mr-1"
+                              />
+                            )}
+                            {interest.name}
+                          </Badge>
+                        </Link>
                       ))}
                     </div>
                   </div>
