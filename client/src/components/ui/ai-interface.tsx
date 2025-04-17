@@ -1,10 +1,6 @@
 import * as React from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Sparkles, Loader2 } from "lucide-react";
-import { AIButton } from "@/components/ui/ai-button";
+import { Loader2, Sparkles } from "lucide-react";
 
 interface AIInterfaceProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
@@ -23,7 +19,7 @@ interface AIInterfaceProps extends React.HTMLAttributes<HTMLDivElement> {
  * throughout the application with distinctive purple styling and animations.
  */
 export function AIInterface({
-  title = "AI-Powered Feature",
+  title,
   subtitle,
   loading = false,
   actionLabel,
@@ -36,59 +32,62 @@ export function AIInterface({
   ...props
 }: AIInterfaceProps) {
   return (
-    <Card
+    <div
       className={cn(
-        "overflow-hidden",
-        gradient && "border-purple-200 bg-gradient-to-br from-white to-purple-50",
+        "w-full rounded-lg border border-purple-200 overflow-hidden flex flex-col",
+        gradient ? "bg-gradient-to-b from-white to-purple-50" : "bg-white",
         className
       )}
       {...props}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-purple-500" />
-            <CardTitle className="text-xl">{title}</CardTitle>
+      {title && (
+        <div className="px-6 py-4 border-b border-purple-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-purple-900 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-purple-500" />
+                {title}
+              </h3>
+              {subtitle && (
+                <p className="text-sm text-purple-600 mt-1">{subtitle}</p>
+              )}
+            </div>
+            {badge && (
+              <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded">
+                {badge}
+              </span>
+            )}
           </div>
-          {badge && (
-            <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
-              {badge}
-            </Badge>
-          )}
         </div>
-        {subtitle && <CardDescription>{subtitle}</CardDescription>}
-      </CardHeader>
-      
-      <CardContent>
+      )}
+
+      <div className="p-6 flex-grow">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="mb-4"
-            >
-              <div className="h-12 w-12 rounded-full border-4 border-purple-200 border-t-purple-600"></div>
-            </motion.div>
-            <p className="text-muted-foreground">Processing your request...</p>
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-600 mb-4" />
+            <p className="text-purple-600 text-sm animate-pulse">
+              AI is processing your request...
+            </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {children}
-          </div>
+          children
         )}
-      </CardContent>
-      
+      </div>
+
       {(actionLabel || footerContent) && (
-        <CardFooter className="flex justify-between border-t bg-slate-50/50 px-6 py-4">
-          {actionLabel && onAction && (
-            <AIButton onClick={onAction} loading={loading}>
-              {actionLabel}
-            </AIButton>
-          )}
+        <div className="px-6 py-4 bg-purple-50 border-t border-purple-100 flex justify-between items-center">
           {footerContent}
-        </CardFooter>
+          {actionLabel && onAction && (
+            <button
+              onClick={onAction}
+              className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1"
+            >
+              {actionLabel}
+            </button>
+          )}
+        </div>
       )}
-    </Card>
+    </div>
   );
 }
 
@@ -97,26 +96,25 @@ export function AIInterface({
  */
 export function AIResult({ 
   children, 
+  className, 
   highlight = false,
-  className 
+  ...props 
 }: { 
   children: React.ReactNode;
+  className?: string; 
   highlight?: boolean;
-  className?: string;
-}) {
+} & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+    <div
       className={cn(
-        "rounded-lg border p-3",
-        highlight ? "border-purple-200 bg-purple-50" : "border-slate-200 bg-white",
+        "p-4 rounded-md mb-3 border border-purple-100 bg-white transition-all",
+        highlight ? "shadow-md border-purple-300" : "hover:border-purple-200 hover:shadow-sm",
         className
       )}
+      {...props}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -125,8 +123,14 @@ export function AIResult({
  */
 export function AIProcessing({ text = "AI is processing..." }: { text?: string }) {
   return (
-    <div className="flex items-center gap-2 text-purple-600 bg-purple-50 p-2 rounded-md border border-purple-100">
-      <Loader2 className="h-4 w-4 animate-spin" />
+    <div className="flex items-center justify-center py-4 text-purple-700 gap-2">
+      <div className="relative h-4 w-28">
+        <div className="absolute inset-0 flex items-center justify-start">
+          <div className="h-1.5 w-full bg-purple-100 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 w-1/3 rounded-full animate-ai-progress"></div>
+          </div>
+        </div>
+      </div>
       <span className="text-sm font-medium">{text}</span>
     </div>
   );

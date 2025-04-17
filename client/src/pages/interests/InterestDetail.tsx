@@ -20,6 +20,8 @@ import {
   AvatarImage,
 } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { AIButton } from '@/components/ui/ai-button';
+import { AIInterface, AIResult } from '@/components/ui/ai-interface';
 import {
   Card,
   CardContent,
@@ -351,12 +353,13 @@ const InterestDetail = () => {
                                 {group.memberCount} members
                               </CardDescription>
                             </div>
-                            <Button
+                            <AIButton
                               size="sm"
                               onClick={() => handleJoinGroup(group.id, group.name)}
+                              showSparkles
                             >
                               Join Group
-                            </Button>
+                            </AIButton>
                           </div>
                         </CardHeader>
                         <CardContent>
@@ -406,14 +409,14 @@ const InterestDetail = () => {
                       <p className="text-xs text-muted-foreground">{group.memberCount} members</p>
                     </div>
                   </div>
-                  <Button
+                  <AIButton
                     size="sm"
                     variant="outline"
                     className="h-8"
                     onClick={() => handleJoinGroup(group.id, group.name)}
                   >
                     Join
-                  </Button>
+                  </AIButton>
                 </div>
               ))}
             </CardContent>
