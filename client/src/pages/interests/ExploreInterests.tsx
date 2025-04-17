@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
@@ -90,6 +90,15 @@ const ExploreInterests = () => {
     }
   };
   
+  // Uncomment if you want to use tabs instead of dropdown
+  // useEffect(() => {
+  //   if (categoriesData?.categories && categoriesData.categories.length > 0) {
+  //     if (!categoriesData.categories.includes(tabValue) && tabValue !== 'all') {
+  //       setTabValue('all');
+  //     }
+  //   }
+  // }, [categoriesData, tabValue]);
+  
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
@@ -149,7 +158,7 @@ const ExploreInterests = () => {
             </Card>
           ))}
         </div>
-      ) : tabValue === 'all' ? (
+      ) : categoryFilter === 'all' ? (
         // View all interests grouped by category
         <div className="space-y-8">
           {Object.entries(interestsByCategory).map(([category, interests]) => (
@@ -186,7 +195,7 @@ const ExploreInterests = () => {
           )}
         </div>
       ) : (
-        // Category tab view
+        // Category-specific view
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredInterests.map((interest) => (
             <InterestCard key={interest.id} interest={interest} />
