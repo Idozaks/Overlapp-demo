@@ -1,6 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'wouter';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
+import {
+  BookmarkIcon,
+  Filter,
+  Search,
+  Tag,
+} from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -9,6 +15,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -16,11 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { BookMarked, Filter, Search, Tag } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 
 type Interest = {
   id: number;
@@ -31,96 +37,111 @@ type Interest = {
 };
 
 const ExploreInterests = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [tabValue, setTabValue] = useState('all');
+  const [categories, setCategories] = useState<string[]>([]);
+  
   // Fetch all interests
-  const { data: interestsData, isLoading: isLoadingInterests } = useQuery<{interests: Interest[]}>({
+  const { data: interestsData, isLoading } = useQuery<{ interests: Interest[] }>({
     queryKey: ['/api/interests'],
   });
-
-  // Fetch categories for filtering
-  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery<{categories: string[]}>({
+  
+  // Fetch categories
+  const { data: categoriesData } = useQuery<{ categories: string[] }>({
     queryKey: ['/api/interests/categories'],
   });
-
+  
+  // Update categories when data is loaded
+  useEffect(() => {
+    if (categoriesData?.categories) {
+      setCategories(['all', ...categoriesData.categories]);
+    }
+  }, [categoriesData]);
+  
   const interests = interestsData?.interests || [];
-  const categories = categoriesData?.categories || [];
-
-  // Filter interests based on search term and category
+  
+  // Filter interests based on search query and category
   const filteredInterests = interests.filter((interest: Interest) => {
-    const matchesSearch = interest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (interest.description && interest.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch = interest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (interest.description && interest.description.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    const matchesCategory = !categoryFilter || interest.category === categoryFilter;
+    const matchesCategory = categoryFilter === 'all' || interest.category === categoryFilter;
     
     return matchesSearch && matchesCategory;
   });
-
+  
+  // Group interests by category
+  const interestsByCategory = filteredInterests.reduce((acc, interest) => {
+    if (!acc[interest.category]) {
+      acc[interest.category] = [];
+    }
+    acc[interest.category].push(interest);
+    return acc;
+  }, {} as Record<string, Interest[]>);
+  
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setTabValue(value);
+    if (value !== 'all') {
+      setCategoryFilter(value);
+    } else {
+      setCategoryFilter('all');
+    }
+  };
+  
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Explore Interests</h1>
-          <p className="text-muted-foreground">
-            Discover new interests and connect with like-minded people
-          </p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
+          <BookmarkIcon className="h-8 w-8 text-primary" />
+          Explore Interests
+        </h1>
+        <p className="text-muted-foreground">
+          Discover and join interests that match your passions and connect with like-minded people.
+        </p>
       </div>
-
-      {/* Search and filter controls */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="flex items-center relative">
+      
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            type="text"
             placeholder="Search interests..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pr-8"
+            className="pl-9"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Search className="absolute right-3 h-4 w-4 text-muted-foreground" />
         </div>
         
-        <div>
+        <div className="w-full sm:w-auto">
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger>
-              <div className="flex items-center gap-2">
-                <Tag className="h-4 w-4" />
-                <SelectValue placeholder="All Categories" />
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <div className="flex items-center">
+                <Filter className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Category" />
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
-              {categories.map((category: string) => (
+              {categories.map((category) => (
                 <SelectItem key={category} value={category}>
-                  {category}
+                  {category === 'all' ? 'All Categories' : category}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        
-        <Button variant="outline" className="flex items-center gap-2" onClick={() => {
-          setSearchTerm('');
-          setCategoryFilter('');
-        }}>
-          <Filter className="h-4 w-4" />
-          Clear Filters
-        </Button>
       </div>
-
-      {/* Display interests grid */}
-      {isLoadingInterests ? (
-        // Loading skeleton
+      
+      {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
-            <Card key={index} className="overflow-hidden">
+            <Card key={index} className="h-[220px] flex flex-col">
               <CardHeader className="pb-2">
-                <Skeleton className="h-5 w-2/3 mb-2" />
-                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/3" />
               </CardHeader>
-              <CardContent>
-                <Skeleton className="h-16 w-full" />
+              <CardContent className="flex-grow">
+                <Skeleton className="h-20 w-full" />
               </CardContent>
               <CardFooter>
                 <Skeleton className="h-9 w-full" />
@@ -128,58 +149,106 @@ const ExploreInterests = () => {
             </Card>
           ))}
         </div>
-      ) : filteredInterests.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredInterests.map((interest: Interest) => (
-            <Card key={interest.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  {interest.iconUrl ? (
-                    <img
-                      src={interest.iconUrl}
-                      alt={interest.name}
-                      className="w-6 h-6"
-                    />
-                  ) : (
-                    <BookMarked className="w-5 h-5 text-primary" />
-                  )}
-                  <CardTitle className="text-lg">{interest.name}</CardTitle>
-                </div>
-                <CardDescription className="text-xs uppercase tracking-wide">
-                  {interest.category}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <p className="text-sm line-clamp-3">
-                  {interest.description || `Explore more about ${interest.name}`}
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Link href={`/interests/${interest.id}`}>
-                  <Button className="w-full">View Details</Button>
-                </Link>
-              </CardFooter>
-            </Card>
+      ) : tabValue === 'all' ? (
+        // View all interests grouped by category
+        <div className="space-y-8">
+          {Object.entries(interestsByCategory).map(([category, interests]) => (
+            <div key={category}>
+              <div className="flex items-center mb-4">
+                <h2 className="text-xl font-semibold">{category}</h2>
+                <Badge variant="outline" className="ml-3">
+                  {interests.length} {interests.length === 1 ? 'interest' : 'interests'}
+                </Badge>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {interests.map((interest) => (
+                  <InterestCard key={interest.id} interest={interest} />
+                ))}
+              </div>
+            </div>
           ))}
+          
+          {Object.keys(interestsByCategory).length === 0 && (
+            <div className="text-center py-12">
+              <Tag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-medium mb-2">No interests found</h3>
+              <p className="text-muted-foreground mb-6">
+                Try adjusting your search or filter to find what you're looking for.
+              </p>
+              <Button onClick={() => {
+                setSearchQuery('');
+                setCategoryFilter('all');
+              }}>
+                Clear filters
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-medium mb-2">No interests found</h3>
-          <p className="text-muted-foreground mb-6">
-            Try adjusting your search or filter criteria
-          </p>
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setSearchTerm('');
-              setCategoryFilter('');
-            }}
-          >
-            Reset Filters
-          </Button>
+        // Category tab view
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredInterests.map((interest) => (
+            <InterestCard key={interest.id} interest={interest} />
+          ))}
+          
+          {filteredInterests.length === 0 && (
+            <div className="col-span-full text-center py-12">
+              <Tag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-medium mb-2">No interests found</h3>
+              <p className="text-muted-foreground mb-6">
+                Try adjusting your search or filter to find what you're looking for.
+              </p>
+              <Button onClick={() => {
+                setSearchQuery('');
+                setCategoryFilter('all');
+              }}>
+                Clear filters
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>
+  );
+};
+
+// Interest card component
+const InterestCard = ({ interest }: { interest: Interest }) => {
+  return (
+    <Card className="h-full flex flex-col hover:shadow-md transition-shadow">
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2">
+          {interest.iconUrl ? (
+            <img
+              src={interest.iconUrl}
+              alt={interest.name}
+              className="w-5 h-5"
+            />
+          ) : (
+            <BookmarkIcon className="w-5 h-5 text-primary" />
+          )}
+          <CardTitle className="text-lg">{interest.name}</CardTitle>
+        </div>
+        <CardDescription>
+          <Badge variant="outline" className="mt-1">
+            {interest.category}
+          </Badge>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex-grow pb-2">
+        <p className="text-sm text-muted-foreground line-clamp-3">
+          {interest.description || `Explore the world of ${interest.name} and connect with others who share your passion.`}
+        </p>
+      </CardContent>
+      <CardFooter>
+        <Link href={`/interests/${interest.id}`}>
+          <Button variant="outline" className="w-full">
+            View Details
+          </Button>
+        </Link>
+      </CardFooter>
+    </Card>
   );
 };
 
