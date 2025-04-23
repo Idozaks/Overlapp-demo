@@ -221,8 +221,49 @@ const BookClubSamplePage: React.FC = () => {
               See How Your Interests Overlap
             </h3>
             <p className="mb-4 text-gray-700">
-              Click the Overlap widget in the bottom right corner to discover shared interests with our community!
+              Analyze how your Digital Identity Unit (DIU) overlaps with our BookClub community!
             </p>
+            
+            <button 
+              onClick={() => {
+                // Find the widget container and trigger the overlap button
+                const widgetContainer = document.getElementById('overlapp-widget-container');
+                if (widgetContainer) {
+                  // First find and click the QR code button to open the widget
+                  const qrButton = widgetContainer.querySelector('button[aria-label="Open Overlap Widget"]');
+                  if (qrButton) {
+                    (qrButton as HTMLButtonElement).click();
+                    
+                    // Set a short timeout to allow widget to initialize and then find and click the simulate scan button
+                    setTimeout(() => {
+                      const scanButton = widgetContainer.querySelector('button:not([aria-label])');
+                      if (scanButton) {
+                        (scanButton as HTMLButtonElement).click();
+                        
+                        // After scan simulation, find and click the Overlap! button
+                        setTimeout(() => {
+                          const overlapButton = Array.from(widgetContainer.querySelectorAll('button')).find(
+                            btn => btn.textContent && btn.textContent.includes('Overlap')
+                          );
+                          if (overlapButton) {
+                            (overlapButton as HTMLButtonElement).click();
+                          }
+                        }, 1200);
+                      }
+                    }, 500);
+                  }
+                }
+              }}
+              className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-3 rounded-md transition flex items-center justify-center gap-2 font-medium"
+            >
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="12" r="6" fill="rgba(255,255,255,0.7)" />
+                <circle cx="16" cy="12" r="6" fill="rgba(255,255,255,0.7)" />
+                <path d="M14 12a4 4 0 11-8 0 4 4 0 018 0z" fill="rgba(0,150,0,0.5)" />
+              </svg>
+              <span>Overlapp!</span>
+              <span className="text-xs ml-1 bg-green-500 rounded px-1">Analyze DIU</span>
+            </button>
           </div>
         </div>
       </section>
