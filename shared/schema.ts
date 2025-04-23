@@ -1,4 +1,4 @@
-import { pgTable, text, serial, jsonb, timestamp, integer, decimal, boolean, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, jsonb, timestamp, integer, decimal, boolean, primaryKey, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -302,6 +302,115 @@ export type InsertEntityContent = z.infer<typeof insertEntityContentSchema>;
 export type Entity = typeof entities.$inferSelect;
 export type EntityContent = typeof entityContent.$inferSelect;
 export type EntityWithContent = Entity & { content: EntityContent[] };
+
+// OverlapLite Widget Tables
+export const tenants = pgTable("tenants", {
+  id: serial("id").primaryKey(),
+  tenantId: uuid("tenant_id").notNull().defaultRandom().unique(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  logoUrl: text("logo_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  subscription: jsonb("subscription").$type<{
+    plan: string;
+    status: string;
+    currentPeriodEnd?: string;
+  }>(),
+  settings: jsonb("settings").$type<{
+    allowedDomains?: string[];
+    customCss?: string;
+    embedOptions?: {
+      position?: string;
+      theme?: string;
+    };
+  }>(),
+});
+
+export const tenantProfiles = pgTable("tenant_profiles", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").notNull().references(() => tenants.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  tags: text("tags").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const widgetSessions = pgTable("widget_sessions", {
+  id: serial("id").primaryKey(),
+  sessionId: uuid("session_id").notNull().defaultRandom().unique(),
+  tenantId: integer("tenant_id").notNull().references(() => tenants.id),
+  userId: integer("user_id").references(() => users.id),
+  score: integer("score"),
+  commonInterests: jsonb("common_interests").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  metadata: jsonb("metadata").$type<{
+    userAgent?: string;
+    ipAddress?: string;
+    referrer?: string;
+  }>(),
+  status: text("status").notNull().default("pending"), // pending, completed, error
+});
+
+export const widgetAnalytics = pgTable("widget_analytics", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").notNull().references(() => tenants.id),
+  eventType: text("event_type").notNull(), // view, scan, overlap_complete, click_to_chat
+  sessionId: uuid("session_id").references(() => widgetSessions.sessionId),
+  createdAt: timestamp("created_at").defaultNow(),
+  data: jsonb("data"),
+});
+
+// Insert schemas for OverlapLite Widget
+export const insertTenantSchema = createInsertSchema(tenants).pick({
+  name: true,
+  email: true,
+  password: true,
+  logoUrl: true,
+  settings: true,
+});
+
+export const insertTenantProfileSchema = createInsertSchema(tenantProfiles).pick({
+  tenantId: true,
+  name: true,
+  description: true,
+  tags: true,
+});
+
+export const insertWidgetSessionSchema = createInsertSchema(widgetSessions).pick({
+  tenantId: true,
+  userId: true,
+  score: true,
+  commonInterests: true,
+  metadata: true,
+  status: true,
+});
+
+export const insertWidgetAnalyticsSchema = createInsertSchema(widgetAnalytics).pick({
+  tenantId: true,
+  eventType: true, 
+  sessionId: true,
+  data: true,
+});
+
+// Types for OverlapLite Widget
+export type InsertTenant = z.infer<typeof insertTenantSchema>;
+export type InsertTenantProfile = z.infer<typeof insertTenantProfileSchema>;
+export type InsertWidgetSession = z.infer<typeof insertWidgetSessionSchema>;
+export type InsertWidgetAnalytics = z.infer<typeof insertWidgetAnalyticsSchema>;
+
+export type Tenant = typeof tenants.$inferSelect;
+export type TenantProfile = typeof tenantProfiles.$inferSelect;
+export type WidgetSession = typeof widgetSessions.$inferSelect;
+export type WidgetAnalytics = typeof widgetAnalytics.$inferSelect;
+
+export type TenantWithProfile = Tenant & { profile: TenantProfile };
+export type WidgetSessionWithDetails = WidgetSession & { tenant: Tenant, tenantProfile: TenantProfile };
 
 // Chat Tables
 export const conversations = pgTable("conversations", {
