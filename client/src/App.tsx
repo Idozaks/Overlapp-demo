@@ -8,8 +8,9 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
-import { DemoProvider } from "@/hooks/use-demo";
+import { DemoProvider, useDemo } from "@/hooks/use-demo";
 import NotFound from "@/pages/not-found";
+import AppHeader from "@/components/layout/Header2";
 import Home from "@/pages/Home";
 import Signup from "@/pages/auth/Signup";
 import Demo from "@/pages/Demo";
@@ -250,7 +251,7 @@ function Router() {
   );
 }
 
-function Header() {
+function OldHeader() {
   const { user, logoutMutation } = useAuth();
   const [, navigate] = useLocation();
 
@@ -451,7 +452,7 @@ function App() {
       <AuthProvider>
         <DemoProvider>
           <div className="min-h-screen">
-            <Header />
+            <AppHeader />
             <main>
               <Router />
             </main>
