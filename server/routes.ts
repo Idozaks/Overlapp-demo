@@ -2359,7 +2359,7 @@ Example response format:
   
   // Serve the embeddable widget script
   app.get("/widget/init.js", (_req: Request, res: Response) => {
-    const scriptPath = path.join(process.cwd(), 'client', 'dist', 'widget.js');
+    const scriptPath = path.join(process.cwd(), 'client', 'public', 'widget', 'init.js');
     
     // Check if the file exists
     if (fs.existsSync(scriptPath)) {
