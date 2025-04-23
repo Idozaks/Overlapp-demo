@@ -220,11 +220,11 @@
     widgetFrame.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
     widgetFrame.style.display = 'none';
     
-    // Set frame source based on demo mode
+    // Set frame source to the standalone widget HTML page
     if (widgetConfig.demoMode) {
-      widgetFrame.src = `${window.location.origin}/widget/demo?theme=${widgetConfig.theme}`;
+      widgetFrame.src = `${window.location.origin}/widget.html?demo=true&theme=${widgetConfig.theme}`;
     } else {
-      widgetFrame.src = `${window.location.origin}/widget?tenantId=${widgetConfig.tenantId}&theme=${widgetConfig.theme}`;
+      widgetFrame.src = `${window.location.origin}/widget.html?tenantId=${widgetConfig.tenantId}&theme=${widgetConfig.theme}`;
     }
     
     // Add iframe to container
