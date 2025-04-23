@@ -75,6 +75,9 @@ import ChatPage from "@/pages/chat"; // Import the Chat component
 import Animation from "./pages/Animation"; // Import the Animation component
 import MvpPromo from "@/pages/MvpPromo"; // Import the MVP Promotional page
 import { SimulationController } from "@/components/demo"; // Import the SimulationController component
+import DashboardPage from "@/pages/tenant-dashboard/DashboardPage"; // Import the Tenant Dashboard page
+import LoginPage from "@/pages/tenant-dashboard/LoginPage"; // Import the Tenant Login page
+import PreviewPage from "@/pages/tenant-dashboard/PreviewPage"; // Import the Widget Preview page
 
 
 function Router() {
@@ -225,6 +228,12 @@ function Router() {
       <Route path="/chat" component={ChatPage} />
       <Route path="/animation" component={Animation} />
       <Route path="/mvp-promo" component={MvpPromo} />
+      
+      {/* OverlapLite Widget Tenant Dashboard Routes */}
+      <Route path="/tenant/login" component={LoginPage} />
+      <Route path="/tenant/dashboard" component={DashboardPage} />
+      <Route path="/tenant/preview" component={PreviewPage} />
+      
       <Route component={NotFound} />
     </Switch>
   );
@@ -289,6 +298,9 @@ function Header() {
       </a>
       <a href="/mvp-promo" className="text-foreground hover:text-primary whitespace-nowrap flex items-center font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm">
         <Sparkles className="w-3 h-3 mr-1" /> MVP Promo
+      </a>
+      <a href="/tenant/login" className="text-foreground hover:text-primary whitespace-nowrap flex items-center font-semibold bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-3 py-1 rounded-full text-sm">
+        <RefreshCw className="w-3 h-3 mr-1" /> OverlapLite
       </a>
     </nav>
   );
