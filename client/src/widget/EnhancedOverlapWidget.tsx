@@ -159,7 +159,7 @@ const EnhancedOverlapWidget: React.FC<EnhancedOverlapWidgetProps> = ({
             'What kind of photography do you enjoy most?',
             'Read any good sci-fi books recently?',
             'What machine learning projects are you interested in?',
-            'What's your favorite hiking trail?'
+            'What\'s your favorite hiking trail?'
           ]
         };
         

@@ -78,6 +78,8 @@ import { SimulationController } from "@/components/demo"; // Import the Simulati
 import DashboardPage from "@/pages/tenant-dashboard/DashboardPage"; // Import the Tenant Dashboard page
 import LoginPage from "@/pages/tenant-dashboard/LoginPage"; // Import the Tenant Login page
 import PreviewPage from "@/pages/tenant-dashboard/PreviewPage"; // Import the Widget Preview page
+import SampleSitesPage from "@/pages/samples"; // Import the Sample Sites page
+import BookClubSamplePage from "@/pages/samples/bookclub"; // Import the BookClub sample site
 
 
 function Router() {
@@ -234,6 +236,10 @@ function Router() {
       <Route path="/tenant/dashboard" component={DashboardPage} />
       <Route path="/tenant/preview" component={PreviewPage} />
       
+      {/* Sample Websites for OverlapLite Demo */}
+      <Route path="/samples" component={SampleSitesPage} />
+      <Route path="/samples/bookclub" component={BookClubSamplePage} />
+      
       <Route component={NotFound} />
     </Switch>
   );
@@ -301,6 +307,9 @@ function Header() {
       </a>
       <a href="/tenant/login" className="text-foreground hover:text-primary whitespace-nowrap flex items-center font-semibold bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-3 py-1 rounded-full text-sm">
         <RefreshCw className="w-3 h-3 mr-1" /> OverlapLite
+      </a>
+      <a href="/samples" className="text-foreground hover:text-primary whitespace-nowrap flex items-center font-semibold bg-gradient-to-r from-green-500 to-teal-600 text-white px-3 py-1 rounded-full text-sm">
+        <Sparkles className="w-3 h-3 mr-1" /> Demo Sites
       </a>
     </nav>
   );
