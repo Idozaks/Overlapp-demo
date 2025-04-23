@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import QRCode from 'qrcode';
-import { 
-  X, 
-  Maximize2, 
-  ChevronUp, 
-  ChevronDown, 
-  RefreshCw, 
-  MessageCircle, 
-  Share2, 
-  Percent 
-} from 'lucide-react';
+import { X, ChevronDown, QrCode, Sparkles, MessageCircle, ArrowRight } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
 
+/**
+ * The OverlapWidget component is the main widget that renders in an iframe or via script
+ * It shows a button that expands to display a QR code for overlap analysis
+ */
 interface OverlapWidgetProps {
   tenantId: string;
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
@@ -19,419 +13,447 @@ interface OverlapWidgetProps {
   onClose?: () => void;
 }
 
-interface TenantProfile {
-  id: number;
-  name: string;
-  description?: string;
-  tags: string[];
+type WidgetState = 'closed' | 'minimized' | 'qr-display' | 'overlap-results' | 'chat';
+
+interface OverlapResults {
+  score: number;
+  commonInterests: string[];
+  percentageMatch: number;
+  recommendedConversationStarters: string[];
 }
 
-interface WidgetSession {
-  id: number;
-  sessionId: string;
-  score: number | null;
-  commonInterests: string[] | null;
-  status: 'pending' | 'completed' | 'error';
-}
+const positionClasses = {
+  'bottom-right': 'bottom-4 right-4',
+  'bottom-left': 'bottom-4 left-4',
+  'top-right': 'top-4 right-4',
+  'top-left': 'top-4 left-4',
+};
 
-enum WidgetStep {
-  CLOSED = 'closed',
-  MINIMIZED = 'minimized',
-  QR_SCAN = 'qr_scan',
-  LOADING = 'loading',
-  RESULTS = 'results',
-}
-
-const OverlapWidget: React.FC<OverlapWidgetProps> = ({ 
-  tenantId, 
-  position = 'bottom-right', 
+const OverlapWidget: React.FC<OverlapWidgetProps> = ({
+  tenantId,
+  position = 'bottom-right',
   theme = 'light',
-  onClose
+  onClose,
 }) => {
-  const [step, setStep] = useState<WidgetStep>(WidgetStep.MINIMIZED);
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-  const [tenantProfile, setTenantProfile] = useState<TenantProfile | null>(null);
-  const [session, setSession] = useState<WidgetSession | null>(null);
+  const [widgetState, setWidgetState] = useState<WidgetState>('closed');
+  const [sessionId, setSessionId] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [tenantProfile, setTenantProfile] = useState<any>(null);
+  const [overlapResults, setOverlapResults] = useState<OverlapResults | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
-  const isDark = theme === 'dark';
+  // Position classes based on position prop
+  const positionClass = positionClasses[position];
   
-  // Position classes
-  const positionClasses = {
-    'bottom-right': 'bottom-4 right-4',
-    'bottom-left': 'bottom-4 left-4',
-    'top-right': 'top-4 right-4',
-    'top-left': 'top-4 left-4',
-  }[position];
-
-  // Theme classes
-  const themeClasses = isDark 
-    ? 'bg-gray-900 text-white border-gray-700' 
-    : 'bg-white text-gray-900 border-gray-200';
-
-  // Track view event when widget is first displayed
+  // Use system theme if theme is set to 'system'
+  const [effectiveTheme, setEffectiveTheme] = useState(theme);
+  
   useEffect(() => {
-    if (step === WidgetStep.MINIMIZED) {
-      // Track view event
-      trackEvent('view');
+    if (theme === 'system') {
+      const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setEffectiveTheme(isDarkMode ? 'dark' : 'light');
+      
+      // Listen for theme changes
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e: MediaQueryListEvent) => {
+        setEffectiveTheme(e.matches ? 'dark' : 'light');
+      };
+      
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } else {
+      setEffectiveTheme(theme);
     }
-  }, []);
+  }, [theme]);
 
-  // Load tenant profile when widget is mounted
+  // Initialize widget and track view
   useEffect(() => {
-    const fetchTenantProfile = async () => {
+    const initialize = async () => {
       try {
-        const response = await axios.get(`/api/widget/tenant/${tenantId}/profile`);
-        setTenantProfile(response.data);
-      } catch (error) {
-        console.error('Failed to fetch tenant profile:', error);
-        setError('Failed to load community profile');
+        // Track widget view
+        const response = await apiRequest('POST', '/api/widget/track', {
+          tenantId,
+          eventType: 'view',
+          metadata: {
+            userAgent: navigator.userAgent,
+            referrer: document.referrer,
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setSessionId(data.sessionId);
+        }
+        
+        // Fetch tenant profile
+        const profileResponse = await apiRequest('GET', `/api/widget/tenant/profile/${tenantId}`);
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json();
+          setTenantProfile(profileData);
+        } else {
+          setError('Could not load community profile');
+        }
+      } catch (err) {
+        console.error('Error initializing widget:', err);
+        setError('Failed to initialize widget');
       }
     };
-
-    fetchTenantProfile();
+    
+    if (tenantId) {
+      initialize();
+    }
   }, [tenantId]);
 
-  // Generate QR code when showing the scan step
-  useEffect(() => {
-    if (step === WidgetStep.QR_SCAN) {
-      generateQrCode();
-    }
-  }, [step]);
-
-  // Polling for session status
-  useEffect(() => {
-    // Clean up polling on unmount
-    return () => {
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-      }
-    };
-  }, [pollingInterval]);
-
-  const generateQrCode = async () => {
-    try {
-      // Create a new session
-      const sessionResponse = await axios.post(`/api/widget/session`, { tenantId });
-      const newSession = sessionResponse.data;
-      setSession(newSession);
-      
-      // Generate QR code URL
-      const scanUrl = `${window.location.origin}/overlap/${newSession.sessionId}`;
-      const qrCode = await QRCode.toDataURL(scanUrl, {
-        errorCorrectionLevel: 'H',
-        margin: 1,
-        width: 200,
-        color: {
-          dark: isDark ? '#FFFFFF' : '#000000',
-          light: isDark ? '#222222' : '#FFFFFF',
-        },
-      });
-      
-      setQrCodeUrl(qrCode);
-      
-      // Track scan event
-      trackEvent('scan', { sessionId: newSession.sessionId });
-      
-      // Start polling for session updates
-      const interval = setInterval(() => {
-        checkSessionStatus(newSession.sessionId);
-      }, 3000);
-      
-      setPollingInterval(interval);
-    } catch (error) {
-      console.error('Failed to generate QR code:', error);
-      setError('Failed to generate QR code');
-      setStep(WidgetStep.MINIMIZED);
+  // Toggle widget open/closed
+  const toggleWidget = () => {
+    if (widgetState === 'closed') {
+      setWidgetState('qr-display');
+      // Track widget open event
+      trackEvent('open');
+    } else {
+      setWidgetState('closed');
     }
   };
-
-  const checkSessionStatus = async (sessionId: string) => {
-    try {
-      const response = await axios.get(`/api/widget/session/${sessionId}`);
-      const updatedSession = response.data;
-      
-      setSession(updatedSession);
-      
-      if (updatedSession.status === 'completed') {
-        // Stop polling
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          setPollingInterval(null);
-        }
-        
-        // Show results
-        setStep(WidgetStep.RESULTS);
-        
-        // Track overlap complete event
-        trackEvent('overlap_complete', { 
-          sessionId: sessionId,
-          score: updatedSession.score,
-          commonInterestsCount: updatedSession.commonInterests?.length || 0,
-        });
-      } else if (updatedSession.status === 'error') {
-        // Stop polling
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          setPollingInterval(null);
-        }
-        
-        setError('An error occurred while processing your request');
-        setStep(WidgetStep.QR_SCAN);
-      }
-    } catch (error) {
-      console.error('Failed to check session status:', error);
-    }
+  
+  // Minimize widget
+  const minimizeWidget = () => {
+    setWidgetState('minimized');
+    trackEvent('minimize');
   };
-
-  const handleChatClick = () => {
-    // Track chat click event
-    if (session) {
-      trackEvent('click_to_chat', { sessionId: session.sessionId });
-    }
-    
-    // Open chat in new window
-    if (session) {
-      window.open(`/chat/session/${session.sessionId}`, '_blank');
-    }
+  
+  // Expand minimized widget
+  const expandWidget = () => {
+    setWidgetState('qr-display');
+    trackEvent('expand');
   };
-
-  const trackEvent = async (eventType: string, data: any = {}) => {
+  
+  // Close widget completely
+  const closeWidget = () => {
+    setWidgetState('closed');
+    if (onClose) onClose();
+  };
+  
+  // Track events
+  const trackEvent = async (eventType: string) => {
     try {
-      await axios.post(`/api/widget/analytics`, {
+      await apiRequest('POST', '/api/widget/track', {
         tenantId,
+        sessionId,
         eventType,
-        sessionId: session?.sessionId,
-        data
       });
-    } catch (error) {
-      console.error('Failed to track event:', error);
+    } catch (err) {
+      console.error('Error tracking event:', err);
     }
   };
+  
+  // Simulate QR code scan (in a real app, this would be triggered by actual QR scan)
+  const simulateScan = async () => {
+    setLoading(true);
+    trackEvent('scan');
+    
+    try {
+      // Simulate API call to get overlap results
+      setTimeout(() => {
+        // Mock results - in a real implementation this would come from the server
+        setOverlapResults({
+          score: 65,
+          percentageMatch: 65,
+          commonInterests: ['Technology', 'Reading', 'Travel', 'Photography'],
+          recommendedConversationStarters: [
+            'What kind of photography do you enjoy most?',
+            'Have you read any interesting books lately?',
+            'What travel destinations are on your bucket list?'
+          ]
+        });
+        setWidgetState('overlap-results');
+        setLoading(false);
+        trackEvent('overlap_complete');
+      }, 2000);
+    } catch (err) {
+      console.error('Error getting overlap results:', err);
+      setError('Failed to process overlap results');
+      setLoading(false);
+    }
+  };
+  
+  // Start chat
+  const startChat = () => {
+    setWidgetState('chat');
+    trackEvent('click_to_chat');
+  };
 
-  const getWidgetContent = () => {
-    switch (step) {
-      case WidgetStep.MINIMIZED:
+  // Widget button
+  const renderWidgetButton = () => (
+    <button
+      onClick={toggleWidget}
+      className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center ${
+        effectiveTheme === 'dark' ? 'bg-slate-800 text-white' : 'bg-blue-600 text-white'
+      }`}
+      aria-label="Open Overlap Widget"
+    >
+      <Sparkles className="w-6 h-6" />
+    </button>
+  );
+
+  // Widget container with content based on state
+  const renderWidgetContainer = () => {
+    const containerClasses = `rounded-lg shadow-xl overflow-hidden transition-all duration-300 ease-in-out ${
+      effectiveTheme === 'dark' 
+        ? 'bg-slate-900 text-white border border-gray-700' 
+        : 'bg-white text-slate-900 border border-gray-200'
+    }`;
+
+    switch (widgetState) {
+      case 'minimized':
         return (
           <div 
-            className="flex items-center justify-center cursor-pointer w-full h-full"
-            onClick={() => setStep(WidgetStep.QR_SCAN)}
+            className={`${containerClasses} w-14 h-14 flex items-center justify-center cursor-pointer`}
+            onClick={expandWidget}
           >
-            <div className="flex items-center gap-2">
-              <RefreshCw className="w-5 h-5" />
-              <span className="font-medium">Find Your Overlapp</span>
-              <ChevronUp className="w-4 h-4" />
-            </div>
+            <ChevronDown className="w-6 h-6" />
           </div>
         );
-        
-      case WidgetStep.QR_SCAN:
+
+      case 'qr-display':
         return (
-          <div className="p-4 flex flex-col items-center">
-            <div className="relative w-full">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">
-                  {tenantProfile?.name || 'Community Overlap'}
-                </h3>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setStep(WidgetStep.MINIMIZED)} 
-                    className={`p-1 rounded-full hover:bg-gray-200 ${isDark ? 'hover:bg-gray-700' : ''}`}
-                  >
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => { onClose?.(); setStep(WidgetStep.CLOSED); }} 
-                    className={`p-1 rounded-full hover:bg-gray-200 ${isDark ? 'hover:bg-gray-700' : ''}`}
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
+          <div className={`${containerClasses} w-80 max-w-full`}>
+            <div className="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-blue-500" />
+                <h3 className="font-semibold">OverlapLite</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={minimizeWidget}
+                  className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Minimize"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={closeWidget}
+                  className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
             
-            {tenantProfile && (
-              <div className="mb-4 text-center">
-                <p className="text-sm mb-2">
-                  {tenantProfile.description || `Scan to discover how you overlap with ${tenantProfile.name}`}
+            <div className="p-4">
+              <div className="text-center mb-4">
+                <h4 className="font-medium text-lg mb-1">
+                  {tenantProfile?.name || 'Community Profile'}
+                </h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {tenantProfile?.description || 'Scan to discover your overlap'}
                 </p>
-                <div className="flex flex-wrap gap-1 justify-center mt-2">
-                  {tenantProfile.tags.slice(0, 5).map((tag, index) => (
-                    <span 
-                      key={index} 
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        isDark ? 'bg-gray-700' : 'bg-gray-100'
-                      }`}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  {tenantProfile.tags.length > 5 && (
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      isDark ? 'bg-gray-700' : 'bg-gray-100'
-                    }`}>
-                      +{tenantProfile.tags.length - 5} more
-                    </span>
-                  )}
+              </div>
+              
+              {error ? (
+                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-red-600 dark:text-red-400 text-center">
+                  {error}
                 </div>
-              </div>
-            )}
-            
-            {error && (
-              <div className="mb-4 p-2 bg-red-100 text-red-600 rounded-md text-sm">
-                {error}
-              </div>
-            )}
-            
-            <div className="bg-white p-2 rounded-md mb-4">
-              {qrCodeUrl ? (
-                <img src={qrCodeUrl} alt="Scan QR Code" width={200} height={200} />
+              ) : loading ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+                  <p>Analyzing overlap...</p>
+                </div>
               ) : (
-                <div className="w-[200px] h-[200px] flex items-center justify-center">
-                  <RefreshCw className="w-8 h-8 animate-spin" />
+                <div className="flex flex-col items-center">
+                  <div className="bg-white p-2 rounded-lg mb-4">
+                    <div className="border border-gray-200 rounded overflow-hidden">
+                      {/* Placeholder for actual QR code */}
+                      <div className="w-48 h-48 grid grid-cols-6 grid-rows-6 gap-0 bg-white p-2">
+                        <div className="col-span-2 row-span-2 bg-black rounded-tl-lg"></div>
+                        <div className="col-span-2 row-span-2 col-start-5 bg-black rounded-tr-lg"></div>
+                        <div className="col-span-2 row-span-2 row-start-5 bg-black rounded-bl-lg"></div>
+                        <div className="row-start-3 col-start-3 col-span-2 row-span-2 bg-black"></div>
+                        <div className="row-start-2 col-start-2 col-span-1 row-span-1 bg-black"></div>
+                        <div className="row-start-5 col-start-5 col-span-1 row-span-1 bg-black"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-center mb-4">
+                    Scan this QR code with your camera to discover your overlap with our community
+                  </p>
+                  {/* For demo purposes, add a simulate button */}
+                  <button
+                    onClick={simulateScan}
+                    className={`px-4 py-2 rounded-md flex items-center gap-2 ${
+                      effectiveTheme === 'dark' 
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
+                  >
+                    <QrCode className="w-4 h-4" />
+                    Simulate Scan
+                  </button>
                 </div>
               )}
             </div>
-            
-            <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>
-              Scan with your phone camera to connect
-            </p>
           </div>
         );
+
+      case 'overlap-results':
+        if (!overlapResults) return null;
         
-      case WidgetStep.LOADING:
         return (
-          <div className="p-6 flex flex-col items-center">
-            <div className="flex justify-between items-center w-full mb-6">
-              <h3 className="text-lg font-semibold">
-                Analyzing Overlapp...
-              </h3>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setStep(WidgetStep.MINIMIZED)} 
-                  className={`p-1 rounded-full hover:bg-gray-200 ${isDark ? 'hover:bg-gray-700' : ''}`}
+          <div className={`${containerClasses} w-80 max-w-full`}>
+            <div className="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-blue-500" />
+                <h3 className="font-semibold">Your Results</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={minimizeWidget}
+                  className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Minimize"
                 >
                   <ChevronDown className="w-4 h-4" />
                 </button>
-                <button 
-                  onClick={() => { onClose?.(); setStep(WidgetStep.CLOSED); }} 
-                  className={`p-1 rounded-full hover:bg-gray-200 ${isDark ? 'hover:bg-gray-700' : ''}`}
+                <button
+                  onClick={closeWidget}
+                  className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Close"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
             
-            <RefreshCw className="w-12 h-12 animate-spin mb-4" />
-            <p className="text-center mb-2">Finding your shared interests...</p>
-            <p className="text-sm text-center text-gray-500">This may take a moment</p>
-          </div>
-        );
-        
-      case WidgetStep.RESULTS:
-        return (
-          <div className="p-4 flex flex-col">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">
-                Your Overlapp Results
-              </h3>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setStep(WidgetStep.MINIMIZED)} 
-                  className={`p-1 rounded-full hover:bg-gray-200 ${isDark ? 'hover:bg-gray-700' : ''}`}
-                >
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => { onClose?.(); setStep(WidgetStep.CLOSED); }} 
-                  className={`p-1 rounded-full hover:bg-gray-200 ${isDark ? 'hover:bg-gray-700' : ''}`}
-                >
-                  <X className="w-4 h-4" />
-                </button>
+            <div className="p-4">
+              <div className="text-center mb-6">
+                <div className="mb-3">
+                  <span className="inline-block w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    {overlapResults.percentageMatch}%
+                  </span>
+                </div>
+                <h4 className="font-medium text-lg">
+                  You & {tenantProfile?.name || 'this community'}
+                </h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Your shared interests
+                </p>
               </div>
-            </div>
-            
-            <div className="flex items-center justify-center mb-6">
-              <div className={`
-                w-32 h-32 rounded-full flex items-center justify-center
-                text-3xl font-bold border-4 
-                ${session?.score && session.score > 70 
-                  ? 'border-green-500 text-green-600' 
-                  : session?.score && session.score > 40 
-                    ? 'border-yellow-500 text-yellow-600' 
-                    : 'border-blue-500 text-blue-600'
-                }
-              `}>
-                {session?.score || 0}%
-              </div>
-            </div>
-            
-            <div className="mb-4">
-              <h4 className="font-medium mb-2">Shared Interests</h4>
-              <div className="flex flex-wrap gap-2">
-                {session?.commonInterests && session.commonInterests.length > 0 ? (
-                  session.commonInterests.map((interest, index) => (
+              
+              <div className="mb-4">
+                <h5 className="font-medium mb-2">Common Interests:</h5>
+                <div className="flex flex-wrap gap-2">
+                  {overlapResults.commonInterests.map((interest, index) => (
                     <span 
-                      key={index} 
-                      className={`px-2 py-1 rounded-full text-sm ${
-                        isDark ? 'bg-gray-700' : 'bg-gray-100'
-                      }`}
+                      key={index}
+                      className="px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300"
                     >
                       {interest}
                     </span>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500">No common interests found</p>
-                )}
+                  ))}
+                </div>
               </div>
-            </div>
-            
-            <div className="flex gap-2">
-              <button 
-                onClick={handleChatClick} 
-                className={`
-                  flex-1 py-2 px-4 rounded-md flex items-center justify-center gap-2
-                  ${isDark 
+              
+              <div className="mb-6">
+                <h5 className="font-medium mb-2">Conversation Starters:</h5>
+                <ul className="space-y-2">
+                  {overlapResults.recommendedConversationStarters.map((starter, index) => (
+                    <li key={index} className="text-sm pl-4 relative">
+                      <span className="absolute left-0 top-1.5 w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                      {starter}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <button
+                onClick={startChat}
+                className={`w-full py-2 rounded-md flex items-center justify-center gap-2 ${
+                  effectiveTheme === 'dark' 
                     ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                    : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }
-                `}
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
               >
                 <MessageCircle className="w-4 h-4" />
-                Start Chat
-              </button>
-              <button 
-                onClick={() => setStep(WidgetStep.QR_SCAN)} 
-                className={`
-                  py-2 px-3 rounded-md flex items-center justify-center
-                  ${isDark 
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-                    : 'border border-gray-300 hover:bg-gray-100'
-                  }
-                `}
-              >
-                <RefreshCw className="w-4 h-4" />
+                Start Conversation
               </button>
             </div>
           </div>
         );
-        
+
+      case 'chat':
+        return (
+          <div className={`${containerClasses} w-80 max-w-full h-96 flex flex-col`}>
+            <div className="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5 text-blue-500" />
+                <h3 className="font-semibold">Chat</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={minimizeWidget}
+                  className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Minimize"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={closeWidget}
+                  className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex-1 p-4 overflow-y-auto">
+              <div className="flex flex-col gap-3">
+                <div className="max-w-[75%] p-3 rounded-lg bg-gray-100 dark:bg-gray-800 self-start">
+                  <p className="text-sm">
+                    Hi there! I noticed we both share an interest in photography. What kind of photos do you like to take?
+                  </p>
+                </div>
+                
+                <div className="max-w-[75%] p-3 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 self-end">
+                  <p className="text-sm">
+                    Hello! I mostly enjoy landscape and street photography. How about you?
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Type a message..."
+                  className={`flex-1 px-3 py-2 text-sm rounded-md outline-none ${
+                    effectiveTheme === 'dark'
+                      ? 'bg-gray-800 border-gray-700 focus:border-blue-500'
+                      : 'bg-gray-50 border-gray-200 focus:border-blue-500'
+                  } border`}
+                />
+                <button
+                  className={`p-2 rounded-md ${
+                    effectiveTheme === 'dark'
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
   };
 
-  if (step === WidgetStep.CLOSED) {
-    return null;
-  }
-
   return (
-    <div 
-      className={`fixed ${positionClasses} z-50 shadow-lg rounded-lg border ${themeClasses} transition-all duration-300 ease-in-out overflow-hidden
-        ${step === WidgetStep.MINIMIZED ? 'w-60 h-12' : 'w-80'}`}
-    >
-      {getWidgetContent()}
+    <div className={`fixed z-[9999] ${positionClass} transition-all duration-300 ease-in-out`} data-widget-id={tenantId}>
+      {widgetState === 'closed' ? renderWidgetButton() : renderWidgetContainer()}
     </div>
   );
 };
