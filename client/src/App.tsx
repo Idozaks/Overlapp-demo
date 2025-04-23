@@ -241,6 +241,10 @@ function Router() {
       <Route path="/samples" component={SampleSitesPage} />
       <Route path="/samples/bookclub" component={BookClubSamplePage} />
       
+      {/* Widget Routes */}
+      <Route path="/widget" component={lazy(() => import("@/pages/widget/WidgetPage"))} />
+      <Route path="/widget/demo" component={lazy(() => import("@/pages/widget/DemoPage"))} />
+      
       <Route component={NotFound} />
     </Switch>
   );

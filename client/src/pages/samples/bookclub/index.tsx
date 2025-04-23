@@ -3,6 +3,30 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 import { BookOpen, ArrowLeft, Calendar, Users, MessageSquare, FileText } from 'lucide-react';
 
+// Define the interface for the OverlapWidget global object
+interface OverlapWidgetOptions {
+  tenantId: string;
+  position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  theme: 'light' | 'dark';
+  demoMode?: boolean;
+}
+
+interface OverlapWidget {
+  init: (options: OverlapWidgetOptions) => void;
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
+  simulateScan: (userId?: number) => void;
+  analyzeOverlap: () => void;
+}
+
+// Extend Window interface to include OverlapWidget
+declare global {
+  interface Window {
+    OverlapWidget?: OverlapWidget;
+  }
+}
+
 /**
  * BookClub Community Sample Website
  * 
@@ -226,32 +250,21 @@ const BookClubSamplePage: React.FC = () => {
             
             <button 
               onClick={() => {
-                // Find the widget container and trigger the overlap button
-                const widgetContainer = document.getElementById('overlapp-widget-container');
-                if (widgetContainer) {
-                  // First find and click the QR code button to open the widget
-                  const qrButton = widgetContainer.querySelector('button[aria-label="Open Overlap Widget"]');
-                  if (qrButton) {
-                    (qrButton as HTMLButtonElement).click();
+                if (window.OverlapWidget) {
+                  // Open the widget
+                  window.OverlapWidget.open();
+                  
+                  // Give it a bit of time to load, then simulate QR scan
+                  setTimeout(() => {
+                    window.OverlapWidget.simulateScan();
                     
-                    // Set a short timeout to allow widget to initialize and then find and click the simulate scan button
+                    // After scan simulation, analyze the overlap
                     setTimeout(() => {
-                      const scanButton = widgetContainer.querySelector('button:not([aria-label])');
-                      if (scanButton) {
-                        (scanButton as HTMLButtonElement).click();
-                        
-                        // After scan simulation, find and click the Overlap! button
-                        setTimeout(() => {
-                          const overlapButton = Array.from(widgetContainer.querySelectorAll('button')).find(
-                            btn => btn.textContent && btn.textContent.includes('Overlap')
-                          );
-                          if (overlapButton) {
-                            (overlapButton as HTMLButtonElement).click();
-                          }
-                        }, 1200);
-                      }
-                    }, 500);
-                  }
+                      window.OverlapWidget.analyzeOverlap();
+                    }, 1000);
+                  }, 500);
+                } else {
+                  console.error("OverlapWidget not found. Make sure widget/init.js is loaded properly.");
                 }
               }}
               className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-3 rounded-md transition flex items-center justify-center gap-2 font-medium"
