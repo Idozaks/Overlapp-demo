@@ -1901,53 +1901,67 @@ Example response format:
   // Tenant Authentication
   app.post("/api/widget/tenant/register", async (req: Request, res: Response) => {
     try {
+      log("Received tenant registration request:", JSON.stringify(req.body, null, 2));
       const { name, email, password, logoUrl } = req.body;
       
       if (!name || !email || !password) {
+        log("Missing required fields for tenant registration");
         return res.status(400).json({ message: "Name, email, and password are required" });
       }
       
       // Check if tenant with the email already exists
       const existingTenant = await storage.getTenantByEmail(email);
       if (existingTenant) {
+        log(`Email ${email} already registered for a tenant`);
         return res.status(400).json({ message: "Email already registered" });
       }
       
       // Hash the password
-      const hashedPassword = await hashPassword(password);
-      
-      // Create tenant
-      const tenant = await storage.createTenant({
-        name,
-        email,
-        password: hashedPassword,
-        logoUrl,
-        settings: {
-          allowedDomains: [],
-          embedOptions: {
-            position: "bottom-right",
-            theme: "light"
+      try {
+        const hashedPassword = await hashPassword(password);
+        
+        // Create tenant with basic settings
+        log("Creating new tenant record:", { name, email });
+        const tenant = await storage.createTenant({
+          name,
+          email,
+          password: hashedPassword,
+          logoUrl: logoUrl || null,
+          settings: {
+            allowedDomains: [],
+            embedOptions: {
+              position: "bottom-right",
+              theme: "light"
+            }
           }
-        }
-      });
-      
-      // Create empty tenant profile
-      await storage.createTenantProfile({
-        tenantId: tenant.id,
-        name: tenant.name,
-        description: "",
-        tags: []
-      });
-      
-      res.status(201).json({
-        id: tenant.id,
-        tenantId: tenant.tenantId,
-        name: tenant.name,
-        email: tenant.email
-      });
+        });
+        
+        // Create empty tenant profile
+        log(`Creating tenant profile for tenant ID: ${tenant.id}`);
+        await storage.createTenantProfile({
+          tenantId: tenant.id,
+          name: tenant.name,
+          description: "",
+          tags: []
+        });
+        
+        // Send successful response with tenant details
+        log(`Tenant registration successful for: ${name} (${email})`);
+        res.status(201).json({
+          id: tenant.id,
+          tenantId: tenant.tenantId,
+          name: tenant.name,
+          email: tenant.email
+        });
+      } catch (hashError) {
+        log("Password hashing error:", hashError instanceof Error ? hashError.message : String(hashError));
+        return res.status(500).json({ message: "Error processing password" });
+      }
     } catch (error) {
-      log("Error registering tenant:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Tenant registration failed" });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log("Error registering tenant:", errorMessage);
+      log("Error details:", error);
+      res.status(500).json({ message: "Tenant registration failed", error: errorMessage });
     }
   });
   
