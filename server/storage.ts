@@ -98,6 +98,39 @@ export interface IStorage {
   addEntityContent(content: InsertEntityContent): Promise<EntityContent>;
   deleteEntity(id: number): Promise<void>;
   
+  // OverlapLite Widget operations
+  // Tenant operations
+  createTenant(tenant: InsertTenant): Promise<Tenant>;
+  getTenant(id: number): Promise<Tenant | undefined>;
+  getTenantByEmail(email: string): Promise<Tenant | undefined>;
+  getTenantByTenantId(tenantId: string): Promise<Tenant | undefined>;
+  getAllTenants(): Promise<Tenant[]>;
+  updateTenant(id: number, data: Partial<InsertTenant>): Promise<Tenant>;
+  deleteTenant(id: number): Promise<void>;
+  validateTenantCredentials(email: string, password: string): Promise<Tenant | null>;
+  updateTenantStripeInfo(tenantId: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<Tenant>;
+  
+  // Tenant Profile operations
+  createTenantProfile(profile: InsertTenantProfile): Promise<TenantProfile>;
+  getTenantProfile(tenantId: number): Promise<TenantProfile | undefined>;
+  updateTenantProfile(id: number, data: Partial<InsertTenantProfile>): Promise<TenantProfile>;
+  getTenantWithProfile(tenantId: number): Promise<TenantWithProfile | undefined>;
+  
+  // Widget Session operations
+  createWidgetSession(session: InsertWidgetSession): Promise<WidgetSession>;
+  getWidgetSession(id: number): Promise<WidgetSession | undefined>;
+  getWidgetSessionBySessionId(sessionId: string): Promise<WidgetSession | undefined>;
+  updateWidgetSession(id: number, data: Partial<InsertWidgetSession>): Promise<WidgetSession>;
+  getWidgetSessionsForTenant(tenantId: number): Promise<WidgetSession[]>;
+  
+  // Widget Analytics operations
+  trackWidgetEvent(analytics: InsertWidgetAnalytics): Promise<WidgetAnalytics>;
+  getWidgetAnalyticsForTenant(tenantId: number): Promise<WidgetAnalytics[]>;
+  getWidgetAnalyticsByEventType(tenantId: number, eventType: string): Promise<WidgetAnalytics[]>;
+  
+  // Overlap calculation 
+  calculateOverlap(userId: number, tenantId: number): Promise<{ score: number, commonInterests: string[] }>;
+  
   // Chat operations
   // Conversation operations
   createConversation(conversation: InsertConversation): Promise<Conversation>;
@@ -426,6 +459,420 @@ export class DatabaseStorage implements IStorage {
       return aiUser;
     } catch (error) {
       log("Error getting/creating AI user:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  // OverlapLite Widget Implementation
+  
+  // Tenant operations
+  async createTenant(tenant: InsertTenant): Promise<Tenant> {
+    try {
+      storageLog("createTenant", { tenant: { ...tenant, password: "[REDACTED]" } });
+      
+      const [newTenant] = await db
+        .insert(tenants)
+        .values({
+          name: tenant.name,
+          email: tenant.email,
+          password: tenant.password,
+          logoUrl: tenant.logoUrl,
+          settings: tenant.settings || {}
+        })
+        .returning();
+      
+      return newTenant;
+    } catch (error) {
+      log("Error creating tenant:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getTenant(id: number): Promise<Tenant | undefined> {
+    try {
+      const [tenant] = await db.select().from(tenants).where(eq(tenants.id, id));
+      return tenant;
+    } catch (error) {
+      log(`Error getting tenant by ID ${id}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getTenantByEmail(email: string): Promise<Tenant | undefined> {
+    try {
+      const [tenant] = await db.select().from(tenants).where(eq(tenants.email, email));
+      return tenant;
+    } catch (error) {
+      log(`Error getting tenant by email ${email}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getTenantByTenantId(tenantId: string): Promise<Tenant | undefined> {
+    try {
+      const [tenant] = await db.select().from(tenants).where(eq(tenants.tenantId, tenantId));
+      return tenant;
+    } catch (error) {
+      log(`Error getting tenant by tenant ID ${tenantId}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getAllTenants(): Promise<Tenant[]> {
+    try {
+      return await db.select().from(tenants);
+    } catch (error) {
+      log("Error getting all tenants:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async updateTenant(id: number, data: Partial<InsertTenant>): Promise<Tenant> {
+    try {
+      storageLog("updateTenant", { id, data: { ...data, password: data.password ? "[REDACTED]" : undefined } });
+      
+      const updateData: any = { ...data };
+      delete updateData.email; // Don't allow email to be updated as it's used for authentication
+      
+      if (data.settings) {
+        updateData.settings = data.settings;
+      }
+      
+      const [updatedTenant] = await db
+        .update(tenants)
+        .set({
+          ...updateData,
+          updatedAt: new Date()
+        })
+        .where(eq(tenants.id, id))
+        .returning();
+      
+      if (!updatedTenant) {
+        throw new Error(`Tenant with ID ${id} not found`);
+      }
+      
+      return updatedTenant;
+    } catch (error) {
+      log(`Error updating tenant ${id}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async deleteTenant(id: number): Promise<void> {
+    try {
+      await db.transaction(async (tx) => {
+        // Delete related tenant profile
+        await tx.delete(tenantProfiles).where(eq(tenantProfiles.tenantId, id));
+        
+        // Delete widget analytics
+        await tx.delete(widgetAnalytics).where(eq(widgetAnalytics.tenantId, id));
+        
+        // Delete widget sessions
+        await tx.delete(widgetSessions).where(eq(widgetSessions.tenantId, id));
+        
+        // Delete tenant
+        await tx.delete(tenants).where(eq(tenants.id, id));
+      });
+    } catch (error) {
+      log(`Error deleting tenant ${id}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async validateTenantCredentials(email: string, password: string): Promise<Tenant | null> {
+    try {
+      const tenant = await this.getTenantByEmail(email);
+      if (!tenant) {
+        log(`Tenant not found with email: ${email}`);
+        return null;
+      }
+      
+      // Password comparison will be done in tenant auth logic
+      return tenant;
+    } catch (error) {
+      log(`Error validating tenant credentials:`, error instanceof Error ? error.message : String(error));
+      return null;
+    }
+  }
+  
+  async updateTenantStripeInfo(tenantId: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<Tenant> {
+    try {
+      const [updatedTenant] = await db
+        .update(tenants)
+        .set({
+          stripeCustomerId,
+          ...(stripeSubscriptionId ? { stripeSubscriptionId } : {}),
+          updatedAt: new Date()
+        })
+        .where(eq(tenants.id, tenantId))
+        .returning();
+      
+      if (!updatedTenant) {
+        throw new Error(`Tenant with ID ${tenantId} not found`);
+      }
+      
+      return updatedTenant;
+    } catch (error) {
+      log(`Error updating tenant stripe info:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  // Tenant Profile operations
+  async createTenantProfile(profile: InsertTenantProfile): Promise<TenantProfile> {
+    try {
+      storageLog("createTenantProfile", { profile });
+      
+      const [newProfile] = await db
+        .insert(tenantProfiles)
+        .values({
+          tenantId: profile.tenantId,
+          name: profile.name,
+          description: profile.description,
+          tags: profile.tags || []
+        })
+        .returning();
+      
+      return newProfile;
+    } catch (error) {
+      log("Error creating tenant profile:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getTenantProfile(tenantId: number): Promise<TenantProfile | undefined> {
+    try {
+      const [profile] = await db
+        .select()
+        .from(tenantProfiles)
+        .where(eq(tenantProfiles.tenantId, tenantId));
+      
+      return profile;
+    } catch (error) {
+      log(`Error getting tenant profile for tenant ${tenantId}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async updateTenantProfile(id: number, data: Partial<InsertTenantProfile>): Promise<TenantProfile> {
+    try {
+      storageLog("updateTenantProfile", { id, data });
+      
+      const [updatedProfile] = await db
+        .update(tenantProfiles)
+        .set({
+          ...data,
+          updatedAt: new Date()
+        })
+        .where(eq(tenantProfiles.id, id))
+        .returning();
+      
+      if (!updatedProfile) {
+        throw new Error(`Tenant profile with ID ${id} not found`);
+      }
+      
+      return updatedProfile;
+    } catch (error) {
+      log(`Error updating tenant profile ${id}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getTenantWithProfile(tenantId: number): Promise<TenantWithProfile | undefined> {
+    try {
+      const tenant = await this.getTenant(tenantId);
+      if (!tenant) return undefined;
+      
+      const profile = await this.getTenantProfile(tenantId);
+      if (!profile) return undefined;
+      
+      return {
+        ...tenant,
+        profile
+      };
+    } catch (error) {
+      log(`Error getting tenant with profile for tenant ${tenantId}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  // Widget Session operations
+  async createWidgetSession(session: InsertWidgetSession): Promise<WidgetSession> {
+    try {
+      storageLog("createWidgetSession", { session });
+      
+      const [newSession] = await db
+        .insert(widgetSessions)
+        .values({
+          tenantId: session.tenantId,
+          userId: session.userId,
+          score: session.score,
+          commonInterests: session.commonInterests || [],
+          metadata: session.metadata || {},
+          status: session.status || 'pending'
+        })
+        .returning();
+      
+      return newSession;
+    } catch (error) {
+      log("Error creating widget session:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getWidgetSession(id: number): Promise<WidgetSession | undefined> {
+    try {
+      const [session] = await db
+        .select()
+        .from(widgetSessions)
+        .where(eq(widgetSessions.id, id));
+      
+      return session;
+    } catch (error) {
+      log(`Error getting widget session ${id}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getWidgetSessionBySessionId(sessionId: string): Promise<WidgetSession | undefined> {
+    try {
+      const [session] = await db
+        .select()
+        .from(widgetSessions)
+        .where(eq(widgetSessions.sessionId, sessionId));
+      
+      return session;
+    } catch (error) {
+      log(`Error getting widget session by session ID ${sessionId}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async updateWidgetSession(id: number, data: Partial<InsertWidgetSession>): Promise<WidgetSession> {
+    try {
+      storageLog("updateWidgetSession", { id, data });
+      
+      const [updatedSession] = await db
+        .update(widgetSessions)
+        .set({
+          ...data,
+          updatedAt: new Date()
+        })
+        .where(eq(widgetSessions.id, id))
+        .returning();
+      
+      if (!updatedSession) {
+        throw new Error(`Widget session with ID ${id} not found`);
+      }
+      
+      return updatedSession;
+    } catch (error) {
+      log(`Error updating widget session ${id}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getWidgetSessionsForTenant(tenantId: number): Promise<WidgetSession[]> {
+    try {
+      return await db
+        .select()
+        .from(widgetSessions)
+        .where(eq(widgetSessions.tenantId, tenantId))
+        .orderBy(desc(widgetSessions.createdAt));
+    } catch (error) {
+      log(`Error getting widget sessions for tenant ${tenantId}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  // Widget Analytics operations
+  async trackWidgetEvent(analytics: InsertWidgetAnalytics): Promise<WidgetAnalytics> {
+    try {
+      storageLog("trackWidgetEvent", { analytics });
+      
+      const [event] = await db
+        .insert(widgetAnalytics)
+        .values({
+          tenantId: analytics.tenantId,
+          eventType: analytics.eventType,
+          sessionId: analytics.sessionId,
+          data: analytics.data || {}
+        })
+        .returning();
+      
+      return event;
+    } catch (error) {
+      log("Error tracking widget event:", error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getWidgetAnalyticsForTenant(tenantId: number): Promise<WidgetAnalytics[]> {
+    try {
+      return await db
+        .select()
+        .from(widgetAnalytics)
+        .where(eq(widgetAnalytics.tenantId, tenantId))
+        .orderBy(desc(widgetAnalytics.createdAt));
+    } catch (error) {
+      log(`Error getting widget analytics for tenant ${tenantId}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  async getWidgetAnalyticsByEventType(tenantId: number, eventType: string): Promise<WidgetAnalytics[]> {
+    try {
+      return await db
+        .select()
+        .from(widgetAnalytics)
+        .where(and(
+          eq(widgetAnalytics.tenantId, tenantId),
+          eq(widgetAnalytics.eventType, eventType)
+        ))
+        .orderBy(desc(widgetAnalytics.createdAt));
+    } catch (error) {
+      log(`Error getting widget analytics for tenant ${tenantId} and event type ${eventType}:`, error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
+  
+  // Overlap calculation
+  async calculateOverlap(userId: number, tenantId: number): Promise<{ score: number, commonInterests: string[] }> {
+    try {
+      // Get user interests
+      const user = await this.getUser(userId);
+      if (!user) {
+        throw new Error(`User with ID ${userId} not found`);
+      }
+      
+      // Get tenant profile
+      const tenantProfile = await this.getTenantProfile(tenantId);
+      if (!tenantProfile) {
+        throw new Error(`Tenant profile for tenant ID ${tenantId} not found`);
+      }
+      
+      // Extract interest arrays
+      const userInterests = user.preferences?.interests || [];
+      const tenantTags = tenantProfile.tags || [];
+      
+      // Calculate common interests
+      const commonInterests = userInterests.filter(interest => 
+        tenantTags.includes(interest)
+      );
+      
+      // Calculate score based on match percentage (0-100)
+      const totalUniqueInterests = new Set([...userInterests, ...tenantTags]).size;
+      const score = totalUniqueInterests > 0 
+        ? Math.floor((commonInterests.length / totalUniqueInterests) * 100) 
+        : 0;
+      
+      // Return result
+      return {
+        score,
+        commonInterests: commonInterests.slice(0, 5) // Top 5 common interests
+      };
+    } catch (error) {
+      log(`Error calculating overlap between user ${userId} and tenant ${tenantId}:`, error instanceof Error ? error.message : String(error));
       throw error;
     }
   }
