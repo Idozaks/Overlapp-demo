@@ -1896,6 +1896,466 @@ Example response format:
     }
   });
 
+  // OverlapLite Widget Routes
+  
+  // Tenant Authentication
+  app.post("/api/widget/tenant/register", async (req: Request, res: Response) => {
+    try {
+      const { name, email, password, logoUrl } = req.body;
+      
+      if (!name || !email || !password) {
+        return res.status(400).json({ message: "Name, email, and password are required" });
+      }
+      
+      // Check if tenant with the email already exists
+      const existingTenant = await storage.getTenantByEmail(email);
+      if (existingTenant) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+      
+      // Hash the password
+      const hashedPassword = await hashPassword(password);
+      
+      // Create tenant
+      const tenant = await storage.createTenant({
+        name,
+        email,
+        password: hashedPassword,
+        logoUrl,
+        settings: {
+          allowedDomains: [],
+          embedOptions: {
+            position: "bottom-right",
+            theme: "light"
+          }
+        }
+      });
+      
+      // Create empty tenant profile
+      await storage.createTenantProfile({
+        tenantId: tenant.id,
+        name: tenant.name,
+        description: "",
+        tags: []
+      });
+      
+      res.status(201).json({
+        id: tenant.id,
+        tenantId: tenant.tenantId,
+        name: tenant.name,
+        email: tenant.email
+      });
+    } catch (error) {
+      log("Error registering tenant:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Tenant registration failed" });
+    }
+  });
+  
+  app.post("/api/widget/tenant/login", async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+      
+      // Get tenant
+      const tenant = await storage.getTenantByEmail(email);
+      if (!tenant) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Verify password
+      const isPasswordValid = await comparePasswords(password, tenant.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Don't send the password back
+      const { password: _, ...tenantWithoutPassword } = tenant;
+      
+      // Get tenant profile
+      const profile = await storage.getTenantProfile(tenant.id);
+      
+      res.json({
+        ...tenantWithoutPassword,
+        profile
+      });
+    } catch (error) {
+      log("Error logging in tenant:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Tenant login failed" });
+    }
+  });
+  
+  // Tenant Profile Management
+  app.get("/api/widget/tenant/:tenantId", async (req: Request, res: Response) => {
+    try {
+      const { tenantId } = req.params;
+      
+      if (!tenantId) {
+        return res.status(400).json({ message: "Tenant ID is required" });
+      }
+      
+      // Get tenant
+      const tenant = await storage.getTenantByTenantId(tenantId);
+      if (!tenant) {
+        return res.status(404).json({ message: "Tenant not found" });
+      }
+      
+      // Don't send the password back
+      const { password: _, ...tenantWithoutPassword } = tenant;
+      
+      // Get tenant profile
+      const profile = await storage.getTenantProfile(tenant.id);
+      if (!profile) {
+        return res.status(404).json({ message: "Tenant profile not found" });
+      }
+      
+      res.json({
+        tenant: tenantWithoutPassword,
+        profile
+      });
+    } catch (error) {
+      log("Error getting tenant:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch tenant information" });
+    }
+  });
+  
+  app.put("/api/widget/tenant/:tenantId/profile", async (req: Request, res: Response) => {
+    try {
+      const { tenantId } = req.params;
+      const { name, description, tags } = req.body;
+      
+      if (!tenantId) {
+        return res.status(400).json({ message: "Tenant ID is required" });
+      }
+      
+      // Get tenant
+      const tenant = await storage.getTenantByTenantId(tenantId);
+      if (!tenant) {
+        return res.status(404).json({ message: "Tenant not found" });
+      }
+      
+      // Get tenant profile
+      const profile = await storage.getTenantProfile(tenant.id);
+      if (!profile) {
+        return res.status(404).json({ message: "Tenant profile not found" });
+      }
+      
+      // Update profile
+      const updatedProfile = await storage.updateTenantProfile(profile.id, {
+        name: name || profile.name,
+        description: description !== undefined ? description : profile.description,
+        tags: tags || profile.tags
+      });
+      
+      res.json({ profile: updatedProfile });
+    } catch (error) {
+      log("Error updating tenant profile:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to update tenant profile" });
+    }
+  });
+  
+  app.put("/api/widget/tenant/:tenantId/settings", async (req: Request, res: Response) => {
+    try {
+      const { tenantId } = req.params;
+      const { settings } = req.body;
+      
+      if (!tenantId) {
+        return res.status(400).json({ message: "Tenant ID is required" });
+      }
+      
+      // Get tenant
+      const tenant = await storage.getTenantByTenantId(tenantId);
+      if (!tenant) {
+        return res.status(404).json({ message: "Tenant not found" });
+      }
+      
+      // Update tenant settings
+      const updatedTenant = await storage.updateTenant(tenant.id, {
+        settings: {
+          ...tenant.settings,
+          ...settings
+        }
+      });
+      
+      // Don't send the password back
+      const { password: _, ...tenantWithoutPassword } = updatedTenant;
+      
+      res.json({ tenant: tenantWithoutPassword });
+    } catch (error) {
+      log("Error updating tenant settings:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to update tenant settings" });
+    }
+  });
+  
+  // Widget Session Management
+  app.post("/api/widget/session/initialize", async (req: Request, res: Response) => {
+    try {
+      const { tenantId } = req.body;
+      
+      if (!tenantId) {
+        return res.status(400).json({ message: "Tenant ID is required" });
+      }
+      
+      // Get tenant
+      const tenant = await storage.getTenantByTenantId(tenantId);
+      if (!tenant) {
+        return res.status(404).json({ message: "Tenant not found" });
+      }
+      
+      // Create a new widget session
+      const session = await storage.createWidgetSession({
+        tenantId: tenant.id,
+        status: 'pending',
+        metadata: {
+          userAgent: req.headers['user-agent'],
+          ipAddress: req.ip,
+          referrer: req.headers.referer
+        }
+      });
+      
+      // Track widget view event
+      await storage.trackWidgetEvent({
+        tenantId: tenant.id,
+        eventType: 'view',
+        sessionId: session.sessionId,
+        data: {
+          timestamp: new Date().toISOString(),
+          userAgent: req.headers['user-agent'],
+          referrer: req.headers.referer
+        }
+      });
+      
+      res.json({ 
+        sessionId: session.sessionId,
+        tenantName: tenant.name,
+        logoUrl: tenant.logoUrl
+      });
+    } catch (error) {
+      log("Error initializing widget session:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to initialize widget session" });
+    }
+  });
+  
+  app.post("/api/widget/session/:sessionId/authorize", async (req: Request, res: Response) => {
+    try {
+      const { sessionId } = req.params;
+      const { username, password } = req.body;
+      
+      if (!sessionId || !username || !password) {
+        return res.status(400).json({ message: "Session ID, username, and password are required" });
+      }
+      
+      // Get session
+      const session = await storage.getWidgetSessionBySessionId(sessionId);
+      if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      // Authenticate user
+      const user = await storage.getUserByUsername(username);
+      if (!user || !(await comparePasswords(password, user.password))) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Update session with user ID
+      await storage.updateWidgetSession(session.id, {
+        userId: user.id,
+        status: 'authorized'
+      });
+      
+      // Track authorization event
+      await storage.trackWidgetEvent({
+        tenantId: session.tenantId,
+        eventType: 'authorization',
+        sessionId: sessionId,
+        data: {
+          userId: user.id,
+          timestamp: new Date().toISOString()
+        }
+      });
+      
+      res.json({ 
+        message: "Authorization successful",
+        userId: user.id
+      });
+    } catch (error) {
+      log("Error authorizing widget session:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to authorize widget session" });
+    }
+  });
+  
+  app.get("/api/widget/session/:sessionId/overlap", async (req: Request, res: Response) => {
+    try {
+      const { sessionId } = req.params;
+      
+      if (!sessionId) {
+        return res.status(400).json({ message: "Session ID is required" });
+      }
+      
+      // Get session
+      const session = await storage.getWidgetSessionBySessionId(sessionId);
+      if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      // Check if session is authorized
+      if (session.status !== 'authorized' || !session.userId) {
+        return res.status(401).json({ message: "Session not authorized" });
+      }
+      
+      // Calculate overlap
+      const overlap = await storage.calculateOverlap(session.userId, session.tenantId);
+      
+      // Update session with overlap results
+      await storage.updateWidgetSession(session.id, {
+        score: overlap.score,
+        commonInterests: overlap.commonInterests,
+        status: 'completed'
+      });
+      
+      // Track overlap event
+      await storage.trackWidgetEvent({
+        tenantId: session.tenantId,
+        eventType: 'overlap_complete',
+        sessionId: sessionId,
+        data: {
+          score: overlap.score,
+          commonInterests: overlap.commonInterests,
+          timestamp: new Date().toISOString()
+        }
+      });
+      
+      res.json({ 
+        score: overlap.score,
+        commonInterests: overlap.commonInterests
+      });
+    } catch (error) {
+      log("Error calculating overlap:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to calculate overlap" });
+    }
+  });
+  
+  app.post("/api/widget/session/:sessionId/chatlink", async (req: Request, res: Response) => {
+    try {
+      const { sessionId } = req.params;
+      
+      if (!sessionId) {
+        return res.status(400).json({ message: "Session ID is required" });
+      }
+      
+      // Get session
+      const session = await storage.getWidgetSessionBySessionId(sessionId);
+      if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      // Check if session is completed
+      if (session.status !== 'completed' || !session.userId) {
+        return res.status(400).json({ message: "Overlap calculation not completed" });
+      }
+      
+      // Get tenant
+      const tenant = await storage.getTenant(session.tenantId);
+      if (!tenant) {
+        return res.status(404).json({ message: "Tenant not found" });
+      }
+      
+      // Track chat link event
+      await storage.trackWidgetEvent({
+        tenantId: session.tenantId,
+        eventType: 'click_to_chat',
+        sessionId: sessionId,
+        data: {
+          timestamp: new Date().toISOString()
+        }
+      });
+      
+      // Generate deep link URL to the main application
+      const deepLink = `/chat/new?source=widget&tenantId=${tenant.tenantId}&sessionId=${sessionId}`;
+      
+      res.json({ 
+        deepLink
+      });
+    } catch (error) {
+      log("Error generating chat link:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to generate chat link" });
+    }
+  });
+  
+  // Widget Analytics
+  app.get("/api/widget/tenant/:tenantId/analytics", async (req: Request, res: Response) => {
+    try {
+      const { tenantId } = req.params;
+      
+      if (!tenantId) {
+        return res.status(400).json({ message: "Tenant ID is required" });
+      }
+      
+      // Get tenant
+      const tenant = await storage.getTenantByTenantId(tenantId);
+      if (!tenant) {
+        return res.status(404).json({ message: "Tenant not found" });
+      }
+      
+      // Get analytics
+      const analytics = await storage.getWidgetAnalyticsForTenant(tenant.id);
+      
+      // Get sessions
+      const sessions = await storage.getWidgetSessionsForTenant(tenant.id);
+      
+      // Calculate summary statistics
+      const viewCount = analytics.filter(a => a.eventType === 'view').length;
+      const scanCount = analytics.filter(a => a.eventType === 'authorization').length;
+      const overlapCount = analytics.filter(a => a.eventType === 'overlap_complete').length;
+      const chatClickCount = analytics.filter(a => a.eventType === 'click_to_chat').length;
+      
+      // Calculate conversion rates
+      const scanRate = viewCount > 0 ? (scanCount / viewCount) * 100 : 0;
+      const overlapRate = scanCount > 0 ? (overlapCount / scanCount) * 100 : 0;
+      const chatRate = overlapCount > 0 ? (chatClickCount / overlapCount) * 100 : 0;
+      
+      // Calculate average score
+      const completedSessions = sessions.filter(s => s.status === 'completed' && s.score !== null);
+      const averageScore = completedSessions.length > 0
+        ? completedSessions.reduce((sum, session) => sum + (session.score || 0), 0) / completedSessions.length
+        : 0;
+      
+      res.json({
+        summary: {
+          viewCount,
+          scanCount,
+          overlapCount,
+          chatClickCount,
+          scanRate: Math.round(scanRate * 10) / 10,
+          overlapRate: Math.round(overlapRate * 10) / 10,
+          chatRate: Math.round(chatRate * 10) / 10,
+          averageScore: Math.round(averageScore * 10) / 10,
+          totalSessions: sessions.length,
+          completedSessions: completedSessions.length
+        },
+        recentSessions: sessions.slice(0, 10)
+      });
+    } catch (error) {
+      log("Error getting tenant analytics:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to fetch analytics data" });
+    }
+  });
+  
+  // Serve the embeddable widget script
+  app.get("/widget/init.js", (_req: Request, res: Response) => {
+    const scriptPath = path.join(process.cwd(), 'client', 'dist', 'widget.js');
+    
+    // Check if the file exists
+    if (fs.existsSync(scriptPath)) {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.sendFile(scriptPath);
+    } else {
+      res.status(404).json({ message: "Widget script not found" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
