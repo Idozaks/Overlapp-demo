@@ -8,6 +8,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { DemoProvider } from "@/hooks/use-demo";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Signup from "@/pages/auth/Signup";
@@ -444,14 +445,16 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <div className="min-h-screen">
-          <Header />
-          <main>
-            <Router />
-          </main>
-        </div>
-        <SimulationController />
-        <Toaster />
+        <DemoProvider>
+          <div className="min-h-screen">
+            <Header />
+            <main>
+              <Router />
+            </main>
+          </div>
+          <SimulationController />
+          <Toaster />
+        </DemoProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
