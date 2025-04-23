@@ -1,92 +1,91 @@
+/**
+ * OverlapLite Widget Initialization Script
+ * 
+ * This script is loaded from the host website and initializes the OverlapLite widget.
+ * It creates a container element and loads the widget script.
+ */
+
 interface OverlapWidgetOptions {
   tenantId: string;
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   theme?: 'light' | 'dark';
-  container?: string; // CSS selector for container
-  onOverlapCalculated?: (score: number, commonInterests: string[]) => void;
-  onChatStarted?: (deepLink: string) => void;
 }
 
 declare global {
   interface Window {
     OverlapWidget: {
       init: (options: OverlapWidgetOptions) => void;
+      close: () => void;
     };
   }
 }
 
-const loadDependencies = async () => {
-  // Load React and React DOM
-  await loadScript('https://unpkg.com/react@17/umd/react.production.min.js');
-  await loadScript('https://unpkg.com/react-dom@17/umd/react-dom.production.min.js');
-  
-  // Load widget script
-  await loadScript(`${getOrigin()}/widget/bundle.js`);
-};
+// Self-executing function to avoid polluting global scope
+(function() {
+  let widgetContainer: HTMLElement | null = null;
+  let isInitialized = false;
 
-const loadScript = (src: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = src;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-    document.head.appendChild(script);
-  });
-};
-
-const getOrigin = (): string => {
-  // Determine the appropriate base URL based on the current environment
-  const scriptSrc = document.currentScript?.getAttribute('src') || '';
-  if (scriptSrc) {
-    const scriptUrl = new URL(scriptSrc, window.location.href);
-    return `${scriptUrl.protocol}//${scriptUrl.host}`;
-  }
-  return '';
-};
-
-const init = async (options: OverlapWidgetOptions) => {
-  try {
-    if (!options.tenantId) {
-      console.error('OverlapWidget: tenantId is required');
+  /**
+   * Initialize the widget with the given options
+   */
+  function init(options: OverlapWidgetOptions) {
+    if (isInitialized) {
+      console.warn('OverlapLite Widget is already initialized');
       return;
     }
-    
-    // Load all required dependencies
-    await loadDependencies();
-    
-    // Initialize the widget
-    if (typeof window.OverlapWidget?.init === 'function') {
-      window.OverlapWidget.init(options);
-    } else {
-      console.error('OverlapWidget: Failed to initialize. Widget not found.');
+
+    // Create container element
+    widgetContainer = document.createElement('div');
+    widgetContainer.id = 'overlapp-widget-container';
+    document.body.appendChild(widgetContainer);
+
+    // Load the widget bundle
+    const script = document.createElement('script');
+    script.src = `${window.location.origin}/widget/bundle.js`;
+    script.onload = () => {
+      // Initialize the widget when bundle is loaded
+      if (window.OverlapWidget) {
+        // Pass the options to the bundle script
+        const event = new CustomEvent('overlapp-widget-init', { detail: options });
+        window.dispatchEvent(event);
+        isInitialized = true;
+      }
+    };
+    document.head.appendChild(script);
+  }
+
+  /**
+   * Close and clean up the widget
+   */
+  function close() {
+    if (widgetContainer && widgetContainer.parentNode) {
+      widgetContainer.parentNode.removeChild(widgetContainer);
+      widgetContainer = null;
+      isInitialized = false;
     }
-  } catch (error) {
-    console.error('OverlapWidget: Failed to initialize', error);
   }
-};
 
-// Export the init function globally
-window.OverlapWidget = {
-  init
-};
+  // Expose public API
+  window.OverlapWidget = {
+    init,
+    close
+  };
 
-// Auto initialize if the script has data-tenant-id attribute
-document.addEventListener('DOMContentLoaded', () => {
-  const script = document.currentScript;
-  const tenantId = script?.getAttribute('data-tenant-id');
-  
-  if (tenantId) {
-    const position = script?.getAttribute('data-position') as OverlapWidgetOptions['position'] || 'bottom-right';
-    const theme = script?.getAttribute('data-theme') as OverlapWidgetOptions['theme'] || 'light';
-    
-    init({
-      tenantId,
-      position,
-      theme
-    });
+  // Auto-initialize if script has data attributes
+  const script = document.currentScript as HTMLScriptElement;
+  if (script) {
+    const tenantId = script.getAttribute('data-tenant-id');
+    if (tenantId) {
+      const position = script.getAttribute('data-position') as OverlapWidgetOptions['position'] || 'bottom-right';
+      const theme = script.getAttribute('data-theme') as OverlapWidgetOptions['theme'] || 'light';
+      
+      init({
+        tenantId,
+        position,
+        theme
+      });
+    }
   }
-});
+})();
 
-// Export init for module usage
-export { init };
+export {};
