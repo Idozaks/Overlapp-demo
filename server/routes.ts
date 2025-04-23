@@ -2369,6 +2369,19 @@ Example response format:
       res.status(404).json({ message: "Widget script not found" });
     }
   });
+  
+  // Serve the standalone widget HTML
+  app.get("/widget.html", (_req: Request, res: Response) => {
+    const htmlPath = path.join(process.cwd(), 'client', 'public', 'widget.html');
+    
+    // Check if the file exists
+    if (fs.existsSync(htmlPath)) {
+      res.setHeader('Content-Type', 'text/html');
+      res.sendFile(htmlPath);
+    } else {
+      res.status(404).send("Widget HTML not found");
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
