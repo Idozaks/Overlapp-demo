@@ -76,7 +76,7 @@ import EntityOverlap from "@/pages/marketplace/EntityOverlap"; // Import the Ent
 import ChatPage from "@/pages/chat"; // Import the Chat component
 import Animation from "./pages/Animation"; // Import the Animation component
 import MvpPromo from "@/pages/MvpPromo"; // Import the MVP Promotional page
-import { SimulationController } from "@/components/demo"; // Import the SimulationController component
+import SimulationController from "@/components/demo/SimulationController"; // Import the SimulationController component
 import DashboardPage from "@/pages/tenant-dashboard/DashboardPage"; // Import the Tenant Dashboard page
 import LoginPage from "@/pages/tenant-dashboard/LoginPage"; // Import the Tenant Login page
 import PreviewPage from "@/pages/tenant-dashboard/PreviewPage"; // Import the Widget Preview page

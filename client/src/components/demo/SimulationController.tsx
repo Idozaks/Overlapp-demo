@@ -1,130 +1,190 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDemo } from '@/hooks/use-demo';
-import TutorialOverlay from './TutorialOverlay';
-import SyntheticActivityFeed from './SyntheticActivityFeed';
+import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, SkipForward, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useToast } from '@/hooks/use-toast';
+import { X, Minimize, Maximize, InfoIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
-interface SimulationControllerProps {
-  showActivityFeed?: boolean;
-}
-
-/**
- * The SimulationController manages the overall demo experience.
- * It renders the tutorial overlay and synthetic activity feed when in demo mode.
- */
-export const SimulationController: React.FC<SimulationControllerProps> = ({
-  showActivityFeed = true,
-}) => {
+export function SimulationController() {
   const { 
     isDemoMode, 
-    toggleDemoMode,
-    currentJourney,
-    endJourney,
-    startJourney
+    isJourneyPaused, 
+    currentJourneyType, 
+    demoState, 
+    setDemoState 
   } = useDemo();
   
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Handle demo mode toggling with loading state
-  const handleToggleDemoMode = () => {
-    setIsLoading(true);
-    try {
-      toggleDemoMode();
-      
-      // If we're entering demo mode but no journey is started, start the first journey
-      if (!isDemoMode) {
-        // Use setTimeout to allow state to update
-        setTimeout(() => {
-          startJourney('socialDiscovery');
-          toast({
-            title: "Demo Mode Activated",
-            description: "Welcome to demo mode! Navigate through the experience to learn about Overlapp."
-          });
-        }, 100);
-      }
-      
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error toggling demo mode:", error);
-      toast({
-        title: "Demo Mode Error",
-        description: "There was an error starting demo mode. Please try again.",
-        variant: "destructive"
-      });
-      setIsLoading(false);
-    }
-  };
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Log demo state for debugging
-    console.log("Demo state:", { isDemoMode, currentJourney });
-  }, [isDemoMode, currentJourney]);
+    // Only run simulation if in demo mode and not paused
+    if (isDemoMode && !isJourneyPaused) {
+      // Reset when journey changes
+      if (demoState.journeyType !== currentJourneyType) {
+        setDemoState({
+          journeyType: currentJourneyType,
+          currentStep: 0,
+          progress: 0
+        });
+        setCurrentStep(0);
+        setProgress(0);
+      }
 
-  // Render the demo mode toggle button when not in demo mode
-  if (!isDemoMode) {
+      // Simulation logic
+      const timer = setInterval(() => {
+        const nextProgress = Math.min(progress + 1, 100);
+        setProgress(nextProgress);
+        
+        // Update step based on progress
+        if (nextProgress === 25) {
+          setCurrentStep(1);
+          setDemoState({ currentStep: 1, progress: nextProgress });
+        } else if (nextProgress === 50) {
+          setCurrentStep(2);
+          setDemoState({ currentStep: 2, progress: nextProgress });
+        } else if (nextProgress === 75) {
+          setCurrentStep(3);
+          setDemoState({ currentStep: 3, progress: nextProgress });
+        } else if (nextProgress === 100) {
+          setCurrentStep(4);
+          setDemoState({ currentStep: 4, progress: nextProgress });
+          clearInterval(timer);
+        }
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [isDemoMode, isJourneyPaused, progress, currentJourneyType, demoState.journeyType]);
+
+  // Effects for loading saved state
+  useEffect(() => {
+    if (demoState.currentStep !== undefined) {
+      setCurrentStep(demoState.currentStep);
+    }
+    if (demoState.progress !== undefined) {
+      setProgress(demoState.progress);
+    }
+  }, []);
+
+  if (!isDemoMode) return null;
+
+  const journeyTitles = {
+    socialDiscovery: 'Social Discovery',
+    physicalIntegration: 'Physical Integration',
+    identityManagement: 'Identity Management',
+    marketplace: 'Marketplace',
+    default: 'Default Journey'
+  };
+
+  // Demo steps for different journeys
+  const steps = {
+    socialDiscovery: [
+      'Finding users with similar interests',
+      'Analyzing social connection possibilities',
+      'Calculating compatibility scores',
+      'Generating conversation starters',
+      'Social discovery complete!'
+    ],
+    physicalIntegration: [
+      'Mapping physical touchpoints',
+      'Calculating proximity scores',
+      'Generating location-based recommendations',
+      'Creating customized engagement paths',
+      'Physical integration complete!'
+    ],
+    identityManagement: [
+      'Analyzing identity attributes',
+      'Computing identity completeness score',
+      'Generating privacy recommendations',
+      'Creating personalized DIU portfolio',
+      'Identity analysis complete!'
+    ],
+    marketplace: [
+      'Scanning marketplace entities',
+      'Computing interest-entity matches',
+      'Ranking entity recommendations',
+      'Generating personalized offers',
+      'Marketplace analysis complete!'
+    ],
+    default: [
+      'Initializing demo',
+      'Analyzing user preferences',
+      'Generating recommendations',
+      'Computing final results',
+      'Demo complete!'
+    ]
+  };
+
+  const currentSteps = steps[currentJourneyType] || steps.default;
+  const title = journeyTitles[currentJourneyType] || 'Demo';
+
+  if (isMinimized) {
     return (
-      <AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="fixed bottom-4 right-4 z-50"
-        >
-          <Button 
-            onClick={handleToggleDemoMode}
-            className="shadow-lg"
-            size="sm"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Play className="mr-2 h-4 w-4" />
-            )}
-            Enter Demo Mode
-          </Button>
-        </motion.div>
-      </AnimatePresence>
+      <div className="fixed bottom-4 right-4 z-50">
+        <Card className="w-auto shadow-md">
+          <CardContent className="p-3 flex items-center gap-2">
+            <Badge variant="outline">{title}</Badge>
+            <Progress value={progress} className="w-24 h-2" />
+            <Button variant="ghost" size="icon" onClick={() => setIsMinimized(false)}>
+              <Maximize className="h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
-  // When in demo mode, render the tutorial overlay and optionally the activity feed
   return (
-    <>
-      {/* Tutorial overlay for guided navigation */}
-      <TutorialOverlay />
-      
-      {/* Synthetic activity feed to show background activities */}
-      {showActivityFeed && (
-        <div className="fixed top-20 right-4 z-30 w-72 max-w-[90vw]">
-          <SyntheticActivityFeed maxItems={3} />
-        </div>
-      )}
-      
-      {/* Quick exit button when in a journey */}
-      {currentJourney && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="fixed top-4 right-4 z-50"
-        >
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={endJourney}
-            className="bg-card/80 backdrop-blur-sm shadow-md"
-          >
-            <SkipForward className="mr-2 h-4 w-4" />
-            Exit Demo
-          </Button>
-        </motion.div>
-      )}
-    </>
+    <div className="fixed bottom-4 right-4 z-50">
+      <Card className="w-80 shadow-md">
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <InfoIcon className="h-4 w-4" />
+              {title} Demo
+            </CardTitle>
+            <div className="flex gap-1">
+              <Button variant="ghost" size="icon" onClick={() => setIsMinimized(true)}>
+                <Minimize className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <CardDescription>
+            Step {currentStep + 1} of {currentSteps.length}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pb-2">
+          <Progress value={progress} className="mb-2" />
+          <div className="text-sm font-medium">{currentSteps[currentStep]}</div>
+          
+          <div className="mt-3 space-y-1">
+            {currentSteps.map((step, index) => (
+              <div key={index} className="flex items-center gap-2 text-xs">
+                {index < currentStep ? (
+                  <CheckCircle2 className="h-3 w-3 text-green-500" />
+                ) : index === currentStep ? (
+                  <AlertCircle className="h-3 w-3 text-amber-500 animate-pulse" />
+                ) : (
+                  <div className="h-3 w-3 rounded-full border border-muted-foreground/30" />
+                )}
+                <span className={index <= currentStep ? "" : "text-muted-foreground/50"}>
+                  {step}
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+        <CardFooter className="pt-2 gap-2 justify-end">
+          <div className="text-xs text-muted-foreground">
+            {isJourneyPaused ? "Demo paused" : "Demo running"}
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
   );
-};
+}
 
 export default SimulationController;
