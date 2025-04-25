@@ -4,26 +4,30 @@ import { EngagePersona } from './EngagePersona';
 import { EngageOnline } from './EngageOnline';
 import { EngageOffline } from './EngageOffline';
 import { SimplifiedEngage } from './SimplifiedEngage';
+import { EnhancedEngageIndex } from './EnhancedEngageIndex';
+import { EnhancedEngagePersona } from './EnhancedEngagePersona';
+import { EnhancedEngageOnline } from './EnhancedEngageOnline';
+import { EnhancedEngageOffline } from './EnhancedEngageOffline';
 
 // This file exports static wrapper components for each engage page
 // This prevents the "Rendered fewer hooks than expected" error
 
 export const StaticEngageIndexPage = () => {
-  // Using simplified component for now to test the loading issue
-  return <SimplifiedEngage />;
+  // Using enhanced components now that we've fixed the loading issues
+  return <EnhancedEngageIndex />;
 };
 
 export const StaticEngagePersonaPage = () => {
-  // Using simplified component for now to test the loading issue
-  return <SimplifiedEngage />;
+  // Using enhanced components now that we've fixed the loading issues
+  return <EnhancedEngagePersona />;
 };
 
 export const StaticEngageOnlinePage = () => {
-  // Using simplified component for now to test the loading issue
-  return <SimplifiedEngage />;
+  // Using enhanced components now that we've fixed the loading issues
+  return <EnhancedEngageOnline />;
 };
 
 export const StaticEngageOfflinePage = () => {
-  // Using simplified component for now to test the loading issue
-  return <SimplifiedEngage />;
+  // Using enhanced components now that we've fixed the loading issues
+  return <EnhancedEngageOffline />;
 };
