@@ -116,7 +116,7 @@ export function Header() {
               {item.subItems.map((subItem) => (
                 <DropdownMenuItem key={subItem.label} asChild>
                   <Link 
-                    href={subItem.path}
+                    href={subItem.path || '/'}
                     className={cn(
                       "cursor-pointer w-full",
                       isActive(subItem.path) && "bg-accent"
@@ -135,7 +135,7 @@ export function Header() {
             className={cn(isActive(item.path) && "bg-accent")}
             asChild
           >
-            <Link href={item.path}>
+            <Link href={item.path || '/'}>
               {item.label}
             </Link>
           </Button>
@@ -160,7 +160,7 @@ export function Header() {
                 {item.subItems.map((subItem) => (
                   <Link 
                     key={subItem.label}
-                    href={subItem.path}
+                    href={subItem.path || '/'}
                     className={cn(
                       "px-2 py-1 rounded hover:bg-accent",
                       isActive(subItem.path) && "bg-accent"
@@ -175,7 +175,7 @@ export function Header() {
           ) : (
             <Link
               key={item.label}
-              href={item.path}
+              href={item.path || '/'}
               className={cn(
                 "px-2 py-1 rounded hover:bg-accent",
                 isActive(item.path) && "bg-accent"
@@ -197,7 +197,7 @@ export function Header() {
                 {profileMenuItems.map((item) => (
                   <Link
                     key={item.label}
-                    href={item.path}
+                    href={item.path || '/'}
                     className="px-2 py-1 rounded hover:bg-accent flex items-center gap-2"
                     onClick={() => setMobileOpen(false)}
                   >
@@ -285,7 +285,7 @@ export function Header() {
               <DropdownMenuContent align="end">
                 {profileMenuItems.map((item) => (
                   <DropdownMenuItem key={item.label} asChild>
-                    <Link href={item.path}>
+                    <Link href={item.path || '/'}>
                       {item.label}
                     </Link>
                   </DropdownMenuItem>
