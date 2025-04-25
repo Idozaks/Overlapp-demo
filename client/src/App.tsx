@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { useDemo, DemoProvider } from "@/hooks/use-demo";
 import NotFound from "@/pages/not-found";
 import AppHeader from "@/components/layout/Header2";
+import AnimatedRoutes from "@/components/layout/AnimatedRoutes";
 import Home from "@/pages/Home";
 import Signup from "@/pages/auth/Signup";
 import Demo from "@/pages/Demo";
@@ -456,7 +457,9 @@ function App() {
           <div className="min-h-screen">
             <AppHeader />
             <main>
-              <Router />
+              <AnimatedRoutes>
+                <Router />
+              </AnimatedRoutes>
             </main>
           </div>
           <SimulationController />
