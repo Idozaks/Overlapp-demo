@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation, useRoute, Link } from "wouter";
-import React, { lazy } from "react";
+import React, { lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -229,23 +229,77 @@ function Router() {
         );
       }} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
-      {/* Wrapping lazy-loaded engage components with SuspenseWrapper */}
+      {/* Using static engage components with Suspense boundary to avoid hooks issues */}
       <Route path="/engage" component={() => {
-        // Pre-load the component outside the render function to avoid hooks issues
-        const EngageIndexComponent = lazy(() => import('./pages/engage/EngageIndex'));
-        return <SuspenseWrapper component={EngageIndexComponent} />;
+        const EngagePageComponent = lazy(() => 
+          import('./pages/engage/StaticEngagePages').then(module => ({ 
+            default: module.StaticEngageIndexPage 
+          }))
+        );
+        
+        return (
+          <Suspense fallback={
+            <div className="container py-12 text-center">
+              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+            </div>
+          }>
+            <EngagePageComponent />
+          </Suspense>
+        );
       }} />
+      
       <Route path="/engage/persona" component={() => {
-        const EngagePersonaComponent = lazy(() => import('./pages/engage/EngagePersona'));
-        return <SuspenseWrapper component={EngagePersonaComponent} />;
+        const EngagePersonaComponent = lazy(() => 
+          import('./pages/engage/StaticEngagePages').then(module => ({ 
+            default: module.StaticEngagePersonaPage 
+          }))
+        );
+        
+        return (
+          <Suspense fallback={
+            <div className="container py-12 text-center">
+              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+            </div>
+          }>
+            <EngagePersonaComponent />
+          </Suspense>
+        );
       }} />
+      
       <Route path="/engage/online" component={() => {
-        const EngageOnlineComponent = lazy(() => import('./pages/engage/EngageOnline'));
-        return <SuspenseWrapper component={EngageOnlineComponent} />;
+        const EngageOnlineComponent = lazy(() => 
+          import('./pages/engage/StaticEngagePages').then(module => ({ 
+            default: module.StaticEngageOnlinePage 
+          }))
+        );
+        
+        return (
+          <Suspense fallback={
+            <div className="container py-12 text-center">
+              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+            </div>
+          }>
+            <EngageOnlineComponent />
+          </Suspense>
+        );
       }} />
+      
       <Route path="/engage/offline" component={() => {
-        const EngageOfflineComponent = lazy(() => import('./pages/engage/EngageOffline'));
-        return <SuspenseWrapper component={EngageOfflineComponent} />;
+        const EngageOfflineComponent = lazy(() => 
+          import('./pages/engage/StaticEngagePages').then(module => ({ 
+            default: module.StaticEngageOfflinePage 
+          }))
+        );
+        
+        return (
+          <Suspense fallback={
+            <div className="container py-12 text-center">
+              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+            </div>
+          }>
+            <EngageOfflineComponent />
+          </Suspense>
+        );
       }} />
       <Route path="/chat" component={ChatPage} />
       <Route path="/animation" component={Animation} />
@@ -260,14 +314,41 @@ function Router() {
       <Route path="/samples" component={SampleSitesPage} />
       <Route path="/samples/bookclub" component={BookClubSamplePage} />
       
-      {/* Widget Routes */}
+      {/* Widget Routes using static components with Suspense boundary to avoid hooks issues */}
       <Route path="/widget" component={() => {
-        const WidgetPageComponent = lazy(() => import("@/pages/widget/WidgetPage"));
-        return <SuspenseWrapper component={WidgetPageComponent} />;
+        const WidgetPageComponent = lazy(() => 
+          import('./pages/widget/StaticWidgetPages').then(module => ({ 
+            default: module.StaticWidgetPageComponent 
+          }))
+        );
+        
+        return (
+          <Suspense fallback={
+            <div className="container py-12 text-center">
+              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+            </div>
+          }>
+            <WidgetPageComponent />
+          </Suspense>
+        );
       }} />
+      
       <Route path="/widget/demo" component={() => {
-        const DemoPageComponent = lazy(() => import("@/pages/widget/DemoPage"));
-        return <SuspenseWrapper component={DemoPageComponent} />;
+        const DemoPageComponent = lazy(() => 
+          import('./pages/widget/StaticWidgetPages').then(module => ({ 
+            default: module.StaticDemoPageComponent 
+          }))
+        );
+        
+        return (
+          <Suspense fallback={
+            <div className="container py-12 text-center">
+              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+            </div>
+          }>
+            <DemoPageComponent />
+          </Suspense>
+        );
       }} />
       
       <Route component={NotFound} />
