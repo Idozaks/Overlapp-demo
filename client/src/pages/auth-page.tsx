@@ -36,8 +36,8 @@ const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Please enter a valid email address"),
   displayName: z.string().min(2, "Display name must be at least 2 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(1, "Password is required"),
+  confirmPassword: z.string().min(1, "Password is required"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -260,7 +260,7 @@ export default function AuthPage() {
                             />
                           </FormControl>
                           <FormDescription>
-                            Must be at least 6 characters
+                            Enter a password
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
