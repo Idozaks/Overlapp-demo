@@ -13,11 +13,19 @@ import { useAuth } from '@/hooks/use-auth';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, ChevronDown, LogOut, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
 import DemoModeToggle from '@/components/demo/DemoModeToggle';
 // Local imports to avoid module resolution issues
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import ThemeToggle from '../theme/ThemeToggle';
 import { useMediaQuery } from '@/hooks/use-media-query';
+
+// Helper type for menu items
+interface MenuItem {
+  label: string;
+  path?: string;
+  subItems?: MenuItem[];
+}
 
 export function Header() {
   const { t } = useTranslation();
@@ -27,28 +35,64 @@ export function Header() {
   const { user, logoutMutation } = useAuth();
   const logout = () => logoutMutation.mutate();
 
-  const isActive = (path: string) => {
+  const isActive = (path: string | undefined) => {
+    if (!path) return false;
     return location === path;
   };
 
-  const mainMenuItems = [
-    { label: 'Home', path: '/' },
+  const mainMenuItems: MenuItem[] = [
+    { label: t('common.nav.home'), path: '/' },
     { 
-      label: 'Engage', 
+      label: t('common.nav.social'), 
+      path: '/social',
+      subItems: [
+        { label: t('common.nav.social_hub'), path: '/social' },
+        { label: t('common.nav.explore_users'), path: '/social/explore' },
+        { label: t('common.nav.matches'), path: '/social/matches' },
+        { label: t('common.nav.overlap'), path: '/social/overlap' },
+        { label: t('common.nav.social_export'), path: '/social/export' },
+      ]
+    },
+    { 
+      label: t('common.nav.marketplace'), 
+      path: '/marketplace',
+    },
+    { 
+      label: t('common.nav.interests'), 
+      path: '/interests',
+    },
+    { 
+      label: t('common.nav.engage'), 
       path: '/engage',
       subItems: [
-        { label: 'Engage with another persona', path: '/engage/persona' },
-        { label: 'Engage online with websites', path: '/engage/online' },
-        { label: 'Engage offline', path: '/engage/offline' },
+        { label: t('common.nav.persona'), path: '/engage/persona' },
+        { label: t('common.nav.online'), path: '/engage/online' },
+        { label: t('common.nav.offline'), path: '/engage/offline' },
+      ]
+    },
+    { 
+      label: t('common.nav.widget'), 
+      path: '/widget',
+    },
+    {
+      label: t('common.nav.more'),
+      subItems: [
+        { label: t('common.nav.about'), path: '/about' },
+        { label: t('common.nav.chat'), path: '/chat' },
+        { label: t('common.nav.animation'), path: '/animation' },
+        { label: t('common.nav.mvp_promo'), path: '/mvp-promo' },
+        { label: t('common.nav.samples'), path: '/samples' },
+        { label: t('common.nav.demo'), path: '/demo' },
       ]
     },
   ];
 
-  const profileMenuItems = [
-    { label: 'Profile', path: '/profile' },
-    { label: 'Settings', path: '/settings' },
-    { label: 'Wallet', path: '/wallet' },
-    { label: 'Explore Users', path: '/social/explore' },
+  const profileMenuItems: MenuItem[] = [
+    { label: t('common.nav.profile'), path: '/profile' },
+    { label: t('common.nav.wallet'), path: '/wallet' },
+    { label: t('common.nav.contact'), path: '/contact' },
+    ...(user?.isAdmin ? [{ label: t('common.nav.admin'), path: '/admin/interests' }] : []),
+    { label: t('common.nav.tenant_dashboard'), path: '/tenant/dashboard' },
   ];
 
   const renderNavItems = () => (
@@ -147,39 +191,33 @@ export function Header() {
         
         {user ? (
           <>
-            <Link
-              href="/profile"
-              className="px-2 py-1 rounded hover:bg-accent flex items-center gap-2"
-              onClick={() => setMobileOpen(false)}
-            >
-              <User size={16} />
-              Profile
-            </Link>
-            <Link
-              href="/wallet"
-              className="px-2 py-1 rounded hover:bg-accent flex items-center gap-2"
-              onClick={() => setMobileOpen(false)}
-            >
-              Wallet
-            </Link>
-            <Link
-              href="/social/explore"
-              className="px-2 py-1 rounded hover:bg-accent flex items-center gap-2"
-              onClick={() => setMobileOpen(false)}
-            >
-              Explore Users
-            </Link>
-            <Button 
-              variant="ghost" 
-              className="justify-start px-2"
-              onClick={() => {
-                logout();
-                setMobileOpen(false);
-              }}
-            >
-              <LogOut size={16} className="mr-2" />
-              Logout
-            </Button>
+            <div className="flex flex-col gap-2">
+              <p className="font-semibold px-2">{t('common.nav.account')}</p>
+              <div className="flex flex-col pl-4 gap-2">
+                {profileMenuItems.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.path}
+                    className="px-2 py-1 rounded hover:bg-accent flex items-center gap-2"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <User size={16} />
+                    {item.label}
+                  </Link>
+                ))}
+                <Button 
+                  variant="ghost" 
+                  className="justify-start px-2"
+                  onClick={() => {
+                    logout();
+                    setMobileOpen(false);
+                  }}
+                >
+                  <LogOut size={16} className="mr-2" />
+                  {t('common.nav.logout')}
+                </Button>
+              </div>
+            </div>
           </>
         ) : (
           <>
@@ -188,14 +226,14 @@ export function Header() {
               className="px-2 py-1 rounded hover:bg-accent"
               onClick={() => setMobileOpen(false)}
             >
-              Login
+              {t('common.nav.login')}
             </Link>
             <Link
               href="/auth"
               className="px-2 py-1 rounded hover:bg-accent"
               onClick={() => setMobileOpen(false)}
             >
-              Register
+              {t('common.nav.register')}
             </Link>
           </>
         )}
