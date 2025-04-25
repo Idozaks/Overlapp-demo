@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
 
 // This is a flexible overlap analysis page that works with all three entity types
 export function AnalyzeOverlap() {
@@ -50,6 +51,8 @@ export function AnalyzeOverlap() {
   const [sharedInterests, setSharedInterests] = useState<string[]>([]);
   const [uniqueInterests, setUniqueInterests] = useState<string[]>([]);
   const [conversationStarters, setConversationStarters] = useState<string[]>([]);
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   
   // Animation effect for the compatibility score
   useEffect(() => {
@@ -154,6 +157,64 @@ export function AnalyzeOverlap() {
       setConversationStarters(data.overlap.conversationStarters);
     }
   }, [data]);
+  
+  // Function to generate AI analysis
+  const generateAIAnalysis = async () => {
+    if (!data?.entity || !data?.overlap) return;
+    
+    setIsGeneratingAI(true);
+    try {
+      const response = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          entityType: entityType,
+          entityName: data.entity.name,
+          entityDescription: data.entity.description || data.entity.bio || '',
+          userInterests: user?.preferences?.interests || [],
+          entityInterests: [...data.overlap.sharedInterests, ...data.overlap.uniqueInterests],
+          sharedInterests: data.overlap.sharedInterests
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate AI analysis');
+      }
+      
+      const result = await response.json();
+      setAiAnalysis(result.analysis);
+      
+      // Update the compatibility score with the AI's score
+      if (result.analysis.compatibilityScore) {
+        // Animate to the new score
+        let currentScore = compatibilityScore;
+        const targetScore = Math.round(result.analysis.compatibilityScore);
+        const step = currentScore < targetScore ? 1 : -1;
+        
+        const interval = setInterval(() => {
+          currentScore += step;
+          setCompatibilityScore(currentScore);
+          if ((step > 0 && currentScore >= targetScore) || 
+              (step < 0 && currentScore <= targetScore)) {
+            clearInterval(interval);
+            setCompatibilityScore(targetScore);
+          }
+        }, 20);
+      }
+      
+      // Update conversation starters if available
+      if (result.analysis.conversationStarters && result.analysis.conversationStarters.length > 0) {
+        setConversationStarters(result.analysis.conversationStarters);
+      }
+      
+    } catch (error) {
+      console.error('Error generating AI analysis:', error);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
   
   // Helper function to get the right icon for entity type
   const getEntityIcon = () => {
@@ -326,6 +387,7 @@ export function AnalyzeOverlap() {
                 <TabsTrigger value="visualization" className="flex-1">Visualization</TabsTrigger>
                 <TabsTrigger value="interests" className="flex-1">Shared Interests</TabsTrigger>
                 <TabsTrigger value="convo" className="flex-1">Conversation Starters</TabsTrigger>
+                <TabsTrigger value="ai-analysis" className="flex-1">AI Analysis</TabsTrigger>
               </TabsList>
               
               <TabsContent value="visualization" className="mt-6">
@@ -512,6 +574,79 @@ export function AnalyzeOverlap() {
                   </div>
                 </div>
               </TabsContent>
+              
+              <TabsContent value="ai-analysis" className="mt-6">
+                {aiAnalysis ? (
+                  <div className="space-y-6">
+                    <div className="bg-muted/20 p-4 rounded-lg border border-muted">
+                      <div className="flex items-start gap-3 mb-4">
+                        <div className="bg-primary/10 p-2 rounded-full">
+                          <Sparkles className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">AI-Enhanced Compatibility Analysis</h3>
+                          <p className="text-sm text-muted-foreground">
+                            An in-depth analysis powered by artificial intelligence
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="text-sm font-medium mb-2">Compatibility Reasoning</h4>
+                          <p className="text-sm text-muted-foreground">{aiAnalysis.compatibilityReasoning}</p>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div>
+                          <h4 className="text-sm font-medium mb-2">Top Match Categories</h4>
+                          <div className="space-y-3">
+                            {aiAnalysis.topMatchCategories.map((category, index) => (
+                              <div key={index}>
+                                <div className="flex justify-between text-sm mb-1">
+                                  <span>{category.category}</span>
+                                  <span className="font-medium">{category.score}%</span>
+                                </div>
+                                <Progress value={category.score} className="h-2" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div>
+                          <h4 className="text-sm font-medium mb-2">Key Insights</h4>
+                          <p className="text-sm text-muted-foreground">{aiAnalysis.insightSummary}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <div className="mb-4">
+                      <Sparkles className="h-10 w-10 text-primary/40 mx-auto" />
+                    </div>
+                    <h3 className="text-lg font-medium mb-2">AI Analysis Not Generated Yet</h3>
+                    <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+                      Generate an AI-powered analysis to get deeper insights into your compatibility with {data.entity.name}.
+                    </p>
+                    <Button 
+                      onClick={generateAIAnalysis} 
+                      disabled={isGeneratingAI}
+                      className="gap-2"
+                    >
+                      {isGeneratingAI ? (
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-4 w-4" />
+                      )}
+                      {isGeneratingAI ? 'Generating Analysis...' : 'Generate AI Analysis'}
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
             </Tabs>
           </CardContent>
           <CardFooter className="justify-between border-t pt-4">
@@ -519,9 +654,27 @@ export function AnalyzeOverlap() {
               <Clock className="h-3 w-3" /> Analysis performed {new Date().toLocaleString()}
             </div>
             
-            <Button variant="outline" size="sm" className="gap-1">
-              <Save className="h-3 w-3" /> Save Analysis
-            </Button>
+            <div className="flex items-center gap-2">
+              {!aiAnalysis && (
+                <Button 
+                  onClick={generateAIAnalysis} 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-1"
+                  disabled={isGeneratingAI}
+                >
+                  {isGeneratingAI ? (
+                    <RefreshCw className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3" />
+                  )}
+                  {isGeneratingAI ? 'Generating...' : 'AI Analysis'}
+                </Button>
+              )}
+              <Button variant="outline" size="sm" className="gap-1">
+                <Save className="h-3 w-3" /> Save Analysis
+              </Button>
+            </div>
           </CardFooter>
         </Card>
         
