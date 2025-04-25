@@ -12,6 +12,7 @@ import { useDemo, DemoProvider } from "@/hooks/use-demo";
 import NotFound from "@/pages/not-found";
 import AppHeader from "@/components/layout/Header2";
 import AnimatedRoutes from "@/components/layout/AnimatedRoutes";
+import SuspenseWrapper from "@/components/layout/SuspenseWrapper";
 import Home from "@/pages/Home";
 import Signup from "@/pages/auth/Signup";
 import Demo from "@/pages/Demo";
@@ -228,27 +229,19 @@ function Router() {
         );
       }} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
-      {/* Wrapping lazy-loaded engage components with Suspense */}
-      <Route path="/engage" component={() => (
-        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
-          {React.createElement(lazy(() => import('./pages/engage/EngageIndex')))}
-        </React.Suspense>
-      )} />
-      <Route path="/engage/persona" component={() => (
-        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
-          {React.createElement(lazy(() => import('./pages/engage/EngagePersona')))}
-        </React.Suspense>
-      )} />
-      <Route path="/engage/online" component={() => (
-        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
-          {React.createElement(lazy(() => import('./pages/engage/EngageOnline')))}
-        </React.Suspense>
-      )} />
-      <Route path="/engage/offline" component={() => (
-        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
-          {React.createElement(lazy(() => import('./pages/engage/EngageOffline')))}
-        </React.Suspense>
-      )} />
+      {/* Wrapping lazy-loaded engage components with SuspenseWrapper */}
+      <Route path="/engage" component={() => 
+        <SuspenseWrapper component={lazy(() => import('./pages/engage/EngageIndex'))} />
+      } />
+      <Route path="/engage/persona" component={() => 
+        <SuspenseWrapper component={lazy(() => import('./pages/engage/EngagePersona'))} />
+      } />
+      <Route path="/engage/online" component={() => 
+        <SuspenseWrapper component={lazy(() => import('./pages/engage/EngageOnline'))} />
+      } />
+      <Route path="/engage/offline" component={() => 
+        <SuspenseWrapper component={lazy(() => import('./pages/engage/EngageOffline'))} />
+      } />
       <Route path="/chat" component={ChatPage} />
       <Route path="/animation" component={Animation} />
       <Route path="/mvp-promo" component={MvpPromo} />
@@ -263,16 +256,12 @@ function Router() {
       <Route path="/samples/bookclub" component={BookClubSamplePage} />
       
       {/* Widget Routes */}
-      <Route path="/widget" component={() => (
-        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
-          {React.createElement(lazy(() => import("@/pages/widget/WidgetPage")))}
-        </React.Suspense>
-      )} />
-      <Route path="/widget/demo" component={() => (
-        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
-          {React.createElement(lazy(() => import("@/pages/widget/DemoPage")))}
-        </React.Suspense>
-      )} />
+      <Route path="/widget" component={() => 
+        <SuspenseWrapper component={lazy(() => import("@/pages/widget/WidgetPage"))} />
+      } />
+      <Route path="/widget/demo" component={() => 
+        <SuspenseWrapper component={lazy(() => import("@/pages/widget/DemoPage"))} />
+      } />
       
       <Route component={NotFound} />
     </Switch>
