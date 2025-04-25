@@ -230,18 +230,23 @@ function Router() {
       }} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
       {/* Wrapping lazy-loaded engage components with SuspenseWrapper */}
-      <Route path="/engage" component={() => 
-        <SuspenseWrapper component={lazy(() => import('./pages/engage/EngageIndex'))} />
-      } />
-      <Route path="/engage/persona" component={() => 
-        <SuspenseWrapper component={lazy(() => import('./pages/engage/EngagePersona'))} />
-      } />
-      <Route path="/engage/online" component={() => 
-        <SuspenseWrapper component={lazy(() => import('./pages/engage/EngageOnline'))} />
-      } />
-      <Route path="/engage/offline" component={() => 
-        <SuspenseWrapper component={lazy(() => import('./pages/engage/EngageOffline'))} />
-      } />
+      <Route path="/engage" component={() => {
+        // Pre-load the component outside the render function to avoid hooks issues
+        const EngageIndexComponent = lazy(() => import('./pages/engage/EngageIndex'));
+        return <SuspenseWrapper component={EngageIndexComponent} />;
+      }} />
+      <Route path="/engage/persona" component={() => {
+        const EngagePersonaComponent = lazy(() => import('./pages/engage/EngagePersona'));
+        return <SuspenseWrapper component={EngagePersonaComponent} />;
+      }} />
+      <Route path="/engage/online" component={() => {
+        const EngageOnlineComponent = lazy(() => import('./pages/engage/EngageOnline'));
+        return <SuspenseWrapper component={EngageOnlineComponent} />;
+      }} />
+      <Route path="/engage/offline" component={() => {
+        const EngageOfflineComponent = lazy(() => import('./pages/engage/EngageOffline'));
+        return <SuspenseWrapper component={EngageOfflineComponent} />;
+      }} />
       <Route path="/chat" component={ChatPage} />
       <Route path="/animation" component={Animation} />
       <Route path="/mvp-promo" component={MvpPromo} />
@@ -256,12 +261,14 @@ function Router() {
       <Route path="/samples/bookclub" component={BookClubSamplePage} />
       
       {/* Widget Routes */}
-      <Route path="/widget" component={() => 
-        <SuspenseWrapper component={lazy(() => import("@/pages/widget/WidgetPage"))} />
-      } />
-      <Route path="/widget/demo" component={() => 
-        <SuspenseWrapper component={lazy(() => import("@/pages/widget/DemoPage"))} />
-      } />
+      <Route path="/widget" component={() => {
+        const WidgetPageComponent = lazy(() => import("@/pages/widget/WidgetPage"));
+        return <SuspenseWrapper component={WidgetPageComponent} />;
+      }} />
+      <Route path="/widget/demo" component={() => {
+        const DemoPageComponent = lazy(() => import("@/pages/widget/DemoPage"));
+        return <SuspenseWrapper component={DemoPageComponent} />;
+      }} />
       
       <Route component={NotFound} />
     </Switch>
