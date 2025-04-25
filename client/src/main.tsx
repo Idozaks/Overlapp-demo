@@ -7,8 +7,6 @@ import { DemoProvider } from './hooks/use-demo'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <DemoProvider>
-      <App />
-    </DemoProvider>
+    <App />
   </React.StrictMode>
 )
