@@ -8,7 +8,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
-import { DemoProvider, useDemo } from "@/hooks/use-demo";
+import { useDemo, DemoProvider } from "@/hooks/use-demo";
 import NotFound from "@/pages/not-found";
 import AppHeader from "@/components/layout/Header2";
 import Home from "@/pages/Home";
