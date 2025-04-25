@@ -228,10 +228,27 @@ function Router() {
         );
       }} />
       {user?.isAdmin && <Route path="/admin/interests" component={InterestManager} />}
-      <Route path="/engage" component={lazy(() => import('./pages/engage/EngageIndex'))} />
-      <Route path="/engage/persona" component={lazy(() => import('./pages/engage/EngagePersona'))} />
-      <Route path="/engage/online" component={lazy(() => import('./pages/engage/EngageOnline'))} />
-      <Route path="/engage/offline" component={lazy(() => import('./pages/engage/EngageOffline'))} />
+      {/* Wrapping lazy-loaded engage components with Suspense */}
+      <Route path="/engage" component={() => (
+        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
+          {React.createElement(lazy(() => import('./pages/engage/EngageIndex')))}
+        </React.Suspense>
+      )} />
+      <Route path="/engage/persona" component={() => (
+        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
+          {React.createElement(lazy(() => import('./pages/engage/EngagePersona')))}
+        </React.Suspense>
+      )} />
+      <Route path="/engage/online" component={() => (
+        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
+          {React.createElement(lazy(() => import('./pages/engage/EngageOnline')))}
+        </React.Suspense>
+      )} />
+      <Route path="/engage/offline" component={() => (
+        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
+          {React.createElement(lazy(() => import('./pages/engage/EngageOffline')))}
+        </React.Suspense>
+      )} />
       <Route path="/chat" component={ChatPage} />
       <Route path="/animation" component={Animation} />
       <Route path="/mvp-promo" component={MvpPromo} />
@@ -246,8 +263,16 @@ function Router() {
       <Route path="/samples/bookclub" component={BookClubSamplePage} />
       
       {/* Widget Routes */}
-      <Route path="/widget" component={lazy(() => import("@/pages/widget/WidgetPage"))} />
-      <Route path="/widget/demo" component={lazy(() => import("@/pages/widget/DemoPage"))} />
+      <Route path="/widget" component={() => (
+        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
+          {React.createElement(lazy(() => import("@/pages/widget/WidgetPage")))}
+        </React.Suspense>
+      )} />
+      <Route path="/widget/demo" component={() => (
+        <React.Suspense fallback={<div className="container py-12 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto" /></div>}>
+          {React.createElement(lazy(() => import("@/pages/widget/DemoPage")))}
+        </React.Suspense>
+      )} />
       
       <Route component={NotFound} />
     </Switch>
