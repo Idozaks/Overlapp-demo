@@ -8,18 +8,19 @@ export interface SuspenseWrapperProps {
   fallback?: React.ReactNode;
 }
 
+const LoadingFallback = () => (
+  <div className="container py-12 text-center">
+    <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+  </div>
+);
+
 export default function SuspenseWrapper({ 
   component: Component, 
-  fallback 
+  fallback = <LoadingFallback />
 }: SuspenseWrapperProps) {
-  const defaultFallback = (
-    <div className="container py-12 text-center">
-      <Loader2 className="h-10 w-10 animate-spin mx-auto" />
-    </div>
-  );
-
+  // No conditional return statements before this point
   return (
-    <Suspense fallback={fallback || defaultFallback}>
+    <Suspense fallback={fallback}>
       <Component />
     </Suspense>
   );
