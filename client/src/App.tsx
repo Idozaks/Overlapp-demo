@@ -69,7 +69,8 @@ import {
   ShoppingBag,
   MessageCircle,
   Sparkles,
-  BookmarkIcon
+  BookmarkIcon,
+  BarChart
 } from "lucide-react";
 import "./lib/i18n";
 import About from "@/pages/About"; // Import the About component
