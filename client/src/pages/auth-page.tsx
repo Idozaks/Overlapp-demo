@@ -70,6 +70,7 @@ export default function AuthPage() {
     defaultValues: {
       username: "",
       email: "",
+      displayName: "",
       password: "",
       confirmPassword: "",
     },
@@ -219,6 +220,23 @@ export default function AuthPage() {
                             <Input
                               type="email"
                               placeholder="Enter your email"
+                              {...field}
+                              disabled={registerMutation.isPending}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="displayName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Display Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Choose a display name"
                               {...field}
                               disabled={registerMutation.isPending}
                             />
