@@ -139,6 +139,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
   
+  // AI Analysis endpoint
+  app.post("/api/ai/analyze", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const { entityType, entityName, entityDescription, userInterests, entityInterests, sharedInterests } = req.body;
+      
+      if (!entityType || !entityName || !userInterests || !entityInterests) {
+        return res.status(400).json({ 
+          message: "Missing required fields: entityType, entityName, userInterests, entityInterests"
+        });
+      }
+      
+      const analysisRequest: AnalysisRequest = {
+        entityType: entityType,
+        entityName: entityName,
+        entityDescription: entityDescription || "",
+        userInterests: userInterests,
+        entityInterests: entityInterests,
+        sharedInterests: sharedInterests || userInterests.filter(i => entityInterests.includes(i))
+      };
+      
+      // Generate AI analysis using OpenAI
+      const analysis = await generateAIAnalysis(analysisRequest);
+      
+      res.json({
+        analysis,
+        success: true
+      });
+    } catch (error) {
+      log("Error generating AI analysis:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to generate AI analysis", error: String(error) });
+    }
+  });
+  
   // AI Companions routes
   app.get("/api/ai/companions", async (req: Request, res: Response) => {
     try {
