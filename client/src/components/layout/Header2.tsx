@@ -64,7 +64,7 @@ export function Header() {
                   isActive(item.path) && "bg-accent"
                 )}
               >
-                {t(`nav.${item.label.toLowerCase()}`)}
+                {item.label}
                 <ChevronDown size={16} />
               </Button>
             </DropdownMenuTrigger>
@@ -78,7 +78,7 @@ export function Header() {
                       isActive(subItem.path) && "bg-accent"
                     )}
                   >
-                    {t(`nav.${subItem.label.toLowerCase().replace(/\s+/g, '_')}`)}
+                    {subItem.label}
                   </Link>
                 </DropdownMenuItem>
               ))}
@@ -92,7 +92,7 @@ export function Header() {
             asChild
           >
             <Link href={item.path}>
-              {t(`nav.${item.label.toLowerCase()}`)}
+              {item.label}
             </Link>
           </Button>
         )
@@ -111,7 +111,7 @@ export function Header() {
         {mainMenuItems.map((item) => (
           item.subItems ? (
             <div key={item.label} className="flex flex-col gap-2">
-              <p className="font-semibold px-2">{t(`nav.${item.label.toLowerCase()}`)}</p>
+              <p className="font-semibold px-2">{item.label}</p>
               <div className="flex flex-col pl-4 gap-2">
                 {item.subItems.map((subItem) => (
                   <Link 
@@ -123,7 +123,7 @@ export function Header() {
                     )}
                     onClick={() => setMobileOpen(false)}
                   >
-                    {t(`nav.${subItem.label.toLowerCase().replace(/\s+/g, '_')}`)}
+                    {subItem.label}
                   </Link>
                 ))}
               </div>
@@ -138,7 +138,7 @@ export function Header() {
               )}
               onClick={() => setMobileOpen(false)}
             >
-              {t(`nav.${item.label.toLowerCase()}`)}
+              {item.label}
             </Link>
           )
         ))}
@@ -153,21 +153,21 @@ export function Header() {
               onClick={() => setMobileOpen(false)}
             >
               <User size={16} />
-              {t('nav.profile')}
+              Profile
             </Link>
             <Link
               href="/wallet"
               className="px-2 py-1 rounded hover:bg-accent flex items-center gap-2"
               onClick={() => setMobileOpen(false)}
             >
-              {t('nav.wallet')}
+              Wallet
             </Link>
             <Link
               href="/social/explore"
               className="px-2 py-1 rounded hover:bg-accent flex items-center gap-2"
               onClick={() => setMobileOpen(false)}
             >
-              {t('nav.explore_users')}
+              Explore Users
             </Link>
             <Button 
               variant="ghost" 
@@ -178,24 +178,24 @@ export function Header() {
               }}
             >
               <LogOut size={16} className="mr-2" />
-              {t('nav.logout')}
+              Logout
             </Button>
           </>
         ) : (
           <>
             <Link
-              href="/login"
+              href="/auth"
               className="px-2 py-1 rounded hover:bg-accent"
               onClick={() => setMobileOpen(false)}
             >
-              {t('nav.login')}
+              Login
             </Link>
             <Link
-              href="/register"
+              href="/auth"
               className="px-2 py-1 rounded hover:bg-accent"
               onClick={() => setMobileOpen(false)}
             >
-              {t('nav.register')}
+              Register
             </Link>
           </>
         )}
@@ -248,23 +248,23 @@ export function Header() {
                 {profileMenuItems.map((item) => (
                   <DropdownMenuItem key={item.label} asChild>
                     <Link href={item.path}>
-                      {t(`nav.${item.label.toLowerCase().replace(/\s+/g, '_')}`)}
+                      {item.label}
                     </Link>
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuItem onClick={logout}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  {t('nav.logout')}
+                  Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">{t('nav.login')}</Link>
+                <Link href="/auth">Login</Link>
               </Button>
               <Button size="sm" asChild>
-                <Link href="/register">{t('nav.register')}</Link>
+                <Link href="/auth">Register</Link>
               </Button>
             </div>
           )}
