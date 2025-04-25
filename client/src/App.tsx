@@ -82,6 +82,7 @@ import LoginPage from "@/pages/tenant-dashboard/LoginPage"; // Import the Tenant
 import PreviewPage from "@/pages/tenant-dashboard/PreviewPage"; // Import the Widget Preview page
 import SampleSitesPage from "@/pages/samples"; // Import the Sample Sites page
 import BookClubSamplePage from "@/pages/samples/bookclub"; // Import the BookClub sample site
+import AuthPage from "@/pages/auth-page"; // Import the Authentication page
 
 
 function Router() {
@@ -92,6 +93,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/signup" component={Signup} />
+      <Route path="/auth" component={AuthPage} />
       <Route path="/demo" component={Demo} />
       <Route path="/retailer/:id" component={RetailerDetails} />
       <Route path="/contact" component={Contact} />
