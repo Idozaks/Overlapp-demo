@@ -69,8 +69,6 @@ export function SimulationController() {
     }
   }, []);
 
-  if (!isDemoMode) return null;
-
   const journeyTitles = {
     socialDiscovery: 'Social Discovery',
     physicalIntegration: 'Physical Integration',
@@ -120,6 +118,11 @@ export function SimulationController() {
 
   const currentSteps = steps[currentJourneyType] || steps.default;
   const title = journeyTitles[currentJourneyType] || 'Demo';
+
+  // Don't render anything if not in demo mode
+  if (!isDemoMode) {
+    return null;
+  }
 
   if (isMinimized) {
     return (
