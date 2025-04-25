@@ -387,9 +387,11 @@ function OnlineEntityCard({
       </div>
       
       <CardFooter className="flex justify-between p-3 bg-card">
-        <Button variant="ghost" size="sm">
-          <BarChart className="h-4 w-4 mr-1" /> Analyze Overlap
-        </Button>
+        <Link href={`/analyze/online/${entity.id}`}>
+          <Button variant="ghost" size="sm">
+            <BarChart className="h-4 w-4 mr-1" /> Analyze Overlap
+          </Button>
+        </Link>
         
         <div className="flex gap-1">
           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">

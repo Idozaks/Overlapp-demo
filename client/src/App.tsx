@@ -301,6 +301,23 @@ function Router() {
           </Suspense>
         );
       }} />
+      
+      {/* Analysis Pages with type and id parameters */}
+      <Route path="/engage/analyze/:type/:id" component={() => {
+        const AnalyzeOverlapComponent = lazy(() => 
+          import('./pages/engage/AnalyzeOverlap')
+        );
+        
+        return (
+          <Suspense fallback={
+            <div className="container py-12 text-center">
+              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+            </div>
+          }>
+            <AnalyzeOverlapComponent />
+          </Suspense>
+        );
+      }} />
       <Route path="/chat" component={ChatPage} />
       <Route path="/animation" component={Animation} />
       <Route path="/mvp-promo" component={MvpPromo} />
@@ -313,6 +330,23 @@ function Router() {
       {/* Sample Websites for OverlapLite Demo */}
       <Route path="/samples" component={SampleSitesPage} />
       <Route path="/samples/bookclub" component={BookClubSamplePage} />
+
+      {/* Analysis Routes */}
+      <Route path="/analyze/:type/:id" component={() => {
+        const AnalyzeComponent = lazy(() => 
+          import('./pages/engage/AnalyzeOverlap')
+        );
+        
+        return (
+          <Suspense fallback={
+            <div className="container py-12 text-center">
+              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+            </div>
+          }>
+            <AnalyzeComponent />
+          </Suspense>
+        );
+      }} />
       
       {/* Widget Routes using static components with Suspense boundary to avoid hooks issues */}
       <Route path="/widget" component={() => {

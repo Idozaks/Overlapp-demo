@@ -301,9 +301,11 @@ function UserCard({ user }: { user: SimpleUser }) {
       </div>
       
       <CardFooter className="flex justify-between p-3 bg-card">
-        <Button variant="ghost" size="sm">
-          <BarChart className="h-4 w-4 mr-1" /> Analyze Overlap
-        </Button>
+        <Link href={`/analyze/persona/${user.id}`}>
+          <Button variant="ghost" size="sm">
+            <BarChart className="h-4 w-4 mr-1" /> Analyze Overlap
+          </Button>
+        </Link>
         
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
