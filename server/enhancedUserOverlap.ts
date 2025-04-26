@@ -24,7 +24,7 @@ export interface AttributeWeights {
 /**
  * Default attribute weights if not specified
  */
-const DEFAULT_WEIGHTS: AttributeWeights = {
+export const DEFAULT_WEIGHTS: AttributeWeights = {
   interestsWeight: 7,
   valuesWeight: 6,
   professionalWeight: 5,
@@ -190,7 +190,7 @@ function calculateProfileCompleteness(user: User): {
 /**
  * Calculate dimensional compatibility scores between two users
  */
-function calculateDimensionalScores(
+export function calculateDimensionalScores(
   currentUser: User,
   targetUser: User,
   semanticResult: {
@@ -301,7 +301,7 @@ function calculateDimensionalScores(
 /**
  * Find common and different identity attributes between users
  */
-function analyzeIdentityAttributes(
+export function analyzeIdentityAttributes(
   currentUser: User,
   targetUser: User
 ): {
@@ -340,7 +340,7 @@ function analyzeIdentityAttributes(
 /**
  * Generate an enhanced prompt for OpenAI that requests the structured response
  */
-function generateEnhancedPrompt(
+export function generateEnhancedPrompt(
   currentUser: User, 
   targetUser: User,
   semanticResult: {
