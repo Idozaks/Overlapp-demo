@@ -29,7 +29,8 @@ import {
   Clock,
   Check,
   Zap,
-  Calendar
+  Calendar,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
@@ -40,6 +41,7 @@ export function AnalyzeOverlap() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const params = useParams();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('visualization');
   
   // Get entity type and ID from the URL
@@ -535,54 +537,140 @@ export function AnalyzeOverlap() {
               <TabsContent value="ai-analysis" className="mt-6">
                 {aiAnalysis ? (
                   <div className="space-y-6">
-                    <div className="bg-muted/20 p-4 rounded-lg border border-muted">
-                      <div className="flex items-start gap-3 mb-4">
-                        <div className="bg-primary/10 p-2 rounded-full">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-medium">AI-Powered Compatibility Analysis</h3>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={generateAIAnalysis}
+                        disabled={isGeneratingAI}
+                        className="gap-2"
+                      >
+                        {isGeneratingAI ? (
+                          <>
+                            <RefreshCw className="h-4 w-4 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="h-4 w-4" />
+                            Refresh Analysis
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  
+                    <div className="p-4 bg-primary/5 rounded-lg">
+                      <div className="flex items-start gap-4 mb-3">
+                        <div className="bg-primary/10 p-3 rounded-full">
                           <Sparkles className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <h3 className="font-medium">AI-Enhanced Compatibility Analysis</h3>
+                          <h3 className="font-medium mb-1">Compatibility Assessment</h3>
                           <p className="text-sm text-muted-foreground">
-                            An in-depth analysis powered by artificial intelligence
+                            {aiAnalysis.compatibilityReasoning || data.overlap.summary || "Based on your shared interests and values, we've analyzed your compatibility."}
                           </p>
                         </div>
                       </div>
+                    </div>
                       
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-sm font-medium mb-2">Compatibility Reasoning</h4>
-                          <p className="text-sm text-muted-foreground">{aiAnalysis.compatibilityReasoning || "No compatibility reasoning provided."}</p>
-                        </div>
-                        
-                        <Separator />
-                        
-                        <div>
-                          <h4 className="text-sm font-medium mb-2">Top Match Categories</h4>
-                          <div className="space-y-3">
-                            {Array.isArray(aiAnalysis.topMatchCategories) && aiAnalysis.topMatchCategories.length > 0 ? (
-                              aiAnalysis.topMatchCategories.map((category: {category: string, score: number}, index: number) => (
-                                <div key={index}>
-                                  <div className="flex justify-between text-sm mb-1">
-                                    <span>{category.category}</span>
-                                    <span className="font-medium">{category.score}%</span>
-                                  </div>
-                                  <Progress value={category.score} className="h-2" />
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-sm text-muted-foreground">No match categories available.</p>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <Separator />
-                        
-                        <div>
-                          <h4 className="text-sm font-medium mb-2">Key Insights</h4>
-                          <p className="text-sm text-muted-foreground">{aiAnalysis.insightSummary || "No insight summary provided."}</p>
-                        </div>
+                    {/* Top Match Categories */}
+                    <div>
+                      <h3 className="font-medium mb-3">Compatibility Dimensions</h3>
+                      <div className="space-y-3">
+                        {Array.isArray(aiAnalysis.topMatchCategories) && aiAnalysis.topMatchCategories.length > 0 ? (
+                          aiAnalysis.topMatchCategories.map((category: {category: string, score: number}, index: number) => (
+                            <div key={index}>
+                              <div className="flex items-center justify-between text-sm mb-1">
+                                <span>{category.category}</span>
+                                <span className="font-medium">{category.score}%</span>
+                              </div>
+                              <Progress value={category.score} className="h-2" />
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No match categories available.</p>
+                        )}
                       </div>
                     </div>
+                    
+                    {/* Key Insights */}
+                    {Array.isArray(aiAnalysis.keyInsights) && aiAnalysis.keyInsights.length > 0 && (
+                      <div>
+                        <h3 className="font-medium mb-2">Key Insights</h3>
+                        <ul className="space-y-2">
+                          {aiAnalysis.keyInsights.map((insight: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2 text-sm">
+                              <div className="mt-0.5"><Check className="h-4 w-4 text-primary" /></div>
+                              <span>{insight}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Insight Summary */}
+                    <div className="p-4 bg-primary/5 rounded-lg">
+                      <h3 className="font-medium mb-2">Detailed Analysis</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {aiAnalysis.insightSummary || data.overlap.detailedAnalysis || "You share several key interests that provide a strong foundation for meaningful engagement."}
+                      </p>
+                    </div>
+                    
+                    {/* Recommended Activities */}
+                    {data.overlap.recommendedActivities && (
+                      <div>
+                        <h3 className="font-medium mb-2">Recommended Activities</h3>
+                        
+                        {data.overlap.recommendedActivities.quick && data.overlap.recommendedActivities.quick.length > 0 && (
+                          <div className="mb-3">
+                            <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
+                              <Clock className="h-3 w-3" /> Quick Wins
+                            </h4>
+                            <ul className="space-y-1">
+                              {data.overlap.recommendedActivities.quick.map((activity: string, idx: number) => (
+                                <li key={idx} className="text-sm text-muted-foreground pl-5 relative">
+                                  <span className="absolute left-0 top-1.5 w-3 h-0.5 bg-primary"></span>
+                                  {activity}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {data.overlap.recommendedActivities.projects && data.overlap.recommendedActivities.projects.length > 0 && (
+                          <div className="mb-3">
+                            <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
+                              <Calendar className="h-3 w-3" /> Projects
+                            </h4>
+                            <ul className="space-y-1">
+                              {data.overlap.recommendedActivities.projects.map((activity: string, idx: number) => (
+                                <li key={idx} className="text-sm text-muted-foreground pl-5 relative">
+                                  <span className="absolute left-0 top-1.5 w-3 h-0.5 bg-primary"></span>
+                                  {activity}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {data.overlap.recommendedActivities.learning && data.overlap.recommendedActivities.learning.length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
+                              <BookOpen className="h-3 w-3" /> Learning
+                            </h4>
+                            <ul className="space-y-1">
+                              {data.overlap.recommendedActivities.learning.map((activity: string, idx: number) => (
+                                <li key={idx} className="text-sm text-muted-foreground pl-5 relative">
+                                  <span className="absolute left-0 top-1.5 w-3 h-0.5 bg-primary"></span>
+                                  {activity}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-10">
@@ -591,7 +679,8 @@ export function AnalyzeOverlap() {
                     </div>
                     <h3 className="text-lg font-medium mb-2">AI Analysis Not Generated Yet</h3>
                     <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-                      Generate an AI-powered analysis to get deeper insights into your compatibility with {data.entity.name}.
+                      View enhanced AI analysis of your compatibility with {data.entity.name}, 
+                      including personalized insights and recommendations.
                     </p>
                     <Button 
                       onClick={generateAIAnalysis} 
@@ -599,39 +688,16 @@ export function AnalyzeOverlap() {
                       className="gap-2"
                     >
                       {isGeneratingAI ? (
-                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        <>
+                          <RefreshCw className="h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
                       ) : (
-                        <Sparkles className="h-4 w-4" />
+                        <>
+                          <Sparkles className="h-4 w-4" />
+                          Show Enhanced Analysis
+                        </>
                       )}
-                      {isGeneratingAI ? 'Generating Analysis...' : 'Generate AI Analysis'}
-                    </Button>
-                    
-                    {/* Debug button for testing */}
-                    <Button 
-                      onClick={() => {
-                        const mockAnalysis = {
-                          compatibilityScore: 88,
-                          compatibilityReasoning: "Based on shared interests in technology, creative pursuits, and similar values around collaboration, there appears to be a strong compatibility between you.",
-                          topMatchCategories: [
-                            { category: "Technology", score: 92 },
-                            { category: "Creative Activities", score: 85 },
-                            { category: "Professional Development", score: 78 }
-                          ],
-                          conversationStarters: [
-                            "I noticed we both have an interest in technology. What recent innovations have you found most exciting?",
-                            "How did you first get interested in creative activities?",
-                            "What aspects of professional development do you find most valuable?"
-                          ],
-                          insightSummary: "You share a strong foundation in technology interests with complementary creative pursuits. This overlap suggests potential for meaningful collaboration and knowledge exchange."
-                        };
-                        setAiAnalysis(mockAnalysis);
-                        setActiveTab('ai-analysis');
-                      }} 
-                      variant="outline" 
-                      size="sm"
-                      className="mt-4 text-xs"
-                    >
-                      Test with Mock Data
                     </Button>
                   </div>
                 )}
