@@ -1,301 +1,189 @@
-import { OpenAI } from "openai";
-import { User, Entity, EntityContent } from "@shared/schema";
-import { log } from "./vite";
-import { calculateInterestSimilarity, SemanticMatch } from "./semanticSimilarity";
+import OpenAI from "openai";
+import { User, Entity, EntityContent } from '@shared/schema';
+import { log } from './vite';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY
 });
 
-/**
- * Enhanced response interface for entity-user overlap analysis
- */
-export interface EnhancedEntityOverlapAnalysisResponse {
-  // Overview information
-  summary: string;                           // Brief overview of compatibility (1-2 paragraphs)
-  detailedAnalysis: string;                  // More in-depth analysis (3-5 paragraphs)
-  
-  // Score data
-  overallScore: number;                      // 0-1 aggregate score
-  confidenceLevel: number;                   // 0-1 confidence in analysis
-  
-  // Interest and content data
-  exactMatchInterests: string[];             // Exact interest matches with entity
-  semanticMatchInterests: SemanticMatch[];   // Semantic interest matches with entity
-  relevantContent: Array<{                   // Entity content most relevant to user
-    contentId: number;
-    title: string;
-    type: string;
-    relevanceScore: number;                  // 0-1 relevance score
+// Interface for the response from the enhanced analysis
+export interface EnhancedEntityOverlapResponse {
+  summary: string;
+  detailedAnalysis: string;
+  overallScore: number;
+  dimensionalScores: {
+    interests: number;
+    relevance: number;
+    engagement: number;
+    values: number;
+    learning: number;
+  };
+  confidenceLevel: number;
+  exactMatchInterests: string[];
+  semanticMatchInterests: Array<{
+    userInterest: string;
+    entityTopic: string;
+    similarityScore: number;
+    confidence: number;
   }>;
-  
-  // Actionable information
-  keyInsights: string[];                     // List of 3-5 key insights about compatibility
-  personalizedRecommendations: string[];     // Customized recommendations based on user profile
-  suggestedActivities: Array<{               // Specific activities related to the entity
-    activity: string;
-    description: string;
-    relevantInterests: string[];
+  uniqueUserInterests: string[];
+  uniqueEntityTopics: string[];
+  keyInsights: string[];
+  conversationStarters: Array<string | {
+    opener: string;
+    followUps: string[];
+    relevantTopics: string[];
   }>;
-  
-  // Future engagement suggestions
-  futureEngagementOpportunities: Array<{     // Long-term engagement opportunities
-    opportunity: string;
-    benefitDescription: string;
-  }>;
+  recommendedActivities: {
+    quick: string[];
+    projects: string[];
+    learning: string[];
+  };
 }
 
 /**
- * Calculate the relevance of entity content to user interests
+ * Extract interests and themes from entity content
  */
-function calculateContentRelevance(
-  entityContent: EntityContent[],
-  userInterests: string[],
-  semanticMatches: SemanticMatch[]
-): Array<{
-  contentId: number;
-  title: string;
-  type: string;
-  relevanceScore: number;
-}> {
-  // If no content or interests, return empty array
-  if (entityContent.length === 0 || (userInterests.length === 0 && semanticMatches.length === 0)) {
+function extractEntityThemes(entityContent: EntityContent[]): string[] {
+  if (!entityContent || !entityContent.length) {
+    return [];
+  }
+
+  const themes = new Set<string>();
+  
+  entityContent.forEach(content => {
+    // Add content type as a theme
+    if (content.contentType) {
+      themes.add(content.contentType);
+    }
+    
+    // Add content category as a theme
+    if (content.category) {
+      themes.add(content.category);
+    }
+    
+    // Extract keywords from title
+    if (content.title) {
+      const words = content.title.split(/\s+/);
+      words.forEach(word => {
+        if (word.length > 4) {
+          themes.add(word);
+        }
+      });
+    }
+    
+    // Extract keywords from description
+    if (content.description) {
+      const words = content.description.split(/\s+/);
+      words.forEach(word => {
+        if (word.length > 4) {
+          themes.add(word);
+        }
+      });
+    }
+    
+    // Add tags
+    if (content.tags && Array.isArray(content.tags)) {
+      content.tags.forEach(tag => themes.add(tag));
+    }
+  });
+  
+  return Array.from(themes);
+}
+
+/**
+ * Find exact matches between user interests and entity themes
+ */
+function findExactMatches(userInterests: string[], entityThemes: string[]): string[] {
+  if (!userInterests || !userInterests.length || !entityThemes || !entityThemes.length) {
     return [];
   }
   
-  // Process each content item
-  return entityContent.map(content => {
-    // Clean and prepare text
-    const contentTitle = content.title?.toLowerCase() || "";
-    const contentDescription = content.description?.toLowerCase() || "";
-    const combinedText = `${contentTitle} ${contentDescription}`;
-    
-    // Score based on direct interest matches
-    let matchScore = 0;
-    let matchCount = 0;
-    
-    // Check for exact matches
-    userInterests.forEach(interest => {
-      const interestLower = interest.toLowerCase();
-      if (combinedText.includes(interestLower)) {
-        matchScore += 1;
-        matchCount++;
-      }
-    });
-    
-    // Check for semantic matches
-    semanticMatches.forEach(match => {
-      const interest1Lower = match.interest1.toLowerCase();
-      const interest2Lower = match.interest2.toLowerCase();
-      
-      if (combinedText.includes(interest1Lower) || combinedText.includes(interest2Lower)) {
-        // Weight by similarity score
-        matchScore += match.similarityScore;
-        matchCount++;
-      }
-    });
-    
-    // Calculate final relevance score
-    const relevanceScore = matchCount > 0 ? matchScore / matchCount : 0;
-    
-    return {
-      contentId: content.id,
-      title: content.title || "",
-      type: content.type || "unknown",
-      relevanceScore: Math.min(1, relevanceScore)
-    };
-  })
-  .sort((a, b) => b.relevanceScore - a.relevanceScore); // Sort by relevance (descending)
+  const userInterestsLower = userInterests.map(i => i.toLowerCase());
+  const entityThemesLower = entityThemes.map(t => t.toLowerCase());
+  
+  return userInterestsLower.filter(interest => 
+    entityThemesLower.some(theme => theme === interest)
+  );
 }
 
 /**
- * Generate enhanced prompt for entity-user overlap analysis
- */
-function generateEnhancedPrompt(
-  user: User,
-  entity: Entity,
-  entityContent: EntityContent[],
-  userInterests: string[],
-  semanticMatches: SemanticMatch[],
-  relevantContent: Array<{
-    contentId: number;
-    title: string;
-    type: string;
-    relevanceScore: number;
-  }>,
-  overallScore: number
-): string {
-  // Extract user attributes for the prompt
-  const userAttributes = [
-    user.gender,
-    user.ageRange,
-    user.countryOfOrigin,
-    user.languagesSpoken,
-    user.culturalBackground,
-    user.education,
-    user.professionalField,
-    user.personalValues
-  ].filter(Boolean);
-  
-  // Format semantic matches for inclusion in the prompt
-  const formattedSemanticMatches = semanticMatches
-    .map(match => `${match.interest1} ⟷ ${match.interest2} (similarity: ${Math.round(match.similarityScore * 100)}%)`)
-    .join("\n");
-  
-  // Get top relevant content
-  const topContent = relevantContent
-    .filter(item => item.relevanceScore > 0.2)
-    .slice(0, 5);
-  
-  // Format content items by type
-  const reviewContent = entityContent
-    .filter(c => c.type === 'review')
-    .map(c => `${c.title}: ${c.description?.substring(0, 150)}...`)
-    .join("\n");
-    
-  const eventContent = entityContent
-    .filter(c => c.type === 'event')
-    .map(c => `${c.title}: ${c.description?.substring(0, 150)}...`)
-    .join("\n");
-    
-  const productContent = entityContent
-    .filter(c => c.type === 'product')
-    .map(c => `${c.title}: ${c.description?.substring(0, 150)}...`)
-    .join("\n");
-    
-  const postContent = entityContent
-    .filter(c => c.type === 'post')
-    .map(c => `${c.title}: ${c.description?.substring(0, 150)}...`)
-    .join("\n");
-  
-  return `
-# Entity-User Compatibility Analysis Request
-
-## User Profile
-- Name: ${user.displayName || user.username}
-- Bio: ${user.bio || "No bio provided"}
-${userAttributes.length > 0 ? `- Attributes: ${userAttributes.join(", ")}` : ""}
-- Stated Interests: ${userInterests.join(", ") || "No interests specified"}
-
-## Entity Profile
-- Name: ${entity.name}
-- Type: ${entity.entityType} (${entity.category})
-- Description: ${entity.description || "No description provided"}
-- Location: ${entity.coordinates ? `Lat: ${entity.coordinates.latitude}, Lng: ${entity.coordinates.longitude}` : "No location data"}
-
-## Entity Content Summary
-${reviewContent ? `### Reviews\n${reviewContent}\n` : ""}
-${eventContent ? `### Events\n${eventContent}\n` : ""}
-${productContent ? `### Products\n${productContent}\n` : ""}
-${postContent ? `### Posts\n${postContent}\n` : ""}
-
-## Overlap Analysis
-
-### Interest Relevance
-- Exact Matching Interests: ${semanticMatches.filter(m => m.similarityScore === 1).length > 0 
-  ? semanticMatches.filter(m => m.similarityScore === 1).map(m => m.interest1).join(", ") 
-  : "None"}
-- Semantically Similar Interests:
-${formattedSemanticMatches || "None identified"}
-
-### Most Relevant Content to User
-${topContent.length > 0 
-  ? topContent.map(c => `- ${c.title} (${c.type}, relevance: ${Math.round(c.relevanceScore * 100)}%)`).join("\n") 
-  : "No highly relevant content identified"}
-
-### Overall Compatibility
-- Calculated Compatibility Score: ${Math.round(overallScore * 100)}%
-
-## Analysis Request
-
-Using the data above, please generate a structured response in valid JSON format that includes ALL of the following elements:
-
-1. summary: A brief overview of compatibility (1-2 paragraphs)
-2. detailedAnalysis: More comprehensive analysis (3-5 paragraphs)
-3. keyInsights: Array of 3-5 specific insights about user-entity compatibility
-4. personalizedRecommendations: Array of 3-5 personalized recommendations based on user profile
-5. suggestedActivities: Array of objects containing "activity", "description", and "relevantInterests" fields
-6. futureEngagementOpportunities: Array of objects with "opportunity" and "benefitDescription" fields
-
-Your response must be in proper JSON format that can be parsed by JavaScript.
-`;
-}
-
-/**
- * Enhanced function to generate entity-user overlap analysis with semantic understanding
- * and structured output
+ * Generate enhanced entity-user overlap analysis
  */
 export async function generateEnhancedEntityUserOverlapAnalysis(
   user: User,
   entity: Entity,
   entityContent: EntityContent[],
   userInterests: string[]
-): Promise<EnhancedEntityOverlapAnalysisResponse> {
+): Promise<EnhancedEntityOverlapResponse> {
   try {
-    // Extract entity category and name for analysis
-    const entityCategory = entity.category;
-    const entityType = entity.entityType;
-    const entityName = entity.name;
+    // Extract themes and interests from entity content
+    const entityThemes = extractEntityThemes(entityContent);
     
-    // Generate content keywords from entity data
-    const entityKeywords = [
-      entityCategory, 
-      ...entityName.split(" "), 
-      ...(entity.description || "").split(/\s+/).filter(w => w.length > 4)
-    ];
+    // Find exact matches
+    const exactMatches = findExactMatches(userInterests, entityThemes);
     
-    // Use semantic similarity to find matches between user interests and entity
-    const semanticMatches = await calculateInterestSimilarity(
-      userInterests,
-      entityKeywords,
-      0.65 // slightly lower threshold for entities
-    );
-    
-    // Calculate content relevance
-    const relevantContent = calculateContentRelevance(
-      entityContent,
-      userInterests,
-      semanticMatches
-    );
-    
-    // Calculate a simple overlap score
-    const relevantInterestCount = new Set([
-      ...semanticMatches.map(m => m.interest1)
-    ]).size;
-    
-    const overlapScore = userInterests.length > 0 
-      ? relevantInterestCount / userInterests.length 
-      : 0;
-    
-    // Adjust score based on content relevance
-    const contentRelevanceAvg = relevantContent.length > 0
-      ? relevantContent.reduce((sum, item) => sum + item.relevanceScore, 0) / relevantContent.length
-      : 0;
-    
-    // Combine interest and content scores
-    const combinedScore = overlapScore * 0.7 + contentRelevanceAvg * 0.3;
-    
-    // Generate enhanced prompt
-    const prompt = generateEnhancedPrompt(
-      user,
-      entity,
-      entityContent,
-      userInterests,
-      semanticMatches,
-      relevantContent,
-      combinedScore
-    );
-    
-    log("Generating enhanced entity-user overlap analysis with OpenAI");
+    // Create a prompt for OpenAI to analyze the overlap
+    const prompt = `
+# User-Entity Overlap Analysis
+
+## User Information
+- Name: ${user.displayName || user.username}
+- Age Range: ${user.ageRange || 'Not specified'}
+- Gender: ${user.gender || 'Not specified'}
+- Occupation: ${user.occupation || 'Not specified'}
+- Location: ${user.location || 'Not specified'}
+- Cultural Background: ${user.culturalBackground || 'Not specified'}
+- Personal Values: ${user.personalValues || 'Not specified'}
+
+## User Interests (${userInterests.length})
+${userInterests.map(interest => `- ${interest}`).join('\n')}
+
+## Entity Information
+- Name: ${entity.name}
+- Type: ${entity.entityType}
+- Category: ${entity.category}
+- Description: ${entity.description || 'Not provided'}
+
+## Entity Themes (${entityThemes.length})
+${entityThemes.map(theme => `- ${theme}`).join('\n')}
+
+## Exact Match Interests (${exactMatches.length})
+${exactMatches.map(match => `- ${match}`).join('\n')}
+
+## Analysis Request
+
+I need a comprehensive analysis of the compatibility and potential engagement between this user and entity. Please include:
+
+1. A brief summary (2-3 sentences) of the overall compatibility
+2. A more detailed analysis (paragraph) of the relationship potential
+3. An overall compatibility score (0.0-1.0) and confidence level (0.0-1.0)
+4. Dimensional scores (0.0-1.0) for:
+   - interests alignment
+   - relevance to user
+   - potential engagement level
+   - values alignment
+   - learning opportunities
+5. Semantic matches between user interests and entity themes (beyond exact matches)
+6. Key insights about this specific compatibility (3-5 points)
+7. Conversation starters based on the overlap (3-5 suggestions)
+8. Recommended activities in three categories:
+   - Quick/immediate activities (2-3)
+   - Project-based activities (1-2)
+   - Learning activities (1-2)
+
+Format your response as a structured JSON object with these fields.
+`;
+
+    // Call OpenAI for analysis
+    log(`Calling OpenAI for entity-user overlap analysis (entity ID: ${entity.id})`);
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o", // The newest OpenAI model is "gpt-4o" which was released May 13, 2024. Do not change this.
       messages: [
         {
           role: "system",
-          content: `You are an expert digital-physical identity analyst specializing in understanding compatibility between users and entities. 
-          Your task is to analyze the overlap between a user and an entity (${entityType}: ${entityName}) and provide insightful, structured observations about their compatibility and personalized recommendations.
-          Always format your response as valid JSON that can be parsed with JSON.parse().`
+          content: "You are an expert in social psychology and interest-based matching, specialized in analyzing compatibility between people and entities (organizations, platforms, locations). Your analysis should be balanced, data-driven, and focused on providing actionable insights."
         },
         {
           role: "user",
@@ -304,74 +192,74 @@ export async function generateEnhancedEntityUserOverlapAnalysis(
       ],
       response_format: { type: "json_object" },
       temperature: 0.7,
-      max_tokens: 1500
+      max_tokens: 1800
     });
-    
-    // Extract and parse the JSON response
-    const responseContent = response.choices[0].message.content || "{}";
-    let parsedResponse: any;
-    
-    try {
-      parsedResponse = JSON.parse(responseContent);
-    } catch (e) {
-      log("Error parsing OpenAI response as JSON:", e);
-      throw new Error("Failed to parse AI response as JSON");
+
+    const content = response.choices[0].message.content;
+    if (!content) {
+      throw new Error("Empty response from OpenAI");
     }
+
+    // Parse the response
+    const parsedResponse = JSON.parse(content);
     
-    // Extract exact match interests
-    const exactMatchInterests = semanticMatches
-      .filter(match => match.similarityScore === 1)
-      .map(match => match.interest1);
+    log(`Entity-user overlap analysis completed for entity ${entity.id}, score: ${parsedResponse.overallScore}`);
     
-    // Extract semantic match interests (non-exact matches)
-    const nonExactMatches = semanticMatches
-      .filter(match => match.similarityScore < 1);
-    
-    // Build full response
-    const enhancedResponse: EnhancedEntityOverlapAnalysisResponse = {
-      // Text analysis
-      summary: parsedResponse.summary || "Analysis could not be generated.",
-      detailedAnalysis: parsedResponse.detailedAnalysis || "Detailed analysis unavailable.",
-      
-      // Score data
-      overallScore: combinedScore,
-      confidenceLevel: 0.7, // Fixed for now - could be dynamic based on data quality
-      
-      // Interest and content data
-      exactMatchInterests,
-      semanticMatchInterests: nonExactMatches,
-      relevantContent,
-      
-      // Actionable information
+    // Create the structured response
+    return {
+      summary: parsedResponse.summary || "Analysis not available",
+      detailedAnalysis: parsedResponse.detailedAnalysis || "Detailed analysis not available",
+      overallScore: parsedResponse.overallScore || 0.5,
+      dimensionalScores: parsedResponse.dimensionalScores || {
+        interests: 0.5,
+        relevance: 0.5,
+        engagement: 0.5,
+        values: 0.5,
+        learning: 0.5
+      },
+      confidenceLevel: parsedResponse.confidenceLevel || 0.7,
+      exactMatchInterests: exactMatches,
+      semanticMatchInterests: parsedResponse.semanticMatches || [],
+      uniqueUserInterests: userInterests.filter(interest => !exactMatches.includes(interest)),
+      uniqueEntityTopics: entityThemes.filter(theme => !exactMatches.includes(theme)),
       keyInsights: parsedResponse.keyInsights || [],
-      personalizedRecommendations: parsedResponse.personalizedRecommendations || [],
-      suggestedActivities: parsedResponse.suggestedActivities || [],
-      
-      // Future engagement opportunities
-      futureEngagementOpportunities: parsedResponse.futureEngagementOpportunities || []
+      conversationStarters: parsedResponse.conversationStarters || [],
+      recommendedActivities: parsedResponse.recommendedActivities || {
+        quick: [],
+        projects: [],
+        learning: []
+      }
     };
-    
-    return enhancedResponse;
-    
   } catch (error) {
     log("Error generating enhanced entity-user overlap analysis:", error instanceof Error ? error.message : String(error));
     
-    // Provide a fallback response
+    // Provide a fallback response with basic information
     return {
       summary: "We couldn't generate a complete analysis at this time.",
       detailedAnalysis: "Our analysis system encountered an issue while processing the compatibility between this user and entity. Please try again later.",
-      overallScore: 0,
-      confidenceLevel: 0,
-      exactMatchInterests: [],
+      overallScore: 0.5,
+      dimensionalScores: {
+        interests: 0.5,
+        relevance: 0.5,
+        engagement: 0.5,
+        values: 0.5,
+        learning: 0.5
+      },
+      confidenceLevel: 0.5,
+      exactMatchInterests: findExactMatches(userInterests, extractEntityThemes(entityContent)),
       semanticMatchInterests: [],
-      relevantContent: [],
+      uniqueUserInterests: userInterests,
+      uniqueEntityTopics: extractEntityThemes(entityContent),
       keyInsights: [
         "Analysis currently unavailable.",
         "Try refreshing to generate a new analysis."
       ],
-      personalizedRecommendations: [],
-      suggestedActivities: [],
-      futureEngagementOpportunities: []
+      conversationStarters: [],
+      recommendedActivities: {
+        quick: [],
+        projects: [],
+        learning: []
+      }
     };
   }
 }
