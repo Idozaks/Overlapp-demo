@@ -148,9 +148,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { entityType, entityName, entityDescription, userInterests, entityInterests, sharedInterests } = req.body;
       
+      // Log the request data for debugging
+      log("AI Analysis Request:", JSON.stringify({
+        entityType,
+        entityName,
+        userInterests: userInterests?.length,
+        entityInterests: entityInterests?.length,
+        sharedInterests: sharedInterests?.length
+      }, null, 2));
+      
       if (!entityType || !entityName || !userInterests || !entityInterests) {
+        const missingFields = [];
+        if (!entityType) missingFields.push('entityType');
+        if (!entityName) missingFields.push('entityName');
+        if (!userInterests) missingFields.push('userInterests');
+        if (!entityInterests) missingFields.push('entityInterests');
+        
+        log("Missing required fields for AI analysis:", missingFields.join(', '));
         return res.status(400).json({ 
-          message: "Missing required fields: entityType, entityName, userInterests, entityInterests"
+          message: `Missing required fields: ${missingFields.join(', ')}`
+        });
+      }
+      
+      // Check if OpenAI API key is set
+      if (!process.env.OPENAI_API_KEY) {
+        log("OPENAI_API_KEY is not set");
+        return res.status(500).json({ 
+          message: "OpenAI API key is not configured" 
         });
       }
       
@@ -164,7 +188,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       // Generate AI analysis using OpenAI
+      log("Calling OpenAI for AI analysis...");
       const analysis = await generateAIAnalysis(analysisRequest);
+      log("AI analysis generated successfully:", JSON.stringify({
+        hasResult: !!analysis,
+        compatibilityScore: analysis?.compatibilityScore,
+        hasReasoning: !!analysis?.compatibilityReasoning,
+        topMatchCategories: analysis?.topMatchCategories?.length || 0
+      }, null, 2));
       
       res.json({
         analysis,
