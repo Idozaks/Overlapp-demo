@@ -230,20 +230,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid entity ID" });
       }
       
-      // Get entity data
-      const entity = await storage.getEntity(entityIdNum);
-      if (!entity) {
-        return res.status(404).json({ message: "Entity not found" });
-      }
+      // Normalize entity type to lowercase for case-insensitive comparison
+      const normalizedEntityType = entityType.toLowerCase();
       
-      // Get entity content
-      const entityContent = await storage.getEntityContent(entityIdNum);
-      
-      // Get user interests
+      // Get user interests of current user
       const userInterests = await storage.getUserInterests(currentUser.id);
       const userInterestNames = userInterests.map(interest => interest.name);
       
-      log(`Generating enhanced entity overlap analysis for user ${currentUser.id} and entity ${entityIdNum}`);
+      let entity: any;
+      let entityContent: any[] = [];
+      
+      // Handle different entity types
+      if (normalizedEntityType === 'persona') {
+        // For "persona" type, fetch user data instead of entity data
+        log(`Fetching user data for persona with ID ${entityIdNum}`);
+        entity = await storage.getUser(entityIdNum);
+        
+        if (!entity) {
+          return res.status(404).json({ message: "User persona not found" });
+        }
+        
+        // For personas (users), we'll use their interests as "content"
+        const personaInterests = await storage.getUserInterests(entityIdNum);
+        
+        // Convert user interests to a format similar to entity content
+        entityContent = personaInterests.map(interest => ({
+          id: interest.id,
+          entityId: entityIdNum,
+          title: interest.name,
+          content: interest.description || `Interest in ${interest.name}`,
+          contentType: 'interest',
+          category: interest.category || 'general',
+          createdAt: new Date()
+        }));
+        
+        // Add user attributes as additional content
+        if (entity.bio) {
+          entityContent.push({
+            id: -1,
+            entityId: entityIdNum,
+            title: 'Biography',
+            content: entity.bio,
+            contentType: 'bio',
+            category: 'personal',
+            createdAt: new Date()
+          });
+        }
+        
+        // Convert entity to match expected format by the analysis function
+        entity = {
+          id: entity.id,
+          name: entity.displayName || entity.username,
+          description: entity.bio || `${entity.displayName || entity.username}'s profile`,
+          entityType: 'PERSONA',
+          category: entity.professionalField || 'person',
+          createdAt: entity.createdAt || new Date()
+        };
+      } else {
+        // For other entity types (online, physical), use the regular entity data
+        log(`Fetching entity data for ${normalizedEntityType} with ID ${entityIdNum}`);
+        entity = await storage.getEntity(entityIdNum);
+        
+        if (!entity) {
+          return res.status(404).json({ message: "Entity not found" });
+        }
+        
+        // Get entity content
+        entityContent = await storage.getEntityContent(entityIdNum);
+      }
+      
+      log(`Generating enhanced entity overlap analysis for user ${currentUser.id} and ${normalizedEntityType} ${entityIdNum}`);
       
       // Import the enhanced overlap service
       const { generateEnhancedEntityUserOverlapAnalysis } = await import('./enhancedEntityOverlap');
@@ -277,7 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       log("Error generating enhanced entity-user overlap analysis:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ message: "Unable to generate entity-user overlap analysis" });
+      res.status(500).json({ message: "Unable to generate entity-user overlap analysis", error: String(error) });
     }
   });
   
