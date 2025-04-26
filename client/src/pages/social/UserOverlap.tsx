@@ -434,7 +434,20 @@ export default function UserOverlap() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="flex justify-between">
-            <span>AI Analysis</span>
+            <div className="flex items-center gap-2">
+              <span>AI Analysis</span>
+              {overlapData?.analysis && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowTTS(!showTTS)}
+                  title="Read aloud"
+                  className="text-primary hover:text-primary/80"
+                >
+                  <Volume2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <Button 
               variant="outline" 
               size="sm" 
@@ -452,11 +465,38 @@ export default function UserOverlap() {
         </CardHeader>
         <CardContent>
           {overlapData?.analysis ? (
-            <div className="prose max-w-none dark:prose-invert prose-p:leading-relaxed prose-headings:scroll-m-20">
-              {overlapData.analysis.split('\n').map((paragraph, idx) => 
-                paragraph.trim() ? <p key={idx}>{paragraph}</p> : <br key={idx} />
+            <>
+              <div className="prose max-w-none dark:prose-invert prose-p:leading-relaxed prose-headings:scroll-m-20">
+                {overlapData.analysis.split('\n').map((paragraph, idx) => 
+                  paragraph.trim() ? <p key={idx}>{paragraph}</p> : <br key={idx} />
+                )}
+              </div>
+              
+              {showTTS && (
+                <div className="mt-6 border-t pt-4">
+                  <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Volume2 className="h-4 w-4" />
+                    Text-to-Speech Player
+                  </h3>
+                  <TTSPlayer 
+                    text={overlapData.analysis}
+                    onPlay={() => {
+                      toast({
+                        title: "Audio started",
+                        description: "Playing analysis with AI voice",
+                      });
+                    }}
+                    onError={(error) => {
+                      toast({
+                        title: "Audio error",
+                        description: "Failed to play audio: " + error.message,
+                        variant: "destructive"
+                      });
+                    }}
+                  />
+                </div>
               )}
-            </div>
+            </>
           ) : (
             <div className="text-center text-muted-foreground">
               <Loader2 className="w-6 h-6 animate-spin mx-auto mb-4" />
