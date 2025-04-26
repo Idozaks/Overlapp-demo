@@ -207,6 +207,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Enhanced entity overlap analysis endpoint
+  app.get("/api/analyze/:entityType/:entityId", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const currentUser = req.user;
+      const { entityType, entityId } = req.params;
+      
+      if (!currentUser) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+      
+      if (!entityType || !entityId) {
+        return res.status(400).json({ message: "Entity type and ID are required" });
+      }
+      
+      const entityIdNum = parseInt(entityId);
+      if (isNaN(entityIdNum)) {
+        return res.status(400).json({ message: "Invalid entity ID" });
+      }
+      
+      // Get entity data
+      const entity = await storage.getEntity(entityIdNum);
+      if (!entity) {
+        return res.status(404).json({ message: "Entity not found" });
+      }
+      
+      // Get entity content
+      const entityContent = await storage.getEntityContent(entityIdNum);
+      
+      // Get user interests
+      const userInterests = await storage.getUserInterests(currentUser.id);
+      const userInterestNames = userInterests.map(interest => interest.name);
+      
+      log(`Generating enhanced entity overlap analysis for user ${currentUser.id} and entity ${entityIdNum}`);
+      
+      // Import the enhanced overlap service
+      const { generateEnhancedEntityUserOverlapAnalysis } = await import('./enhancedEntityOverlap');
+      
+      // Generate the enhanced overlap analysis
+      const analysisResult = await generateEnhancedEntityUserOverlapAnalysis(
+        currentUser,
+        entity,
+        entityContent,
+        userInterestNames
+      );
+      
+      res.json({
+        entity,
+        overlap: {
+          score: Math.round(analysisResult.overallScore * 100),
+          confidenceLevel: Math.round(analysisResult.confidenceLevel * 100),
+          summary: analysisResult.summary,
+          detailedAnalysis: analysisResult.detailedAnalysis,
+          dimensionalScores: analysisResult.dimensionalScores,
+          exactMatchInterests: analysisResult.exactMatchInterests,
+          semanticMatchInterests: analysisResult.semanticMatchInterests,
+          sharedInterests: analysisResult.exactMatchInterests,
+          uniqueInterests: analysisResult.uniqueUserInterests || [],
+          conversationStarters: analysisResult.conversationStarters.map(starter => 
+            typeof starter === 'string' ? starter : starter.opener
+          ),
+          keyInsights: analysisResult.keyInsights,
+          recommendedActivities: analysisResult.recommendedActivities
+        }
+      });
+    } catch (error) {
+      log("Error generating enhanced entity-user overlap analysis:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to generate entity-user overlap analysis" });
+    }
+  });
+  
   // AI Companions routes
   app.get("/api/ai/companions", async (req: Request, res: Response) => {
     try {

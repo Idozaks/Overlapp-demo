@@ -72,80 +72,22 @@ export function AnalyzeOverlap() {
     return () => clearInterval(interval);
   }, [entityId, entityType]);
   
-  // Fetch entity data based on type
+  // Fetch entity data using the enhanced overlap analysis API
   const { data, isLoading } = useQuery({
     queryKey: [`/api/analyze/${entityType}/${entityId}`],
-    enabled: !!entityId,
-    // For demo purposes, simulate API data
+    enabled: !!entityId && !!user?.id,
     queryFn: async () => {
-      // Sample data for different entity types
-      if (entityType === 'persona') {
-        return {
-          entity: {
-            id: entityId,
-            name: 'John Doe',
-            avatar: '/images/avatars/avatar-1.jpg',
-            type: 'persona',
-            location: 'San Francisco',
-            occupation: 'Software Engineer',
-            bio: 'Software developer and outdoor enthusiast',
-          },
-          overlap: {
-            score: 87,
-            sharedInterests: ['Technology', 'Travel', 'Photography', 'Hiking'],
-            uniqueInterests: ['Coffee', 'Rock Climbing', 'Machine Learning'],
-            conversationStarters: [
-              'You both share an interest in travel photography. Have you visited any national parks recently?',
-              'John also works in technology. You might want to discuss the latest developments in AI.',
-              'Your mutual interest in hiking could lead to a conversation about favorite trails.'
-            ]
-          }
-        };
-      } else if (entityType === 'online') {
-        return {
-          entity: {
-            id: entityId,
-            name: 'Tech Innovators Forum',
-            icon: 'Globe',
-            type: 'online',
-            category: 'Forum',
-            description: 'A community for technology enthusiasts and innovators',
-            url: 'https://techinnovators.example.com',
-          },
-          overlap: {
-            score: 92,
-            sharedInterests: ['Technology', 'Innovation', 'Programming', 'AI'],
-            uniqueInterests: ['Digital Marketing', 'UX Design', 'Product Management'],
-            conversationStarters: [
-              'This forum has strong focus on AI, which matches your interest in technology.',
-              'You might want to explore their programming discussions which align with your background.',
-              'The innovation section could provide new perspectives related to your interests.'
-            ]
-          }
-        };
-      } else { // physical
-        return {
-          entity: {
-            id: entityId,
-            name: 'Urban Co-Working Space',
-            icon: 'Building2',
-            type: 'physical',
-            category: 'Workspace',
-            address: '123 Main Street, Downtown',
-            description: 'Modern co-working space for professionals and creatives',
-          },
-          overlap: {
-            score: 91,
-            sharedInterests: ['Co-Working', 'Networking', 'Professional', 'Technology'],
-            uniqueInterests: ['Design', 'Marketing', 'Startups'],
-            conversationStarters: [
-              'This space hosts tech meetups that match your interest in technology.',
-              'The networking events here could connect you with others in your field.',
-              'Their professional workshops align well with your background.'
-            ]
-          }
-        };
+      console.log(`Fetching real entity data for ${entityType}/${entityId}`);
+      
+      const response = await fetch(`/api/analyze/${entityType}/${entityId}`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Entity overlap API error:", errorText);
+        throw new Error('Failed to fetch entity overlap analysis: ' + errorText);
       }
+      
+      return response.json();
     }
   });
   
@@ -158,69 +100,46 @@ export function AnalyzeOverlap() {
     }
   }, [data]);
   
-  // Function to generate AI analysis
+  // Enhanced analysis is already performed by the API endpoint,
+  // so this function just enables the UI to show it
   const generateAIAnalysis = async () => {
     if (!data?.entity || !data?.overlap) return;
     
     setIsGeneratingAI(true);
     try {
-      console.log("Making AI analysis request with data:", {
-        entityType,
-        entityName: data.entity.name,
-        userInterests: user?.preferences?.interests || [],
-        entityInterests: [...data.overlap.sharedInterests, ...data.overlap.uniqueInterests],
-        sharedInterests: data.overlap.sharedInterests,
-      });
+      // We already have the enhanced analysis data from the API response
+      // Just update the UI with the relevant information
       
-      const response = await fetch('/api/ai/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          entityType: entityType,
-          entityName: data.entity.name,
-          entityDescription: data.entity.description || data.entity.bio || '',
-          userInterests: user?.preferences?.interests || [],
-          entityInterests: [...data.overlap.sharedInterests, ...data.overlap.uniqueInterests],
-          sharedInterests: data.overlap.sharedInterests
-        }),
-      });
+      // Create analysis from the overlap data
+      const enhancedAnalysis = {
+        compatibilityScore: data.overlap.score,
+        compatibilityReasoning: data.overlap.summary || "Based on your shared interests and values, we've analyzed your compatibility with this entity.",
+        topMatchCategories: [
+          { 
+            category: "Interests Alignment", 
+            score: data.overlap.dimensionalScores?.interests ? Math.round(data.overlap.dimensionalScores.interests * 100) : 85
+          },
+          { 
+            category: "Relevance", 
+            score: data.overlap.dimensionalScores?.relevance ? Math.round(data.overlap.dimensionalScores.relevance * 100) : 80
+          },
+          { 
+            category: "Engagement Value", 
+            score: data.overlap.dimensionalScores?.engagement ? Math.round(data.overlap.dimensionalScores.engagement * 100) : 75
+          }
+        ],
+        conversationStarters: data.overlap.conversationStarters || [],
+        insightSummary: data.overlap.detailedAnalysis || "You share several key interests that provide a strong foundation for meaningful engagement.",
+        keyInsights: data.overlap.keyInsights || []
+      };
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText);
-        throw new Error(`Failed to generate AI analysis: ${errorText}`);
-      }
+      setAiAnalysis(enhancedAnalysis);
       
-      const result = await response.json();
-      console.log("AI analysis response:", result);
-      
-      // If result.analysis is missing, create a default analysis object
-      if (!result.analysis) {
-        console.error("Missing analysis in response:", result);
-        const defaultAnalysis = {
-          compatibilityScore: 85,
-          compatibilityReasoning: "Based on shared interests and values, there appears to be a strong compatibility.",
-          topMatchCategories: [
-            { category: "Technology", score: 90 },
-            { category: "Creative Pursuits", score: 80 },
-            { category: "Professional Development", score: 75 }
-          ],
-          conversationStarters: data.overlap.conversationStarters,
-          insightSummary: "You both share several key interests that provide a strong foundation for meaningful engagement."
-        };
-        setAiAnalysis(defaultAnalysis);
-      } else {
-        setAiAnalysis(result.analysis);
-      }
-      
-      // Update the compatibility score with the AI's score
-      const analysisData = result.analysis || {};
-      if (analysisData.compatibilityScore) {
+      // Update the compatibility score with the data from API
+      if (data.overlap.score) {
         // Animate to the new score
         let currentScore = compatibilityScore;
-        const targetScore = Math.round(analysisData.compatibilityScore);
+        const targetScore = Math.round(data.overlap.score);
         const step = currentScore < targetScore ? 1 : -1;
         
         const interval = setInterval(() => {
@@ -235,8 +154,8 @@ export function AnalyzeOverlap() {
       }
       
       // Update conversation starters if available
-      if (analysisData.conversationStarters && analysisData.conversationStarters.length > 0) {
-        setConversationStarters(analysisData.conversationStarters);
+      if (data.overlap.conversationStarters && data.overlap.conversationStarters.length > 0) {
+        setConversationStarters(data.overlap.conversationStarters);
       }
       
       // Always switch to the AI analysis tab
@@ -244,6 +163,11 @@ export function AnalyzeOverlap() {
       
     } catch (error) {
       console.error('Error generating AI analysis:', error);
+      toast({
+        title: "Analysis Error",
+        description: "We couldn't display the AI analysis. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsGeneratingAI(false);
     }
