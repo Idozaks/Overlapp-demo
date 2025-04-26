@@ -497,7 +497,7 @@ export function AnalyzeOverlap() {
                       Shared Interests
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {sharedInterests.map((interest, index) => (
+                      {sharedInterests.map((interest: string, index: number) => (
                         <Badge key={index} variant="secondary">{interest}</Badge>
                       ))}
                     </div>
@@ -514,7 +514,7 @@ export function AnalyzeOverlap() {
                         Your Unique Interests
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {uniqueInterests.map((interest, index) => (
+                        {uniqueInterests.map((interest: string, index: number) => (
                           <Badge key={index} variant="outline">{interest}</Badge>
                         ))}
                       </div>
@@ -588,7 +588,7 @@ export function AnalyzeOverlap() {
                     </div>
                     
                     <ul className="space-y-3 pl-12">
-                      {conversationStarters.map((starter, index) => (
+                      {conversationStarters.map((starter: string, index: number) => (
                         <li key={index} className="flex items-start gap-2">
                           <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                             <span className="text-xs font-medium text-primary">{index + 1}</span>
@@ -636,7 +636,7 @@ export function AnalyzeOverlap() {
                           <h4 className="text-sm font-medium mb-2">Top Match Categories</h4>
                           <div className="space-y-3">
                             {Array.isArray(aiAnalysis.topMatchCategories) && aiAnalysis.topMatchCategories.length > 0 ? (
-                              aiAnalysis.topMatchCategories.map((category, index) => (
+                              aiAnalysis.topMatchCategories.map((category: {category: string, score: number}, index: number) => (
                                 <div key={index}>
                                   <div className="flex justify-between text-sm mb-1">
                                     <span>{category.category}</span>
@@ -680,6 +680,34 @@ export function AnalyzeOverlap() {
                         <Sparkles className="h-4 w-4" />
                       )}
                       {isGeneratingAI ? 'Generating Analysis...' : 'Generate AI Analysis'}
+                    </Button>
+                    
+                    {/* Debug button for testing */}
+                    <Button 
+                      onClick={() => {
+                        const mockAnalysis = {
+                          compatibilityScore: 88,
+                          compatibilityReasoning: "Based on shared interests in technology, creative pursuits, and similar values around collaboration, there appears to be a strong compatibility between you.",
+                          topMatchCategories: [
+                            { category: "Technology", score: 92 },
+                            { category: "Creative Activities", score: 85 },
+                            { category: "Professional Development", score: 78 }
+                          ],
+                          conversationStarters: [
+                            "I noticed we both have an interest in technology. What recent innovations have you found most exciting?",
+                            "How did you first get interested in creative activities?",
+                            "What aspects of professional development do you find most valuable?"
+                          ],
+                          insightSummary: "You share a strong foundation in technology interests with complementary creative pursuits. This overlap suggests potential for meaningful collaboration and knowledge exchange."
+                        };
+                        setAiAnalysis(mockAnalysis);
+                        setActiveTab('ai-analysis');
+                      }} 
+                      variant="outline" 
+                      size="sm"
+                      className="mt-4 text-xs"
+                    >
+                      Test with Mock Data
                     </Button>
                   </div>
                 )}
