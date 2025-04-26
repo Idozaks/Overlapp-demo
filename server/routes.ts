@@ -1914,6 +1914,146 @@ Example response format:
       res.status(500).json({ message: "Unable to generate user overlap analysis" });
     }
   });
+  
+  // Enhanced user overlap with AI-powered analysis
+  app.get("/api/users/:id/enhanced-overlap", async (req: Request, res: Response) => {
+    try {
+      // Ensure user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const currentUser = req.user as User;
+      const targetUserId = parseInt(req.params.id);
+
+      if (isNaN(targetUserId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Fetch target user
+      const targetUser = await storage.getUser(targetUserId);
+      if (!targetUser) {
+        return res.status(404).json({ message: "Target user not found" });
+      }
+
+      // Get interests for both users
+      const currentUserInterests = await storage.getUserInterests(currentUser.id);
+      const targetUserInterests = await storage.getUserInterests(targetUserId);
+
+      // Extract interest names
+      const currentUserInterestNames = currentUserInterests.map(interest => interest.name);
+      const targetUserInterestNames = targetUserInterests.map(interest => interest.name);
+      
+      // Check for user identity preferences (weights)
+      const identityPreferences = currentUser.identityPreferences as { attributeImportance?: any } | undefined;
+      const userWeights = identityPreferences?.attributeImportance;
+
+      log(`Generating enhanced user overlap analysis between users ${currentUser.id} and ${targetUserId}`);
+      
+      // Import the enhanced user overlap service
+      const { generateEnhancedUserOverlapAnalysis } = await import('./enhancedUserOverlap');
+      
+      // Generate the enhanced overlap analysis
+      const analysisResult = await generateEnhancedUserOverlapAnalysis(
+        currentUser,
+        targetUser,
+        currentUserInterestNames,
+        targetUserInterestNames,
+        userWeights
+      );
+
+      res.json(analysisResult);
+    } catch (error) {
+      log("Error generating enhanced user overlap analysis:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to generate enhanced user overlap analysis" });
+    }
+  });
+  
+  // Streaming user overlap with real-time thought process
+  app.get("/api/users/:id/streaming-overlap", async (req: Request, res: Response) => {
+    try {
+      // Ensure user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const currentUser = req.user as User;
+      const targetUserId = parseInt(req.params.id);
+
+      if (isNaN(targetUserId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Fetch target user
+      const targetUser = await storage.getUser(targetUserId);
+      if (!targetUser) {
+        return res.status(404).json({ message: "Target user not found" });
+      }
+
+      // Get interests for both users
+      const currentUserInterests = await storage.getUserInterests(currentUser.id);
+      const targetUserInterests = await storage.getUserInterests(targetUserId);
+
+      // Extract interest names
+      const currentUserInterestNames = currentUserInterests.map(interest => interest.name);
+      const targetUserInterestNames = targetUserInterests.map(interest => interest.name);
+      
+      // Check for user identity preferences (weights)
+      const identityPreferences = currentUser.identityPreferences as { attributeImportance?: any } | undefined;
+      const userWeights = identityPreferences?.attributeImportance;
+      
+      log(`Generating streaming user overlap analysis between users ${currentUser.id} and ${targetUserId}`);
+      
+      // Import the streaming user overlap service
+      const { generateStreamingUserOverlapAnalysis } = await import('./streamingUserOverlap');
+
+      // Set headers for streaming response
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      
+      try {
+        // Generate the streaming overlap analysis
+        const { analysis, streamingThoughts } = await generateStreamingUserOverlapAnalysis(
+          currentUser,
+          targetUser,
+          currentUserInterestNames,
+          targetUserInterestNames,
+          userWeights
+        );
+        
+        // Send the analysis data first
+        res.write(`data: ${JSON.stringify({ type: 'analysis', data: analysis })}\n\n`);
+        
+        // Stream the thought process
+        const reader = streamingThoughts.getReader();
+        
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            // Send each thought chunk as a server-sent event
+            const chunk = new TextDecoder().decode(value);
+            res.write(`data: ${JSON.stringify({ type: 'thought', data: chunk })}\n\n`);
+          }
+        } finally {
+          reader.releaseLock();
+          res.write(`data: ${JSON.stringify({ type: 'end' })}\n\n`);
+          res.end();
+        }
+      } catch (error) {
+        res.write(`data: ${JSON.stringify({ 
+          type: 'error', 
+          data: error instanceof Error ? error.message : String(error) 
+        })}\n\n`);
+        res.end();
+      }
+    } catch (error) {
+      log("Error setting up streaming analysis:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Unable to generate streaming analysis" });
+    }
+  });
 
   app.delete("/api/users/:id/interests/:interestId", async (req: Request, res: Response) => {
     try {

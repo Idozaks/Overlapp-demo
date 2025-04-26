@@ -1,15 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, MessageSquare, Volume2 } from "lucide-react";
+import { Loader2, ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, MessageSquare, Volume2, Brain } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { TTSPlayer } from "@/components/ui/tts-player";
+import { ThoughtStream } from "@/components/ui/thought-stream";
+import { startAiAnalysisStream, generateStreamingUrl } from "@/lib/streaming-service";
 import { useToast } from "@/hooks/use-toast";
 
 export default function UserOverlap() {
@@ -20,6 +22,11 @@ export default function UserOverlap() {
   const { user: currentUser } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [showTTS, setShowTTS] = useState(false);
+  const [showThoughtStream, setShowThoughtStream] = useState(false);
+  const [streamingThoughts, setStreamingThoughts] = useState("");
+  const [streamingAnalysis, setStreamingAnalysis] = useState<any>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const streamControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
 
   // Make sure we have the needed parameters
