@@ -95,6 +95,55 @@ export default function UserOverlap() {
       setIsGenerating(false);
     }
   };
+  
+  // Function to start streaming analysis
+  const startStreamingAnalysis = () => {
+    // Reset states
+    setIsStreaming(true);
+    setStreamingThoughts("");
+    setStreamingAnalysis(null);
+    
+    // Cancel any existing stream
+    if (streamControllerRef.current) {
+      streamControllerRef.current.abort();
+    }
+    
+    // Create the streaming URL
+    const streamingUrl = generateStreamingUrl(`/api/users/${targetUserId}/streaming-overlap`, {});
+    
+    // Start the streaming connection
+    const controller = startAiAnalysisStream(streamingUrl, {
+      onAnalysis: (analysisData) => {
+        setStreamingAnalysis(analysisData);
+      },
+      onThought: (thoughtData) => {
+        setStreamingThoughts(prev => prev + thoughtData);
+      },
+      onError: (error) => {
+        toast({
+          title: "Streaming Error",
+          description: error,
+          variant: "destructive"
+        });
+        setIsStreaming(false);
+      },
+      onComplete: () => {
+        setIsStreaming(false);
+      }
+    });
+    
+    // Store the controller for potential cancellation
+    streamControllerRef.current = controller;
+  };
+  
+  // Function to stop streaming
+  const stopStreamingAnalysis = () => {
+    if (streamControllerRef.current) {
+      streamControllerRef.current.abort();
+      streamControllerRef.current = null;
+    }
+    setIsStreaming(false);
+  };
 
   // Loading states
   if (loadingUser || loadingOverlap) {
@@ -443,23 +492,35 @@ export default function UserOverlap() {
           <CardTitle className="flex justify-between">
             <div className="flex items-center gap-2">
               <span>AI Analysis</span>
-              {overlapData?.analysis && (
+              <div className="flex space-x-1">
+                {overlapData?.analysis && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowTTS(!showTTS)}
+                    title="Read aloud"
+                    className="text-primary hover:text-primary/80"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowTTS(!showTTS)}
-                  title="Read aloud"
+                  onClick={() => setShowThoughtStream(!showThoughtStream)}
+                  title="Show AI thought process"
                   className="text-primary hover:text-primary/80"
+                  disabled={isStreaming}
                 >
-                  <Volume2 className="h-4 w-4" />
+                  <Brain className="h-4 w-4" />
                 </Button>
-              )}
+              </div>
             </div>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={regenerateAnalysis}
-              disabled={isGenerating}
+              disabled={isGenerating || isStreaming}
             >
               {isGenerating ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -471,6 +532,66 @@ export default function UserOverlap() {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* AI Thought Stream Section */}
+          {showThoughtStream && (
+            <div className="mb-6 p-4 bg-muted/30 rounded-md border border-border">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium flex items-center">
+                  <Brain className="h-4 w-4 mr-2 text-primary" />
+                  AI Reasoning Process
+                </h3>
+                <div className="flex gap-2">
+                  {!isStreaming ? (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={startStreamingAnalysis}
+                      disabled={isStreaming}
+                    >
+                      Start Streaming
+                    </Button>
+                  ) : (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={stopStreamingAnalysis}
+                    >
+                      Stop
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
+              {/* ThoughtStream Component */}
+              <ThoughtStream
+                targetText={streamingThoughts}
+                isLoading={isStreaming && streamingThoughts.length === 0}
+                className="text-xs"
+              />
+              
+              {/* Streaming Results */}
+              {streamingAnalysis && (
+                <div className="mt-4 p-3 bg-primary/5 rounded border border-primary/20">
+                  <h4 className="text-sm font-medium mb-2">Stream Results:</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Overall Score: {Math.round((streamingAnalysis.overallScore || 0) * 100)}%
+                  </p>
+                  {streamingAnalysis.keyInsights && streamingAnalysis.keyInsights.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-xs font-medium">Key Insights:</p>
+                      <ul className="text-xs mt-1 space-y-1">
+                        {streamingAnalysis.keyInsights.slice(0, 3).map((insight: string, i: number) => (
+                          <li key={i} className="text-muted-foreground">• {insight}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        
+          {/* Regular Analysis Content */}
           {overlapData?.analysis ? (
             <>
               <div className="prose max-w-none dark:prose-invert prose-p:leading-relaxed prose-headings:scroll-m-20">

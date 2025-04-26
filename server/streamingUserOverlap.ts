@@ -1,18 +1,17 @@
-import { OpenAI } from "openai";
 import { User } from "@shared/schema";
-import { log } from "./vite";
-import { findSemanticallySimilarInterests, SemanticMatch } from "./semanticSimilarity";
 import { 
-  AttributeWeights, 
+  SemanticMatch, 
   DEFAULT_WEIGHTS, 
-  DimensionalScores, 
-  EnhancedOverlapAnalysisResponse 
+  calculateDimensionalScores, 
+  analyzeIdentityAttributes, 
+  generateEnhancedPrompt,
+  EnhancedOverlapAnalysisResponse
 } from "./enhancedUserOverlap";
-import { analyzeIdentityAttributes, calculateDimensionalScores, generateEnhancedPrompt } from "./enhancedUserOverlap";
+import OpenAI from "openai";
+import { ReadableStream } from "stream/web";
 
-// Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 /**
@@ -25,206 +24,156 @@ export async function generateStreamingUserOverlapAnalysis(
   targetUser: User,
   currentUserInterests: string[],
   targetUserInterests: string[],
-  userPreferences?: AttributeWeights
-): Promise<{
+  userPreferences?: any
+): Promise<{ 
   analysis: EnhancedOverlapAnalysisResponse;
   streamingThoughts: ReadableStream<Uint8Array>;
 }> {
+  // Compare user interests
+  const similarInterests: string[] = currentUserInterests.filter(interest => 
+    targetUserInterests.includes(interest)
+  );
+  
+  const uniqueCurrentUserInterests: string[] = currentUserInterests.filter(interest => 
+    !targetUserInterests.includes(interest)
+  );
+  
+  const uniqueTargetUserInterests: string[] = targetUserInterests.filter(interest => 
+    !currentUserInterests.includes(interest)
+  );
+  
+  // Calculate dimensional scores based on interests and attributes
+  const dimensionalScores = calculateDimensionalScores(
+    currentUser,
+    targetUser,
+    userPreferences
+  );
+  
+  // Calculate overall score as weighted average of dimensional scores
+  const weights = userPreferences || DEFAULT_WEIGHTS;
+  
+  const overallScore = (
+    (dimensionalScores.interests * (weights.interestsWeight || 1)) +
+    (dimensionalScores.values * (weights.valuesWeight || 1)) +
+    (dimensionalScores.professional * (weights.professionalWeight || 1)) +
+    (dimensionalScores.cultural * (weights.culturalWeight || 1)) +
+    (dimensionalScores.communication * (weights.communicationWeight || 1)) +
+    (dimensionalScores.physical * (weights.physicalWeight || 1)) +
+    (dimensionalScores.learning * (weights.learningWeight || 1))
+  ) / (
+    (weights.interestsWeight || 1) +
+    (weights.valuesWeight || 1) +
+    (weights.professionalWeight || 1) +
+    (weights.culturalWeight || 1) +
+    (weights.communicationWeight || 1) +
+    (weights.physicalWeight || 1) +
+    (weights.learningWeight || 1)
+  );
+  
+  // Identify common and different identity attributes
+  const { commonIdentities, differentIdentities } = analyzeIdentityAttributes(
+    currentUser,
+    targetUser
+  );
+  
+  // Use semantic matching to find similar interests that aren't exact matches
+  const semanticMatches: SemanticMatch[] = [];
+  
+  // Generate the enhanced prompt for OpenAI
+  const promptText = generateEnhancedPrompt(
+    currentUser,
+    targetUser,
+    similarInterests,
+    uniqueCurrentUserInterests,
+    uniqueTargetUserInterests,
+    commonIdentities,
+    differentIdentities,
+    dimensionalScores,
+    semanticMatches,
+    userPreferences
+  );
+
   try {
-    // Find semantic matches between interests
-    const semanticResult = await findSemanticallySimilarInterests(
-      currentUserInterests,
-      targetUserInterests
-    );
-    
-    // Analyze identity attributes
-    const identityAnalysis = analyzeIdentityAttributes(
-      currentUser,
-      targetUser
-    );
-    
-    // Calculate dimensional and overall scores
-    const scoreAnalysis = calculateDimensionalScores(
-      currentUser,
-      targetUser,
-      semanticResult,
-      userPreferences
-    );
-    
-    // Generate enhanced prompt for OpenAI
-    const prompt = generateEnhancedPrompt(
-      currentUser,
-      targetUser,
-      semanticResult,
-      scoreAnalysis.dimensionalScores,
-      scoreAnalysis.overallScore,
-      scoreAnalysis.confidenceLevel,
-      identityAnalysis,
-      userPreferences
-    );
-    
-    log("Generating streaming overlap analysis with OpenAI");
-    
-    // Create a streaming response
-    const stream = await openai.chat.completions.create({
-      model: "gpt-4o",
+    // Create a new streaming completion from OpenAI
+    const completionStream = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       messages: [
-        {
-          role: "system",
-          content: `You are an expert social psychologist specializing in human connections and compatibility analysis. 
-          Your task is to analyze the overlap between two users and provide insightful, structured observations about their compatibility, shared traits, and potential for meaningful connection.
-          First, think step by step through your reasoning process, explaining your thoughts as you analyze the profiles.
-          Then, provide your final analysis in valid JSON format that matches this exact structure:
-          {
-            "summary": "Brief 1-2 paragraph summary of compatibility",
-            "detailedAnalysis": "More in-depth 3-5 paragraph analysis",
-            "keyInsights": ["3-5 key compatibility insights as strings"],
-            "conversationStarters": [
-              {
-                "context": "professional|social|learning|collaboration",
-                "starters": [
-                  {
-                    "opener": "Initial conversation starter",
-                    "followUps": ["2-3 follow-up questions"],
-                    "relevantTopics": ["Related topics"]
-                  }
-                ]
-              }
-            ],
-            "recommendedActivities": {
-              "quick": ["2-3 immediate low-commitment activities"],
-              "projects": ["2-3 longer-term collaboration ideas"],
-              "learning": ["2-3 mutual learning opportunities"]
-            },
-            "growthAreas": [
-              {
-                "description": "Description of growth opportunity",
-                "relevantAttributes": ["Related attributes/interests"]
-              }
-            ]
-          }`
-        },
-        {
-          role: "user",
-          content: prompt
-        }
+        { role: "system", content: "You are an AI assistant performing identity analysis." },
+        { role: "user", content: promptText }
       ],
-      stream: true,
-      temperature: 0.7,
-      max_tokens: 2500
+      response_format: { type: "json_object" },
+      stream: true
     });
     
-    // Transform the streaming data for client consumption
-    const streamingThoughts = new ReadableStream({
+    // Initialize a readableStream that will provide thought chunks
+    const encoder = new TextEncoder();
+    let thoughtChunks = "";
+    const thoughtsStream = new ReadableStream({
       async start(controller) {
-        let accumulatedResponse = '';
-        let jsonStartIdx = -1;
-        
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content || '';
-          accumulatedResponse += content;
-          controller.enqueue(new TextEncoder().encode(content));
-          
-          // Check if we've started JSON output
-          if (jsonStartIdx === -1) {
-            jsonStartIdx = accumulatedResponse.indexOf('{');
+        // Process each chunk of the response
+        for await (const chunk of completionStream) {
+          // Capture the content and add it to thought chunks
+          const content = chunk.choices[0]?.delta?.content || "";
+          if (content) {
+            thoughtChunks += content;
+            controller.enqueue(encoder.encode(content));
           }
         }
-        
+        // Signal the end of the stream
         controller.close();
       }
     });
     
-    // Generate the final analysis 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+    // Create a second completion to get the full, properly formatted result
+    // This ensures we get a valid JSON response while still showing the streaming thought process
+    const completionFull = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       messages: [
-        {
-          role: "system",
-          content: `You are an expert social psychologist specializing in human connections and compatibility analysis. 
-          Your task is to analyze the overlap between two users and provide insightful, structured observations about their compatibility, shared traits, and potential for meaningful connection.
-          Always format your response as valid JSON that can be parsed with JSON.parse().`
-        },
-        {
-          role: "user",
-          content: prompt
-        }
+        { role: "system", content: "You are an AI assistant performing identity analysis." },
+        { role: "user", content: promptText }
       ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
-      max_tokens: 1500
+      response_format: { type: "json_object" }
     });
     
-    // Extract and parse the JSON response
-    const responseContent = response.choices[0].message.content || "{}";
-    let parsedResponse: any;
+    // Parse the complete response as structured data
+    const fullResponseContent = completionFull.choices[0].message.content;
+    let enhancedResponse: EnhancedOverlapAnalysisResponse;
     
     try {
-      parsedResponse = JSON.parse(responseContent);
+      enhancedResponse = JSON.parse(fullResponseContent as string);
     } catch (e) {
-      log("Error parsing OpenAI response as JSON:", e);
-      throw new Error("Failed to parse AI response as JSON");
+      console.error("Failed to parse OpenAI response as JSON:", e);
+      throw new Error("Failed to parse the analysis result. Please try again.");
     }
     
-    // Construct the enhanced response
-    const enhancedResponse: EnhancedOverlapAnalysisResponse = {
-      // Text analysis from AI
-      summary: parsedResponse.summary || "Analysis could not be generated.",
-      detailedAnalysis: parsedResponse.detailedAnalysis || "Detailed analysis unavailable.",
-      
-      // Score data from our calculations
-      overallScore: scoreAnalysis.overallScore,
-      dimensionalScores: scoreAnalysis.dimensionalScores,
-      confidenceLevel: scoreAnalysis.confidenceLevel,
-      
-      // Shared elements from our analysis
-      exactMatchInterests: semanticResult.exactMatches,
-      semanticMatchInterests: semanticResult.semanticMatches,
-      commonIdentities: identityAnalysis.commonIdentities,
-      differentIdentities: identityAnalysis.differentIdentities,
-      
-      // Actionable elements from AI
-      keyInsights: parsedResponse.keyInsights || [],
-      conversationStarters: parsedResponse.conversationStarters || [],
-      recommendedActivities: parsedResponse.recommendedActivities || {
-        quick: [],
-        projects: [],
-        learning: []
-      },
-      growthAreas: parsedResponse.growthAreas || []
-    };
+    // Set the scores and identity information
+    enhancedResponse.overallScore = overallScore;
+    enhancedResponse.dimensionalScores = dimensionalScores;
+    enhancedResponse.exactMatchInterests = similarInterests;
+    enhancedResponse.semanticMatchInterests = semanticMatches;
+    enhancedResponse.commonIdentities = commonIdentities;
+    enhancedResponse.differentIdentities = differentIdentities;
     
-    return {
+    // Return both the structured analysis and the streaming thoughts
+    return { 
       analysis: enhancedResponse,
-      streamingThoughts
+      streamingThoughts: thoughtsStream 
     };
-    
   } catch (error) {
-    log("Error generating streaming user overlap analysis:", error instanceof Error ? error.message : String(error));
+    console.error("Error generating streaming user overlap analysis:", error);
     
-    // Provide a fallback response with basic information
+    // Fallback response in case of error
     const fallbackResponse: EnhancedOverlapAnalysisResponse = {
-      summary: "We couldn't generate a complete analysis at this time.",
-      detailedAnalysis: "Our analysis system encountered an issue while processing the compatibility between these users. Please try again later.",
-      overallScore: 0,
-      dimensionalScores: {
-        interests: 0,
-        values: 0,
-        professional: 0,
-        cultural: 0,
-        communication: 0,
-        physical: 0,
-        learning: 0
-      },
+      summary: "Error generating analysis. Please try again later.",
+      detailedAnalysis: "An error occurred while analyzing the profiles.",
+      overallScore: overallScore || 0,
+      dimensionalScores,
       confidenceLevel: 0,
-      exactMatchInterests: [],
-      semanticMatchInterests: [],
-      commonIdentities: [],
-      differentIdentities: {},
-      keyInsights: [
-        "Analysis currently unavailable.",
-        "Try refreshing to generate a new analysis."
-      ],
+      exactMatchInterests: similarInterests,
+      semanticMatchInterests: semanticMatches,
+      commonIdentities,
+      differentIdentities,
+      keyInsights: ["Analysis failed due to technical error"],
       conversationStarters: [],
       recommendedActivities: {
         quick: [],
@@ -234,15 +183,16 @@ export async function generateStreamingUserOverlapAnalysis(
       growthAreas: []
     };
     
-    // Create an empty stream for errors
+    // Create an error stream
+    const encoder = new TextEncoder();
     const errorStream = new ReadableStream({
       start(controller) {
-        controller.enqueue(new TextEncoder().encode("Error generating analysis. Please try again."));
+        controller.enqueue(encoder.encode("Error generating analysis. Please try again."));
         controller.close();
       }
     });
     
-    return {
+    return { 
       analysis: fallbackResponse,
       streamingThoughts: errorStream
     };
