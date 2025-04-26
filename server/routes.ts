@@ -142,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Text-to-Speech endpoint
-  app.post("/api/tts/generate", async (req: Request, res: Response) => {
+  app.post("/api/tts", async (req: Request, res: Response) => {
     try {
       if (!req.isAuthenticated()) {
         return res.status(401).json({ message: "Not authenticated" });
@@ -1994,7 +1994,7 @@ Example response format:
       // Get interests for both users
       const currentUserInterests = await storage.getUserInterests(currentUser.id);
       const targetUserInterests = await storage.getUserInterests(targetUserId);
-
+      
       // Extract interest names
       const currentUserInterestNames = currentUserInterests.map(interest => interest.name);
       const targetUserInterestNames = targetUserInterests.map(interest => interest.name);
@@ -2024,30 +2024,44 @@ Example response format:
         );
         
         // Send the analysis data first
-        res.write(`data: ${JSON.stringify({ type: 'analysis', data: analysis })}\n\n`);
+        res.write(`event: analysis\ndata: ${JSON.stringify(analysis)}\n\n`);
         
         // Stream the thought process
         const reader = streamingThoughts.getReader();
         
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            // Send each thought chunk as a server-sent event
-            const chunk = new TextDecoder().decode(value);
-            res.write(`data: ${JSON.stringify({ type: 'thought', data: chunk })}\n\n`);
+        // Function to process chunks
+        async function processChunks() {
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              
+              if (done) {
+                // Send end event when stream is complete
+                res.write(`event: end\ndata: "Stream complete"\n\n`);
+                res.end();
+                break;
+              }
+              
+              // Convert buffer to string and send as a thought event
+              const chunk = new TextDecoder().decode(value);
+              res.write(`event: thought\ndata: ${JSON.stringify(chunk)}\n\n`);
+            }
+          } catch (error) {
+            // Send error event if something goes wrong
+            res.write(`event: error\ndata: ${JSON.stringify(error.message || "Stream error")}\n\n`);
+            res.end();
           }
-        } finally {
-          reader.releaseLock();
-          res.write(`data: ${JSON.stringify({ type: 'end' })}\n\n`);
-          res.end();
         }
+        
+        // Start processing the streaming thoughts
+        processChunks();
+        
+        // Handle client disconnect
+        req.on('close', () => {
+          reader.cancel("Client closed connection");
+        });
       } catch (error) {
-        res.write(`data: ${JSON.stringify({ 
-          type: 'error', 
-          data: error instanceof Error ? error.message : String(error) 
-        })}\n\n`);
+        res.write(`event: error\ndata: ${JSON.stringify(error.message || "Analysis error")}\n\n`);
         res.end();
       }
     } catch (error) {

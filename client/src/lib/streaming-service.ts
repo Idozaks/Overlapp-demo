@@ -29,62 +29,85 @@ export function startAiAnalysisStream(
   url: string,
   callbacks: StreamingCallbacks
 ): AbortController {
-  const abortController = new AbortController();
+  const controller = new AbortController();
+  const { signal } = controller;
+  
+  // Create the event source
   const eventSource = new EventSource(url);
   
-  eventSource.onmessage = (event) => {
+  // Handle different event types
+  eventSource.addEventListener('analysis', (event) => {
     try {
-      const message: StreamingMessage = JSON.parse(event.data);
-      
-      switch (message.type) {
-        case 'analysis':
-          if (callbacks.onAnalysis) {
-            callbacks.onAnalysis(message.data);
-          }
-          break;
-        
-        case 'thought':
-          if (callbacks.onThought) {
-            callbacks.onThought(message.data);
-          }
-          break;
-        
-        case 'error':
-          if (callbacks.onError) {
-            callbacks.onError(message.data || 'Unknown error');
-          }
-          eventSource.close();
-          break;
-        
-        case 'end':
-          if (callbacks.onComplete) {
-            callbacks.onComplete();
-          }
-          eventSource.close();
-          break;
+      const data = JSON.parse(event.data);
+      if (callbacks.onAnalysis) {
+        callbacks.onAnalysis(data);
       }
     } catch (error) {
-      console.error('Error parsing streaming message:', error);
+      console.error('Error parsing analysis data:', error);
       if (callbacks.onError) {
-        callbacks.onError('Failed to parse server message');
+        callbacks.onError('Failed to parse analysis data');
       }
     }
-  };
+  });
   
+  eventSource.addEventListener('thought', (event) => {
+    try {
+      // Thought data is a JSON-stringified string
+      const data = JSON.parse(event.data);
+      if (callbacks.onThought) {
+        callbacks.onThought(data);
+      }
+    } catch (error) {
+      console.error('Error parsing thought data:', error);
+      if (callbacks.onError) {
+        callbacks.onError('Failed to parse thought data');
+      }
+    }
+  });
+  
+  eventSource.addEventListener('error', (event) => {
+    try {
+      const errorData = JSON.parse(event.data);
+      if (callbacks.onError) {
+        callbacks.onError(errorData);
+      }
+    } catch (error) {
+      console.error('Error parsing error data:', error);
+      if (callbacks.onError) {
+        callbacks.onError('Stream error occurred');
+      }
+    }
+    
+    // Close the connection on error
+    eventSource.close();
+  });
+  
+  eventSource.addEventListener('end', () => {
+    if (callbacks.onComplete) {
+      callbacks.onComplete();
+    }
+    
+    // Close the connection when we're done
+    eventSource.close();
+  });
+  
+  // Handle connection errors
   eventSource.onerror = (error) => {
     console.error('EventSource error:', error);
     if (callbacks.onError) {
       callbacks.onError('Connection error');
     }
+    
+    // Close the connection on error
     eventSource.close();
   };
   
-  // Set up the abort controller to close the connection
-  abortController.signal.addEventListener('abort', () => {
+  // Set up abort signal to close the connection when requested
+  signal.addEventListener('abort', () => {
     eventSource.close();
   });
   
-  return abortController;
+  return controller;
 }
 
 /**
@@ -96,6 +119,7 @@ export function startAiAnalysisStream(
 export function generateStreamingUrl(baseUrl: string, params: Record<string, string | number | boolean>): string {
   const url = new URL(baseUrl, window.location.origin);
   
+  // Add query parameters
   Object.entries(params).forEach(([key, value]) => {
     url.searchParams.append(key, String(value));
   });
