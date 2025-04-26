@@ -244,10 +244,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (normalizedEntityType === 'persona') {
         // For "persona" type, fetch user data instead of entity data
         log(`Fetching user data for persona with ID ${entityIdNum}`);
-        entity = await storage.getUser(entityIdNum);
-        
-        if (!entity) {
-          return res.status(404).json({ message: "User persona not found" });
+        try {
+          entity = await storage.getUser(entityIdNum);
+          log(`User data fetch result: ${entity ? 'Found user' : 'User not found'}`);
+          
+          if (!entity) {
+            return res.status(404).json({ message: "User persona not found" });
+          }
+        } catch (error) {
+          log(`Error fetching user data: ${error instanceof Error ? error.message : String(error)}`);
+          return res.status(500).json({ message: "Error fetching user data", error: String(error) });
         }
         
         // For personas (users), we'll use their interests as "content"
