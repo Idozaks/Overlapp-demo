@@ -1,337 +1,301 @@
-import { useState, useEffect, useRef } from "react";
-import { Slider } from "@/components/ui/slider";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  Play, 
-  Pause, 
-  SkipForward, 
-  SkipBack, 
-  Volume2, 
-  VolumeX, 
-  Loader2
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { generateSpeech, TTSPlayerState } from "@/lib/tts-service";
+import { Slider } from "@/components/ui/slider";
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TTSPlayerProps {
   text: string;
+  label?: string;
+  voices?: string[];
   className?: string;
   onPlay?: () => void;
   onPause?: () => void;
+  onComplete?: () => void;
   onError?: (error: Error) => void;
 }
 
-export function TTSPlayer({ text, className, onPlay, onPause, onError }: TTSPlayerProps) {
-  const [playerState, setPlayerState] = useState<TTSPlayerState>({
-    isPlaying: false,
-    progress: 0,
-    duration: 0,
-    currentAudioUrl: null,
-    text
-  });
-  const [volume, setVolume] = useState(80);
-  const [muted, setMuted] = useState(false);
-  const [loading, setLoading] = useState(false);
+export function TTSPlayer({
+  text,
+  label = "Text to Speech",
+  voices = [],
+  className,
+  onPlay,
+  onPause,
+  onComplete,
+  onError
+}: TTSPlayerProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(100);
+  const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+  
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Initialize audio if not present
+  // Effect to generate speech when text changes
   useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.volume = volume / 100;
-    }
-  }, []);
-  
-  // Update when text changes
-  useEffect(() => {
-    if (text !== playerState.text) {
-      setPlayerState(prev => ({ ...prev, text }));
-      handleStop();
-    }
-  }, [text]);
-  
-  // Set up audio event listeners
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleEnded = () => {
-      setPlayerState(prev => ({ ...prev, isPlaying: false, progress: 0 }));
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-    };
-
-    const handleLoadedMetadata = () => {
-      if (audio) {
-        setPlayerState(prev => ({ ...prev, duration: audio.duration }));
-      }
-    };
-
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-
-    return () => {
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
-    };
-  }, []);
-
-  // Handle play/pause
-  const togglePlayback = async () => {
-    try {
-      if (!playerState.currentAudioUrl) {
-        await handlePlay();
-      } else if (playerState.isPlaying) {
-        handlePause();
-      } else {
-        if (audioRef.current) {
-          audioRef.current.play();
-          setPlayerState(prev => ({ ...prev, isPlaying: true }));
-          startProgressTracking();
-          onPlay?.();
+    if (!text) return;
+    
+    const generateSpeech = async () => {
+      setIsLoading(true);
+      try {
+        // Make API call to generate speech
+        const response = await fetch('/api/tts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            text,
+            voice: selectedVoice || undefined
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to generate speech');
         }
-      }
-    } catch (error) {
-      console.error("Playback error:", error);
-      onError?.(error as Error);
-    }
-  };
-
-  // Start playing with TTS
-  const handlePlay = async () => {
-    if (loading) return;
-    
-    try {
-      setLoading(true);
-      const audioUrl = await generateSpeech(text);
-      
-      if (audioRef.current) {
-        audioRef.current.src = audioUrl;
-        audioRef.current.volume = volume / 100;
-        await audioRef.current.play();
         
-        setPlayerState(prev => ({
-          ...prev,
-          isPlaying: true,
-          currentAudioUrl: audioUrl,
-        }));
+        const data = await response.json();
+        setAudioUrl(data.audioUrl);
         
-        startProgressTracking();
-        onPlay?.();
+        // Create audio element
+        if (audioRef.current) {
+          audioRef.current.src = data.audioUrl;
+          audioRef.current.load();
+        } else {
+          const audio = new Audio(data.audioUrl);
+          audioRef.current = audio;
+          
+          // Set up event listeners
+          audio.addEventListener('timeupdate', updateProgress);
+          audio.addEventListener('loadedmetadata', () => {
+            setDuration(audio.duration);
+            setIsLoading(false);
+          });
+          audio.addEventListener('ended', handleEnd);
+          audio.addEventListener('error', handleError);
+        }
+      } catch (error) {
+        setIsLoading(false);
+        if (onError) onError(error instanceof Error ? error : new Error(String(error)));
+        console.error('Error generating speech:', error);
       }
-    } catch (error) {
-      console.error("Failed to generate or play speech:", error);
-      onError?.(error as Error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Pause audio
-  const handlePause = () => {
-    if (audioRef.current && playerState.isPlaying) {
-      audioRef.current.pause();
-      setPlayerState(prev => ({ ...prev, isPlaying: false }));
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-      onPause?.();
-    }
-  };
-
-  // Stop audio completely
-  const handleStop = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setPlayerState(prev => ({ 
-        ...prev, 
-        isPlaying: false, 
-        progress: 0 
-      }));
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-      onPause?.();
-    }
-  };
-
-  // Skip forward 10 seconds
-  const handleSkipForward = () => {
-    if (audioRef.current) {
-      const newTime = Math.min(audioRef.current.currentTime + 10, audioRef.current.duration);
-      audioRef.current.currentTime = newTime;
-      setPlayerState(prev => ({ ...prev, progress: newTime }));
-    }
-  };
-
-  // Skip backward 10 seconds
-  const handleSkipBackward = () => {
-    if (audioRef.current) {
-      const newTime = Math.max(audioRef.current.currentTime - 10, 0);
-      audioRef.current.currentTime = newTime;
-      setPlayerState(prev => ({ ...prev, progress: newTime }));
-    }
-  };
-
-  // Update progress state
-  const startProgressTracking = () => {
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-    }
+    };
     
-    progressIntervalRef.current = setInterval(() => {
+    generateSpeech();
+    
+    return () => {
       if (audioRef.current) {
-        setPlayerState(prev => ({ 
-          ...prev, 
-          progress: audioRef.current?.currentTime || 0 
-        }));
+        audioRef.current.pause();
+        audioRef.current.removeEventListener('timeupdate', updateProgress);
+        audioRef.current.removeEventListener('ended', handleEnd);
+        audioRef.current.removeEventListener('error', handleError);
       }
-    }, 100);
-  };
-
-  // Handle slider change
-  const handleProgressChange = (value: number[]) => {
-    if (audioRef.current && playerState.duration > 0) {
-      const newPosition = value[0];
-      audioRef.current.currentTime = (newPosition / 100) * playerState.duration;
-      setPlayerState(prev => ({ ...prev, progress: audioRef.current?.currentTime || 0 }));
-    }
-  };
-
-  // Handle volume change
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
+    };
+  }, [text, selectedVoice]);
+  
+  // Update progress bar
+  const updateProgress = () => {
     if (audioRef.current) {
-      audioRef.current.volume = newVolume / 100;
-    }
-    
-    if (newVolume === 0) {
-      setMuted(true);
-    } else if (muted) {
-      setMuted(false);
+      setCurrentTime(audioRef.current.currentTime);
     }
   };
-
+  
+  // Handle end of audio
+  const handleEnd = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    if (onComplete) onComplete();
+  };
+  
+  // Handle audio error
+  const handleError = (e: Event) => {
+    setIsPlaying(false);
+    setIsLoading(false);
+    console.error('Audio playback error:', e);
+    if (onError) onError(new Error('Audio playback error'));
+  };
+  
+  // Toggle play/pause
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      if (onPause) onPause();
+    } else {
+      audioRef.current.play()
+        .then(() => {
+          setIsPlaying(true);
+          if (onPlay) onPlay();
+        })
+        .catch(error => {
+          console.error('Error playing audio:', error);
+          if (onError) onError(error);
+        });
+    }
+  };
+  
+  // Seek to position
+  const seek = (value: number[]) => {
+    if (!audioRef.current) return;
+    
+    const newTime = value[0];
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+  
   // Toggle mute
   const toggleMute = () => {
-    if (audioRef.current) {
-      if (muted) {
-        audioRef.current.volume = volume / 100;
-      } else {
-        audioRef.current.volume = 0;
-      }
-      setMuted(!muted);
+    if (!audioRef.current) return;
+    
+    const newMuteState = !isMuted;
+    audioRef.current.muted = newMuteState;
+    setIsMuted(newMuteState);
+  };
+  
+  // Set volume
+  const handleVolumeChange = (value: number[]) => {
+    if (!audioRef.current) return;
+    
+    const newVolume = value[0];
+    audioRef.current.volume = newVolume / 100;
+    setVolume(newVolume);
+    
+    if (newVolume === 0) {
+      setIsMuted(true);
+      audioRef.current.muted = true;
+    } else if (isMuted) {
+      setIsMuted(false);
+      audioRef.current.muted = false;
     }
   };
-
-  // Format time for display
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  
+  // Format time as mm:ss
+  const formatTime = (time: number): string => {
+    if (isNaN(time)) return '00:00';
+    
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
-
-  // Calculate progress percentage
-  const progressPercentage = playerState.duration 
-    ? (playerState.progress / playerState.duration) * 100 
-    : 0;
-
+  
+  // Skip forward 10 seconds
+  const skipForward = () => {
+    if (!audioRef.current) return;
+    
+    const newTime = Math.min(audioRef.current.duration, audioRef.current.currentTime + 10);
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+  
+  // Skip backward 10 seconds
+  const skipBackward = () => {
+    if (!audioRef.current) return;
+    
+    const newTime = Math.max(0, audioRef.current.currentTime - 10);
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+  
   return (
-    <Card className={cn("w-full overflow-hidden", className)}>
-      <CardContent className="p-4">
-        <div className="flex flex-col gap-4">
-          {/* Timeline */}
-          <div className="space-y-2">
-            <Slider
-              value={[progressPercentage]}
-              min={0}
-              max={100}
-              step={0.1}
-              onValueChange={handleProgressChange}
-              disabled={!playerState.currentAudioUrl || loading}
-              className="cursor-pointer"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{formatTime(playerState.progress)}</span>
-              <span>{formatTime(playerState.duration || 0)}</span>
-            </div>
+    <div className={cn("rounded-lg border bg-card p-4 text-card-foreground shadow-sm", className)}>
+      <div className="mb-3">
+        <h3 className="text-sm font-medium mb-1">{label}</h3>
+        <p className="text-xs text-muted-foreground truncate">{text.substring(0, 100)}...</p>
+      </div>
+      
+      <div className="space-y-4">
+        {/* Progress bar */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground w-12 text-right">{formatTime(currentTime)}</span>
+          <Slider 
+            value={[currentTime]} 
+            max={duration || 100}
+            step={0.1}
+            onValueChange={seek}
+            disabled={!audioUrl || isLoading}
+            className="flex-1"
+          />
+          <span className="text-xs text-muted-foreground w-12">{formatTime(duration)}</span>
+        </div>
+        
+        {/* Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              disabled={!audioUrl || isLoading}
+              onClick={skipBackward}
+              className="h-8 w-8 p-0"
+            >
+              <SkipBack className="h-4 w-4" />
+              <span className="sr-only">Skip backward</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!audioUrl || isLoading}
+              onClick={togglePlay}
+              className="h-8 w-8 p-0"
+            >
+              {isLoading ? (
+                <span className="h-4 w-4 animate-pulse">...</span>
+              ) : isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              <span className="sr-only">{isPlaying ? 'Pause' : 'Play'}</span>
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              disabled={!audioUrl || isLoading}
+              onClick={skipForward}
+              className="h-8 w-8 p-0"
+            >
+              <SkipForward className="h-4 w-4" />
+              <span className="sr-only">Skip forward</span>
+            </Button>
           </div>
           
-          {/* Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleSkipBackward}
-                disabled={!playerState.currentAudioUrl || loading}
-              >
-                <SkipBack className="h-4 w-4" />
-              </Button>
-              
-              <Button 
-                variant="default" 
-                size="icon" 
-                onClick={togglePlayback}
-                disabled={loading}
-                className="h-10 w-10 rounded-full"
-              >
-                {loading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : playerState.isPlaying ? (
-                  <Pause className="h-5 w-5" />
-                ) : (
-                  <Play className="h-5 w-5" />
-                )}
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={handleSkipForward}
-                disabled={!playerState.currentAudioUrl || loading}
-              >
-                <SkipForward className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!audioUrl || isLoading}
+              onClick={toggleMute}
+              className="h-8 w-8 p-0"
+            >
+              {isMuted ? (
+                <VolumeX className="h-4 w-4" />
+              ) : (
+                <Volume2 className="h-4 w-4" />
+              )}
+              <span className="sr-only">{isMuted ? 'Unmute' : 'Mute'}</span>
+            </Button>
             
-            {/* Volume control */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleMute}
-              >
-                {muted ? (
-                  <VolumeX className="h-4 w-4" />
-                ) : (
-                  <Volume2 className="h-4 w-4" />
-                )}
-              </Button>
-              
-              <Slider
-                value={[muted ? 0 : volume]}
-                min={0}
-                max={100}
-                step={1}
-                onValueChange={handleVolumeChange}
-                className="w-24"
-              />
-            </div>
+            <Slider
+              value={[volume]}
+              min={0}
+              max={100}
+              step={1}
+              onValueChange={handleVolumeChange}
+              disabled={!audioUrl || isLoading}
+              className="w-20"
+            />
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

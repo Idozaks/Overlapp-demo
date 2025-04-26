@@ -18,7 +18,8 @@ import * as openaiService from "./openai";
 import * as userOverlapService from "./userOverlap";
 import * as entityOverlapService from "./entityOverlap";
 import { generateAIAnalysis, AnalysisRequest } from "./ai-analysis";
-import { generateSpeech } from "./tts";
+import { generateSpeech, splitTextForTTS } from "./tts";
+import { generateStreamingUserOverlapAnalysis } from "./streamingUserOverlap";
 
 const scryptAsync = promisify(scrypt);
 
