@@ -18,6 +18,7 @@ import * as openaiService from "./openai";
 import * as userOverlapService from "./userOverlap";
 import * as entityOverlapService from "./entityOverlap";
 import { generateAIAnalysis, AnalysisRequest } from "./ai-analysis";
+import { generateSpeech } from "./tts";
 
 const scryptAsync = promisify(scrypt);
 
@@ -137,6 +138,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
   app.get("/api/health", (_req: Request, res: Response) => {
     res.json({ status: "ok" });
+  });
+  
+  // Text-to-Speech endpoint
+  app.post("/api/tts/generate", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const { text } = req.body;
+      
+      if (!text || typeof text !== "string") {
+        return res.status(400).json({ message: "Valid text parameter is required" });
+      }
+      
+      if (text.length > 4000) {
+        return res.status(400).json({ message: "Text too long. Maximum 4000 characters allowed." });
+      }
+      
+      // Check if OpenAI API key is set
+      if (!process.env.OPENAI_API_KEY) {
+        log("[TTS] OPENAI_API_KEY is not set");
+        return res.status(500).json({ message: "OpenAI API key is not configured" });
+      }
+      
+      // Generate audio using the TTS service
+      const audioUrl = await generateSpeech(text);
+      
+      res.json({ audioUrl, success: true });
+    } catch (error) {
+      log("[TTS] Error generating speech:", error);
+      res.status(500).json({ 
+        message: "Unable to generate speech", 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
   });
   
   // AI Analysis endpoint
