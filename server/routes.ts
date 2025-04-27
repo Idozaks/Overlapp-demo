@@ -740,18 +740,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/users/:id", async (req: Request, res: Response) => {
     try {
+      log(`[API] Getting user with ID: ${req.params.id}`);
       const userId = parseInt(req.params.id);
       if (isNaN(userId)) {
+        log(`[API] Invalid user ID: ${req.params.id}`);
         return res.status(400).json({ message: "Invalid user ID" });
       }
 
+      log(`[API] Fetching user ${userId} from storage`);
       const user = await storage.getUser(userId);
       if (!user) {
+        log(`[API] User not found with ID: ${userId}`);
         return res.status(404).json({ message: "User not found" });
       }
+      log(`[API] Successfully retrieved user: ${user.username}`);
       res.json({ user });
     } catch (error) {
-      log("Error fetching user:", String(error));
+      log(`[API] Error fetching user ${req.params.id}:`, String(error));
       res.status(500).json({ message: "Unable to fetch user" });
     }
   });
