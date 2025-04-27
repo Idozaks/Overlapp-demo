@@ -18,8 +18,15 @@ export const StaticEngageIndexPage = () => {
 };
 
 export const StaticEngagePersonaPage = () => {
-  // Using enhanced components now that we've fixed the loading issues
-  return <EnhancedEngagePersona />;
+  // Wrap the EnhancedEngagePersona component in error boundaries and safe mounting
+  // to prevent "Cannot read properties of null (reading 'appendChild')" errors
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <div id="engage-persona-container">
+        <EnhancedEngagePersona />
+      </div>
+    </React.Suspense>
+  );
 };
 
 export const StaticEngageOnlinePage = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'wouter';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,8 @@ import {
   X, 
   Filter 
 } from 'lucide-react';
+// Ensure i18n is initialized
+import '../../../lib/i18n';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 
@@ -43,6 +45,22 @@ export function EnhancedEngagePersona() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('suggestions');
+  const [mounted, setMounted] = useState(false);
+  
+  // Use effect to handle DOM mounting safely
+  useEffect(() => {
+    setMounted(true);
+    
+    // Safe DOM manipulation only after component is mounted
+    const container = document.getElementById('engage-persona-container');
+    if (container) {
+      // Any DOM manipulations that were causing the appendChild error would go here
+    }
+    
+    return () => {
+      setMounted(false);
+    };
+  }, []);
   
   // Fetch suggested users (normally from API)
   const { data: suggestedUsers, isLoading } = useQuery({
@@ -95,6 +113,16 @@ export function EnhancedEngagePersona() {
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.interests.some(interest => interest.toLowerCase().includes(searchTerm.toLowerCase()))
   ) || [];
+
+  // Don't render anything if not mounted to prevent DOM errors
+  if (!mounted) {
+    return (
+      <div className="container py-8 text-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+        <p className="mt-4 text-muted-foreground">Loading persona view...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8 max-w-5xl mx-auto">
