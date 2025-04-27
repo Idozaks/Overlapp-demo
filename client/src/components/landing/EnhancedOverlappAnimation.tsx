@@ -1104,13 +1104,25 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
           400 // Controlled height to stay contained within section
         );
         
-        canvas.parent(containerRef.current!);
+        // Only set parent if containerRef is available - fixes "Cannot read properties of null" error
+        if (containerRef.current) {
+          canvas.parent(containerRef.current);
+        }
         
         // Apply pointer-events: none to the canvas element to ensure it doesn't interfere with scrolling
         // Wait for next frame to make sure the canvas is in the DOM
         setTimeout(() => {
-          // Use the animation-container ID we added
-          const canvasElement = document.querySelector('#animation-container canvas');
+          // First check if the component is still mounted
+          if (!containerRef.current) return;
+          
+          // Try to find the canvas element within our container first (more reliable)
+          let canvasElement = containerRef.current.querySelector('canvas');
+          
+          // Fallback to global selector if needed
+          if (!canvasElement) {
+            canvasElement = document.querySelector('#animation-container canvas');
+          }
+          
           if (canvasElement) {
             (canvasElement as HTMLElement).style.pointerEvents = 'none';
             (canvasElement as HTMLElement).style.touchAction = 'auto';
@@ -1492,16 +1504,31 @@ const EnhancedOverlappAnimation = ({ className = '', onNodeSelect }: OverlappAni
     // Add throttled scroll event listener for viewport detection
     window.addEventListener('scroll', handleScrollForViewport, { passive: true });
     
-    // Initialize the p5 instance
-    canvasRef.current = new p5(sketch, containerRef.current!);
+    // Initialize the p5 instance only if the container exists
+    if (containerRef.current) {
+      canvasRef.current = new p5(sketch, containerRef.current);
+    } else {
+      console.log('Container reference not available, skipping p5 initialization');
+    }
     
     // Cleanup
     return () => {
+      // Properly clean up the p5 instance if it exists
       if (canvasRef.current) {
-        canvasRef.current.remove();
+        try {
+          canvasRef.current.remove();
+        } catch (err) {
+          console.log('Error removing p5 instance:', err);
+        }
         canvasRef.current = null;
       }
-      window.removeEventListener('scroll', handleScrollForViewport);
+      
+      // Remove scroll listener to prevent memory leaks
+      try {
+        window.removeEventListener('scroll', handleScrollForViewport);
+      } catch (err) {
+        console.log('Error removing scroll event listener:', err);
+      }
     };
   }, [onNodeSelect, setNodes, setHoveredNodeId, setSelectedNodeId]);
   
