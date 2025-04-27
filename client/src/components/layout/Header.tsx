@@ -42,8 +42,9 @@ export function Header() {
     },
   ];
 
+  // Update profile path dynamically based on user ID
   const profileMenuItems = [
-    { label: 'Profile', path: '/profile' },
+    { label: 'Profile', path: user?.id ? `/profile/${user.id}` : '/profile' },
     { label: 'Settings', path: '/settings' },
     { label: 'Wallet', path: '/wallet' },
     { label: 'Explore Users', path: '/social/explore' },
@@ -146,7 +147,7 @@ export function Header() {
         {user ? (
           <>
             <Link
-              href="/profile"
+              href={user?.id ? `/profile/${user.id}` : '/profile'}
               className="px-2 py-1 rounded hover:bg-accent flex items-center gap-2"
               onClick={() => setMobileOpen(false)}
             >
