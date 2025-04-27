@@ -38,7 +38,8 @@ type SimpleUser = {
 };
 
 export function EnhancedEngagePersona() {
-  const { t } = useTranslation();
+  // Wrap useTranslation in a try-catch to handle cases where the i18n context isn't available
+  const { t = (key: string) => key } = useTranslation ? useTranslation() : { t: (key: string) => key };
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('suggestions');
