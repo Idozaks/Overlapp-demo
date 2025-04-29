@@ -59,10 +59,36 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "fade-in": {
+          "0%": { opacity: "0", transform: "translateY(5px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "typing": {
+          "0%": { width: "0%" },
+          "100%": { width: "100%" },
+        },
+        "blink": {
+          "0%, 100%": { opacity: "0" },
+          "50%": { opacity: "1" },
+        },
+        "pulse-gradient": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "wave": {
+          "0%": { transform: "scale(0.8)" },
+          "50%": { transform: "scale(1.2)" },
+          "100%": { transform: "scale(0.8)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-in": "fade-in 0.6s ease-out",
+        "typing": "typing 2s steps(40, end)",
+        "blink": "blink 1s step-end infinite",
+        "pulse-gradient": "pulse-gradient 6s ease infinite",
+        "wave": "wave 1.5s infinite",
       },
     },
   },
