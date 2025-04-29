@@ -479,8 +479,9 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     }
   };
 
+  // Return the form with floating button
   return (
-    <>
+    <div className="relative">
       {/* Floating Save Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <Card className="shadow-lg border border-primary/20">
@@ -1281,7 +1282,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
       </form>
     </Form>
-    </>
+    </div>
   );
 };
 
