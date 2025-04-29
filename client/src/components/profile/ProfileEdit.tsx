@@ -318,13 +318,43 @@ const ProfileEditForm = ({ user, onSuccess, isOnboarding = false, userId }: Prof
       }
     },
     onSuccess: (updatedUser) => {
-      toast({
-        title: t("profile.updateSuccess"),
-        description: t("profile.updateSuccessMessage")
-      });
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-      queryClient.invalidateQueries({ queryKey: ['interests'] });
-      onSuccess?.(updatedUser.user);
+      // Check if this is the onboarding process from a QR code scan
+      if (isOnboarding) {
+        const pendingOverlapUserId = localStorage.getItem('pendingOverlapUserId');
+        
+        if (pendingOverlapUserId) {
+          // Clear from localStorage since we're about to use it
+          localStorage.removeItem('pendingOverlapUserId');
+          
+          toast({
+            title: "Profile Complete!",
+            description: "Now let's see what you have in common with the shared profile.",
+          });
+          
+          // Navigate to overlap view with the target user ID
+          navigate(`/social/overlap?targetUserId=${pendingOverlapUserId}`);
+        } else {
+          // No pending overlap, just go to profile
+          toast({
+            title: t("profile.updateSuccess"),
+            description: t("profile.updateSuccessMessage")
+          });
+          navigate(`/profile/${updatedUser.user.id}`);
+        }
+      } else {
+        // Standard profile update
+        toast({
+          title: t("profile.updateSuccess"),
+          description: t("profile.updateSuccessMessage")
+        });
+        
+        // Invalidate caches
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+        queryClient.invalidateQueries({ queryKey: ['interests'] });
+        
+        // Call the onSuccess callback if provided
+        onSuccess?.(updatedUser.user);
+      }
     },
     onError: (error: Error) => {
       console.error('Profile update error:', error);
