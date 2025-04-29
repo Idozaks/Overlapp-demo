@@ -22,7 +22,7 @@ import {
   Filter 
 } from 'lucide-react';
 // Ensure i18n is initialized
-import '../../../lib/i18n';
+import '@/lib/i18n';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 
