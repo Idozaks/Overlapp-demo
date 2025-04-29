@@ -5,7 +5,28 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, MessageSquare, Volume2, Brain } from "lucide-react";
+import { 
+  Loader2, 
+  ArrowLeft, 
+  RefreshCw, 
+  ThumbsUp, 
+  ThumbsDown, 
+  MessageSquare, 
+  Volume2, 
+  Brain,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  Lightbulb,
+  Zap,
+  BookOpen,
+  Calendar,
+  Heart,
+  Globe,
+  Puzzle,
+  Stars,
+  Sprout
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
@@ -29,6 +50,8 @@ export default function UserOverlap() {
   const streamControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // State for collapsible analysis section (collapsed by default)
+  const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(false);
 
   // Make sure we have the needed parameters
   useEffect(() => {
@@ -190,6 +213,179 @@ export default function UserOverlap() {
   const targetUser = userData?.user;
   const currentUserBio = currentUser?.bio || "";
   const targetUserBio = targetUser?.bio || "";
+  
+  // Generate personalized conversation starters based on overlap data
+  const generateConversationStarters = () => {
+    if (!overlapData) return [];
+    
+    const starters = [];
+    
+    // Shared interests starters
+    if (overlapData.similarInterests.length > 0) {
+      const interest1 = overlapData.similarInterests[0];
+      starters.push(`I noticed we both enjoy ${interest1}! What first got you interested in it?`);
+      
+      if (overlapData.similarInterests.length > 1) {
+        const interest2 = overlapData.similarInterests[1];
+        starters.push(`Have you attended any events or gatherings related to ${interest2}? I'd love to hear about your experiences.`);
+      }
+    }
+    
+    // Different identity traits starters
+    if (Object.keys(overlapData.differentIdentities).length > 0) {
+      const trait = Object.entries(overlapData.differentIdentities)[0];
+      const traitName = trait[0];
+      const traitValue = trait[1].target;
+      
+      if (traitName === 'countryOfOrigin') {
+        starters.push(`I'm curious about your experiences in ${traitValue}. What's something about it that most people wouldn't know?`);
+      } else if (traitName === 'profession' || traitName === 'occupation') {
+        starters.push(`I'd love to hear more about your work as a ${traitValue}. What aspects of it do you find most fulfilling?`);
+      } else {
+        starters.push(`I'd love to hear your perspective on ${traitName} based on your experience with ${traitValue}.`);
+      }
+    }
+    
+    // Unique interest starters
+    if (overlapData.uniqueTargetUserInterests.length > 0) {
+      const uniqueInterest = overlapData.uniqueTargetUserInterests[0];
+      starters.push(`I see you're interested in ${uniqueInterest}, which is new to me. What would you recommend to someone just getting started with it?`);
+    }
+    
+    // If we have too few starters, add some generic ones
+    if (starters.length < 3) {
+      if (targetUserBio) {
+        const shortBio = targetUserBio.split('.')[0];
+        starters.push(`I was reading in your bio about "${shortBio}..." - could you tell me more about that?`);
+      }
+      
+      starters.push("What's something you're working on or learning right now that excites you?");
+      starters.push("If we were to collaborate on a project, what kind of contribution would you most enjoy making?");
+    }
+    
+    return starters.slice(0, 4); // Return at most 4 conversation starters
+  };
+  
+  // Generate recommended activities based on interests and traits
+  const generateRecommendedActivities = () => {
+    if (!overlapData) return [];
+    
+    const activities = [];
+    
+    // Shared interest activities
+    if (overlapData.similarInterests.length > 0) {
+      const interest = overlapData.similarInterests[0];
+      activities.push(`Attend a ${interest} workshop or event together to deepen your shared knowledge.`);
+      
+      if (overlapData.similarInterests.length > 1) {
+        const interest2 = overlapData.similarInterests[1];
+        activities.push(`Start a mini-project combining elements of ${interest} and ${interest2}.`);
+      }
+    }
+    
+    // Activity based on different interests - learning opportunity
+    if (overlapData.uniqueTargetUserInterests.length > 0 && overlapData.uniqueCurrentUserInterests.length > 0) {
+      const theirInterest = overlapData.uniqueTargetUserInterests[0];
+      const yourInterest = overlapData.uniqueCurrentUserInterests[0];
+      activities.push(`Set up a skill exchange: you teach them about ${yourInterest} while they introduce you to ${theirInterest}.`);
+    } else if (overlapData.uniqueTargetUserInterests.length > 0) {
+      activities.push(`Ask them to introduce you to ${overlapData.uniqueTargetUserInterests[0]} through a beginner-friendly activity.`);
+    }
+    
+    // General recommendation based on compatibility score
+    if (overlapData.overlapScore > 0.7) {
+      activities.push("Schedule a collaborative brainstorming session to explore projects that leverage your strong compatibility.");
+    } else if (overlapData.overlapScore > 0.4) {
+      activities.push("Arrange an informal meetup in a neutral setting to explore your balanced mix of similarities and differences.");
+    } else {
+      activities.push("Plan a cultural exchange activity where you can both share unique perspectives from your diverse backgrounds.");
+    }
+    
+    return activities;
+  };
+  
+  // Generate compatibility badges based on overlap metrics
+  const generateCompatibilityBadges = () => {
+    if (!overlapData) return [];
+    
+    const badges = [];
+    
+    // Common interests badge
+    if (overlapData.similarInterests.length >= 3) {
+      badges.push({
+        name: "Interest Aligned",
+        description: "You share multiple common interests",
+        iconType: "Heart",
+        color: "bg-pink-100 text-pink-700 border-pink-300 dark:bg-pink-900/30 dark:text-pink-300 dark:border-pink-600/50"
+      });
+    }
+    
+    // Common identity traits badge
+    if (overlapData.commonIdentities.length >= 2) {
+      badges.push({
+        name: "Identity Match",
+        description: "You share important background traits",
+        iconType: "Globe",
+        color: "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-600/50"
+      });
+    }
+    
+    // High overall compatibility badge
+    if (overlapData.overlapScore > 0.7) {
+      badges.push({
+        name: "Strong Synergy",
+        description: "Your profiles have high overall compatibility",
+        iconType: "Stars",
+        color: "bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-600/50"
+      });
+    }
+    
+    // Complementary skills badge (different interests)
+    if (overlapData.uniqueCurrentUserInterests.length >= 2 && overlapData.uniqueTargetUserInterests.length >= 2) {
+      badges.push({
+        name: "Skill Diversity",
+        description: "You bring complementary interests to the table",
+        iconType: "Puzzle",
+        color: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600/50"
+      });
+    }
+    
+    // Different but compatible badge
+    if (Object.keys(overlapData.differentIdentities).length > 0 && overlapData.similarInterests.length > 0) {
+      badges.push({
+        name: "Bridge Builder",
+        description: "You connect across different backgrounds",
+        iconType: "Zap",
+        color: "bg-cyan-100 text-cyan-700 border-cyan-300 dark:bg-cyan-900/30 dark:text-cyan-300 dark:border-cyan-600/50"
+      });
+    }
+    
+    // Innovation potential badge
+    if (overlapData.uniqueCurrentUserInterests.length > 0 && overlapData.uniqueTargetUserInterests.length > 0 && overlapData.similarInterests.length > 0) {
+      badges.push({
+        name: "Innovation Potential",
+        description: "Your diverse yet compatible perspectives foster creativity",
+        iconType: "Lightbulb",
+        color: "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-600/50"
+      });
+    }
+    
+    // Growth opportunity badge for low overlap
+    if (overlapData.overlapScore < 0.4) {
+      badges.push({
+        name: "Growth Catalyst",
+        description: "Your differences offer opportunities for mutual growth",
+        iconType: "Sprout",
+        color: "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-600/50"
+      });
+    }
+    
+    return badges.slice(0, 3); // Return at most 3 badges
+  };
+  
+  const conversationStarters = generateConversationStarters();
+  const recommendedActivities = generateRecommendedActivities();
+  const compatibilityBadges = generateCompatibilityBadges();
   
   if (!targetUser) {
     return (
@@ -487,183 +683,252 @@ export default function UserOverlap() {
         </Card>
       )}
 
-      {/* AI Analysis Card */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex justify-between">
-            <div className="flex items-center gap-2">
-              <span>AI Analysis</span>
-              <div className="flex space-x-1">
-                {overlapData?.analysis && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setShowTTS(!showTTS)}
-                    title="Read aloud"
-                    className="text-primary hover:text-primary/80"
+      {/* Compatibility Badges Section */}
+      {overlapData && compatibilityBadges.length > 0 && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-yellow-500" />
+              <span>Compatibility Profile</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {compatibilityBadges.map((badge, idx) => {
+                // Render the appropriate icon based on badge type
+                return (
+                  <div 
+                    key={idx}
+                    className={`${badge.color} rounded-lg p-4 border flex flex-col items-center text-center transition-transform hover:scale-105`}
                   >
-                    <Volume2 className="h-4 w-4" />
-                  </Button>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowThoughtStream(!showThoughtStream)}
-                  title="Show AI thought process"
-                  className="text-primary hover:text-primary/80"
-                  disabled={isStreaming}
-                >
-                  <Brain className="h-4 w-4" />
-                </Button>
+                    <div className="mb-2">
+                      {badge.iconType === "Heart" && <Heart className="h-8 w-8" />}
+                      {badge.iconType === "Globe" && <Globe className="h-8 w-8" />}
+                      {badge.iconType === "Puzzle" && <Puzzle className="h-8 w-8" />}
+                      {badge.iconType === "Stars" && <Stars className="h-8 w-8" />}
+                      {badge.iconType === "Zap" && <Zap className="h-8 w-8" />}
+                      {badge.iconType === "Lightbulb" && <Lightbulb className="h-8 w-8" />}
+                      {badge.iconType === "Sprout" && <Sprout className="h-8 w-8" />}
+                    </div>
+                    <h3 className="font-semibold text-base mb-1">{badge.name}</h3>
+                    <p className="text-xs">{badge.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Conversation Starters Section */}
+      {overlapData && conversationStarters.length > 0 && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-blue-500" />
+              <span>Conversation Starters</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {conversationStarters.map((starter, idx) => (
+                <div key={idx} className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm">{starter}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recommended Activities Section */}
+      {overlapData && recommendedActivities.length > 0 && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-green-500" />
+              <span>Recommended Activities</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recommendedActivities.map((activity, idx) => (
+                <div key={idx} className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <p className="text-sm">{activity}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* What You Can Learn From Each Other */}
+      {overlapData && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-purple-500" />
+              <span>What You Can Learn From Each Other</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <h3 className="text-sm font-semibold mb-2">What you can teach them:</h3>
+                <div className="space-y-2">
+                  {overlapData.uniqueCurrentUserInterests.length > 0 ? (
+                    overlapData.uniqueCurrentUserInterests.slice(0, 3).map((interest, idx) => (
+                      <p key={idx} className="text-sm">{interest}</p>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">You have similar interests!</p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                <h3 className="text-sm font-semibold mb-2">What you can learn from them:</h3>
+                <div className="space-y-2">
+                  {overlapData.uniqueTargetUserInterests.length > 0 ? (
+                    overlapData.uniqueTargetUserInterests.slice(0, 3).map((interest, idx) => (
+                      <p key={idx} className="text-sm">{interest}</p>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">They have similar interests to yours!</p>
+                  )}
+                </div>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={regenerateAnalysis}
-              disabled={isGenerating || isStreaming}
-            >
-              {isGenerating ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="mr-2 h-4 w-4" />
-              )}
-              Regenerate
-            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Detailed Analysis Card (Collapsible) */}
+      <Card className="mb-8">
+        <CardHeader 
+          className="cursor-pointer"
+          onClick={() => setIsAnalysisExpanded(!isAnalysisExpanded)}
+        >
+          <CardTitle className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <span>Detailed Analysis</span>
+            </div>
+            <div className="text-muted-foreground">
+              {isAnalysisExpanded ? 
+                <ChevronUp className="h-5 w-5" /> : 
+                <ChevronDown className="h-5 w-5" />
+              }
+            </div>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          {/* AI Thought Stream Section */}
-          {showThoughtStream && (
-            <div className="mb-6 p-4 bg-muted/30 rounded-md border border-border">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium flex items-center">
-                  <Brain className="h-4 w-4 mr-2 text-primary" />
-                  AI Reasoning Process
-                </h3>
-                <div className="flex gap-2">
-                  {!isStreaming ? (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={startStreamingAnalysis}
-                      disabled={isStreaming}
-                    >
-                      Start Streaming
-                    </Button>
-                  ) : (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={stopStreamingAnalysis}
-                    >
-                      Stop
-                    </Button>
-                  )}
-                </div>
+        {isAnalysisExpanded && (
+          <CardContent className="space-y-6">
+            {/* Analysis Content */}
+            {loadingOverlap ? (
+              <div className="text-center text-muted-foreground">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto mb-4" />
+                <p>Generating comparison...</p>
               </div>
-              
-              {/* ThoughtStream Component */}
-              <ThoughtStream
-                targetText={streamingThoughts}
-                isLoading={isStreaming && streamingThoughts.length === 0}
-                className="text-xs"
-              />
-              
-              {/* Streaming Results */}
-              {streamingAnalysis && (
-                <div className="mt-4 p-3 bg-primary/5 rounded border border-primary/20">
-                  <h4 className="text-sm font-medium mb-2">Stream Results:</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Overall Score: {Math.round((streamingAnalysis.overallScore || 0) * 100)}%
-                  </p>
-                  {streamingAnalysis.keyInsights && streamingAnalysis.keyInsights.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-xs font-medium">Key Insights:</p>
-                      <ul className="text-xs mt-1 space-y-1">
-                        {streamingAnalysis.keyInsights.slice(0, 3).map((insight: string, i: number) => (
-                          <li key={i} className="text-muted-foreground">• {insight}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        
-          {/* Regular Analysis Content */}
-          {loadingOverlap ? (
-            <div className="text-center text-muted-foreground">
-              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-4" />
-              <p>Generating comparison...</p>
-            </div>
-          ) : overlapData?.analysis && overlapData.analysis.trim() !== "" && overlapData.analysis !== "Detailed analysis not available" ? (
-            <>
+            ) : overlapData?.analysis && overlapData.analysis.trim() !== "" && overlapData.analysis !== "Detailed analysis not available" ? (
               <div className="prose max-w-none dark:prose-invert prose-p:leading-relaxed prose-headings:scroll-m-20">
                 {overlapData.analysis.split('\n').map((paragraph, idx) => 
                   paragraph.trim() ? <p key={idx}>{paragraph}</p> : <br key={idx} />
                 )}
               </div>
-              
-              {showTTS && (
-                <div className="mt-6 border-t pt-4">
-                  <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <Volume2 className="h-4 w-4" />
-                    Text-to-Speech Player
-                  </h3>
-                  <TTSPlayer 
-                    text={overlapData.analysis}
-                    onPlay={() => {
-                      toast({
-                        title: "Audio started",
-                        description: "Playing analysis with AI voice",
-                      });
-                    }}
-                    onError={(error) => {
-                      toast({
-                        title: "Audio error",
-                        description: "Failed to play audio: " + error.message,
-                        variant: "destructive"
-                      });
-                    }}
-                  />
+            ) : (
+              <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <h3 className="font-medium mb-2">Personalized Analysis</h3>
+                <p className="text-sm text-muted-foreground">
+                  {(() => {
+                    const score = overlapData?.overlapScore ? Math.round(overlapData.overlapScore * 100) : 0;
+                    const interests = overlapData?.similarInterests?.length || 0;
+                    const name = targetUser?.displayName || targetUser?.username || "this user";
+                    
+                    if (score > 75) {
+                      return `You have a strong compatibility with ${name}. With ${interests} shared interests, you have many topics to explore together. This high level of common ground creates an excellent foundation for meaningful interaction and collaboration.`;
+                    } else if (score > 50) {
+                      return `You have a moderate compatibility with ${name}. The ${interests} shared interests provide good conversation starters. While you have similarities, your differences present opportunities to learn from each other and expand your horizons.`;
+                    } else {
+                      return `You have unique perspectives compared to ${name}. While you may not share many common interests (${interests} found), this diversity offers valuable opportunities for learning and growth. Consider exploring their interests to broaden your knowledge and experience.`;
+                    }
+                  })()}
+                </p>
+                <div className="mt-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={regenerateAnalysis}
+                    className="gap-2"
+                    disabled={isGenerating}
+                  >
+                    <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                    {isGenerating ? 'Generating...' : 'Generate Detailed Analysis'}
+                  </Button>
                 </div>
-              )}
-            </>
-          ) : (
-            <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-              <h3 className="font-medium mb-2">Personalized Analysis</h3>
-              <p className="text-sm text-muted-foreground">
-                {(() => {
-                  const score = overlapData?.overlapScore ? Math.round(overlapData.overlapScore * 100) : 0;
-                  const interests = overlapData?.similarInterests?.length || 0;
-                  const name = targetUser?.displayName || targetUser?.username || "this user";
-                  
-                  if (score > 75) {
-                    return `You have a strong compatibility with ${name}. With ${interests} shared interests, you have many topics to explore together. This high level of common ground creates an excellent foundation for meaningful interaction and collaboration.`;
-                  } else if (score > 50) {
-                    return `You have a moderate compatibility with ${name}. The ${interests} shared interests provide good conversation starters. While you have similarities, your differences present opportunities to learn from each other and expand your horizons.`;
-                  } else {
-                    return `You have unique perspectives compared to ${name}. While you may not share many common interests (${interests} found), this diversity offers valuable opportunities for learning and growth. Consider exploring their interests to broaden your knowledge and experience.`;
-                  }
-                })()}
-              </p>
-              <div className="mt-4">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={regenerateAnalysis}
-                  className="gap-2"
-                  disabled={isGenerating}
-                >
-                  <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
-                  {isGenerating ? 'Generating...' : 'Generate Detailed Analysis'}
-                </Button>
               </div>
-            </div>
-          )}
-        </CardContent>
+            )}
+            
+            {/* AI Thought Stream Section */}
+            {showThoughtStream && (
+              <div className="p-4 bg-muted/30 rounded-md border border-border">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium flex items-center">
+                    <Brain className="h-4 w-4 mr-2 text-primary" />
+                    AI Reasoning Process
+                  </h3>
+                  <div className="flex gap-2">
+                    {!isStreaming ? (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={startStreamingAnalysis}
+                        disabled={isStreaming}
+                      >
+                        Start Streaming
+                      </Button>
+                    ) : (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={stopStreamingAnalysis}
+                      >
+                        Stop
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                
+                {/* ThoughtStream Component */}
+                <ThoughtStream
+                  targetText={streamingThoughts}
+                  isLoading={isStreaming && streamingThoughts.length === 0}
+                  className="text-xs"
+                />
+                
+                {/* Streaming Results */}
+                {streamingAnalysis && (
+                  <div className="mt-4 p-3 bg-primary/5 rounded border border-primary/20">
+                    <h4 className="text-sm font-medium mb-2">Stream Results:</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Overall Score: {Math.round((streamingAnalysis.overallScore || 0) * 100)}%
+                    </p>
+                    {streamingAnalysis.keyInsights && streamingAnalysis.keyInsights.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs font-medium">Key Insights:</p>
+                        <ul className="text-xs mt-1 space-y-1">
+                          {streamingAnalysis.keyInsights.slice(0, 3).map((insight: string, i: number) => (
+                            <li key={i} className="text-muted-foreground">• {insight}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        )}
       </Card>
 
       {/* Shared Attributes Section */}
