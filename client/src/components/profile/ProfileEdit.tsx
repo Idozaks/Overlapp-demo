@@ -77,6 +77,8 @@ type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 interface ProfileEditFormProps {
   user: User;
   onSuccess?: (updatedUser: User) => void;
+  isOnboarding?: boolean; // Added for QR code onboarding flow
+  userId?: number; // Added to support passing user ID directly
 }
 
 const RETAIL_PREFERENCES = [
@@ -89,11 +91,11 @@ const suggestedInterest = (interest: string): string => {
   return interest.replace(/[\[\]"]/g, '').trim();
 };
 
-const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
+const ProfileEditForm = ({ user, onSuccess, isOnboarding = false, userId }: ProfileEditFormProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [searchParams] = useLocation();
+  const [searchParams, navigate] = useLocation();
   
   // Define custom submit handler with error logging for use with the floating save button
   const handleSaveChanges = () => {
