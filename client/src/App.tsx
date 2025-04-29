@@ -111,6 +111,25 @@ function Router() {
       <Route path="/shared/profile/:id" component={SharedProfile} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
+      <Route path="/profile/onboarding/:id?" component={() => {
+        const { user } = useAuth();
+        
+        // Redirect to login if not authenticated
+        if (!user) {
+          const location = useLocation();
+          const sourceParam = location.search.includes('source=') 
+            ? location.search 
+            : location.search 
+              ? `${location.search}&source=qr-signup` 
+              : '?source=qr-signup';
+              
+          navigate(`/signup${sourceParam}`);
+          return null;
+        }
+        
+        // ProfileEdit component handles the rest of the onboarding flow
+        return <ProfileEdit userId={user.id} isOnboarding={true} />;
+      }} />
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
       <Route path="/wallet" component={WalletDashboard} />
       <Route path="/marketplace" component={Marketplace} />
