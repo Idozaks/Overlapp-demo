@@ -203,6 +203,26 @@ export function AnalyzeOverlap() {
     }
   };
   
+  // Helper function to generate fallback analysis when detailed analysis is missing
+  const generateFallbackAnalysis = (data: any) => {
+    if (!data || !data.entity || !data.overlap) {
+      return "Analysis data is currently unavailable. Please try regenerating the analysis.";
+    }
+    
+    const { entity, overlap } = data;
+    const name = entity.name || "this user";
+    const score = overlap.score || 0;
+    const sharedInterestsCount = (overlap.sharedInterests || []).length;
+    
+    if (score > 75) {
+      return `You have a strong compatibility with ${name}. With ${sharedInterestsCount} shared interests, you have many topics to explore together. This high level of common ground creates an excellent foundation for meaningful interaction and collaboration.`;
+    } else if (score > 50) {
+      return `You have a moderate compatibility with ${name}. The ${sharedInterestsCount} shared interests provide good conversation starters. While you have similarities, your differences present opportunities to learn from each other and expand your horizons.`;
+    } else {
+      return `You have unique perspectives compared to ${name}. While you may not share many common interests (${sharedInterestsCount} found), this diversity offers valuable opportunities for learning and growth. Consider exploring their interests to broaden your knowledge and experience.`;
+    }
+  };
+  
   // Dynamic rendering for the entity header
   const renderEntityHeader = () => {
     if (!data?.entity) return null;
@@ -613,7 +633,7 @@ export function AnalyzeOverlap() {
                     <div className="p-4 bg-primary/5 rounded-lg">
                       <h3 className="font-medium mb-2">Detailed Analysis</h3>
                       <p className="text-sm text-muted-foreground">
-                        {aiAnalysis.insightSummary || data.overlap.detailedAnalysis || "You share several key interests that provide a strong foundation for meaningful engagement."}
+                        {aiAnalysis?.insightSummary || data?.overlap?.detailedAnalysis || "You share several key interests that provide a strong foundation for meaningful engagement."}
                       </p>
                     </div>
                     
