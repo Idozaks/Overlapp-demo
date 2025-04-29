@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +23,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Loader2, QrCode, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -39,10 +43,35 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const [, navigate] = useLocation();
   const { user, loginMutation, registerMutation } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const [sharedProfileId, setSharedProfileId] = useState<string | null>(null);
+
+  // Check for shared profile from QR code
+  useEffect(() => {
+    const storedProfileId = sessionStorage.getItem('sharedProfileId');
+    if (storedProfileId) {
+      setSharedProfileId(storedProfileId);
+      setActiveTab("register"); // Default to registration for shared profiles
+    }
+  }, []);
+
+  // Fetch shared profile data if available
+  const { data: sharedProfile } = useQuery({
+    queryKey: [`/api/users/${sharedProfileId}`],
+    enabled: !!sharedProfileId,
+  });
 
   // Redirect if already logged in
   if (user) {
+    // If they came from a shared profile, redirect to overlap view
+    if (sharedProfileId) {
+      sessionStorage.removeItem('sharedProfileId'); // Clear stored ID
+      navigate(`/social/overlap?targetUserId=${sharedProfileId}`);
+      return null;
+    }
+    
+    // Otherwise redirect to home
     navigate("/");
     return null;
   }
@@ -67,7 +96,14 @@ export default function AuthPage() {
   const onLogin = async (data: LoginFormData) => {
     try {
       await loginMutation.mutateAsync(data);
-      navigate("/");
+      
+      // If they came from a shared profile, redirect to overlap view
+      if (sharedProfileId) {
+        sessionStorage.removeItem('sharedProfileId'); // Clear stored ID
+        navigate(`/social/overlap?targetUserId=${sharedProfileId}`);
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       // Error is handled by the mutation
     }
@@ -76,7 +112,19 @@ export default function AuthPage() {
   const onRegister = async (data: RegisterFormData) => {
     try {
       await registerMutation.mutateAsync(data);
-      navigate("/");
+      
+      // If they came from a shared profile, redirect to overlap view
+      if (sharedProfileId) {
+        sessionStorage.removeItem('sharedProfileId'); // Clear stored ID
+        toast({
+          title: "Account Created",
+          description: "Your account has been created! We'll now show you what you have in common.",
+          variant: "default",
+        });
+        navigate(`/social/overlap?targetUserId=${sharedProfileId}`);
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       // Error is handled by the mutation
     }
@@ -88,8 +136,24 @@ export default function AuthPage() {
         <CardHeader>
           <CardTitle className="gradient-primary gradient-text">Welcome to Overlapp</CardTitle>
           <CardDescription>
-            Sign in to your account or create a new one
+            {sharedProfileId ? 
+              "Create an account to see what you have in common" : 
+              "Sign in to your account or create a new one"
+            }
           </CardDescription>
+          
+          {/* Show special message for QR scans */}
+          {sharedProfileId && sharedProfile?.user && (
+            <Alert className="mt-4 border-primary/20 bg-primary/5">
+              <QrCode className="h-4 w-4 text-primary" />
+              <AlertTitle className="flex items-center gap-2">
+                <span>You scanned {sharedProfile.user.displayName || sharedProfile.user.username}'s profile</span>
+              </AlertTitle>
+              <AlertDescription>
+                Create an account to see your overlapping interests and get personalized conversation starters.
+              </AlertDescription>
+            </Alert>
+          )}
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "login" | "register")}>
