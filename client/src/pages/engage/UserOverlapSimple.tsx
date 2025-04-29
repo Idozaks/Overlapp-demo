@@ -19,6 +19,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 
+import * as lucideIcons from 'lucide-react';
 import {
   ArrowLeft,
   Loader2,
@@ -35,6 +36,11 @@ import {
   Zap,
   BookOpen,
   Calendar,
+  Heart,
+  Globe,
+  Puzzle,
+  Stars,
+  Sprout,
 } from 'lucide-react';
 
 export function UserOverlapSimple() {
@@ -182,29 +188,80 @@ export function UserOverlapSimple() {
     const starters = [];
     
     if (overlapData?.similarInterests && overlapData.similarInterests.length > 0) {
-      const randomInterest = overlapData.similarInterests[Math.floor(Math.random() * overlapData.similarInterests.length)];
-      starters.push(`What got you interested in ${randomInterest}?`);
+      // Get two different shared interests if possible
+      const availableInterests = [...overlapData.similarInterests];
+      
+      if (availableInterests.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableInterests.length);
+        const randomInterest = availableInterests[randomIndex];
+        availableInterests.splice(randomIndex, 1); // Remove this interest to avoid duplicates
+        
+        // Create more specific, engaging questions based on interest type
+        if (randomInterest.toLowerCase().includes('book') || 
+            randomInterest.toLowerCase().includes('reading') || 
+            randomInterest.toLowerCase().includes('literature')) {
+          starters.push(`What's your favorite book or author related to ${randomInterest}?`);
+        } else if (randomInterest.toLowerCase().includes('music') || 
+                 randomInterest.toLowerCase().includes('concert') || 
+                 randomInterest.toLowerCase().includes('band')) {
+          starters.push(`Which artists or songs in ${randomInterest} have influenced you the most?`);
+        } else if (randomInterest.toLowerCase().includes('travel') || 
+                 randomInterest.toLowerCase().includes('culture')) {
+          starters.push(`What's been your most memorable experience with ${randomInterest}?`);
+        } else {
+          starters.push(`What initially sparked your interest in ${randomInterest}, and how has it evolved over time?`);
+        }
+      }
+      
+      // Add another interest-based question if available
+      if (availableInterests.length > 0) {
+        const secondInterest = availableInterests[Math.floor(Math.random() * availableInterests.length)];
+        starters.push(`I see we both enjoy ${secondInterest}. Do you have any recommendations or favorite resources related to it?`);
+      }
     }
     
     if (overlapData?.uniqueTargetUserInterests && overlapData.uniqueTargetUserInterests.length > 0) {
       const randomUnique = overlapData.uniqueTargetUserInterests[Math.floor(Math.random() * overlapData.uniqueTargetUserInterests.length)];
-      starters.push(`I noticed you're into ${randomUnique}. What do you enjoy most about it?`);
+      starters.push(`I'm curious about ${randomUnique} - how did you first discover your passion for it?`);
     }
     
     if (overlapData?.differentIdentities && Object.keys(overlapData.differentIdentities).length > 0) {
       const traits = Object.keys(overlapData.differentIdentities);
-      const randomTrait = traits[Math.floor(Math.random() * traits.length)];
-      if (randomTrait === 'countryOfOrigin') {
-        starters.push(`I'd love to hear about your experiences growing up in ${overlapData.differentIdentities[randomTrait].target}.`);
-      } else if (randomTrait === 'culturalBackground') {
-        starters.push(`How has your ${overlapData.differentIdentities[randomTrait].target} cultural background influenced your perspectives?`);
+      const relevantTraits = ['countryOfOrigin', 'culturalBackground', 'education', 'professionalField', 'learningStyle'];
+      
+      // Filter for the most interesting traits for conversation
+      const interestingTraits = traits.filter(trait => relevantTraits.includes(trait));
+      
+      if (interestingTraits.length > 0) {
+        const randomTrait = interestingTraits[Math.floor(Math.random() * interestingTraits.length)];
+        if (randomTrait === 'countryOfOrigin') {
+          starters.push(`I'd love to hear about unique traditions or perspectives from ${overlapData.differentIdentities[randomTrait].target} that have shaped who you are.`);
+        } else if (randomTrait === 'culturalBackground') {
+          starters.push(`How has your ${overlapData.differentIdentities[randomTrait].target} cultural background influenced your worldview or values?`);
+        } else if (randomTrait === 'education' || randomTrait === 'professionalField') {
+          starters.push(`What aspects of your background in ${overlapData.differentIdentities[randomTrait].target} do you find most valuable in your day-to-day life?`);
+        } else if (randomTrait === 'learningStyle') {
+          starters.push(`I notice you're a ${overlapData.differentIdentities[randomTrait].target} learner - how does that approach help you master new skills or interests?`);
+        }
       }
     }
     
     // Add general starters if we don't have enough specific ones
     if (starters.length < 3) {
-      starters.push("What's a skill or hobby you've been wanting to learn more about recently?");
-      starters.push("What's something you're passionate about that most people might not know?");
+      const generalStarters = [
+        "What's a skill or hobby you've been wanting to learn more about recently?",
+        "What's something you're passionate about that most people might not know?",
+        "Is there a book, movie, or experience that significantly changed your perspective on something?",
+        "What's one thing you're looking forward to exploring or learning more about this year?",
+        "If you could become an expert in any field overnight, what would you choose and why?"
+      ];
+      
+      // Add random general starters until we have at least 3
+      while (starters.length < 3 && generalStarters.length > 0) {
+        const randomIndex = Math.floor(Math.random() * generalStarters.length);
+        starters.push(generalStarters[randomIndex]);
+        generalStarters.splice(randomIndex, 1); // Remove to avoid duplicates
+      }
     }
     
     return starters.slice(0, 3); // Return at most 3 starters
@@ -259,33 +316,78 @@ export function UserOverlapSimple() {
   };
 
   // Generate compatibility badges based on overlap
-  const generateCompatibilityBadges = () => {
-    const badges = [];
+  type BadgeInfo = {
+    name: string;
+    description: string;
+    iconType: 'Heart' | 'Globe' | 'Puzzle' | 'Stars' | 'Zap' | 'Lightbulb' | 'Sprout';
+    color: string;
+  };
     
+  const generateCompatibilityBadges = (): BadgeInfo[] => {
+    const badges: BadgeInfo[] = [];
+    
+    // Interest-based badges
     if (overlapData?.similarInterests && overlapData.similarInterests.length > 2) {
-      badges.push("Interest Allies");
+      badges.push({
+        name: "Interest Allies",
+        description: "You share multiple common interests and passions",
+        iconType: "Heart",
+        color: "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-600/50"
+      });
     }
     
+    // Cultural badges
     if (overlapData?.differentIdentities && 
         Object.keys(overlapData.differentIdentities).length > 1) {
-      badges.push("Cultural Explorer");
+      badges.push({
+        name: "Cultural Explorer",
+        description: "Your diverse backgrounds offer rich learning opportunities",
+        iconType: "Globe",
+        color: "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-600/50"
+      });
     }
     
-    if (overlapData?.uniqueCurrentUserInterests.length > 0 && 
-        overlapData?.uniqueTargetUserInterests.length > 0) {
-      badges.push("Complementary Perspectives");
+    // Complementary badges
+    if (overlapData?.uniqueCurrentUserInterests && overlapData.uniqueCurrentUserInterests.length > 0 && 
+        overlapData?.uniqueTargetUserInterests && overlapData.uniqueTargetUserInterests.length > 0) {
+      badges.push({
+        name: "Complementary Perspectives",
+        description: "Your unique interests create growth potential",
+        iconType: "Puzzle",
+        color: "bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-600/50"
+      });
     }
     
-    // Add score-based badges
+    // Score-based badges
     const score = overlapData?.overlapScore || 0;
     if (score > 0.8) {
-      badges.push("Perfect Match");
+      badges.push({
+        name: "Perfect Match",
+        description: "Exceptional compatibility across multiple dimensions",
+        iconType: "Stars",
+        color: "bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-600/50"
+      });
     } else if (score > 0.6) {
-      badges.push("Strong Synergy");
+      badges.push({
+        name: "Strong Synergy",
+        description: "Your profiles complement each other well",
+        iconType: "Zap",
+        color: "bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-600/50"
+      });
     } else if (score > 0.4) {
-      badges.push("Thought Partner");
+      badges.push({
+        name: "Thought Partner",
+        description: "You can challenge and inspire each other",
+        iconType: "Lightbulb",
+        color: "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-600/50"
+      });
     } else {
-      badges.push("Growth Catalyst");
+      badges.push({
+        name: "Growth Catalyst",
+        description: "Your differences offer opportunities for mutual growth",
+        iconType: "Sprout",
+        color: "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-600/50"
+      });
     }
     
     return badges.slice(0, 3); // Return at most 3 badges
@@ -434,16 +536,28 @@ export function UserOverlapSimple() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-3 justify-center">
-              {compatibilityBadges.map((badge, idx) => (
-                <Badge 
-                  key={idx}
-                  variant="outline" 
-                  className="py-2 px-4 text-base rounded-full border-2 border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors"
-                >
-                  {badge}
-                </Badge>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {compatibilityBadges.map((badge, idx) => {
+                // Render the appropriate icon based on badge type
+                return (
+                  <div 
+                    key={idx}
+                    className={`${badge.color} rounded-lg p-4 border flex flex-col items-center text-center transition-transform hover:scale-105`}
+                  >
+                    <div className="mb-2">
+                      {badge.iconType === "Heart" && <Heart className="h-8 w-8" />}
+                      {badge.iconType === "Globe" && <Globe className="h-8 w-8" />}
+                      {badge.iconType === "Puzzle" && <Puzzle className="h-8 w-8" />}
+                      {badge.iconType === "Stars" && <Stars className="h-8 w-8" />}
+                      {badge.iconType === "Zap" && <Zap className="h-8 w-8" />}
+                      {badge.iconType === "Lightbulb" && <Lightbulb className="h-8 w-8" />}
+                      {badge.iconType === "Sprout" && <Sprout className="h-8 w-8" />}
+                    </div>
+                    <h3 className="font-semibold text-base mb-1">{badge.name}</h3>
+                    <p className="text-xs">{badge.description}</p>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
