@@ -333,6 +333,22 @@ function Router() {
       <Route path="/samples/bookclub" component={BookClubSamplePage} />
 
       {/* Analysis Routes */}
+      <Route path="/analyze/persona/:id" component={() => {
+        const UserOverlapSimpleComponent = lazy(() => 
+          import('./pages/engage/UserOverlapSimple')
+        );
+        
+        return (
+          <Suspense fallback={
+            <div className="container py-12 text-center">
+              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
+            </div>
+          }>
+            <UserOverlapSimpleComponent />
+          </Suspense>
+        );
+      }} />
+      
       <Route path="/analyze/:type/:id" component={() => {
         const AnalyzeComponent = lazy(() => 
           import('./pages/engage/AnalyzeOverlap')
