@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { Loader2, Sparkles, Plus, Search as SearchIcon } from "lucide-react";
+import { Loader2, Sparkles, Plus, Search as SearchIcon, Save, Check } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { User, Interest } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
@@ -480,8 +480,33 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <>
+      {/* Floating Save Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Card className="shadow-lg border border-primary/20">
+          <Button
+            type="button"
+            disabled={updateMutation.isPending}
+            className="px-4 py-2 flex items-center gap-2"
+            onClick={handleSaveChanges}
+          >
+            {updateMutation.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t("common.updating") || "Updating..."}
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                {t("profile.updateProfile") || "Save Changes"}
+              </>
+            )}
+          </Button>
+        </Card>
+      </div>
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-20">
         <FormField
           control={form.control}
           name="displayName"
@@ -1256,6 +1281,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
       </form>
     </Form>
+    </>
   );
 };
 
