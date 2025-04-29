@@ -18,8 +18,6 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { TTSPlayer } from '@/components/ui/tts-player';
-import { ThoughtStream } from '@/components/ui/thought-stream';
 
 import {
   ArrowLeft,
@@ -29,14 +27,9 @@ import {
   ThumbsUp,
   ThumbsDown,
   Sparkles,
-  Brain,
   RefreshCw,
   MessageCircle,
-  Volume2,
-  Braces,
 } from 'lucide-react';
-
-import { generateStreamingUrl, startAiAnalysisStream } from '@/lib/streaming-service';
 
 export function UserOverlapSimple() {
   const { user: currentUser } = useAuth();
@@ -44,12 +37,6 @@ export function UserOverlapSimple() {
   const params = useParams<{ id: string }>();
   const targetUserId = params.id;
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showTTS, setShowTTS] = useState(false);
-  const [showThoughtStream, setShowThoughtStream] = useState(false);
-  const [streamingThoughts, setStreamingThoughts] = useState("");
-  const [streamingAnalysis, setStreamingAnalysis] = useState<any>(null);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const streamControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -120,54 +107,7 @@ export function UserOverlapSimple() {
     }
   };
   
-  // Function to start streaming analysis
-  const startStreamingAnalysis = () => {
-    // Reset states
-    setIsStreaming(true);
-    setStreamingThoughts("");
-    setStreamingAnalysis(null);
-    
-    // Cancel any existing stream
-    if (streamControllerRef.current) {
-      streamControllerRef.current.abort();
-    }
-    
-    // Create the streaming URL
-    const streamingUrl = generateStreamingUrl(`/api/users/${targetUserId}/streaming-overlap`, {});
-    
-    // Start the streaming connection
-    const controller = startAiAnalysisStream(streamingUrl, {
-      onAnalysis: (analysisData) => {
-        setStreamingAnalysis(analysisData);
-      },
-      onThought: (thoughtData) => {
-        setStreamingThoughts(prev => prev + thoughtData);
-      },
-      onError: (error: Error | string) => {
-        toast({
-          title: "Streaming Error",
-          description: typeof error === 'string' ? error : error.message,
-          variant: "destructive"
-        });
-        setIsStreaming(false);
-      },
-      onComplete: () => {
-        setIsStreaming(false);
-      }
-    });
-    
-    // Store the controller for potential cancellation
-    streamControllerRef.current = controller;
-  };
-  
-  // Function to stop streaming
-  const stopStreamingAnalysis = () => {
-    if (streamControllerRef.current) {
-      streamControllerRef.current.abort();
-      streamControllerRef.current = null;
-    }
-    setIsStreaming(false);
-  };
+  // No streaming functions needed
 
   // Loading states
   if (loadingUser || loadingOverlap) {
@@ -368,111 +308,21 @@ export function UserOverlapSimple() {
               <Sparkles className="h-5 w-5 text-primary" />
               <span>Detailed Analysis</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowTTS(!showTTS)}
-                className={`gap-1 ${showTTS ? 'bg-primary/10' : ''}`}
-              >
-                <Volume2 className="h-4 w-4" />
-                {showTTS ? 'Hide Audio' : 'Read Aloud'}
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowThoughtStream(!showThoughtStream)}
-                className={`gap-1 ${showThoughtStream ? 'bg-primary/10' : ''}`}
-              >
-                <Brain className="h-4 w-4" />
-                {showThoughtStream ? 'Hide AI Process' : 'Show AI Process'}
-              </Button>
-            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Thought Stream (conditionally shown) */}
-          {showThoughtStream && (
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Braces className="h-4 w-4 text-primary" />
-                <h3 className="font-medium">AI Reasoning Process</h3>
-              </div>
-              
-              {isStreaming ? (
-                <>
-                  <ThoughtStream targetText={streamingThoughts} />
-                  <div className="flex justify-end mt-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={stopStreamingAnalysis}
-                      className="gap-1"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                      Cancel
-                    </Button>
-                  </div>
-                </>
-              ) : streamingThoughts ? (
-                <ThoughtStream targetText={streamingThoughts} />
-              ) : (
-                <div className="p-4 border rounded-md bg-muted/30 mb-4">
-                  <div className="text-center mb-4">
-                    <Brain className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">See the AI's reasoning process in real-time</p>
-                  </div>
-                  <Button 
-                    onClick={startStreamingAnalysis} 
-                    variant="outline" 
-                    className="w-full"
-                  >
-                    Start AI Analysis Stream
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        
-          {/* Regular Analysis Content */}
+          {/* Analysis Content */}
           {loadingOverlap ? (
             <div className="text-center text-muted-foreground">
               <Loader2 className="w-6 h-6 animate-spin mx-auto mb-4" />
               <p>Generating comparison...</p>
             </div>
           ) : overlapData?.analysis && overlapData.analysis.trim() !== "" && overlapData.analysis !== "Detailed analysis not available" ? (
-            <>
-              <div className="prose max-w-none dark:prose-invert prose-p:leading-relaxed prose-headings:scroll-m-20">
-                {overlapData.analysis.split('\n').map((paragraph, idx) => 
-                  paragraph.trim() ? <p key={idx}>{paragraph}</p> : <br key={idx} />
-                )}
-              </div>
-              
-              {showTTS && (
-                <div className="mt-6 border-t pt-4">
-                  <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <Volume2 className="h-4 w-4" />
-                    Text-to-Speech Player
-                  </h3>
-                  <TTSPlayer 
-                    text={overlapData.analysis}
-                    onPlay={() => {
-                      toast({
-                        title: "Audio started",
-                        description: "Playing analysis with AI voice",
-                      });
-                    }}
-                    onError={(error) => {
-                      toast({
-                        title: "Audio error",
-                        description: "Failed to play audio: " + error.message,
-                        variant: "destructive"
-                      });
-                    }}
-                  />
-                </div>
+            <div className="prose max-w-none dark:prose-invert prose-p:leading-relaxed prose-headings:scroll-m-20">
+              {overlapData.analysis.split('\n').map((paragraph, idx) => 
+                paragraph.trim() ? <p key={idx}>{paragraph}</p> : <br key={idx} />
               )}
-            </>
+            </div>
           ) : (
             <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
               <h3 className="font-medium mb-2">Personalized Analysis</h3>
