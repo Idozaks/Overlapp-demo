@@ -32,7 +32,9 @@ import {
   User,
   Settings,
   LogOut,
-  Loader2
+  Loader2,
+  Share2,
+  QrCode
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -132,6 +134,10 @@ export default function Header() {
                   <DropdownMenuItem onClick={() => navigate('/wallet')}>
                     <Wallet className="w-4 h-4 mr-2" />
                     Wallet
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(`/social/qr-share/${user.id}`)}>
+                    <QrCode className="w-4 h-4 mr-2" />
+                    Share via QR
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
