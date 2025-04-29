@@ -97,7 +97,7 @@ export function EnhancedEngagePersona() {
   
   // Transform users to include compatibility score
   const suggestedUsers = {
-    users: usersData?.users?.map(user => ({
+    users: usersData?.users?.map((user: any) => ({
       ...user,
       // Extract interests from user's preferences if available or default to empty array
       interests: user.preferences?.interests || [],
@@ -107,10 +107,12 @@ export function EnhancedEngagePersona() {
   };
 
   // Filter suggested users based on search term
-  const filteredUsers = suggestedUsers?.users.filter(user => 
-    user.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.interests.some(interest => interest.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredUsers = suggestedUsers?.users.filter((user: SimpleUser) => 
+    (user.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.username || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (Array.isArray(user.interests) && user.interests.some((interest: string) => 
+      interest.toLowerCase().includes(searchTerm.toLowerCase())
+    ))
   ) || [];
 
   // Don't render anything if not mounted to prevent DOM errors
@@ -255,7 +257,7 @@ export function EnhancedEngagePersona() {
                     </div>
                   ) : filteredUsers.length > 0 ? (
                     <div className="space-y-4">
-                      {filteredUsers.map((suggestedUser) => (
+                      {filteredUsers.map((suggestedUser: SimpleUser) => (
                         <UserCard key={suggestedUser.id} user={suggestedUser} />
                       ))}
                     </div>
@@ -317,7 +319,7 @@ function UserCard({ user }: { user: SimpleUser }) {
             <div className="flex flex-wrap gap-1 mt-2">
               {displayInterests.length > 0 ? (
                 <>
-                  {displayInterests.slice(0, 3).map((interest, index) => (
+                  {displayInterests.slice(0, 3).map((interest: string, index: number) => (
                     <Badge key={index} variant="outline" className="text-xs">{interest}</Badge>
                   ))}
                   {displayInterests.length > 3 && (
