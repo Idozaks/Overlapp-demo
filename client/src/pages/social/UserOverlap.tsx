@@ -28,6 +28,7 @@ export default function UserOverlap() {
   const [isStreaming, setIsStreaming] = useState(false);
   const streamControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Make sure we have the needed parameters
   useEffect(() => {
@@ -592,7 +593,12 @@ export default function UserOverlap() {
           )}
         
           {/* Regular Analysis Content */}
-          {overlapData?.analysis ? (
+          {loadingOverlap ? (
+            <div className="text-center text-muted-foreground">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-4" />
+              <p>Generating comparison...</p>
+            </div>
+          ) : overlapData?.analysis && overlapData.analysis.trim() !== "" && overlapData.analysis !== "Detailed analysis not available" ? (
             <>
               <div className="prose max-w-none dark:prose-invert prose-p:leading-relaxed prose-headings:scroll-m-20">
                 {overlapData.analysis.split('\n').map((paragraph, idx) => 
@@ -626,9 +632,35 @@ export default function UserOverlap() {
               )}
             </>
           ) : (
-            <div className="text-center text-muted-foreground">
-              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-4" />
-              <p>Generating comparison...</p>
+            <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+              <h3 className="font-medium mb-2">Personalized Analysis</h3>
+              <p className="text-sm text-muted-foreground">
+                {(() => {
+                  const score = overlapData?.overlapScore ? Math.round(overlapData.overlapScore * 100) : 0;
+                  const interests = overlapData?.similarInterests?.length || 0;
+                  const name = targetUser?.displayName || targetUser?.username || "this user";
+                  
+                  if (score > 75) {
+                    return `You have a strong compatibility with ${name}. With ${interests} shared interests, you have many topics to explore together. This high level of common ground creates an excellent foundation for meaningful interaction and collaboration.`;
+                  } else if (score > 50) {
+                    return `You have a moderate compatibility with ${name}. The ${interests} shared interests provide good conversation starters. While you have similarities, your differences present opportunities to learn from each other and expand your horizons.`;
+                  } else {
+                    return `You have unique perspectives compared to ${name}. While you may not share many common interests (${interests} found), this diversity offers valuable opportunities for learning and growth. Consider exploring their interests to broaden your knowledge and experience.`;
+                  }
+                })()}
+              </p>
+              <div className="mt-4">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={regenerateAnalysis}
+                  className="gap-2"
+                  disabled={isGenerating}
+                >
+                  <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                  {isGenerating ? 'Generating...' : 'Generate Detailed Analysis'}
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
