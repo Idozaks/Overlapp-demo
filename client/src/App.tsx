@@ -26,6 +26,8 @@ import InterestSuggestionsPage from "@/pages/social/InterestSuggestionsPage";
 import Matches from "@/pages/social/Matches";
 import UserOverlap from "@/pages/social/UserOverlap";
 import SocialMediaExportPage from "@/pages/social/SocialMediaExport";
+import QrShare from "@/pages/social/QrShare";
+import SharedProfile from "@/pages/social/SharedProfile";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import InterestManager from "@/pages/admin/InterestManager";
 import ExploreInterests from "@/pages/interests/ExploreInterests";
@@ -105,6 +107,8 @@ function Router() {
       <Route path="/social/matches" component={Matches} />
       <Route path="/social/overlap" component={UserOverlap} />
       <Route path="/social/export" component={SocialMediaExportPage} />
+      <Route path="/social/qr-share/:id?" component={QrShare} />
+      <Route path="/shared/profile/:id" component={SharedProfile} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
@@ -551,6 +555,10 @@ function OldHeader() {
                     <DropdownMenuItem onClick={() => navigate('/social/export')}>
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Social Media Export
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate(`/social/qr-share/${user.id}`)}>
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Share Profile via QR
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/marketplace')}>
                       <Store className="w-4 h-4 mr-2" />
