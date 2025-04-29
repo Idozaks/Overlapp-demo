@@ -39,7 +39,7 @@ const profileUpdateSchema = z.object({
     .min(2, { message: "Display name must be at least 2 characters" })
     .max(50, { message: "Display name must be less than 50 characters" }),
   bio: z.string()
-    .max(500, { message: "Bio must be less than 500 characters" })
+    .max(1000, { message: "Bio must be less than 1000 characters" })
     .optional()
     .or(z.literal("")),
   avatar: z.union([
@@ -487,7 +487,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
                 <Textarea {...field} />
               </FormControl>
               <FormDescription>
-                {t("profile.bioDescription")}
+                Share something about yourself (up to 1000 characters). This will be displayed on your profile page.
               </FormDescription>
               <FormMessage />
             </FormItem>
