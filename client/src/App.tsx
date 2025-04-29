@@ -332,20 +332,26 @@ function Router() {
       <Route path="/samples" component={SampleSitesPage} />
       <Route path="/samples/bookclub" component={BookClubSamplePage} />
 
-      {/* Analysis Routes */}
+      {/* Analysis Routes - Redirect to social/overlap */}
       <Route path="/analyze/persona/:id" component={() => {
-        const UserOverlapSimpleComponent = lazy(() => 
-          import('./pages/engage/UserOverlapSimple')
-        );
+        // Extract the ID parameter
+        const [, params] = useRoute('/analyze/persona/:id');
+        const targetUserId = params?.id;
+        const [, navigate] = useLocation();
         
+        // Redirect to social/overlap with the ID as a query parameter
+        React.useEffect(() => {
+          if (targetUserId) {
+            navigate(`/social/overlap?targetUserId=${targetUserId}`);
+          }
+        }, [targetUserId, navigate]);
+        
+        // Show loading while redirecting
         return (
-          <Suspense fallback={
-            <div className="container py-12 text-center">
-              <Loader2 className="h-10 w-10 animate-spin mx-auto" />
-            </div>
-          }>
-            <UserOverlapSimpleComponent />
-          </Suspense>
+          <div className="container py-12 text-center">
+            <Loader2 className="h-10 w-10 animate-spin mx-auto mb-4" />
+            <p>Redirecting to enhanced overlap analysis...</p>
+          </div>
         );
       }} />
       
