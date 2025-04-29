@@ -211,6 +211,14 @@ export default function Profile() {
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Social Media Export
                       </Button>
+                      <Button
+                        onClick={() => navigate(`/social/qr-share/${userId}`)}
+                        className="w-full"
+                        variant="outline"
+                      >
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Share via QR
+                      </Button>
                     </div>
                   ) : (
                     currentUser && (
