@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import countries from 'world-countries';
+import { Card } from "@/components/ui/card";
 
 interface InterestSuggestion {
   name: string;
@@ -93,6 +94,24 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchParams] = useLocation();
+  
+  // Define custom submit handler with error logging for use with the floating save button
+  const handleSaveChanges = () => {
+    console.log('Save button clicked');
+    // Check for form validation errors
+    console.log('Form validation errors:', form.formState.errors);
+    
+    const submitHandler = async (data: ProfileUpdateData) => {
+      try {
+        console.log('Custom submit handler called with data:', data);
+        await onSubmit(data);
+      } catch (error) {
+        console.error('Error in custom submit handler:', error);
+      }
+    };
+    
+    form.handleSubmit(submitHandler)();
+  };
 
   // Check if we're returning from interest suggestions with a refresh param
   const shouldRefreshInterests = searchParams.includes('refresh=true');
@@ -1234,37 +1253,7 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
           </div>
         </div>
 
-        <Button
-          type="button"
-          disabled={updateMutation.isPending}
-          className="w-full mt-6"
-          onClick={() => {
-            console.log('Button clicked directly');
-            // Check for form validation errors
-            console.log('Form validation errors:', form.formState.errors);
-            
-            // Custom submit handler with error logging
-            const submitHandler = async (data: ProfileUpdateData) => {
-              try {
-                console.log('Custom submit handler called with data:', data);
-                await onSubmit(data);
-              } catch (error) {
-                console.error('Error in custom submit handler:', error);
-              }
-            };
-            
-            form.handleSubmit(submitHandler)();
-          }}
-        >
-          {updateMutation.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("common.updating")}
-            </>
-          ) : (
-            t("profile.updateProfile")
-          )}
-        </Button>
+
       </form>
     </Form>
   );
