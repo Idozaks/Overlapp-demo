@@ -119,9 +119,11 @@ export default function SharedProfile() {
   
   // Handler for the "Create Profile" button
   const handleCreateProfile = () => {
-    // Store the shared profile ID in session storage to use after registration
-    sessionStorage.setItem('sharedProfileId', userId.toString());
-    navigate('/signup');
+    // Store the shared profile ID in localStorage to use after signup and onboarding
+    localStorage.setItem('pendingOverlapUserId', userId.toString());
+    
+    // Add a query parameter to indicate this came from a QR code scan
+    navigate('/signup?source=qr-signup');
   };
   
   // Handler for the "View Overlap" button

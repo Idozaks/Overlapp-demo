@@ -48,11 +48,34 @@ export default function AuthPage() {
   const [sharedProfileId, setSharedProfileId] = useState<string | null>(null);
 
   // Check for shared profile from QR code
+  // Also check for URL parameters to see if coming from QR code
   useEffect(() => {
+    // Check for the pendingOverlapUserId in localStorage (new QR code flow)
+    const pendingOverlapUserId = localStorage.getItem('pendingOverlapUserId');
+    
+    // Check for the older sharedProfileId in sessionStorage (legacy flow)
     const storedProfileId = sessionStorage.getItem('sharedProfileId');
-    if (storedProfileId) {
+    
+    // Check URL params for source=qr-signup
+    const urlParams = new URLSearchParams(window.location.search);
+    const isFromQrSignup = urlParams.get('source') === 'qr-signup';
+    
+    if (pendingOverlapUserId) {
+      setSharedProfileId(pendingOverlapUserId);
+      setActiveTab("register"); // Default to registration for shared profiles
+    } else if (storedProfileId) {
       setSharedProfileId(storedProfileId);
       setActiveTab("register"); // Default to registration for shared profiles
+    }
+    
+    // If we're coming from QR signup but don't have a stored ID, check for it in the URL
+    if (isFromQrSignup && !pendingOverlapUserId && !storedProfileId) {
+      const profileId = urlParams.get('profileId');
+      if (profileId) {
+        localStorage.setItem('pendingOverlapUserId', profileId);
+        setSharedProfileId(profileId);
+        setActiveTab("register");
+      }
     }
   }, []);
 
@@ -97,10 +120,30 @@ export default function AuthPage() {
     try {
       await loginMutation.mutateAsync(data);
       
-      // If they came from a shared profile, redirect to overlap view
+      // If they came from a shared profile, redirect to profile onboarding first
       if (sharedProfileId) {
-        sessionStorage.removeItem('sharedProfileId'); // Clear stored ID
-        navigate(`/social/overlap?targetUserId=${sharedProfileId}`);
+        // Store the shared profile ID in localStorage
+        localStorage.setItem('pendingOverlapUserId', sharedProfileId);
+        
+        // Clear any legacy storage
+        sessionStorage.removeItem('sharedProfileId');
+        
+        // Check if this is a QR signup
+        const urlParams = new URLSearchParams(window.location.search);
+        const isFromQrSignup = urlParams.get('source') === 'qr-signup';
+        
+        if (isFromQrSignup) {
+          // Redirect to onboarding first
+          toast({
+            title: "Logged In",
+            description: "Let's update your profile first, then we'll show you what you have in common!",
+            variant: "default",
+          });
+          navigate("/profile/onboarding?source=qr-signup");
+        } else {
+          // Legacy flow - redirect directly to overlap
+          navigate(`/social/overlap?targetUserId=${sharedProfileId}`);
+        }
       } else {
         navigate("/");
       }
