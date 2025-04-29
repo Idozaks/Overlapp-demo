@@ -31,12 +31,16 @@ type SimpleUser = {
   id: number;
   username: string;
   displayName: string;
-  avatar: string;
+  avatar: string | null;
   interests: string[];
-  bio: string;
-  location: string;
-  occupation: string;
+  bio: string | null;
+  location: string | null;
+  occupation: string | null;
   compatibilityScore: number;
+  preferences?: {
+    interests: string[];
+    retailPreferences: any[];
+  };
 };
 
 export function EnhancedEngagePersona() {
@@ -62,50 +66,45 @@ export function EnhancedEngagePersona() {
     };
   }, []);
   
-  // Fetch suggested users (normally from API)
-  const { data: suggestedUsers, isLoading } = useQuery({
-    queryKey: ['/api/users/suggestions'],
-    // Simulate API data for now since we're enhancing the UI
+  // Fetch real users from the database
+  const { data: usersData, isLoading } = useQuery({
+    queryKey: ['/api/users'],
     queryFn: async () => {
-      return {
-        users: [
-          { 
-            id: 1, 
-            username: 'johndoe', 
-            displayName: 'John Doe', 
-            avatar: '/images/avatars/avatar-1.jpg',
-            interests: ['Technology', 'Travel', 'Photography', 'Hiking'],
-            bio: 'Software developer and outdoor enthusiast',
-            location: 'San Francisco',
-            occupation: 'Software Engineer',
-            compatibilityScore: 87
+      try {
+        console.log('[EnhancedEngagePersona] Fetching users from database...');
+        const response = await fetch('/api/users', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
           },
-          { 
-            id: 2, 
-            username: 'janedoe', 
-            displayName: 'Jane Smith', 
-            avatar: '/images/avatars/avatar-2.jpg',
-            interests: ['Art', 'Music', 'Travel', 'Cooking'],
-            bio: 'Artist and foodie exploring the world',
-            location: 'New York',
-            occupation: 'Graphic Designer',
-            compatibilityScore: 75
-          },
-          { 
-            id: 3, 
-            username: 'mikeross', 
-            displayName: 'Mike Ross', 
-            avatar: '/images/avatars/avatar-3.jpg',
-            interests: ['Photography', 'Technology', 'Movies', 'Books'],
-            bio: 'Photographer and tech enthusiast',
-            location: 'Chicago',
-            occupation: 'Photographer',
-            compatibilityScore: 83
-          }
-        ]
-      };
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+
+        const data = await response.json();
+        console.log('[EnhancedEngagePersona] Successfully fetched users:', data.users?.length || 0, 'users found');
+        
+        return data;
+      } catch (error) {
+        console.error('[EnhancedEngagePersona] Error fetching users:', error);
+        throw error;
+      }
     }
   });
+  
+  // Transform users to include compatibility score
+  const suggestedUsers = {
+    users: usersData?.users?.map(user => ({
+      ...user,
+      // Extract interests from user's preferences if available or default to empty array
+      interests: user.preferences?.interests || [],
+      // Default compatibility score (would be calculated based on real data in a production system)
+      compatibilityScore: Math.floor(Math.random() * 30) + 70 // Random score between 70-100 for demo purposes
+    })) || []
+  };
 
   // Filter suggested users based on search term
   const filteredUsers = suggestedUsers?.users.filter(user => 
@@ -295,27 +294,38 @@ export function EnhancedEngagePersona() {
 
 // User Card Component
 function UserCard({ user }: { user: SimpleUser }) {
+  // Safely handle missing data
+  const displayName = user.displayName || user.username || 'User';
+  const displayAvatar = user.avatar || '';
+  const displayInterests = Array.isArray(user.interests) ? user.interests : [];
+  
   return (
     <Card className="overflow-hidden">
       <div className="flex bg-muted/30">
         <div className="p-4 flex items-start space-x-4 flex-grow">
           <Avatar className="w-12 h-12">
-            <AvatarImage src={user.avatar} alt={user.displayName} />
-            <AvatarFallback>{user.displayName.charAt(0)}</AvatarFallback>
+            <AvatarImage src={displayAvatar} alt={displayName} />
+            <AvatarFallback>{displayName.charAt(0) || '?'}</AvatarFallback>
           </Avatar>
           
           <div className="space-y-1">
-            <h4 className="font-medium">{user.displayName}</h4>
+            <h4 className="font-medium">{displayName}</h4>
             <div className="text-sm text-muted-foreground flex items-center gap-1">
               <User className="h-3 w-3" /> {user.occupation || 'No occupation'} • {user.location || 'No location'}
             </div>
             
             <div className="flex flex-wrap gap-1 mt-2">
-              {user.interests.slice(0, 3).map((interest, index) => (
-                <Badge key={index} variant="outline" className="text-xs">{interest}</Badge>
-              ))}
-              {user.interests.length > 3 && (
-                <Badge variant="outline" className="text-xs">+{user.interests.length - 3} more</Badge>
+              {displayInterests.length > 0 ? (
+                <>
+                  {displayInterests.slice(0, 3).map((interest, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">{interest}</Badge>
+                  ))}
+                  {displayInterests.length > 3 && (
+                    <Badge variant="outline" className="text-xs">+{displayInterests.length - 3} more</Badge>
+                  )}
+                </>
+              ) : (
+                <span className="text-xs text-muted-foreground">No interests available</span>
               )}
             </div>
           </div>
@@ -323,7 +333,7 @@ function UserCard({ user }: { user: SimpleUser }) {
         
         <div className="p-4 flex flex-col items-center justify-center bg-muted/10 border-l">
           <div className="rounded-full w-12 h-12 flex items-center justify-center bg-primary/10 mb-1">
-            <span className="font-bold text-primary">{user.compatibilityScore}%</span>
+            <span className="font-bold text-primary">{user.compatibilityScore || 90}%</span>
           </div>
           <span className="text-xs text-muted-foreground">Compatibility</span>
         </div>
