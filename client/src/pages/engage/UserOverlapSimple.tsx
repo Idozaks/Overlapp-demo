@@ -29,6 +29,8 @@ import {
   Sparkles,
   RefreshCw,
   MessageCircle,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 export function UserOverlapSimple() {
@@ -37,6 +39,8 @@ export function UserOverlapSimple() {
   const params = useParams<{ id: string }>();
   const targetUserId = params.id;
   const [isGenerating, setIsGenerating] = useState(false);
+  // State for collapsible analysis section (collapsed by default)
+  const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(false);
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -300,30 +304,40 @@ export function UserOverlapSimple() {
         </Card>
       )}
 
-      {/* Detailed Analysis Card */}
+      {/* Detailed Analysis Card (Collapsible) */}
       <Card className="mb-8">
-        <CardHeader>
+        <CardHeader 
+          className="cursor-pointer"
+          onClick={() => setIsAnalysisExpanded(!isAnalysisExpanded)}
+        >
           <CardTitle className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
               <span>Detailed Analysis</span>
             </div>
+            <div className="text-muted-foreground">
+              {isAnalysisExpanded ? 
+                <ChevronUp className="h-5 w-5" /> : 
+                <ChevronDown className="h-5 w-5" />
+              }
+            </div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Analysis Content */}
-          {loadingOverlap ? (
-            <div className="text-center text-muted-foreground">
-              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-4" />
-              <p>Generating comparison...</p>
-            </div>
-          ) : overlapData?.analysis && overlapData.analysis.trim() !== "" && overlapData.analysis !== "Detailed analysis not available" ? (
-            <div className="prose max-w-none dark:prose-invert prose-p:leading-relaxed prose-headings:scroll-m-20">
-              {overlapData.analysis.split('\n').map((paragraph, idx) => 
-                paragraph.trim() ? <p key={idx}>{paragraph}</p> : <br key={idx} />
-              )}
-            </div>
-          ) : (
+        {isAnalysisExpanded && (
+          <CardContent className="space-y-6">
+            {/* Analysis Content */}
+            {loadingOverlap ? (
+              <div className="text-center text-muted-foreground">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto mb-4" />
+                <p>Generating comparison...</p>
+              </div>
+            ) : overlapData?.analysis && overlapData.analysis.trim() !== "" && overlapData.analysis !== "Detailed analysis not available" ? (
+              <div className="prose max-w-none dark:prose-invert prose-p:leading-relaxed prose-headings:scroll-m-20">
+                {overlapData.analysis.split('\n').map((paragraph, idx) => 
+                  paragraph.trim() ? <p key={idx}>{paragraph}</p> : <br key={idx} />
+                )}
+              </div>
+            ) : (
             <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
               <h3 className="font-medium mb-2">Personalized Analysis</h3>
               <p className="text-sm text-muted-foreground">
