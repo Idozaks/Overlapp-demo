@@ -472,7 +472,33 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
       console.log('Sending update request to server...');
       await updateMutation.mutateAsync(formData);
       console.log('Update request sent');
-
+      
+      // Check if we came from a QR code signup flow
+      const isOnboarding = window.location.pathname.includes('/profile/onboarding');
+      const fromQrSignup = window.location.search.includes('source=qr-signup');
+      
+      // If this is an onboarding flow from QR scan, redirect to overlap
+      if (isOnboarding && fromQrSignup) {
+        // Check for pending overlap user ID in localStorage
+        const pendingOverlapUserId = localStorage.getItem('pendingOverlapUserId');
+        
+        if (pendingOverlapUserId) {
+          // Clear the stored ID to prevent unwanted redirects in the future
+          localStorage.removeItem('pendingOverlapUserId');
+          
+          toast({
+            title: "Profile Complete!",
+            description: "Your profile has been set up. Now we'll show you what you have in common!",
+            variant: "default",
+          });
+          
+          // Redirect to the overlap page with the stored user ID
+          navigate(`/social/overlap?targetUserId=${pendingOverlapUserId}`);
+        } else {
+          // Fallback to homepage if no pending user ID
+          navigate('/');
+        }
+      }
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;
