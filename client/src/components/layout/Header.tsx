@@ -37,8 +37,13 @@ export function Header() {
   const [location] = useLocation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
+  
+  // Handle logout functionality
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,8 +71,16 @@ export function Header() {
   ];
 
   // Update profile path dynamically based on user ID
+  // Create a direct hardcoded profile link for testing
+  const profileUrl = user?.id ? `/profile/${user.id}` : '/profile';
+  console.log('[Header] Current user profile URL:', profileUrl, 'User ID:', user?.id);
+  
   const profileMenuItems = [
-    { label: 'Profile', path: user?.id ? `/profile/${user.id}` : '/profile' },
+    { 
+      label: 'Profile', 
+      path: profileUrl,
+      onClick: () => { console.log('[Header] Navigating to profile with ID:', user?.id); }
+    },
     { label: 'Settings', path: '/settings' },
     { label: 'Wallet', path: '/wallet' },
     { label: 'Explore Users', path: '/social/explore' },
@@ -191,9 +204,12 @@ export function Header() {
         {user ? (
           <>
             <Link
-              href={user?.id ? `/profile/${user.id}` : '/profile'}
+              href={profileUrl}
               className="px-2 py-1 rounded hover:bg-accent flex items-center gap-2"
-              onClick={() => setMobileOpen(false)}
+              onClick={() => {
+                console.log('[Header Mobile] Navigating to profile with URL:', profileUrl);
+                setMobileOpen(false);
+              }}
             >
               <User size={16} />
               {t('nav.profile')}
@@ -218,7 +234,7 @@ export function Header() {
               variant="ghost" 
               className="justify-start px-2"
               onClick={() => {
-                logout();
+                handleLogout();
                 setMobileOpen(false);
               }}
             >
@@ -295,11 +311,23 @@ export function Header() {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>{t('nav.account')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {profileMenuItems.map((item) => (
+                
+                {/* Direct fixed link for profile with current user ID */}
+                <DropdownMenuItem asChild>
+                  <Link href={profileUrl}>
+                    <User className="mr-2 h-4 w-4" />
+                    {t('nav.profile')}
+                  </Link>
+                </DropdownMenuItem>
+                
+                {/* Other menu items */}
+                {profileMenuItems.slice(1).map((item) => (
                   <DropdownMenuItem key={item.label} asChild>
-                    <Link href={item.path}>
+                    <Link 
+                      href={item.path}
+                      onClick={item.onClick}
+                    >
                       {/* Icon mapping based on label */}
-                      {item.label === 'Profile' && <User className="mr-2 h-4 w-4" />}
                       {item.label === 'Settings' && <Settings className="mr-2 h-4 w-4" />}
                       {item.label === 'Wallet' && <Wallet className="mr-2 h-4 w-4" />}
                       {item.label === 'Explore Users' && <Users className="mr-2 h-4 w-4" />}

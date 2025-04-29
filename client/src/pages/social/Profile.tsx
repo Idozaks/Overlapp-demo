@@ -24,10 +24,17 @@ interface Interest {
 
 export default function Profile() {
   const { id } = useParams();
-  const userId = id ? parseInt(id) : null;
-  const queryClient = useQueryClient();
+  console.log('[Profile] Raw ID param:', id);
+  
+  // If no ID is provided and user is logged in, use the current user's ID
   const { user: currentUser } = useAuth();
   const [, navigate] = useLocation();
+  
+  // Use the ID from params if available, otherwise use the current user's ID if logged in
+  const userId = id ? parseInt(id) : (currentUser ? currentUser.id : null);
+  console.log('[Profile] Resolved userId:', userId, 'Current user ID:', currentUser?.id);
+  
+  const queryClient = useQueryClient();
 
   // Group all useQuery hooks together at the top
   const { data: user, isLoading: loadingUser } = useQuery<{ user: User }>({
