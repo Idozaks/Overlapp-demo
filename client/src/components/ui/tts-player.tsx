@@ -1,8 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Headphones, FastForward, Rewind } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface TTSPlayerProps {
   text: string;
@@ -14,6 +23,16 @@ interface TTSPlayerProps {
   onComplete?: () => void;
   onError?: (error: Error) => void;
 }
+
+// Voice options with display names
+const VOICE_OPTIONS = [
+  { id: "nova", name: "Nova", description: "Warm female voice" },
+  { id: "alloy", name: "Alloy", description: "Neutral voice" },
+  { id: "echo", name: "Echo", description: "Male voice" },
+  { id: "fable", name: "Fable", description: "British female voice" },
+  { id: "onyx", name: "Onyx", description: "Deep male voice" },
+  { id: "shimmer", name: "Shimmer", description: "Expressive female voice" },
+];
 
 export function TTSPlayer({
   text,
@@ -32,7 +51,9 @@ export function TTSPlayer({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(100);
-  const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState<string>("nova");
+  const [expanded, setExpanded] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1.0);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
@@ -51,7 +72,7 @@ export function TTSPlayer({
           },
           body: JSON.stringify({ 
             text,
-            voice: selectedVoice || undefined
+            voice: selectedVoice || "nova"
           }),
         });
         
@@ -97,6 +118,13 @@ export function TTSPlayer({
       }
     };
   }, [text, selectedVoice]);
+  
+  // Update playback rate when it changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackRate;
+    }
+  }, [playbackRate]);
   
   // Update progress bar
   const updateProgress = () => {
@@ -176,6 +204,11 @@ export function TTSPlayer({
     }
   };
   
+  // Change voice
+  const handleVoiceChange = (voice: string) => {
+    setSelectedVoice(voice);
+  };
+  
   // Format time as mm:ss
   const formatTime = (time: number): string => {
     if (isNaN(time)) return '00:00';
@@ -203,29 +236,90 @@ export function TTSPlayer({
     setCurrentTime(newTime);
   };
   
+  // Set playback rate
+  const changePlaybackRate = (rate: number) => {
+    setPlaybackRate(rate);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = rate;
+    }
+  };
+  
+  // Calculate progress percentage
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+  
   return (
-    <div className={cn("rounded-lg border bg-card p-4 text-card-foreground shadow-sm", className)}>
-      <div className="mb-3">
-        <h3 className="text-sm font-medium mb-1">{label}</h3>
-        <p className="text-xs text-muted-foreground truncate">{text.substring(0, 100)}...</p>
+    <div className={cn(
+      "rounded-lg border bg-card text-card-foreground shadow-sm transition-all", 
+      expanded ? "p-5" : "p-3",
+      className
+    )}>
+      <div className="mb-4 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Headphones className="h-5 w-5 text-primary" />
+          <h3 className="text-sm font-medium">{label}</h3>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs"
+        >
+          {expanded ? "Simple View" : "Advanced View"}
+        </Button>
+      </div>
+      
+      {/* Waveform-style Progress */}
+      <div className="mb-4 relative h-12 bg-muted/30 rounded-md overflow-hidden">
+        <div 
+          className="absolute left-0 top-0 h-full bg-primary/15 transition-all"
+          style={{ width: `${progressPercentage}%` }}
+        />
+        
+        {/* Generate a fake waveform pattern */}
+        <div className="absolute inset-0 flex items-center justify-between px-2">
+          {Array.from({ length: 40 }).map((_, i) => {
+            // Random height for each bar in the waveform
+            const height = 25 + Math.random() * 50;
+            const isCurrent = (i / 40) * 100 < progressPercentage;
+            
+            return (
+              <div 
+                key={i}
+                className={`w-1 rounded-full transition-all ${
+                  isPlaying ? "animate-pulse" : ""
+                } ${
+                  isCurrent ? "bg-primary" : "bg-muted"
+                }`}
+                style={{ height: `${height}%` }}
+              />
+            );
+          })}
+        </div>
+        
+        {/* Current position marker */}
+        <div 
+          className="absolute top-0 h-full w-0.5 bg-primary-foreground transition-all"
+          style={{ left: `${progressPercentage}%` }}
+        />
       </div>
       
       <div className="space-y-4">
-        {/* Progress bar */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground w-12 text-right">{formatTime(currentTime)}</span>
-          <Slider 
-            value={[currentTime]} 
-            max={duration || 100}
-            step={0.1}
-            onValueChange={seek}
-            disabled={!audioUrl || isLoading}
-            className="flex-1"
-          />
-          <span className="text-xs text-muted-foreground w-12">{formatTime(duration)}</span>
+        {/* Time display and progress */}
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>{formatTime(currentTime)}</span>
+          <span>-{formatTime(duration - currentTime)}</span>
         </div>
         
-        {/* Controls */}
+        {/* Slider for precise seeking */}
+        <Slider
+          value={[currentTime]} 
+          max={duration || 100}
+          step={0.1}
+          onValueChange={seek}
+          disabled={!audioUrl || isLoading}
+        />
+        
+        {/* Main Controls */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button 
@@ -240,18 +334,18 @@ export function TTSPlayer({
             </Button>
             
             <Button
-              variant="outline"
+              variant={isPlaying ? "secondary" : "default"}
               size="sm"
               disabled={!audioUrl || isLoading}
               onClick={togglePlay}
-              className="h-8 w-8 p-0"
+              className="h-10 w-10 rounded-full p-0"
             >
               {isLoading ? (
-                <span className="h-4 w-4 animate-pulse">...</span>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-primary" />
               ) : isPlaying ? (
-                <Pause className="h-4 w-4" />
+                <Pause className="h-5 w-5" />
               ) : (
-                <Play className="h-4 w-4" />
+                <Play className="h-5 w-5 ml-0.5" />
               )}
               <span className="sr-only">{isPlaying ? 'Pause' : 'Play'}</span>
             </Button>
@@ -296,6 +390,75 @@ export function TTSPlayer({
           </div>
         </div>
       </div>
+      
+      {/* Expanded view with voice selection and playback speed */}
+      {expanded && (
+        <div className="mt-6 pt-4 border-t space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            {/* Voice selector */}
+            <div>
+              <label className="text-xs font-medium mb-2 block">Voice</label>
+              <Select
+                value={selectedVoice}
+                onValueChange={handleVoiceChange}
+                disabled={isLoading || isPlaying}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a voice" />
+                </SelectTrigger>
+                <SelectContent>
+                  {VOICE_OPTIONS.map((voice) => (
+                    <SelectItem key={voice.id} value={voice.id} className="flex justify-between">
+                      <div className="flex flex-col">
+                        <span>{voice.name}</span>
+                        <span className="text-xs text-muted-foreground">{voice.description}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Playback speed */}
+            <div>
+              <label className="text-xs font-medium mb-2 block">Playback Speed</label>
+              <div className="flex gap-1">
+                {[0.75, 1.0, 1.25, 1.5, 2.0].map((rate) => (
+                  <Button
+                    key={rate}
+                    variant={playbackRate === rate ? "secondary" : "outline"}
+                    size="sm"
+                    onClick={() => changePlaybackRate(rate)}
+                    disabled={!audioUrl || isLoading}
+                    className="flex-1 text-xs"
+                  >
+                    {rate}x
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Current voice display */}
+          <div className="flex items-center gap-2 mt-2">
+            <Badge variant="outline" className="bg-primary/5">
+              {VOICE_OPTIONS.find(v => v.id === selectedVoice)?.name || "Nova"}
+            </Badge>
+            {playbackRate !== 1.0 && (
+              <Badge variant="outline" className="bg-secondary/5">
+                {playbackRate}x Speed
+              </Badge>
+            )}
+          </div>
+          
+          {/* Text preview */}
+          <div className="mt-2">
+            <p className="text-xs text-muted-foreground line-clamp-2 italic">
+              "{text.substring(0, 150)}..."
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
