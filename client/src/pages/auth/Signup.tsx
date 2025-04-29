@@ -113,15 +113,21 @@ export default function AuthPage() {
     try {
       await registerMutation.mutateAsync(data);
       
-      // If they came from a shared profile, redirect to overlap view
+      // If they came from a shared profile, redirect to profile setup first
       if (sharedProfileId) {
-        sessionStorage.removeItem('sharedProfileId'); // Clear stored ID
+        // Store the shared profile ID in localStorage instead of sessionStorage
+        // This ensures it persists through the onboarding flow
+        localStorage.setItem('pendingOverlapUserId', sharedProfileId);
+        sessionStorage.removeItem('sharedProfileId'); // Clear session stored ID
+        
         toast({
           title: "Account Created",
-          description: "Your account has been created! We'll now show you what you have in common.",
+          description: "Let's set up your profile first, then we'll show you what you have in common!",
           variant: "default",
         });
-        navigate(`/social/overlap?targetUserId=${sharedProfileId}`);
+        
+        // Redirect to profile setup/onboarding page with a special query param
+        navigate("/profile/onboarding?source=qr-signup");
       } else {
         navigate("/");
       }
