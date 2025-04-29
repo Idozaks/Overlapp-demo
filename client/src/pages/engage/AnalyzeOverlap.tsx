@@ -633,7 +633,25 @@ export function AnalyzeOverlap() {
                     <div className="p-4 bg-primary/5 rounded-lg">
                       <h3 className="font-medium mb-2">Detailed Analysis</h3>
                       <p className="text-sm text-muted-foreground">
-                        {aiAnalysis?.insightSummary || data?.overlap?.detailedAnalysis || "You share several key interests that provide a strong foundation for meaningful engagement."}
+                        {aiAnalysis?.insightSummary || 
+                         (data?.overlap?.detailedAnalysis && 
+                          data.overlap.detailedAnalysis !== "Detailed analysis not available" ? 
+                            data.overlap.detailedAnalysis : 
+                            (() => {
+                              const score = data?.overlap?.score || 0;
+                              const sharedInterests = data?.overlap?.sharedInterests?.length || 0;
+                              const name = data?.entity?.name || "this entity";
+                              
+                              if (score > 75) {
+                                return `You have a strong compatibility with ${name}. With ${sharedInterests} shared interests, you have many topics to explore together. This high level of common ground creates an excellent foundation for meaningful interaction and collaboration.`;
+                              } else if (score > 50) {
+                                return `You have a moderate compatibility with ${name}. The ${sharedInterests} shared interests provide good conversation starters. While you have similarities, your differences present opportunities to learn from each other and expand your horizons.`;
+                              } else {
+                                return `You have unique perspectives compared to ${name}. While you may not share many common interests (${sharedInterests} found), this diversity offers valuable opportunities for learning and growth. Consider exploring their interests to broaden your knowledge and experience.`;
+                              }
+                            })()
+                         )
+                        }
                       </p>
                     </div>
                     
