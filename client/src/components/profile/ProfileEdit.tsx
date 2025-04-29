@@ -479,12 +479,71 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
     }
   };
 
-  // Return the form with floating button
+  // Add a separate component that will be rendered directly in the body
+  const SaveButtonComponent = () => {
+    // Create a portal to render button outside the component tree
+    useEffect(() => {
+      // Create a new div to host our button
+      const buttonContainer = document.createElement('div');
+      buttonContainer.id = 'save-button-container';
+      buttonContainer.style.position = 'fixed';
+      buttonContainer.style.bottom = '24px';
+      buttonContainer.style.right = '24px';
+      buttonContainer.style.zIndex = '9999';
+      document.body.appendChild(buttonContainer);
+
+      // Create the actual button element
+      const buttonElement = document.createElement('button');
+      buttonElement.innerHTML = `
+        <div class="shadow-xl border border-primary/20 rounded-md bg-white dark:bg-gray-900">
+          <button 
+            class="px-4 py-2 flex items-center gap-2 bg-primary hover:bg-primary/90 text-white rounded-md"
+            id="actual-save-button"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            ${t("profile.updateProfile") || "Save Changes"}
+          </button>
+        </div>
+      `;
+      
+      buttonContainer.appendChild(buttonElement);
+      
+      // Add event listener to button
+      const actualButton = document.getElementById('actual-save-button');
+      if (actualButton) {
+        actualButton.addEventListener('click', handleSaveChanges);
+      }
+      
+      // Cleanup
+      return () => {
+        if (actualButton) {
+          actualButton.removeEventListener('click', handleSaveChanges);
+        }
+        document.body.removeChild(buttonContainer);
+      };
+    }, []);
+    
+    return null;
+  };
+
+  // Return the form (the save button will be added via the useEffect)
   return (
     <div className="relative w-full min-h-screen">
-      {/* Floating Save Button - with higher z-index and proper fixed positioning */}
-      <div className="fixed bottom-6 right-6" id="floating-save-button" style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999 }}>
-        <Card className="shadow-xl border border-primary/20 animate-pulse">
+      {/* Render the save button component */}
+      <SaveButtonComponent />
+      
+      {/* Original button as fallback in case the portal approach doesn't work */}
+      <div id="floating-save-button" className="fixed bottom-6 right-6 z-[9999]" style={{ 
+        position: 'fixed',
+        bottom: '24px', 
+        right: '24px', 
+        zIndex: 9999
+      }}>
+        <Card className="shadow-xl border border-primary/20">
           <Button
             type="button"
             disabled={updateMutation.isPending}
