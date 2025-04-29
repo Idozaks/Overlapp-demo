@@ -332,14 +332,14 @@ const ProfileEditForm = ({ user, onSuccess, isOnboarding = false, userId }: Prof
           });
           
           // Navigate to overlap view with the target user ID
-          navigate(`/social/overlap?targetUserId=${pendingOverlapUserId}`);
+          window.location.href = `/social/overlap?targetUserId=${pendingOverlapUserId}`;
         } else {
           // No pending overlap, just go to profile
           toast({
             title: t("profile.updateSuccess"),
             description: t("profile.updateSuccessMessage")
           });
-          navigate(`/profile/${updatedUser.user.id}`);
+          window.location.href = `/profile/${updatedUser.user.id}`;
         }
       } else {
         // Standard profile update
@@ -525,10 +525,10 @@ const ProfileEditForm = ({ user, onSuccess, isOnboarding = false, userId }: Prof
           });
           
           // Redirect to the overlap page with the stored user ID
-          navigate(`/social/overlap?targetUserId=${pendingOverlapUserId}`);
+          window.location.href = `/social/overlap?targetUserId=${pendingOverlapUserId}`;
         } else {
           // Fallback to homepage if no pending user ID
-          navigate('/');
+          window.location.href = '/';
         }
       }
     } catch (error) {
