@@ -481,14 +481,14 @@ const ProfileEditForm = ({ user, onSuccess }: ProfileEditFormProps) => {
 
   // Return the form with floating button
   return (
-    <div className="relative">
-      {/* Floating Save Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Card className="shadow-lg border border-primary/20">
+    <div className="relative w-full min-h-screen">
+      {/* Floating Save Button - with higher z-index and proper fixed positioning */}
+      <div className="fixed bottom-6 right-6" id="floating-save-button" style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999 }}>
+        <Card className="shadow-xl border border-primary/20 animate-pulse">
           <Button
             type="button"
             disabled={updateMutation.isPending}
-            className="px-4 py-2 flex items-center gap-2"
+            className="px-4 py-2 flex items-center gap-2 bg-primary hover:bg-primary/90"
             onClick={handleSaveChanges}
           >
             {updateMutation.isPending ? (
