@@ -56,7 +56,7 @@ export default function QrShare() {
   const [activeTab, setActiveTab] = useState<string>('profile');
   const [showFullDialog, setShowFullDialog] = useState<boolean>(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const urlWithQrParam = `${window.location.origin}/profile/${id}?source=qr&sharedBy=${id}`;
+  const urlWithQrParam = `${window.location.origin}/shared/profile/${id}?source=qr&sharedBy=${id}`;
   
   // If no ID is provided and user is logged in, use the current user's ID
   const userId = id ? parseInt(id) : (currentUser ? currentUser.id : null);
