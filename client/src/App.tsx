@@ -30,6 +30,7 @@ import UserOverlap from "@/pages/social/UserOverlap";
 import SocialMediaExportPage from "@/pages/social/SocialMediaExport";
 import QrShare from "@/pages/social/QrShare";
 import SharedProfile from "@/pages/social/SharedProfile";
+import QrOnboarding from "@/pages/social/QrOnboarding";
 import WalletDashboard from "@/pages/wallet/Dashboard";
 import InterestManager from "@/pages/admin/InterestManager";
 import ExploreInterests from "@/pages/interests/ExploreInterests";
@@ -111,6 +112,7 @@ function Router() {
       <Route path="/social/export" component={SocialMediaExportPage} />
       <Route path="/social/qr-share/:id?" component={QrShare} />
       <Route path="/shared/profile/:id" component={SharedProfile} />
+      <Route path="/qr-onboarding/:id" component={QrOnboarding} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/profile/onboarding/:pendingId?" component={() => {
