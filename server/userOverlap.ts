@@ -114,7 +114,7 @@ export async function generateUserOverlapAnalysis(
       messages: [
         {
           role: "system",
-          content: "You are an expert social psychologist specializing in human connections and compatibility. Your task is to analyze the overlap between two users and provide insightful observations about their compatibility, shared traits, and potential for meaningful connection."
+          content: "You are an expert social psychologist specializing in human connections and compatibility. Your task is to analyze the overlap between two users and provide insightful observations about their compatibility, shared traits, and potential for meaningful connection. Pay special attention to bio text analysis, looking for implicit interests and personality traits that might not be explicitly listed."
         },
         {
           role: "user",
@@ -122,7 +122,7 @@ export async function generateUserOverlapAnalysis(
         }
       ],
       temperature: 0.7,
-      max_tokens: 800
+      max_tokens: 1200  // Increased token limit to accommodate more thorough bio analysis
     });
 
     const analysis = response.choices[0].message.content || 
@@ -138,7 +138,8 @@ export async function generateUserOverlapAnalysis(
       overlapScore
     };
   } catch (error) {
-    log("Error generating user overlap analysis:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`Error generating user overlap analysis: ${errorMessage}`);
     throw new Error("Failed to generate user overlap analysis");
   }
 }
@@ -153,10 +154,11 @@ function generatePrompt(
   differentIdentities: Record<string, {current: string; target: string}>
 ): string {
   return `
-I need you to analyze the compatibility and overlap between two users:
+I need you to analyze the compatibility and overlap between two users, paying special attention to their bio text as it often contains important clues about their personality, interests, and values:
 
 Current User (User 1):
 - Name: ${currentUser.displayName || currentUser.username}
+- Bio: ${currentUser.bio || "Not provided"}
 - Gender: ${currentUser.gender || "Not specified"}
 - Age Range: ${currentUser.ageRange || "Not specified"}
 - Country of Origin: ${currentUser.countryOfOrigin || "Not specified"}
@@ -176,6 +178,7 @@ Current User (User 1):
 
 Target User (User 2):
 - Name: ${targetUser.displayName || targetUser.username}
+- Bio: ${targetUser.bio || "Not provided"}
 - Gender: ${targetUser.gender || "Not specified"}
 - Age Range: ${targetUser.ageRange || "Not specified"}
 - Country of Origin: ${targetUser.countryOfOrigin || "Not specified"}
@@ -198,10 +201,13 @@ Shared Interests: ${similarInterests.length > 0 ? similarInterests.join(", ") : 
 Common Identity Attributes: ${commonIdentities.length > 0 ? commonIdentities.join(", ") : "None"}
 
 Please analyze their overlap and provide:
-1. A personalized analysis of their compatibility (3-5 paragraphs)
-2. Key areas where they might connect well
+1. A personalized analysis of their compatibility (3-5 paragraphs), including any additional interests or traits you can deduce from their bio text
+2. Key areas where they might connect well, based on both explicit interests and information from their bios
 3. Potential conversation starters or activities they might enjoy together
 4. Areas where they could learn from each other's differences
+5. Any hidden or implied shared interests that might be detected in their bios even if not explicitly listed
+
+First, look carefully at their bio texts to extract any implicit interests, values, or traits that aren't captured in their explicit profile data. Then incorporate these insights into your analysis.
 
 Keep your analysis friendly, insightful, and focused on the positive potential for connection.
 `;
