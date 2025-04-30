@@ -113,7 +113,7 @@ function Router() {
       <Route path="/shared/profile/:id" component={SharedProfile} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
-      <Route path="/profile/onboarding/:id?" component={() => {
+      <Route path="/profile/onboarding/:pendingId?" component={() => {
         const { user } = useAuth();
         const [location] = useLocation();
         
@@ -129,11 +129,20 @@ function Router() {
           }
         }
         
-        // Extract URL params
+        // Extract parameters from both URL route params and query params
+        const [, params] = useRoute('/profile/onboarding/:pendingId?');
+        const routePendingId = params?.pendingId;
+        
+        // Also check query params as fallback
         const urlParams = new URLSearchParams(window.location.search);
-        const pendingId = urlParams.get('pendingId') || 
+        const queryPendingId = urlParams.get('pendingId');
+        
+        // Try to get pendingId from route params first, then query, then storage
+        const pendingId = routePendingId || 
+                          queryPendingId || 
                           localStorage.getItem('pendingOverlapUserId') || 
                           sessionStorage.getItem('pendingOverlapUserId');
+                          
         const source = urlParams.get('source');
         
         console.log('DEBUG-QR-ONBOARDING: URL params and storage -', { 

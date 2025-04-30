@@ -58,6 +58,9 @@ export default function QrShare() {
   const cardRef = useRef<HTMLDivElement>(null);
   const urlWithQrParam = `${window.location.origin}/shared/profile/${id}?source=qr&sharedBy=${id}`;
   
+  // For the onboarding URL, use route parameters to minimize hooks issues
+  const directOnboardingUrl = `${window.location.origin}/profile/onboarding/${id}`;
+  
   // If no ID is provided and user is logged in, use the current user's ID
   const userId = id ? parseInt(id) : (currentUser ? currentUser.id : null);
   
