@@ -23,6 +23,7 @@ import ExploreUsers from "@/pages/social/ExploreUsers";
 import Profile from "@/pages/social/Profile";
 import ProfileEdit from "@/pages/social/ProfileEdit";
 import ProfileEditForm from "@/components/profile/ProfileEdit";
+import OnboardingWrapper from "@/components/profile/OnboardingWrapper";
 import InterestSuggestionsPage from "@/pages/social/InterestSuggestionsPage";
 import Matches from "@/pages/social/Matches";
 import UserOverlap from "@/pages/social/UserOverlap";
@@ -112,136 +113,7 @@ function Router() {
       <Route path="/shared/profile/:id" component={SharedProfile} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
-      <Route path="/profile/onboarding/:id?" component={() => {
-        const { user } = useAuth();
-        const [location] = useLocation();
-        
-        // Redirect to login if not authenticated
-        if (!user) {
-          // Get the source parameter from the URL
-          const urlParams = new URLSearchParams(window.location.search);
-          const isFromQrSignup = urlParams.get('source') === 'qr-signup';
-          
-          if (isFromQrSignup) {
-            // Use direct navigation since we're having issues with wouter's navigate
-            window.location.href = '/signup?source=qr-signup';
-            return null;
-          } else {
-            window.location.href = '/signup';
-            return null;
-          }
-        }
-        
-        // Check if there's a pending overlap user ID from various sources
-        // First check localStorage
-        let pendingUserId = localStorage.getItem('pendingOverlapUserId');
-        console.log('DEBUG-QR-ONBOARDING: pendingOverlapUserId from localStorage:', pendingUserId);
-        
-        // Also check sessionStorage as a fallback
-        if (!pendingUserId) {
-          pendingUserId = sessionStorage.getItem('pendingOverlapUserId');
-          console.log('DEBUG-QR-ONBOARDING: pendingOverlapUserId from sessionStorage:', pendingUserId);
-        }
-        
-        // Check URL params as another fallback
-        const urlParams = new URLSearchParams(window.location.search);
-        const pendingIdFromUrl = urlParams.get('pendingId');
-        if (!pendingUserId && pendingIdFromUrl) {
-          pendingUserId = pendingIdFromUrl;
-          console.log('DEBUG-QR-ONBOARDING: pendingOverlapUserId from URL:', pendingUserId);
-          
-          // Store it in localStorage to ensure it persists
-          localStorage.setItem('pendingOverlapUserId', pendingUserId);
-        }
-        
-        // Add debug logs to help diagnose issues
-        console.log('DEBUG-QR-ONBOARDING: Full user object:', user);
-        
-        // Use the ID from the authenticated user - handle different user object structures
-        // The user object could be either {id, username, ...} or {user: {id, username, ...}}
-        const profileId = user?.id || user?.user?.id;
-        console.log('DEBUG-QR-ONBOARDING: Current user ID:', profileId);
-        
-        // Wait a moment if the user data isn't loaded yet
-        if (!profileId) {
-          // This might be a timing issue - let's show a loading state for a moment
-          console.log('DEBUG-QR-ONBOARDING: No user ID found, waiting for authentication...');
-          
-          // Show a loading state for 2 seconds
-          setTimeout(() => {
-            // Check again after delay
-            const delayedUserId = user?.id || user?.user?.id;
-            console.log('DEBUG-QR-ONBOARDING: After delay, user ID:', delayedUserId);
-            
-            if (!delayedUserId) {
-              // This is a critical error - dump all debug info
-              console.error('DEBUG-QR-ONBOARDING: Invalid user ID after delay - user object:', user);
-              console.error('DEBUG-QR-ONBOARDING: pendingUserId:', pendingUserId);
-              console.error('DEBUG-QR-ONBOARDING: URL params:', Object.fromEntries(urlParams.entries()));
-              console.error('DEBUG-QR-ONBOARDING: localStorage contents:', Object.fromEntries(
-                Object.keys(localStorage).map(key => [key, localStorage.getItem(key)])
-              ));
-              console.error('DEBUG-QR-ONBOARDING: sessionStorage contents:', Object.fromEntries(
-                Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])
-              ));
-              
-              // Instead of showing an error, let's handle this more gracefully
-              // Redirect them to signup with information about what happened
-              localStorage.setItem('auth_error', 'Invalid user ID during profile onboarding');
-              window.location.href = '/signup?error=invalid_user&source=onboarding';
-            } else {
-              // User ID is available now, refresh the page
-              window.location.reload();
-            }
-          }, 2000);
-          
-          // Show loading state while waiting
-          return (
-            <div className="flex flex-col items-center justify-center min-h-screen">
-              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-              <p className="text-lg">Loading your profile...</p>
-            </div>
-          );
-        }
-        
-        const userForProfile = {
-          ...user
-        };
-        
-        // ProfileEdit component handles the rest of the onboarding flow
-        return (
-          <ProfileEditForm 
-            user={userForProfile}
-            isOnboarding={true} 
-            onSuccess={(updatedUser: any) => {
-              // After profile is completed, check for pending overlap
-              console.log('DEBUG-QR-COMPLETION: onSuccess callback called with pendingUserId:', pendingUserId);
-              console.log('DEBUG-QR-COMPLETION: updatedUser:', updatedUser);
-              
-              // Extract the user ID properly from the response
-              const userId = updatedUser?.id || (updatedUser?.user?.id);
-              
-              if (!userId) {
-                console.error('DEBUG-QR-COMPLETION: Could not extract user ID from updatedUser:', updatedUser);
-                // Handle error gracefully
-                alert('Profile updated but there was an error getting your user information. Please try logging in again.');
-                window.location.href = '/';
-                return;
-              }
-              
-              if (pendingUserId) {
-                console.log('DEBUG-QR-COMPLETION: Redirecting to overlap view with targetUserId:', pendingUserId);
-                // Remove from localStorage but keep in sessionStorage just in case we need it later
-                localStorage.removeItem('pendingOverlapUserId');
-                window.location.href = `/social/overlap?targetUserId=${pendingUserId}`;
-              } else {
-                console.log('DEBUG-QR-COMPLETION: No pendingUserId found, redirecting to profile');
-                window.location.href = `/profile/${userId}`;
-              }
-            }}
-          />
-        );
-      }} />
+      <Route path="/profile/onboarding/:id?" component={OnboardingWrapper} />
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
       <Route path="/wallet" component={WalletDashboard} />
       <Route path="/marketplace" component={Marketplace} />
