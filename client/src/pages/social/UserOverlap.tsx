@@ -240,51 +240,74 @@ export default function UserOverlap() {
   const currentUserBio = currentUser?.bio || "";
   const targetUserBio = targetUser?.bio || "";
   
-  // Generate personalized conversation starters based on overlap data
+  // Generate personalized conversation starters based on overlap data and bio information
   const generateConversationStarters = () => {
     if (!overlapData) return [];
     
     const starters = [];
     
+    // Bio-derived starters (prioritize these when available)
+    if (targetUserBio) {
+      // Extract meaningful phrases from the bio
+      const bioSegments = targetUserBio.split(/[.!?]/).filter(segment => segment.trim().length > 20);
+      
+      if (bioSegments.length > 0) {
+        // Use the first meaningful segment for a conversation starter
+        const firstSegment = bioSegments[0].trim();
+        starters.push(`I was reading in your bio about "${firstSegment.substring(0, 60)}${firstSegment.length > 60 ? '...' : ''}" - could you tell me more about that?`);
+        
+        // If there's a second segment, use it too
+        if (bioSegments.length > 1) {
+          const secondSegment = bioSegments[1].trim();
+          const words = secondSegment.split(' ');
+          const keyPhrase = words.length > 5 ? words.slice(0, 5).join(' ') : secondSegment;
+          starters.push(`I'm intrigued by your mention of "${keyPhrase}..." in your bio - what's the story behind that?`);
+        }
+      }
+      
+      // Look for key professional terms in the bio
+      const professionalTerms = ['work', 'career', 'professional', 'industry', 'business', 'startup', 'project', 'company', 'build', 'create', 'develop'];
+      const foundProfessionalTerm = professionalTerms.find(term => targetUserBio.toLowerCase().includes(term));
+      
+      if (foundProfessionalTerm) {
+        starters.push(`Your bio mentions your ${foundProfessionalTerm}. What aspects of it are you most passionate about right now?`);
+      }
+    }
+    
     // Shared interests starters
-    if (overlapData.similarInterests.length > 0) {
+    if (overlapData.similarInterests.length > 0 && starters.length < 5) {
       const interest1 = overlapData.similarInterests[0];
       starters.push(`I noticed we both enjoy ${interest1}! What first got you interested in it?`);
       
-      if (overlapData.similarInterests.length > 1) {
+      if (overlapData.similarInterests.length > 1 && starters.length < 5) {
         const interest2 = overlapData.similarInterests[1];
         starters.push(`Have you attended any events or gatherings related to ${interest2}? I'd love to hear about your experiences.`);
       }
     }
     
     // Different identity traits starters
-    if (Object.keys(overlapData.differentIdentities).length > 0) {
+    if (Object.keys(overlapData.differentIdentities).length > 0 && starters.length < 5) {
       const trait = Object.entries(overlapData.differentIdentities)[0];
       const traitName = trait[0];
       const traitValue = trait[1].target;
       
       if (traitName === 'countryOfOrigin') {
         starters.push(`I'm curious about your experiences in ${traitValue}. What's something about it that most people wouldn't know?`);
-      } else if (traitName === 'profession' || traitName === 'occupation') {
-        starters.push(`I'd love to hear more about your work as a ${traitValue}. What aspects of it do you find most fulfilling?`);
+      } else if (traitName === 'profession' || traitName === 'occupation' || traitName === 'professionalField') {
+        starters.push(`I'd love to hear more about your work in ${traitValue}. What aspects of it do you find most fulfilling?`);
       } else {
         starters.push(`I'd love to hear your perspective on ${traitName} based on your experience with ${traitValue}.`);
       }
     }
     
     // Unique interest starters
-    if (overlapData.uniqueTargetUserInterests.length > 0) {
+    if (overlapData.uniqueTargetUserInterests.length > 0 && starters.length < 5) {
       const uniqueInterest = overlapData.uniqueTargetUserInterests[0];
       starters.push(`I see you're interested in ${uniqueInterest}, which is new to me. What would you recommend to someone just getting started with it?`);
     }
     
     // If we have too few starters, add some generic ones
     if (starters.length < 3) {
-      if (targetUserBio) {
-        const shortBio = targetUserBio.split('.')[0];
-        starters.push(`I was reading in your bio about "${shortBio}..." - could you tell me more about that?`);
-      }
-      
       starters.push("What's something you're working on or learning right now that excites you?");
       starters.push("If we were to collaborate on a project, what kind of contribution would you most enjoy making?");
     }
@@ -537,11 +560,30 @@ export default function UserOverlap() {
                     ? `You both share ${overlapData.similarInterests.length} interests, including ${overlapData.similarInterests.slice(0, 2).join(' and ')}${overlapData.similarInterests.length > 2 ? '...' : '!'}`
                     : "You have different interests, which creates an opportunity to learn from each other!"}
                 </p>
-                <p className="text-sm">
+                <p className="text-sm mb-3">
                   {overlapData.commonIdentities.length > 0 
                     ? `You have ${overlapData.commonIdentities.length} identity traits in common, creating a solid foundation for connection.`
                     : "Your diverse backgrounds offer a rich opportunity for cultural exchange!"}
                 </p>
+                
+                {/* Bio-derived insights */}
+                {(currentUserBio || targetUserBio) && (
+                  <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                    <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1 flex items-center">
+                      <Lightbulb className="h-3.5 w-3.5 mr-1" /> Bio-Based Insights
+                    </h4>
+                    <p className="text-xs text-blue-600 dark:text-blue-200">
+                      {targetUserBio 
+                        ? `${targetUser.displayName || targetUser.username}'s bio reveals ${targetUserBio.length > 100 
+                          ? 'rich detail about their personal journey' 
+                          : 'key aspects of their interests'} that might complement your own background.`
+                        : currentUserBio 
+                          ? "Your detailed bio provides rich context about your interests and experiences." 
+                          : "Add more to your bio to unlock deeper connection insights!"
+                      }
+                    </p>
+                  </div>
+                )}
               </div>
               
               {/* One-line Overview */}
