@@ -136,14 +136,60 @@ export function setupAuth(app: Express) {
         password: hashedPassword
       });
 
-      req.login(user, (err) => {
-        if (err) {
-          log(`[AUTH] Registration login error: ${err.message}`);
-          return res.status(500).json({ message: "Error during login after registration" });
-        }
-        log(`[AUTH] Registration successful: ${user.username}`);
-        res.status(201).json(user);
+      // Get any pending overlap user ID from the request headers if available
+      const pendingOverlapUserId = req.headers['x-pending-overlap-user-id'];
+      if (pendingOverlapUserId) {
+        log(`[AUTH] Registration with pending overlap user ID: ${pendingOverlapUserId}`);
+      }
+
+      // Use a promise to properly handle the login
+      const loginPromise = new Promise<void>((resolve, reject) => {
+        req.login(user, (err) => {
+          if (err) {
+            log(`[AUTH] Registration login error: ${err.message}`);
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
       });
+
+      try {
+        // Wait for login to complete
+        await loginPromise;
+        
+        // Verify the session was properly created
+        if (req.isAuthenticated()) {
+          log(`[AUTH] Registration successful and fully authenticated: ${user.username}`);
+          
+          // Save the session explicitly to ensure it's stored before responding
+          if (req.session) {
+            await new Promise<void>((resolve) => {
+              req.session.save((err) => {
+                if (err) {
+                  log(`[AUTH] Session save error after registration: ${err.message}`);
+                }
+                resolve();
+              });
+            });
+          }
+          
+          res.status(201).json(user);
+        } else {
+          log(`[AUTH] Registration successful but authentication failed: ${user.username}`);
+          res.status(201).json({ 
+            ...user, 
+            _authWarning: "You've been registered but aren't fully authenticated. Please try logging in manually if you encounter issues."
+          });
+        }
+      } catch (loginError) {
+        log(`[AUTH] Registration successful but login failed: ${loginError instanceof Error ? loginError.message : String(loginError)}`);
+        // Still return the user with a warning
+        res.status(201).json({ 
+          ...user, 
+          _authWarning: "You've been registered but authentication failed. Please try logging in manually."
+        });
+      }
     } catch (error) {
       log(`[AUTH] Registration error: ${error instanceof Error ? error.message : String(error)}`);
       res.status(500).json({ message: "Registration failed" });

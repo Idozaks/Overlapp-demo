@@ -219,14 +219,50 @@ interface SharedProfileData {
           variant: "default",
         });
         
-        // Redirect to profile setup/onboarding page with the ID included in URL params
-        const onboardingUrl = `/profile/onboarding?source=qr-signup&pendingId=${idToUse}`;
-        console.log('DEBUG-QR-REGISTER: Redirecting to:', onboardingUrl);
-        
-        // Add a brief delay to ensure the logs are visible before the redirect
-        setTimeout(() => {
-          window.location.href = onboardingUrl;
-        }, 500);
+        // We need to make sure the user is fully authenticated before proceeding
+        // Make an explicit call to get the current user to ensure authentication is complete
+        try {
+          console.log('DEBUG-QR-REGISTER: Verifying authentication state with /api/user request');
+          // Give a bit more time for the session to be established
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Make a request to get the current user - this should now work because they're logged in
+          const userResponse = await fetch('/api/user', {
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          const userData = await userResponse.json();
+          console.log('DEBUG-QR-REGISTER: Authentication verification result:', userData);
+          
+          if (userData && userData.id) {
+            console.log('DEBUG-QR-REGISTER: Authentication verified successfully');
+            
+            // Redirect to profile setup/onboarding page with the ID included in URL params
+            const onboardingUrl = `/profile/onboarding?source=qr-signup&pendingId=${idToUse}`;
+            console.log('DEBUG-QR-REGISTER: Redirecting to:', onboardingUrl);
+            
+            window.location.href = onboardingUrl;
+          } else {
+            console.error('DEBUG-QR-REGISTER: Still not authenticated after registration');
+            toast({
+              title: "Authentication Issue",
+              description: "Please try logging in manually with your new account.",
+              variant: "destructive",
+            });
+            navigate("/auth?error=auth_failed");
+          }
+        } catch (error) {
+          console.error('DEBUG-QR-REGISTER: Error verifying authentication:', error);
+          toast({
+            title: "Authentication Issue",
+            description: "Please try logging in manually with your new account.",
+            variant: "destructive",
+          });
+          navigate("/auth?error=auth_error");
+        }
       } else {
         console.log('DEBUG-QR-REGISTER: No shared profile ID found, navigating to home');
         navigate("/");

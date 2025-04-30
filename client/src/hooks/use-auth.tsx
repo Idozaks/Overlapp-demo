@@ -114,18 +114,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const pendingUserId = localStorage.getItem('pendingOverlapUserId');
       console.log("[Auth] pendingOverlapUserId before registration:", pendingUserId);
       
+      // Create headers with content type
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      
+      // Add the pending overlap user ID as a custom header if it exists
+      if (pendingUserId) {
+        headers["X-Pending-Overlap-User-ID"] = pendingUserId;
+        console.log("[Auth] Adding pending overlap user ID to request headers:", pendingUserId);
+      }
+      
       const response = await fetch("/api/register", {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Registration failed");
+      }
+
+      // Get the response data
+      const responseData = await response.json();
+      
+      // Check for auth warnings from the server
+      if (responseData._authWarning) {
+        console.warn("[Auth] Server auth warning:", responseData._authWarning);
+        toast({
+          title: "Registration Notice",
+          description: responseData._authWarning,
+          variant: "default",
+        });
+        // Delete the warning property as we've processed it
+        delete responseData._authWarning;
       }
 
       // After successful registration, make sure pendingOverlapUserId is still in localStorage
@@ -136,7 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sessionStorage.setItem('pendingOverlapUserId', pendingUserId);
       }
 
-      return await response.json();
+      return responseData;
     },
     onSuccess: (newUser) => {
       console.log("[Auth] Registration successful", newUser);
