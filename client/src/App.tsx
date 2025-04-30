@@ -159,8 +159,19 @@ function Router() {
         console.log('DEBUG-QR-ONBOARDING: Current user ID:', profileId);
         
         if (!profileId) {
+          // This is a critical error - dump all debug info
           console.error('DEBUG-QR-ONBOARDING: Invalid user ID - user object:', user);
-          return <div>Invalid user ID</div>;
+          console.error('DEBUG-QR-ONBOARDING: pendingUserId:', pendingUserId);
+          console.error('DEBUG-QR-ONBOARDING: URL params:', Object.fromEntries(urlParams.entries()));
+          console.error('DEBUG-QR-ONBOARDING: localStorage contents:', localStorage);
+          console.error('DEBUG-QR-ONBOARDING: sessionStorage contents:', sessionStorage);
+          
+          // Instead of showing an error, let's handle this more gracefully
+          // Redirect them to signup with information about what happened
+          // This way they can try again with the QR code
+          localStorage.setItem('auth_error', 'Invalid user ID during profile onboarding');
+          window.location.href = '/signup?error=invalid_user&source=onboarding';
+          return <div>Redirecting to signup...</div>;
         }
         
         const userForProfile = {
