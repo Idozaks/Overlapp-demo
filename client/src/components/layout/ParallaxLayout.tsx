@@ -67,10 +67,21 @@ export default function ParallaxLayout({
   const isMobile = width < 768;
   const [hasScrolled, setHasScrolled] = useState(false);
   
-  // Parallax transformations for different elements
+  // Parallax transformations for different elements - always create these transforms
+  // regardless of whether they're used to maintain hook order
   const backgroundY = useTransform(scrollY, [0, 500], [0, -50]);
   const contentY = useTransform(scrollY, [0, 500], [0, isMobile ? 50 : 100]);
   const opacity = useTransform(scrollY, [0, 200], [1, 0.9]);
+  const foregroundY = useTransform(scrollY, [0, 500], [0, 30]);
+  
+  // Pre-create all element transforms outside of the rendering to avoid conditional hooks
+  const elementTransforms = backgroundElements.map((element) => {
+    return useTransform(
+      scrollY, 
+      [0, 500], 
+      [0, -50 * (element.translateFactor || 1)]
+    );
+  });
   
   // Detect if user has scrolled
   useEffect(() => {
@@ -89,44 +100,35 @@ export default function ParallaxLayout({
   return (
     <div ref={ref} className="relative min-h-screen overflow-hidden">
       {/* Background elements with parallax effect */}
-      {withParallax && (
+      {withParallax ? (
         <motion.div 
           className="absolute inset-0 pointer-events-none z-0 opacity-20"
           style={{ y: backgroundY }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.2, transition: { duration: 0.8, delay: 0.2 } }}
         >
-          {backgroundElements.map((element, index) => {
-            // Create a unique y transform for each element based on their translate factor
-            const elementY = useTransform(
-              scrollY, 
-              [0, 500], 
-              [0, -50 * (element.translateFactor || 1)]
-            );
-            
-            return (
-              <motion.div 
-                key={index}
-                className={`absolute ${element.size} rounded-full bg-${element.color} blur-3xl`}
-                style={{
-                  ...element.position,
-                  y: elementY,
-                }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ 
-                  opacity: 1, 
-                  scale: 1,
-                  transition: { 
-                    duration: 0.8, 
-                    delay: element.delay || 0.1 * index,
-                    ease: [0.25, 0.1, 0.25, 1.0]
-                  } 
-                }}
-              />
-            );
-          })}
+          {backgroundElements.map((element, index) => (
+            <motion.div 
+              key={index}
+              className={`absolute ${element.size} rounded-full bg-${element.color} blur-3xl`}
+              style={{
+                ...element.position,
+                y: elementTransforms[index],
+              }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ 
+                opacity: 1, 
+                scale: 1,
+                transition: { 
+                  duration: 0.8, 
+                  delay: element.delay || 0.1 * index,
+                  ease: [0.25, 0.1, 0.25, 1.0]
+                } 
+              }}
+            />
+          ))}
         </motion.div>
-      )}
+      ) : null}
       
       {/* Main content with subtle parallax effect */}
       <PageTransition transitionType={transitionType}>
@@ -139,10 +141,10 @@ export default function ParallaxLayout({
       </PageTransition>
       
       {/* Subtle floating foreground elements for depth */}
-      {withParallax && !isMobile && (
+      {withParallax && !isMobile ? (
         <motion.div 
           className="absolute inset-0 pointer-events-none z-20"
-          style={{ y: useTransform(scrollY, [0, 500], [0, 30]) }}
+          style={{ y: foregroundY }}
         >
           <motion.div 
             className="absolute top-1/2 right-10 w-20 h-20 rounded-full border border-primary/10 opacity-40"
@@ -159,7 +161,7 @@ export default function ParallaxLayout({
             }}
           />
         </motion.div>
-      )}
+      ) : null}
     </div>
   );
 }

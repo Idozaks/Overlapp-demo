@@ -79,8 +79,17 @@ export default function AuthPage() {
     }
   }, []);
 
+// Define the shared profile data interface
+interface SharedProfileData {
+  user?: {
+    id: number;
+    username: string;
+    displayName?: string;
+  };
+}
+
   // Fetch shared profile data if available
-  const { data: sharedProfile } = useQuery({
+  const { data: sharedProfile } = useQuery<SharedProfileData>({
     queryKey: [`/api/users/${sharedProfileId}`],
     enabled: !!sharedProfileId,
   });
