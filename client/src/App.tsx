@@ -22,6 +22,7 @@ import SocialHub from "@/pages/social/SocialHub";
 import ExploreUsers from "@/pages/social/ExploreUsers";
 import Profile from "@/pages/social/Profile";
 import ProfileEdit from "@/pages/social/ProfileEdit";
+import ProfileEditForm from "@/components/profile/ProfileEdit";
 import InterestSuggestionsPage from "@/pages/social/InterestSuggestionsPage";
 import Matches from "@/pages/social/Matches";
 import UserOverlap from "@/pages/social/UserOverlap";
@@ -150,7 +151,7 @@ function Router() {
           <ProfileEditForm 
             user={userForProfile}
             isOnboarding={true} 
-            onSuccess={(updatedUser) => {
+            onSuccess={(updatedUser: any) => {
               // After profile is completed, check for pending overlap
               if (pendingUserId) {
                 localStorage.removeItem('pendingOverlapUserId');
@@ -172,7 +173,7 @@ function Router() {
         const [, params] = useRoute('/marketplace/entity/:id');
         const entityId = params?.id ? parseInt(params.id) : 0;
         
-        const { data, isLoading } = useQuery({
+        const { data, isLoading } = useQuery<{entity: any}>({
           queryKey: [`/api/marketplace/entities/${entityId}`],
           enabled: !!entityId,
         });
@@ -238,7 +239,7 @@ function Router() {
                 <div className="bg-card rounded-lg shadow-sm p-6">
                   <h2 className="text-xl font-semibold mb-4">Content</h2>
                   <div className="space-y-4">
-                    {entity.content?.map(item => (
+                    {entity.content?.map((item: any) => (
                       <Card key={item.id}>
                         <CardContent className="p-4">
                           <div className="flex justify-between mb-2">
