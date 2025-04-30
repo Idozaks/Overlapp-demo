@@ -39,8 +39,34 @@ export default function UserOverlap() {
   const [location] = useLocation();
   // Make sure to handle URL parameters correctly
   const searchParams = new URLSearchParams(window.location.search);
-  const targetUserId = searchParams.get('targetUserId');
-  const { user: currentUser } = useAuth();
+  const targetUserId = searchParams.get('targetUserId') || 
+                      localStorage.getItem('pendingOverlapUserId') || 
+                      sessionStorage.getItem('pendingOverlapUserId');
+  
+  // Get current user from auth context or localStorage
+  const { user: authUser } = useAuth();
+  const [currentUser, setCurrentUser] = useState<any>(authUser);
+  
+  // Load user from localStorage if auth context user is not available
+  useEffect(() => {
+    // If we already have a user from auth context, use it
+    if (authUser) {
+      setCurrentUser(authUser);
+      return;
+    }
+    
+    // Try to load from localStorage as fallback
+    try {
+      const storedUserString = localStorage.getItem('currentUser');
+      if (storedUserString) {
+        const storedUser = JSON.parse(storedUserString);
+        console.log('DEBUG-OVERLAP: Using stored user data:', storedUser.id);
+        setCurrentUser(storedUser);
+      }
+    } catch (e) {
+      console.error('DEBUG-OVERLAP: Failed to parse stored user data:', e);
+    }
+  }, [authUser]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showTTS, setShowTTS] = useState(false);
   const [showThoughtStream, setShowThoughtStream] = useState(false);

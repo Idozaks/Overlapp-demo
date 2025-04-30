@@ -91,6 +91,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (loggedInUser) => {
       console.log("[Auth] Login successful");
       queryClient.setQueryData(["/api/user"], loggedInUser);
+      
+      // Store user data in localStorage as fallback for route changes
+      try {
+        console.log("[Auth] Storing user data in localStorage");
+        localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+      } catch (e) {
+        console.error("[Auth] Error storing user in localStorage:", e);
+      }
+      
       toast({
         title: "Success",
         description: "Successfully logged in",
@@ -166,6 +175,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("[Auth] Registration successful", newUser);
       queryClient.setQueryData(["/api/user"], newUser);
       
+      // Store user data in localStorage as fallback for route changes
+      try {
+        console.log("[Auth] Storing user data in localStorage after registration");
+        localStorage.setItem('currentUser', JSON.stringify(newUser));
+      } catch (e) {
+        console.error("[Auth] Error storing user in localStorage:", e);
+      }
+      
       // Check for pendingOverlapUserId again
       const pendingUserId = localStorage.getItem('pendingOverlapUserId') || 
                            sessionStorage.getItem('pendingOverlapUserId');
@@ -209,6 +226,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: () => {
       console.log("[Auth] Logout successful");
       queryClient.setQueryData(["/api/user"], null);
+      
+      // Clear localStorage data related to authentication
+      try {
+        console.log("[Auth] Clearing authentication data from localStorage");
+        localStorage.removeItem('currentUser');
+        // Don't remove pendingOverlapUserId on logout - this could break QR flow
+      } catch (e) {
+        console.error("[Auth] Error clearing localStorage:", e);
+      }
+      
       toast({
         title: "Success",
         description: "Successfully logged out",
