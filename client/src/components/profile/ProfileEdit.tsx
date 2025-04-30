@@ -296,6 +296,7 @@ const ProfileEditForm = ({ user, onSuccess, isOnboarding = false, userId }: Prof
       console.log(`Sending PATCH request to /api/users/${user.id}`);
 
       try {
+        // Step 1: Update the user profile
         const response = await fetch(`/api/users/${user.id}`, {
           method: "PATCH",
           body: formData
@@ -311,6 +312,83 @@ const ProfileEditForm = ({ user, onSuccess, isOnboarding = false, userId }: Prof
 
         const result = await response.json();
         console.log('Server response:', result);
+        
+        // Step 2: Update user interests
+        console.log('DEBUG: Processing pendingInterests after profile update:', Array.from(pendingInterests));
+        
+        try {
+          // Get current user interests
+          const currentInterestsResponse = await fetch(`/api/users/${user.id}/interests`);
+          const currentInterestsData = await currentInterestsResponse.json();
+          const currentInterests = currentInterestsData.interests || [];
+          const currentInterestNames = currentInterests.map((i: any) => i.name);
+          
+          console.log('DEBUG: Current user interests:', currentInterestNames);
+          console.log('DEBUG: Pending interests to save:', Array.from(pendingInterests));
+          
+          // Get all available interests to map names to IDs
+          const allInterestsResponse = await fetch('/api/interests');
+          const allInterestsData = await allInterestsResponse.json();
+          const allInterestsList = allInterestsData.interests || [];
+          
+          // Create a map of interest names to IDs
+          const interestNameToId = new Map();
+          allInterestsList.forEach((interest: any) => {
+            interestNameToId.set(interest.name, interest.id);
+          });
+          
+          // Add interests that are pending but not current
+          for (const interestName of pendingInterests) {
+            if (!currentInterestNames.includes(interestName)) {
+              const interestId = interestNameToId.get(interestName);
+              
+              if (interestId) {
+                console.log(`DEBUG: Adding interest: ${interestName} (ID: ${interestId})`);
+                try {
+                  const addResponse = await fetch(`/api/users/${user.id}/interests`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ interestId })
+                  });
+                  
+                  if (!addResponse.ok) {
+                    console.error(`Failed to add interest ${interestName}: ${addResponse.status}`);
+                  }
+                } catch (err) {
+                  console.error(`Error adding interest ${interestName}:`, err);
+                }
+              } else {
+                console.warn(`Could not find ID for interest: ${interestName}`);
+              }
+            }
+          }
+          
+          // Remove interests that are current but not pending
+          for (const interest of currentInterests) {
+            if (!pendingInterests.has(interest.name)) {
+              console.log(`DEBUG: Removing interest: ${interest.name} (ID: ${interest.id})`);
+              try {
+                const removeResponse = await fetch(`/api/users/${user.id}/interests/${interest.id}`, {
+                  method: 'DELETE'
+                });
+                
+                if (!removeResponse.ok) {
+                  console.error(`Failed to remove interest ${interest.name}: ${removeResponse.status}`);
+                }
+              } catch (err) {
+                console.error(`Error removing interest ${interest.name}:`, err);
+              }
+            }
+          }
+          
+          console.log('DEBUG: Interest update complete');
+        } catch (interestError) {
+          console.error('Failed to update interests:', interestError);
+          // Don't block the profile update if interest updates fail
+        }
+        
         return result;
       } catch (error) {
         console.error('Fetch error:', error);
