@@ -134,10 +134,21 @@ function Router() {
         // Check if there's a pending overlap user ID
         const pendingUserId = localStorage.getItem('pendingOverlapUserId');
         
+        // Use the ID from the URL or the authenticated user
+        const profileId = user?.id;
+        
+        if (!profileId) {
+          return <div>Invalid user ID</div>;
+        }
+        
+        const userForProfile = {
+          ...user
+        };
+        
         // ProfileEdit component handles the rest of the onboarding flow
         return (
-          <ProfileEdit 
-            user={user}
+          <ProfileEditForm 
+            user={userForProfile}
             isOnboarding={true} 
             onSuccess={(updatedUser) => {
               // After profile is completed, check for pending overlap
