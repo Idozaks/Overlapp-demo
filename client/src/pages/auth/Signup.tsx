@@ -219,14 +219,37 @@ interface SharedProfileData {
           variant: "default",
         });
         
-        // We need to make sure the user is fully authenticated before proceeding
-        // Make an explicit call to get the current user to ensure authentication is complete
+        // Instead of relying on the automatic login from registration, 
+        // we'll perform an explicit login to ensure the session is properly established
         try {
-          console.log('DEBUG-QR-REGISTER: Verifying authentication state with /api/user request');
-          // Give a bit more time for the session to be established
-          await new Promise(resolve => setTimeout(resolve, 500));
+          console.log('DEBUG-QR-REGISTER: Registration successful, initiating explicit login...');
           
-          // Make a request to get the current user - this should now work because they're logged in
+          // Extract username and password from the form data to perform a manual login
+          const loginData = {
+            username: data.username,
+            password: data.password
+          };
+          
+          console.log('DEBUG-QR-REGISTER: Performing explicit login with username:', loginData.username);
+          
+          // Perform an explicit login request
+          const loginResponse = await fetch('/api/login', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loginData),
+          });
+          
+          if (!loginResponse.ok) {
+            throw new Error('Failed to login after registration');
+          }
+          
+          const loginData2 = await loginResponse.json();
+          console.log('DEBUG-QR-REGISTER: Explicit login successful:', loginData2);
+          
+          // Now verify that we're properly authenticated
           const userResponse = await fetch('/api/user', {
             credentials: 'include',
             headers: {
@@ -234,34 +257,35 @@ interface SharedProfileData {
             },
           });
           
-          const userData = await userResponse.json();
-          console.log('DEBUG-QR-REGISTER: Authentication verification result:', userData);
-          
-          if (userData && userData.id) {
-            console.log('DEBUG-QR-REGISTER: Authentication verified successfully');
-            
-            // Redirect to profile setup/onboarding page with the ID included in URL params
-            const onboardingUrl = `/profile/onboarding?source=qr-signup&pendingId=${idToUse}`;
-            console.log('DEBUG-QR-REGISTER: Redirecting to:', onboardingUrl);
-            
-            window.location.href = onboardingUrl;
-          } else {
-            console.error('DEBUG-QR-REGISTER: Still not authenticated after registration');
-            toast({
-              title: "Authentication Issue",
-              description: "Please try logging in manually with your new account.",
-              variant: "destructive",
-            });
-            navigate("/auth?error=auth_failed");
+          if (!userResponse.ok) {
+            throw new Error('Failed to verify authentication after login');
           }
+          
+          const userData = await userResponse.json();
+          console.log('DEBUG-QR-REGISTER: Authentication verified successfully:', userData);
+          
+          // Since we've confirmed authentication, redirect to onboarding
+          const onboardingUrl = `/profile/onboarding?source=qr-signup&pendingId=${idToUse}`;
+          console.log('DEBUG-QR-REGISTER: Redirecting to:', onboardingUrl);
+          
+          // Give a bit more time for the session to be fully established
+          setTimeout(() => {
+            window.location.href = onboardingUrl;
+          }, 500);
         } catch (error) {
-          console.error('DEBUG-QR-REGISTER: Error verifying authentication:', error);
+          console.error('DEBUG-QR-REGISTER: Error during authentication process:', error);
           toast({
             title: "Authentication Issue",
-            description: "Please try logging in manually with your new account.",
+            description: "Account created, but there was an issue with automatic login. Please try logging in manually.",
             variant: "destructive",
           });
-          navigate("/auth?error=auth_error");
+          // Direct them to the login tab with the username prefilled if possible
+          setActiveTab("login");
+          loginForm.setValue("username", data.username);
+          toast({
+            title: "Please Log In",
+            description: "Your account has been created. Please log in with your credentials to continue.",
+          });
         }
       } else {
         console.log('DEBUG-QR-REGISTER: No shared profile ID found, navigating to home');
