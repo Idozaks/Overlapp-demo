@@ -113,22 +113,43 @@ function Router() {
       <Route path="/profile/:id/edit" component={ProfileEdit} />
       <Route path="/profile/onboarding/:id?" component={() => {
         const { user } = useAuth();
+        const [location] = useLocation();
         
         // Redirect to login if not authenticated
         if (!user) {
-          const location = useLocation();
-          const sourceParam = location.search.includes('source=') 
-            ? location.search 
-            : location.search 
-              ? `${location.search}&source=qr-signup` 
-              : '?source=qr-signup';
-              
-          navigate(`/signup${sourceParam}`);
-          return null;
+          // Get the source parameter from the URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const isFromQrSignup = urlParams.get('source') === 'qr-signup';
+          
+          if (isFromQrSignup) {
+            // Use direct navigation since we're having issues with wouter's navigate
+            window.location.href = '/signup?source=qr-signup';
+            return null;
+          } else {
+            window.location.href = '/signup';
+            return null;
+          }
         }
         
+        // Check if there's a pending overlap user ID
+        const pendingUserId = localStorage.getItem('pendingOverlapUserId');
+        
         // ProfileEdit component handles the rest of the onboarding flow
-        return <ProfileEdit userId={user.id} isOnboarding={true} />;
+        return (
+          <ProfileEdit 
+            user={user}
+            isOnboarding={true} 
+            onSuccess={(updatedUser) => {
+              // After profile is completed, check for pending overlap
+              if (pendingUserId) {
+                localStorage.removeItem('pendingOverlapUserId');
+                window.location.href = `/social/overlap?targetUserId=${pendingUserId}`;
+              } else {
+                window.location.href = `/profile/${updatedUser.id}`;
+              }
+            }}
+          />
+        );
       }} />
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
       <Route path="/wallet" component={WalletDashboard} />

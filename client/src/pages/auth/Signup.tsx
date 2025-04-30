@@ -170,7 +170,7 @@ export default function AuthPage() {
         });
         
         // Redirect to profile setup/onboarding page with a special query param
-        navigate("/profile/onboarding?source=qr-signup");
+        window.location.href = "/profile/onboarding?source=qr-signup";
       } else {
         navigate("/");
       }
