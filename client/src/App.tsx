@@ -154,24 +154,54 @@ function Router() {
           localStorage.setItem('pendingOverlapUserId', pendingUserId);
         }
         
-        // Use the ID from the authenticated user
-        const profileId = user?.id;
+        // Add debug logs to help diagnose issues
+        console.log('DEBUG-QR-ONBOARDING: Full user object:', user);
+        
+        // Use the ID from the authenticated user - handle different user object structures
+        // The user object could be either {id, username, ...} or {user: {id, username, ...}}
+        const profileId = user?.id || user?.user?.id;
         console.log('DEBUG-QR-ONBOARDING: Current user ID:', profileId);
         
+        // Wait a moment if the user data isn't loaded yet
         if (!profileId) {
-          // This is a critical error - dump all debug info
-          console.error('DEBUG-QR-ONBOARDING: Invalid user ID - user object:', user);
-          console.error('DEBUG-QR-ONBOARDING: pendingUserId:', pendingUserId);
-          console.error('DEBUG-QR-ONBOARDING: URL params:', Object.fromEntries(urlParams.entries()));
-          console.error('DEBUG-QR-ONBOARDING: localStorage contents:', localStorage);
-          console.error('DEBUG-QR-ONBOARDING: sessionStorage contents:', sessionStorage);
+          // This might be a timing issue - let's show a loading state for a moment
+          console.log('DEBUG-QR-ONBOARDING: No user ID found, waiting for authentication...');
           
-          // Instead of showing an error, let's handle this more gracefully
-          // Redirect them to signup with information about what happened
-          // This way they can try again with the QR code
-          localStorage.setItem('auth_error', 'Invalid user ID during profile onboarding');
-          window.location.href = '/signup?error=invalid_user&source=onboarding';
-          return <div>Redirecting to signup...</div>;
+          // Show a loading state for 2 seconds
+          setTimeout(() => {
+            // Check again after delay
+            const delayedUserId = user?.id || user?.user?.id;
+            console.log('DEBUG-QR-ONBOARDING: After delay, user ID:', delayedUserId);
+            
+            if (!delayedUserId) {
+              // This is a critical error - dump all debug info
+              console.error('DEBUG-QR-ONBOARDING: Invalid user ID after delay - user object:', user);
+              console.error('DEBUG-QR-ONBOARDING: pendingUserId:', pendingUserId);
+              console.error('DEBUG-QR-ONBOARDING: URL params:', Object.fromEntries(urlParams.entries()));
+              console.error('DEBUG-QR-ONBOARDING: localStorage contents:', Object.fromEntries(
+                Object.keys(localStorage).map(key => [key, localStorage.getItem(key)])
+              ));
+              console.error('DEBUG-QR-ONBOARDING: sessionStorage contents:', Object.fromEntries(
+                Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])
+              ));
+              
+              // Instead of showing an error, let's handle this more gracefully
+              // Redirect them to signup with information about what happened
+              localStorage.setItem('auth_error', 'Invalid user ID during profile onboarding');
+              window.location.href = '/signup?error=invalid_user&source=onboarding';
+            } else {
+              // User ID is available now, refresh the page
+              window.location.reload();
+            }
+          }, 2000);
+          
+          // Show loading state while waiting
+          return (
+            <div className="flex flex-col items-center justify-center min-h-screen">
+              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-lg">Loading your profile...</p>
+            </div>
+          );
         }
         
         const userForProfile = {
@@ -186,6 +216,19 @@ function Router() {
             onSuccess={(updatedUser: any) => {
               // After profile is completed, check for pending overlap
               console.log('DEBUG-QR-COMPLETION: onSuccess callback called with pendingUserId:', pendingUserId);
+              console.log('DEBUG-QR-COMPLETION: updatedUser:', updatedUser);
+              
+              // Extract the user ID properly from the response
+              const userId = updatedUser?.id || (updatedUser?.user?.id);
+              
+              if (!userId) {
+                console.error('DEBUG-QR-COMPLETION: Could not extract user ID from updatedUser:', updatedUser);
+                // Handle error gracefully
+                alert('Profile updated but there was an error getting your user information. Please try logging in again.');
+                window.location.href = '/';
+                return;
+              }
+              
               if (pendingUserId) {
                 console.log('DEBUG-QR-COMPLETION: Redirecting to overlap view with targetUserId:', pendingUserId);
                 // Remove from localStorage but keep in sessionStorage just in case we need it later
@@ -193,7 +236,7 @@ function Router() {
                 window.location.href = `/social/overlap?targetUserId=${pendingUserId}`;
               } else {
                 console.log('DEBUG-QR-COMPLETION: No pendingUserId found, redirecting to profile');
-                window.location.href = `/profile/${updatedUser.id}`;
+                window.location.href = `/profile/${userId}`;
               }
             }}
           />
