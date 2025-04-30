@@ -109,6 +109,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterData) => {
       console.log("[Auth] Attempting registration");
+      
+      // Preserve pendingOverlapUserId in registration flow
+      const pendingUserId = localStorage.getItem('pendingOverlapUserId');
+      console.log("[Auth] pendingOverlapUserId before registration:", pendingUserId);
+      
       const response = await fetch("/api/register", {
         method: "POST",
         credentials: "include",
@@ -123,15 +128,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(error.message || "Registration failed");
       }
 
+      // After successful registration, make sure pendingOverlapUserId is still in localStorage
+      if (pendingUserId) {
+        console.log("[Auth] Restoring pendingOverlapUserId after registration:", pendingUserId);
+        localStorage.setItem('pendingOverlapUserId', pendingUserId);
+        // Also store in sessionStorage as a backup
+        sessionStorage.setItem('pendingOverlapUserId', pendingUserId);
+      }
+
       return await response.json();
     },
     onSuccess: (newUser) => {
-      console.log("[Auth] Registration successful");
+      console.log("[Auth] Registration successful", newUser);
       queryClient.setQueryData(["/api/user"], newUser);
-      toast({
-        title: "Success",
-        description: "Account created successfully",
-      });
+      
+      // Check for pendingOverlapUserId again
+      const pendingUserId = localStorage.getItem('pendingOverlapUserId') || 
+                           sessionStorage.getItem('pendingOverlapUserId');
+      
+      if (pendingUserId) {
+        console.log("[Auth] Registration successful with pendingOverlapUserId:", pendingUserId);
+        
+        toast({
+          title: "Success",
+          description: "Account created successfully. Let's complete your profile!",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Account created successfully",
+        });
+      }
     },
     onError: (error: Error) => {
       console.error("[Auth] Registration error:", error);
