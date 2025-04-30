@@ -119,26 +119,10 @@ export default function SharedProfile() {
   
   // Handler for the "Create Profile" button
   const handleCreateProfile = () => {
-    // First check and clear any existing pendingOverlapUserId to avoid conflicts
-    const existingId = localStorage.getItem('pendingOverlapUserId');
-    if (existingId) {
-      console.log('DEBUG-QR: Found existing pendingOverlapUserId:', existingId, 'clearing it');
-      localStorage.removeItem('pendingOverlapUserId');
-    }
-    
-    // Store the shared profile ID in localStorage to use after signup and onboarding
-    const idToStore = userId.toString();
-    localStorage.setItem('pendingOverlapUserId', idToStore);
-    console.log('DEBUG-QR: Stored new pendingOverlapUserId in localStorage:', idToStore);
-    
-    // Also store in sessionStorage as a fallback
-    sessionStorage.setItem('sharedProfileId', idToStore);
-    console.log('DEBUG-QR: Also stored in sessionStorage as sharedProfileId:', idToStore);
-    
-    // Add a query parameter to indicate this came from a QR code scan
-    // Use direct window location for more reliable navigation
-    console.log('DEBUG-QR: Navigating to /signup?source=qr-signup');
-    window.location.href = '/signup?source=qr-signup';
+    // Redirect to our dedicated QR onboarding component with the user ID
+    // This component handles all the storage and redirection logic
+    console.log('Redirecting to QR onboarding flow with shared profile ID:', userId);
+    navigate(`/qr-onboarding/${userId}`);
   };
   
   // Handler for the "View Overlap" button

@@ -77,9 +77,10 @@ export default function AuthPage() {
                      sessionStorage.getItem('pendingOverlapUserId');
     
     if (pendingId) {
-      console.log('DEBUG-AUTH: User logged in with pendingId, redirecting to onboarding', pendingId);
-      const onboardingUrl = `/profile/onboarding?source=qr-signup&pendingId=${pendingId}&ts=${Date.now()}`;
-      window.location.href = onboardingUrl;
+      console.log('DEBUG-AUTH: User logged in with pendingId, redirecting to dedicated QR onboarding flow:', pendingId);
+      
+      // Use our dedicated QR onboarding component for a more reliable flow
+      navigate(`/qr-onboarding/${pendingId}`);
       return null;
     }
     
