@@ -249,7 +249,7 @@ export default function UserOverlap() {
     // Bio-derived starters (prioritize these when available)
     if (targetUserBio) {
       // Extract meaningful phrases from the bio
-      const bioSegments = targetUserBio.split(/[.!?]/).filter(segment => segment.trim().length > 20);
+      const bioSegments = targetUserBio.split(/[.!?]/).filter((segment: string) => segment.trim().length > 20);
       
       if (bioSegments.length > 0) {
         // Use the first meaningful segment for a conversation starter
@@ -315,52 +315,161 @@ export default function UserOverlap() {
     return starters.slice(0, 4); // Return at most 4 conversation starters
   };
   
-  // Generate recommended activities based on interests and traits
+  // Generate recommended activities based on interests, traits, and bio information
   const generateRecommendedActivities = () => {
     if (!overlapData) return [];
     
     const activities = [];
     
+    // Bio-derived activity suggestions
+    if (targetUserBio && targetUserBio.length > 20) {
+      // Look for keywords that might suggest interesting activities
+      const creativityKeywords = ['create', 'build', 'design', 'craft', 'art', 'paint', 'draw', 'write', 'music', 'play'];
+      const technologyKeywords = ['tech', 'code', 'program', 'develop', 'software', 'app', 'digital', 'AI', 'data'];
+      const outdoorKeywords = ['hike', 'travel', 'outdoor', 'nature', 'sport', 'run', 'bike', 'climb', 'adventure'];
+      const businessKeywords = ['business', 'startup', 'entrepreneur', 'company', 'industry', 'market', 'strategy'];
+      
+      const bioLower = targetUserBio.toLowerCase();
+      
+      // Check for activity keywords in bio
+      const hasCreativeElements = creativityKeywords.some(word => bioLower.includes(word));
+      const hasTechElements = technologyKeywords.some(word => bioLower.includes(word));
+      const hasOutdoorElements = outdoorKeywords.some(word => bioLower.includes(word));
+      const hasBusinessElements = businessKeywords.some(word => bioLower.includes(word));
+      
+      if (hasCreativeElements) {
+        activities.push(`Plan a creative session inspired by ${targetUser.displayName || targetUser.username}'s background - perhaps a collaborative art or design project.`);
+      }
+      
+      if (hasTechElements) {
+        activities.push(`Explore a tech-focused project together, drawing on their experience with digital tools and development.`);
+      }
+      
+      if (hasOutdoorElements) {
+        activities.push(`Schedule an outdoor activity that allows you to connect while enjoying nature and active experiences.`);
+      }
+      
+      if (hasBusinessElements) {
+        activities.push(`Organize a brainstorming session on a business concept or entrepreneurial idea that combines both your perspectives.`);
+      }
+    }
+    
     // Shared interest activities
-    if (overlapData.similarInterests.length > 0) {
+    if (overlapData.similarInterests.length > 0 && activities.length < 4) {
       const interest = overlapData.similarInterests[0];
       activities.push(`Attend a ${interest} workshop or event together to deepen your shared knowledge.`);
       
-      if (overlapData.similarInterests.length > 1) {
+      if (overlapData.similarInterests.length > 1 && activities.length < 4) {
         const interest2 = overlapData.similarInterests[1];
         activities.push(`Start a mini-project combining elements of ${interest} and ${interest2}.`);
       }
     }
     
     // Activity based on different interests - learning opportunity
-    if (overlapData.uniqueTargetUserInterests.length > 0 && overlapData.uniqueCurrentUserInterests.length > 0) {
+    if (overlapData.uniqueTargetUserInterests.length > 0 && overlapData.uniqueCurrentUserInterests.length > 0 && activities.length < 4) {
       const theirInterest = overlapData.uniqueTargetUserInterests[0];
       const yourInterest = overlapData.uniqueCurrentUserInterests[0];
       activities.push(`Set up a skill exchange: you teach them about ${yourInterest} while they introduce you to ${theirInterest}.`);
-    } else if (overlapData.uniqueTargetUserInterests.length > 0) {
+    } else if (overlapData.uniqueTargetUserInterests.length > 0 && activities.length < 4) {
       activities.push(`Ask them to introduce you to ${overlapData.uniqueTargetUserInterests[0]} through a beginner-friendly activity.`);
     }
     
     // General recommendation based on compatibility score
-    if (overlapData.overlapScore > 0.7) {
-      activities.push("Schedule a collaborative brainstorming session to explore projects that leverage your strong compatibility.");
-    } else if (overlapData.overlapScore > 0.4) {
-      activities.push("Arrange an informal meetup in a neutral setting to explore your balanced mix of similarities and differences.");
-    } else {
-      activities.push("Plan a cultural exchange activity where you can both share unique perspectives from your diverse backgrounds.");
+    if (activities.length < 4) {
+      if (overlapData.overlapScore > 0.7) {
+        activities.push("Schedule a collaborative brainstorming session to explore projects that leverage your strong compatibility.");
+      } else if (overlapData.overlapScore > 0.4) {
+        activities.push("Arrange an informal meetup in a neutral setting to explore your balanced mix of similarities and differences.");
+      } else {
+        activities.push("Plan a cultural exchange activity where you can both share unique perspectives from your diverse backgrounds.");
+      }
     }
     
-    return activities;
+    return activities.slice(0, 4); // Limit to 4 activities
   };
   
-  // Generate compatibility badges based on overlap metrics
+  // Generate compatibility badges based on overlap metrics including bio information
   const generateCompatibilityBadges = () => {
     if (!overlapData) return [];
     
     const badges = [];
     
+    // Bio-based compatibility badges
+    if (targetUserBio && targetUserBio.length > 100 && currentUserBio && currentUserBio.length > 100) {
+      // Check for shared themes in bios
+      const bioKeywordSets = [
+        { 
+          name: "Creative Mind", 
+          description: "Both your bios show creative inclinations", 
+          keywords: ['create', 'design', 'art', 'creative', 'craft', 'build', 'make', 'music', 'draw', 'paint'],
+          iconType: "Lightbulb",
+          color: "bg-violet-100 text-violet-700 border-violet-300 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-600/50"
+        },
+        {
+          name: "Tech Explorers",
+          description: "You both show interest in technology",
+          keywords: ['tech', 'code', 'software', 'program', 'develop', 'engineering', 'digital', 'ai', 'app', 'data'],
+          iconType: "Zap",
+          color: "bg-indigo-100 text-indigo-700 border-indigo-300 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-600/50"
+        },
+        {
+          name: "Knowledge Seekers",
+          description: "You both value learning and growth",
+          keywords: ['learn', 'study', 'read', 'book', 'knowledge', 'education', 'curious', 'explore', 'discover', 'growth'],
+          iconType: "BookOpen",
+          color: "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-600/50"
+        },
+        {
+          name: "Social Connectors",
+          description: "You both value community and relationships",
+          keywords: ['people', 'connect', 'community', 'social', 'team', 'collaborate', 'together', 'relation', 'network', 'group'],
+          iconType: "Users",
+          color: "bg-cyan-100 text-cyan-700 border-cyan-300 dark:bg-cyan-900/30 dark:text-cyan-300 dark:border-cyan-600/50"
+        }
+      ];
+      
+      const currentUserBioLower = currentUserBio.toLowerCase();
+      const targetUserBioLower = targetUserBio.toLowerCase();
+      
+      for (const set of bioKeywordSets) {
+        const userHasKeywords = set.keywords.some(word => currentUserBioLower.includes(word));
+        const targetHasKeywords = set.keywords.some(word => targetUserBioLower.includes(word));
+        
+        if (userHasKeywords && targetHasKeywords) {
+          badges.push({
+            name: set.name,
+            description: set.description,
+            iconType: set.iconType,
+            color: set.color
+          });
+          break; // Only add one bio-based badge to avoid overwhelming
+        }
+      }
+    }
+    
+    // Bio-complementary badge (different yet complementary backgrounds)
+    if (currentUserBio && targetUserBio && currentUserBio.length > 50 && targetUserBio.length > 50) {
+      const professionalTerms = ['work', 'career', 'job', 'professional', 'business'];
+      const creativeTerms = ['art', 'music', 'creative', 'design'];
+      
+      const userHasProfessional = professionalTerms.some(term => currentUserBio.toLowerCase().includes(term));
+      const targetHasCreative = creativeTerms.some(term => targetUserBio.toLowerCase().includes(term));
+      
+      const userHasCreative = creativeTerms.some(term => currentUserBio.toLowerCase().includes(term));
+      const targetHasProfessional = professionalTerms.some(term => targetUserBio.toLowerCase().includes(term));
+      
+      if ((userHasProfessional && targetHasCreative) || (userHasCreative && targetHasProfessional)) {
+        badges.push({
+          name: "Complementary Mindsets",
+          description: "Your backgrounds balance practicality and creativity",
+          iconType: "Puzzle",
+          color: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600/50"
+        });
+      }
+    }
+    
     // Common interests badge
-    if (overlapData.similarInterests.length >= 3) {
+    if (overlapData.similarInterests.length >= 3 && badges.length < 4) {
       badges.push({
         name: "Interest Aligned",
         description: "You share multiple common interests",
@@ -370,7 +479,7 @@ export default function UserOverlap() {
     }
     
     // Common identity traits badge
-    if (overlapData.commonIdentities.length >= 2) {
+    if (overlapData.commonIdentities.length >= 2 && badges.length < 4) {
       badges.push({
         name: "Identity Match",
         description: "You share important background traits",
@@ -380,7 +489,7 @@ export default function UserOverlap() {
     }
     
     // High overall compatibility badge
-    if (overlapData.overlapScore > 0.7) {
+    if (overlapData.overlapScore > 0.7 && badges.length < 4) {
       badges.push({
         name: "Strong Synergy",
         description: "Your profiles have high overall compatibility",
@@ -390,7 +499,7 @@ export default function UserOverlap() {
     }
     
     // Complementary skills badge (different interests)
-    if (overlapData.uniqueCurrentUserInterests.length >= 2 && overlapData.uniqueTargetUserInterests.length >= 2) {
+    if (overlapData.uniqueCurrentUserInterests.length >= 2 && overlapData.uniqueTargetUserInterests.length >= 2 && badges.length < 4) {
       badges.push({
         name: "Skill Diversity",
         description: "You bring complementary interests to the table",
@@ -400,7 +509,7 @@ export default function UserOverlap() {
     }
     
     // Different but compatible badge
-    if (Object.keys(overlapData.differentIdentities).length > 0 && overlapData.similarInterests.length > 0) {
+    if (Object.keys(overlapData.differentIdentities).length > 0 && overlapData.similarInterests.length > 0 && badges.length < 4) {
       badges.push({
         name: "Bridge Builder",
         description: "You connect across different backgrounds",
@@ -410,7 +519,7 @@ export default function UserOverlap() {
     }
     
     // Innovation potential badge
-    if (overlapData.uniqueCurrentUserInterests.length > 0 && overlapData.uniqueTargetUserInterests.length > 0 && overlapData.similarInterests.length > 0) {
+    if (overlapData.uniqueCurrentUserInterests.length > 0 && overlapData.uniqueTargetUserInterests.length > 0 && overlapData.similarInterests.length > 0 && badges.length < 4) {
       badges.push({
         name: "Innovation Potential",
         description: "Your diverse yet compatible perspectives foster creativity",
@@ -420,7 +529,7 @@ export default function UserOverlap() {
     }
     
     // Growth opportunity badge for low overlap
-    if (overlapData.overlapScore < 0.4) {
+    if (overlapData.overlapScore < 0.4 && badges.length < 4) {
       badges.push({
         name: "Growth Catalyst",
         description: "Your differences offer opportunities for mutual growth",
@@ -777,6 +886,8 @@ export default function UserOverlap() {
                       {badge.iconType === "Zap" && <Zap className="h-8 w-8" />}
                       {badge.iconType === "Lightbulb" && <Lightbulb className="h-8 w-8" />}
                       {badge.iconType === "Sprout" && <Sprout className="h-8 w-8" />}
+                      {badge.iconType === "BookOpen" && <BookOpen className="h-8 w-8" />}
+                      {badge.iconType === "Users" && <Users className="h-8 w-8" />}
                     </div>
                     <h3 className="font-semibold text-base mb-1">{badge.name}</h3>
                     <p className="text-xs">{badge.description}</p>
@@ -851,6 +962,18 @@ export default function UserOverlap() {
                   ) : (
                     <p className="text-sm text-muted-foreground">You have similar interests!</p>
                   )}
+                  
+                  {/* Bio-derived insights for teaching */}
+                  {currentUserBio && currentUserBio.length > 20 && (
+                    <div className="mt-3 border-t border-blue-200 dark:border-blue-800 pt-2">
+                      <p className="text-xs text-blue-700 dark:text-blue-300 font-medium flex items-center">
+                        <BookOpen className="h-3 w-3 mr-1" /> From your bio:
+                      </p>
+                      <p className="text-xs mt-1 text-blue-600/80 dark:text-blue-400/90 italic line-clamp-2">
+                        "{currentUserBio}"
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -863,6 +986,18 @@ export default function UserOverlap() {
                     ))
                   ) : (
                     <p className="text-sm text-muted-foreground">They have similar interests to yours!</p>
+                  )}
+                  
+                  {/* Bio-derived insights for learning */}
+                  {targetUserBio && targetUserBio.length > 20 && (
+                    <div className="mt-3 border-t border-purple-200 dark:border-purple-800 pt-2">
+                      <p className="text-xs text-purple-700 dark:text-purple-300 font-medium flex items-center">
+                        <BookOpen className="h-3 w-3 mr-1" /> From their bio:
+                      </p>
+                      <p className="text-xs mt-1 text-purple-600/80 dark:text-purple-400/90 italic line-clamp-2">
+                        "{targetUserBio}"
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
