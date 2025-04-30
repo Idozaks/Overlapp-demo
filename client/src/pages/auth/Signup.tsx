@@ -154,14 +154,55 @@ export default function AuthPage() {
 
   const onRegister = async (data: RegisterFormData) => {
     try {
+      console.log('DEBUG-QR-REGISTER: Starting registration process');
+      console.log('DEBUG-QR-REGISTER: Initial sharedProfileId:', sharedProfileId);
+      
+      // Check the localStorage at the start of registration
+      const pendingIdBeforeRegister = localStorage.getItem('pendingOverlapUserId');
+      console.log('DEBUG-QR-REGISTER: pendingOverlapUserId before registration:', pendingIdBeforeRegister);
+      
+      // Also check sessionStorage
+      const sessionIdBeforeRegister = sessionStorage.getItem('sharedProfileId');
+      console.log('DEBUG-QR-REGISTER: sessionStorage sharedProfileId before registration:', sessionIdBeforeRegister);
+      
+      // Check URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const sourceParam = urlParams.get('source');
+      const urlProfileId = urlParams.get('profileId');
+      console.log('DEBUG-QR-REGISTER: URL parameters - source:', sourceParam, 'profileId:', urlProfileId);
+      
+      // Call the registration mutation
+      console.log('DEBUG-QR-REGISTER: Calling registerMutation with data:', data);
       await registerMutation.mutateAsync(data);
+      console.log('DEBUG-QR-REGISTER: Registration successful');
+      
+      // Determine the ID to use - check all possible storage locations
+      let idToUse = sharedProfileId;
+      
+      if (!idToUse && pendingIdBeforeRegister) {
+        console.log('DEBUG-QR-REGISTER: Using pendingOverlapUserId from localStorage:', pendingIdBeforeRegister);
+        idToUse = pendingIdBeforeRegister;
+      }
+      
+      if (!idToUse && sessionIdBeforeRegister) {
+        console.log('DEBUG-QR-REGISTER: Using sharedProfileId from sessionStorage:', sessionIdBeforeRegister);
+        idToUse = sessionIdBeforeRegister;
+      }
+      
+      if (!idToUse && urlProfileId) {
+        console.log('DEBUG-QR-REGISTER: Using profileId from URL:', urlProfileId);
+        idToUse = urlProfileId;
+      }
+      
+      console.log('DEBUG-QR-REGISTER: Final idToUse:', idToUse);
       
       // If they came from a shared profile, redirect to profile setup first
-      if (sharedProfileId) {
-        // Store the shared profile ID in localStorage instead of sessionStorage
-        // This ensures it persists through the onboarding flow
-        localStorage.setItem('pendingOverlapUserId', sharedProfileId);
-        sessionStorage.removeItem('sharedProfileId'); // Clear session stored ID
+      if (idToUse) {
+        // Store the shared profile ID in multiple places to ensure it persists
+        console.log('DEBUG-QR-REGISTER: Storing idToUse in localStorage and sessionStorage:', idToUse);
+        localStorage.setItem('pendingOverlapUserId', idToUse);
+        sessionStorage.setItem('pendingOverlapUserId', idToUse);
+        sessionStorage.removeItem('sharedProfileId'); // Clear old session stored ID
         
         toast({
           title: "Account Created",
@@ -169,13 +210,21 @@ export default function AuthPage() {
           variant: "default",
         });
         
-        // Redirect to profile setup/onboarding page with a special query param
-        window.location.href = "/profile/onboarding?source=qr-signup";
+        // Redirect to profile setup/onboarding page with the ID included in URL params
+        const onboardingUrl = `/profile/onboarding?source=qr-signup&pendingId=${idToUse}`;
+        console.log('DEBUG-QR-REGISTER: Redirecting to:', onboardingUrl);
+        
+        // Add a brief delay to ensure the logs are visible before the redirect
+        setTimeout(() => {
+          window.location.href = onboardingUrl;
+        }, 500);
       } else {
+        console.log('DEBUG-QR-REGISTER: No shared profile ID found, navigating to home');
         navigate("/");
       }
     } catch (error) {
       // Error is handled by the mutation
+      console.error('DEBUG-QR-REGISTER: Registration error:', error);
     }
   };
 
