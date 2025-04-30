@@ -132,13 +132,34 @@ function Router() {
           }
         }
         
-        // Check if there's a pending overlap user ID
-        const pendingUserId = localStorage.getItem('pendingOverlapUserId');
+        // Check if there's a pending overlap user ID from various sources
+        // First check localStorage
+        let pendingUserId = localStorage.getItem('pendingOverlapUserId');
+        console.log('DEBUG-QR-ONBOARDING: pendingOverlapUserId from localStorage:', pendingUserId);
         
-        // Use the ID from the URL or the authenticated user
+        // Also check sessionStorage as a fallback
+        if (!pendingUserId) {
+          pendingUserId = sessionStorage.getItem('pendingOverlapUserId');
+          console.log('DEBUG-QR-ONBOARDING: pendingOverlapUserId from sessionStorage:', pendingUserId);
+        }
+        
+        // Check URL params as another fallback
+        const urlParams = new URLSearchParams(window.location.search);
+        const pendingIdFromUrl = urlParams.get('pendingId');
+        if (!pendingUserId && pendingIdFromUrl) {
+          pendingUserId = pendingIdFromUrl;
+          console.log('DEBUG-QR-ONBOARDING: pendingOverlapUserId from URL:', pendingUserId);
+          
+          // Store it in localStorage to ensure it persists
+          localStorage.setItem('pendingOverlapUserId', pendingUserId);
+        }
+        
+        // Use the ID from the authenticated user
         const profileId = user?.id;
+        console.log('DEBUG-QR-ONBOARDING: Current user ID:', profileId);
         
         if (!profileId) {
+          console.error('DEBUG-QR-ONBOARDING: Invalid user ID - user object:', user);
           return <div>Invalid user ID</div>;
         }
         
@@ -153,10 +174,14 @@ function Router() {
             isOnboarding={true} 
             onSuccess={(updatedUser: any) => {
               // After profile is completed, check for pending overlap
+              console.log('DEBUG-QR-COMPLETION: onSuccess callback called with pendingUserId:', pendingUserId);
               if (pendingUserId) {
+                console.log('DEBUG-QR-COMPLETION: Redirecting to overlap view with targetUserId:', pendingUserId);
+                // Remove from localStorage but keep in sessionStorage just in case we need it later
                 localStorage.removeItem('pendingOverlapUserId');
                 window.location.href = `/social/overlap?targetUserId=${pendingUserId}`;
               } else {
+                console.log('DEBUG-QR-COMPLETION: No pendingUserId found, redirecting to profile');
                 window.location.href = `/profile/${updatedUser.id}`;
               }
             }}
