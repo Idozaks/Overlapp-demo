@@ -50,9 +50,39 @@ export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<string>("login");
+  
+  // Check for pending overlap ID in URL params or localStorage
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pendingId = urlParams.get('pendingId');
+    
+    // If pendingId is found in URL params, store it for persistence
+    if (pendingId) {
+      console.log('DEBUG-AUTH: pendingId found in URL, storing:', pendingId);
+      localStorage.setItem('pendingOverlapUserId', pendingId);
+      sessionStorage.setItem('pendingOverlapUserId', pendingId);
+    }
+    
+    // Check if this is a registration-specific page
+    const source = urlParams.get('source');
+    if (source === 'qr-signup') {
+      setActiveTab('register');
+    }
+  }, []);
 
   // Redirect if user is already logged in
   if (user) {
+    // Check if there's a pendingOverlapUserId that we need to handle
+    const pendingId = localStorage.getItem('pendingOverlapUserId') || 
+                     sessionStorage.getItem('pendingOverlapUserId');
+    
+    if (pendingId) {
+      console.log('DEBUG-AUTH: User logged in with pendingId, redirecting to onboarding', pendingId);
+      const onboardingUrl = `/profile/onboarding?source=qr-signup&pendingId=${pendingId}&ts=${Date.now()}`;
+      window.location.href = onboardingUrl;
+      return null;
+    }
+    
     navigate("/");
     return null;
   }

@@ -219,20 +219,27 @@ interface SharedProfileData {
           variant: "default",
         });
         
-        // Instead of relying on the automatic login from registration, 
-        // we'll perform an explicit login to ensure the session is properly established
         try {
           console.log('DEBUG-QR-REGISTER: Registration successful, initiating explicit login...');
           
+          // --------- PART 1: EXPLICIT LOGIN ---------
           // Extract username and password from the form data to perform a manual login
           const loginData = {
             username: data.username,
             password: data.password
           };
           
+          // Store the pending overlap ID - extremely important to preserve between redirects
+          if (idToUse) {
+            // Store in both localStorage and sessionStorage to be absolutely sure it persists
+            localStorage.setItem('pendingOverlapUserId', idToUse);
+            sessionStorage.setItem('pendingOverlapUserId', idToUse);
+            console.log('DEBUG-QR-REGISTER: Stored pendingOverlapUserId in storage:', idToUse);
+          }
+          
           console.log('DEBUG-QR-REGISTER: Performing explicit login with username:', loginData.username);
           
-          // Perform an explicit login request
+          // Perform an explicit login request - this creates the session
           const loginResponse = await fetch('/api/login', {
             method: 'POST',
             credentials: 'include',
@@ -246,42 +253,82 @@ interface SharedProfileData {
             throw new Error('Failed to login after registration');
           }
           
-          const loginData2 = await loginResponse.json();
-          console.log('DEBUG-QR-REGISTER: Explicit login successful:', loginData2);
+          const userData = await loginResponse.json();
+          console.log('DEBUG-QR-REGISTER: Explicit login successful:', userData);
           
-          // Now verify that we're properly authenticated
-          const userResponse = await fetch('/api/user', {
+          // --------- PART 2: DOUBLE-VERIFY AUTHENTICATION ---------
+          // Double-check that we're properly authenticated by making a redundant request
+          const verificationResponse = await fetch('/api/user', {
             credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
             },
           });
           
-          if (!userResponse.ok) {
+          if (!verificationResponse.ok) {
             throw new Error('Failed to verify authentication after login');
           }
           
-          const userData = await userResponse.json();
-          console.log('DEBUG-QR-REGISTER: Authentication verified successfully:', userData);
+          // --------- PART 3: CREATE PROFILE DATA AND STORE IN LOCALSTORAGE ---------
+          // Instead of redirecting to onboarding and risking session issues,
+          // we'll store the essential minimal profile data in localStorage
+          const newUserData = {
+            id: userData.id,
+            username: userData.username,
+            displayName: userData.displayName,
+            profileInitialized: false,
+            pendingOverlapId: idToUse || null
+          };
           
-          // Since we've confirmed authentication, redirect to onboarding
-          const onboardingUrl = `/profile/onboarding?source=qr-signup&pendingId=${idToUse}`;
-          console.log('DEBUG-QR-REGISTER: Redirecting to:', onboardingUrl);
+          // Store user profile in localStorage - crucial for persistence across pages
+          localStorage.setItem('currentUser', JSON.stringify(newUserData));
+          console.log('DEBUG-QR-REGISTER: Stored user data in localStorage:', newUserData);
           
-          // Give a bit more time for the session to be fully established
-          setTimeout(() => {
-            window.location.href = onboardingUrl;
-          }, 500);
+          // --------- PART 4: REDIRECT WITH RETRY MECHANISM ---------
+          // Function to attempt redirection with backoff
+          const attemptRedirect = (attemptNumber = 1) => {
+            console.log(`DEBUG-QR-REGISTER: Redirect attempt ${attemptNumber}`);
+            
+            // Re-verify auth state from localStorage
+            const storedUser = localStorage.getItem('currentUser');
+            const pendingId = localStorage.getItem('pendingOverlapUserId') || 
+                             sessionStorage.getItem('pendingOverlapUserId') || 
+                             idToUse;
+            
+            if (storedUser) {
+              const onboardingUrl = `/profile/onboarding?source=qr-signup&pendingId=${pendingId}&ts=${Date.now()}`;
+              console.log('DEBUG-QR-REGISTER: Redirecting to:', onboardingUrl);
+              window.location.href = onboardingUrl;
+            } else if (attemptNumber < 3) {
+              // Try again with exponential backoff
+              setTimeout(() => attemptRedirect(attemptNumber + 1), attemptNumber * 500);
+            } else {
+              throw new Error('Failed to store user data for redirection');
+            }
+          };
+          
+          // Start the redirection process
+          setTimeout(() => attemptRedirect(), 800);
+          
         } catch (error) {
           console.error('DEBUG-QR-REGISTER: Error during authentication process:', error);
+          
+          // Still store the pending ID even if there was an error
+          if (idToUse) {
+            localStorage.setItem('pendingOverlapUserId', idToUse);
+            sessionStorage.setItem('pendingOverlapUserId', idToUse);
+          }
+          
           toast({
             title: "Authentication Issue",
             description: "Account created, but there was an issue with automatic login. Please try logging in manually.",
             variant: "destructive",
           });
-          // Direct them to the login tab with the username prefilled if possible
+          
+          // Direct them to the login tab with the username prefilled
           setActiveTab("login");
           loginForm.setValue("username", data.username);
+          
           toast({
             title: "Please Log In",
             description: "Your account has been created. Please log in with your credentials to continue.",

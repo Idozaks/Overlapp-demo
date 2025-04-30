@@ -113,7 +113,85 @@ function Router() {
       <Route path="/shared/profile/:id" component={SharedProfile} />
       <Route path="/profile/:id?" component={Profile} />
       <Route path="/profile/:id/edit" component={ProfileEdit} />
-      <Route path="/profile/onboarding/:id?" component={OnboardingWrapper} />
+      <Route path="/profile/onboarding/:id?" component={() => {
+        const { user } = useAuth();
+        const [location] = useLocation();
+        
+        // Retrieve any stored user data from localStorage as fallback
+        const storedUserString = localStorage.getItem('currentUser');
+        let storedUser = null;
+        if (storedUserString) {
+          try {
+            storedUser = JSON.parse(storedUserString);
+            console.log('DEBUG-QR-ONBOARDING: Using stored user data:', storedUser);
+          } catch (e) {
+            console.error('DEBUG-QR-ONBOARDING: Failed to parse stored user data:', e);
+          }
+        }
+        
+        // Extract URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const pendingId = urlParams.get('pendingId') || 
+                          localStorage.getItem('pendingOverlapUserId') || 
+                          sessionStorage.getItem('pendingOverlapUserId');
+        const source = urlParams.get('source');
+        
+        console.log('DEBUG-QR-ONBOARDING: URL params and storage -', { 
+          pendingId, 
+          source, 
+          user: user?.id || 'not loaded',
+          storedUser: storedUser?.id || 'none'
+        });
+        
+        // Store pending ID from URL to local/session storage for persistence
+        if (pendingId) {
+          localStorage.setItem('pendingOverlapUserId', pendingId);
+          sessionStorage.setItem('pendingOverlapUserId', pendingId);
+        }
+        
+        // Handle not authenticated case
+        if (!user && !storedUser) {
+          console.log('DEBUG-QR-ONBOARDING: No user data found, redirecting to authentication');
+          
+          // If we have pendingId, preserve it in the redirect
+          const redirectParams = pendingId ? `?pendingId=${pendingId}` : '';
+          const redirectSource = source ? `&source=${source}` : '';
+          
+          // Redirect to auth page
+          window.location.href = `/auth${redirectParams}${redirectSource}`;
+          return null;
+        }
+        
+        // Use either authenticated user or stored user
+        const userForProfile = user || storedUser;
+        
+        return (
+          <ProfileEditForm 
+            user={userForProfile}
+            isOnboarding={true} 
+            onSuccess={(updatedUser) => {
+              console.log('DEBUG-QR-COMPLETION: onSuccess callback with pendingId:', pendingId);
+              console.log('DEBUG-QR-COMPLETION: updatedUser:', updatedUser);
+              
+              // Clear localStorage data as it's no longer needed
+              localStorage.removeItem('currentUser');
+              
+              // Extract the user ID
+              const userId = updatedUser?.id || userForProfile?.id;
+              
+              if (pendingId) {
+                console.log('DEBUG-QR-COMPLETION: Redirecting to overlap with targetUserId:', pendingId);
+                // Keep pendingId in sessionStorage but clear localStorage
+                localStorage.removeItem('pendingOverlapUserId');
+                window.location.href = `/social/overlap?targetUserId=${pendingId}`;
+              } else {
+                console.log('DEBUG-QR-COMPLETION: No pendingId, redirecting to profile:', userId);
+                window.location.href = `/profile/${userId}`;
+              }
+            }}
+          />
+        );
+      }} />
       <Route path="/profile/:id/interests/suggestions" component={InterestSuggestionsPage} />
       <Route path="/wallet" component={WalletDashboard} />
       <Route path="/marketplace" component={Marketplace} />
