@@ -21,7 +21,8 @@ import {
   Tag, 
   Store, 
   ArrowUp, 
-  Info 
+  Info,
+  Sparkles
 } from 'lucide-react';
 import ConstellationCanvas, { NodeData } from '@/components/constellation/ConstellationCanvas';
 import { useToast } from '@/hooks/use-toast';
@@ -91,6 +92,14 @@ export default function HomePage() {
 
   return (
     <div className="relative w-full h-screen flex flex-col bg-[#101010]">
+      {/* Header */}
+      <header className="py-4 px-6 flex items-center justify-between border-b border-gray-800">
+        <div className="flex items-center">
+          <Sparkles className="h-5 w-5 text-primary mr-2" />
+          <h1 className="text-xl font-bold text-white">Overlapp</h1>
+        </div>
+      </header>
+      
       {/* Main constellation canvas */}
       <div className="flex-grow w-full">
         {userData && (

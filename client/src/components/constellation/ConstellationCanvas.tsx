@@ -226,13 +226,23 @@ const ConstellationCanvas: React.FC<ConstellationCanvasProps> = ({
   useEffect(() => {
     // Update node highlighting when highlightedNodeId changes
     if (nodes.length > 0) {
-      const updatedNodes = nodes.map(node => ({
-        ...node,
-        isHighlighted: node.id === highlightedNodeId || node.id === 0 // User node always highlighted
-      }));
-      setNodes(updatedNodes);
+      // We won't recreate the entire nodes array, just update the isHighlighted property
+      // This prevents unnecessary re-renders and animation glitches
+      setNodes(prevNodes => 
+        prevNodes.map(node => {
+          // Only update the node if its highlight state has changed
+          const shouldBeHighlighted = node.id === highlightedNodeId || node.id === 0;
+          if (node.isHighlighted !== shouldBeHighlighted) {
+            return {
+              ...node,
+              isHighlighted: shouldBeHighlighted
+            };
+          }
+          return node;
+        })
+      );
     }
-  }, [highlightedNodeId, nodes.length]);
+  }, [highlightedNodeId]);
   
   useEffect(() => {
     if (!containerRef.current) return;
