@@ -1,14 +1,15 @@
 # Overlapp - Intelligent Social Connection Discovery
 
-Overlapp is a cutting-edge mobile-first React application for intelligent social connection discovery, leveraging advanced AI-powered interaction mapping with an intuitive user experience.
+Overlapp is a cutting-edge mobile-first React application for intelligent social connection discovery, leveraging advanced AI-powered connection mapping with an intuitive user experience.
 
 ![Demo Animation](./client/public/demo.gif)
 
 ## Features
 
 - **Simple Onboarding**: Set up your profile with just a few taps – pick an avatar, add your name, and select your interests
-- **Constellation Visualization**: Interactive node-based network visualization showing your connections to people, places, and interests
-- **Mall Companion**: Bottom sheet interface that provides detailed information about selected nodes
+- **Card-Based Interface**: Clean, intuitive card-based layout showing your connections to people, places, and interests
+- **Location Mapping**: Visual representation of physical locations where you have connections
+- **Smart Matching**: Intelligent algorithm to find meaningful connections based on shared interests and locations
 - **Privacy Control**: Built-in privacy panel allowing users to view and revoke their data
 - **Admin Dashboard**: Debug panel (accessed via `?debug=true` query parameter) showing synthetic user data
 
@@ -45,10 +46,10 @@ Overlapp is a cutting-edge mobile-first React application for intelligent social
 
 - `/client/src/pages`: Main application pages
   - `/onboarding`: User onboarding flow components
-  - `/home`: Homepage with constellation visualization
+  - `/home`: Homepage with constellation visualization (legacy)
+  - `/hybrid`: New card-based + map visualization page
   - `/admin`: Admin dashboard for synthetic user data
 - `/client/src/components`: Reusable UI components
-  - `/constellation`: Visualization components
   - `/ui`: Base UI components from shadcn/ui
 - `/server`: Express server for API endpoints
 - `/shared`: Shared types and utilities
@@ -59,11 +60,12 @@ Overlapp is a cutting-edge mobile-first React application for intelligent social
 1. **Onboarding (`/`)**  
    - Step 1: Pick avatar + name (optional)
    - Step 2: Multi-select interests (chips)
-   - Step 3: Tap "Spark it!" → store DIU, navigate to `/home`
+   - Step 3: Tap "Spark it!" → store DIU, navigate to `/hybrid`
 
-2. **Home (`/home`)**  
-   - Top: Constellation canvas (user node highlighted)
-   - Bottom sheet: Mall Companion (slides up on scroll)
+2. **Hybrid View (`/hybrid`)**  
+   - Left: Card-based list of connections (people, places, interests)
+   - Right: Map visualization of physical locations
+   - Searchable, filterable interface with location display
    - FAB link to Privacy Panel modal
 
 3. **Privacy Panel**  

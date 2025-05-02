@@ -16,6 +16,7 @@ import SuspenseWrapper from "@/components/layout/SuspenseWrapper";
 import Home from "@/pages/Home";
 import OnboardingPage from "@/pages/onboarding/OnboardingPage"; // New onboarding page
 import HomePage from "@/pages/home/HomePage"; // New home page with constellation
+import HybridPage from "@/pages/hybrid/HybridPage"; // New hybrid card+map page
 import AdminPage from "@/pages/admin/AdminPage"; // New admin page
 import Signup from "@/pages/auth/Signup";
 import Demo from "@/pages/Demo";
@@ -104,6 +105,7 @@ function Router() {
       {/* New UX Flow Routes */}
       <Route path="/" component={OnboardingPage} />  
       <Route path="/home" component={HomePage} />
+      <Route path="/hybrid" component={HybridPage} />
       <Route path="/admin" component={AdminPage} />
 
       {/* Existing Routes */}
