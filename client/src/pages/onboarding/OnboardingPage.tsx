@@ -1,240 +1,307 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, ChevronRight, User, ArrowRight } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
 
-// Define interests data (would normally come from API)
+// Define interests
 const INTERESTS = [
-  { id: 1, name: 'Technology', category: 'Tech' },
-  { id: 2, name: 'Art & Design', category: 'Creative' },
-  { id: 3, name: 'Food & Cooking', category: 'Lifestyle' },
-  { id: 4, name: 'Fitness', category: 'Health' },
-  { id: 5, name: 'Travel', category: 'Lifestyle' },
-  { id: 6, name: 'Music', category: 'Entertainment' },
-  { id: 7, name: 'Reading', category: 'Education' },
-  { id: 8, name: 'Photography', category: 'Creative' },
-  { id: 9, name: 'Gaming', category: 'Entertainment' },
-  { id: 10, name: 'Fashion', category: 'Lifestyle' },
-  { id: 11, name: 'Gardening', category: 'Lifestyle' },
-  { id: 12, name: 'Movies', category: 'Entertainment' },
-  { id: 13, name: 'Science', category: 'Education' },
-  { id: 14, name: 'Sports', category: 'Health' },
-  { id: 15, name: 'Podcasts', category: 'Entertainment' },
+  "Technology",
+  "Art & Design",
+  "Food & Cooking",
+  "Fitness",
+  "Travel",
+  "Music",
+  "Reading",
+  "Photography",
+  "Gaming",
+  "Fashion",
+  "Gardening",
+  "Movies",
+  "Science",
+  "Sports",
+  "Podcasts",
+  "Hiking",
+  "Crafts",
+  "Writing",
+  "Dancing",
+  "Yoga",
+  "Meditation",
+  "Camping",
+  "Cycling",
+  "Coffee",
+  "Wine",
+  "Pets",
+  "Volunteering"
 ];
-
-// Avatar selection options
-const AVATARS = [
-  '/avatars/avatar1.png', 
-  '/avatars/avatar2.png',
-  '/avatars/avatar3.png',
-  '/avatars/avatar4.png',
-  '/avatars/avatar5.png',
-  '/avatars/avatar6.png',
-];
-
-// Form schema
-const profileSchema = z.object({
-  name: z.string().min(1, 'Name is required').optional(),
-  avatar: z.string().optional(),
-});
-
-type ProfileValues = z.infer<typeof profileSchema>;
-
-// Enum for onboarding steps
-enum OnboardingStep {
-  ProfileSetup,
-  InterestSelection,
-  Complete
-}
 
 export default function OnboardingPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { t } = useTranslation();
-  
-  // State management
-  const [step, setStep] = useState<OnboardingStep>(OnboardingStep.ProfileSetup);
-  const [selectedInterests, setSelectedInterests] = useState<number[]>([]);
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
-  
-  // Form setup
-  const form = useForm<ProfileValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: '',
-      avatar: '',
-    },
+  const [step, setStep] = useState(1);
+  const [userData, setUserData] = useState({
+    name: '',
+    avatar: '/avatars/avatar1.svg',
+    interests: [] as number[]
   });
-
+  
+  // Animation variants
+  const pageVariants = {
+    initial: { opacity: 0, x: '100%' },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: '-100%' }
+  };
+  
+  const pageTransition = {
+    type: 'tween',
+    ease: 'anticipate',
+    duration: 0.5
+  };
+  
   // Handle avatar selection
-  const handleAvatarSelect = (avatarPath: string) => {
-    setSelectedAvatar(avatarPath);
-    form.setValue('avatar', avatarPath);
+  const handleAvatarSelect = (avatar: string) => {
+    setUserData({ ...userData, avatar });
+  };
+  
+  // Handle name input
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserData({ ...userData, name: e.target.value });
   };
   
   // Handle interest toggle
-  const toggleInterest = (interestId: number) => {
-    if (selectedInterests.includes(interestId)) {
-      setSelectedInterests(selectedInterests.filter(id => id !== interestId));
+  const handleInterestToggle = (interestId: number) => {
+    const newInterests = [...userData.interests];
+    
+    if (newInterests.includes(interestId)) {
+      // Remove interest if already selected
+      const index = newInterests.indexOf(interestId);
+      newInterests.splice(index, 1);
     } else {
-      setSelectedInterests([...selectedInterests, interestId]);
+      // Add interest if not selected
+      newInterests.push(interestId);
     }
+    
+    setUserData({ ...userData, interests: newInterests });
   };
   
   // Move to next step
-  const goToNextStep = () => {
-    if (step === OnboardingStep.ProfileSetup) {
-      setStep(OnboardingStep.InterestSelection);
-    } else if (step === OnboardingStep.InterestSelection) {
-      completeOnboarding();
+  const handleNextStep = () => {
+    if (step < 3) {
+      setStep(step + 1);
+    } else {
+      // Save user data to localStorage
+      localStorage.setItem('userData', JSON.stringify(userData));
+      
+      // Show success toast
+      toast({
+        title: "Profile created successfully!",
+        description: "Your constellation is ready to explore."
+      });
+      
+      // Navigate to home page
+      setLocation('/home');
     }
   };
-
-  const onSubmitProfile = (data: ProfileValues) => {
-    // In a real app, we would post this to the server
-    console.log('Profile data:', data);
-    goToNextStep();
+  
+  // Move to previous step
+  const handlePrevStep = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
   };
   
-  // Complete onboarding and redirect to home
-  const completeOnboarding = () => {
-    // Gather all user data
-    const userData = {
-      ...form.getValues(),
-      interests: selectedInterests
-    };
+  // Validate if user can proceed to next step
+  const canProceed = () => {
+    if (step === 1) {
+      // For step 1, avatar is pre-selected, so just basic name validation
+      return userData.name.trim().length > 0;
+    } else if (step === 2) {
+      // For step 2, at least 1 interest must be selected
+      return userData.interests.length > 0;
+    }
     
-    // Save to localStorage for the DIU (Device Identity Unit)
-    localStorage.setItem('userData', JSON.stringify(userData));
-    
-    // Show success notification
-    toast({
-      title: "Onboarding complete!",
-      description: "Your profile has been set up successfully.",
-    });
-    
-    // Navigate to home page
-    setLocation('/home');
+    return true;
   };
-  
-  // Render profile setup step
-  const renderProfileSetup = () => (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitProfile)} className="space-y-6">
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name (optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="space-y-2">
-            <FormLabel>Choose an avatar</FormLabel>
-            <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
-              {AVATARS.map((avatar, index) => (
-                <div 
-                  key={index}
-                  className={`
-                    cursor-pointer rounded-full p-1 transition-all
-                    ${selectedAvatar === avatar ? 'ring-2 ring-primary' : 'hover:bg-muted'}
-                  `}
-                  onClick={() => handleAvatarSelect(avatar)}
-                >
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={avatar} alt={`Avatar option ${index + 1}`} />
-                    <AvatarFallback><User /></AvatarFallback>
-                  </Avatar>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <Button type="submit" className="w-full">
-          Continue
-          <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </form>
-    </Form>
-  );
-  
-  // Render interest selection step
-  const renderInterestSelection = () => (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-2">
-          {INTERESTS.map((interest) => (
-            <Badge
-              key={interest.id}
-              variant={selectedInterests.includes(interest.id) ? "default" : "outline"}
-              className={`
-                text-sm py-2 px-3 cursor-pointer transition-all
-                ${selectedInterests.includes(interest.id) ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10'}
-              `}
-              onClick={() => toggleInterest(interest.id)}
-            >
-              {interest.name}
-            </Badge>
-          ))}
-        </div>
-      </div>
-
-      <Button 
-        onClick={goToNextStep} 
-        className="w-full"
-        disabled={selectedInterests.length === 0}
-      >
-        Spark it!
-        <Sparkles className="ml-2 h-4 w-4" />
-      </Button>
-    </div>
-  );
   
   return (
-    <div className="container max-w-md mx-auto py-12 px-4">
-      <Card className="border-none shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">
-            {step === OnboardingStep.ProfileSetup && "Welcome to Overlapp"}
-            {step === OnboardingStep.InterestSelection && "What are you into?"}
-          </CardTitle>
-          <CardDescription>
-            {step === OnboardingStep.ProfileSetup && "Set up your profile to get started"}
-            {step === OnboardingStep.InterestSelection && "Select interests to discover connections"}
-          </CardDescription>
-        </CardHeader>
+    <div className="bg-[#101010] min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="py-4 px-6 flex items-center justify-between border-b border-gray-800">
+        <div className="flex items-center">
+          <Sparkles className="h-5 w-5 text-primary mr-2" />
+          <h1 className="text-xl font-bold">Overlapp</h1>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Step {step} of 3
+        </div>
+      </header>
+      
+      {/* Main Content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={step}
+          className="flex-grow flex flex-col p-6 max-w-md mx-auto w-full"
+          initial="initial"
+          animate="in"
+          exit="out"
+          variants={pageVariants}
+          transition={pageTransition}
+        >
+          {step === 1 && (
+            <>
+              <h2 className="text-2xl font-bold mb-6 text-center">Create Your Profile</h2>
+              <div className="mb-8">
+                <label className="block text-sm font-medium mb-2">
+                  Choose an avatar
+                </label>
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  {[1, 2, 3, 4, 5, 6].map((num) => (
+                    <div 
+                      key={num}
+                      className={`
+                        rounded-lg p-2 cursor-pointer transition-all duration-300
+                        ${userData.avatar === `/avatars/avatar${num}.svg` 
+                          ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' 
+                          : 'hover:bg-muted/50'}
+                      `}
+                      onClick={() => handleAvatarSelect(`/avatars/avatar${num}.svg`)}
+                    >
+                      <img 
+                        src={`/avatars/avatar${num}.svg`} 
+                        alt={`Avatar ${num}`}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                <label className="block text-sm font-medium mb-2">
+                  Your name (optional)
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={userData.name}
+                  onChange={handleNameChange}
+                  className="mb-4"
+                />
+              </div>
+            </>
+          )}
+          
+          {step === 2 && (
+            <>
+              <h2 className="text-2xl font-bold mb-6 text-center">Select Your Interests</h2>
+              <p className="text-muted-foreground mb-6 text-center">
+                Choose what you're interested in to personalize your experience
+              </p>
+              <div className="flex flex-wrap gap-2 mb-8">
+                {INTERESTS.map((interest, index) => (
+                  <Badge
+                    key={index}
+                    variant={userData.interests.includes(index) ? "default" : "outline"}
+                    className={`
+                      cursor-pointer text-sm py-1.5 px-3
+                      ${userData.interests.includes(index) 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'hover:bg-muted/50'}
+                    `}
+                    onClick={() => handleInterestToggle(index)}
+                  >
+                    {interest}
+                  </Badge>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                Selected: {userData.interests.length} interests
+              </p>
+            </>
+          )}
+          
+          {step === 3 && (
+            <>
+              <h2 className="text-2xl font-bold mb-6 text-center">Ready to Spark?</h2>
+              <div className="bg-card rounded-lg p-6 mb-8">
+                <div className="flex items-center mb-6">
+                  <img 
+                    src={userData.avatar} 
+                    alt="Selected avatar" 
+                    className="w-20 h-20 mr-4"
+                  />
+                  <div>
+                    <h3 className="text-xl font-bold">
+                      {userData.name || "Anonymous Explorer"}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {userData.interests.length} interests selected
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <h4 className="font-medium mb-2">Selected Interests:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {userData.interests.map((interestId) => (
+                      <Badge key={interestId}>
+                        {INTERESTS[interestId]}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                <p className="text-sm text-muted-foreground">
+                  Your profile is stored locally and can be deleted at any time.
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <Button 
+                  size="lg" 
+                  className="bg-primary text-primary-foreground"
+                  onClick={handleNextStep}
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Spark It!
+                </Button>
+              </div>
+            </>
+          )}
+        </motion.div>
+      </AnimatePresence>
+      
+      {/* Footer Navigation */}
+      <div className="px-6 py-4 border-t border-gray-800 flex justify-between">
+        <Button
+          variant="ghost"
+          onClick={handlePrevStep}
+          disabled={step === 1}
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
         
-        <CardContent>
-          {step === OnboardingStep.ProfileSetup && renderProfileSetup()}
-          {step === OnboardingStep.InterestSelection && renderInterestSelection()}
-        </CardContent>
-        
-        <CardFooter className="flex justify-between text-sm text-muted-foreground">
-          <div className="flex items-center space-x-1">
-            <span className={step >= OnboardingStep.ProfileSetup ? "text-primary" : ""}>•</span>
-            <span className={step >= OnboardingStep.InterestSelection ? "text-primary" : ""}>•</span>
-          </div>
-          <div>Step {step + 1}/2</div>
-        </CardFooter>
-      </Card>
+        <Button
+          onClick={handleNextStep}
+          disabled={!canProceed()}
+        >
+          {step === 3 ? (
+            <>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Finish
+            </>
+          ) : (
+            <>
+              Next
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

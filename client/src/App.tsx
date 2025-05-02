@@ -14,6 +14,9 @@ import AppHeader from "@/components/layout/Header2";
 import AnimatedRoutes from "@/components/layout/AnimatedRoutes";
 import SuspenseWrapper from "@/components/layout/SuspenseWrapper";
 import Home from "@/pages/Home";
+import OnboardingPage from "@/pages/onboarding/OnboardingPage"; // New onboarding page
+import HomePage from "@/pages/home/HomePage"; // New home page with constellation
+import AdminPage from "@/pages/admin/AdminPage"; // New admin page
 import Signup from "@/pages/auth/Signup";
 import Demo from "@/pages/Demo";
 import RetailerDetails from "@/pages/RetailerDetails";
@@ -98,7 +101,13 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      {/* New UX Flow Routes */}
+      <Route path="/" component={OnboardingPage} />  
+      <Route path="/home" component={HomePage} />
+      <Route path="/admin" component={AdminPage} />
+
+      {/* Existing Routes */}
+      <Route path="/landing" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/signup" component={Signup} />
       <Route path="/auth" component={AuthPage} />
