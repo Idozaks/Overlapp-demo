@@ -100,11 +100,11 @@ export default function OnboardingPage() {
       // Show success toast
       toast({
         title: "Profile created successfully!",
-        description: "Your constellation is ready to explore."
+        description: "Your connections are ready to explore."
       });
       
-      // Navigate to home page
-      setLocation('/home');
+      // Navigate to hybrid page
+      setLocation('/hybrid');
     }
   };
   
