@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import { storage } from "./storage";
-import { UserProfile } from "../shared/schema";
 
 // Initialize OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -13,60 +12,68 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 export async function generateSyntheticUserChatResponse(
   userId: number,
   userMessage: string,
-  conversationHistory: { role: "user" | "assistant"; content: string }[] = []
+  conversationHistory: { role: "user" | "assistant" | "system"; content: string }[] = []
 ): Promise<{ message: string }> {
   try {
     // Get synthetic user data from database
-    const user = await storage.getUserById(userId);
+    const user = await storage.getUser(userId);
     
     if (!user) {
       throw new Error(`Synthetic user with ID ${userId} not found`);
     }
     
     // Get user interests
-    const userInterests = await storage.getUserInterests(userId);
+    const interests = await storage.getUserInterests(userId);
+    
+    // Get interest names instead of full objects
+    const interestNames = interests.map(interest => 
+      typeof interest === 'string' ? interest : interest.name
+    );
     
     // Build a profile description for context
-    const userContext = buildUserContext(user, userInterests);
+    const userContext = buildUserContext(user, interestNames);
     
     // Prepare conversation history for the AI
-    const messages = [
-      {
-        role: "system",
-        content: `You are roleplaying as a synthetic user named ${user.displayName || user.username} with the following attributes:
+    const systemMessage = {
+      role: "system" as const,
+      content: `You are roleplaying as a synthetic user named ${user.displayName || user.username} with the following attributes:
         
 ${userContext}
 
 Your task is to respond in character, based on this digital identity. Keep responses conversational and casual. 
 Use a natural tone as if chatting with a friend - be engaging but stay within 1-3 sentences unless asked for more detail.
 Never mention that you are an AI - always stay in character as the synthetic user described above.`
-      },
-      ...conversationHistory.map(msg => ({
-        role: msg.role === "user" ? "user" as const : "assistant" as const,
+    };
+    
+    // Filter out any existing system messages to avoid conflicts
+    const historyMessages = conversationHistory
+      .filter(msg => msg.role !== "system")
+      .map(msg => ({
+        role: msg.role,
         content: msg.content
-      })),
-      { role: "user" as const, content: userMessage }
-    ];
+      }));
+    
+    const userMsg = { role: "user" as const, content: userMessage };
     
     // Generate response using OpenAI
     const response = await openai.chat.completions.create({
       model: "gpt-4o", // Using the latest model
-      messages,
+      messages: [systemMessage, ...historyMessages, userMsg],
       temperature: 0.7,
       max_tokens: 500
     });
     
-    return response.choices[0].message.content || "Sorry, I'm not sure how to respond to that.";
+    return { message: response.choices[0].message.content || "Sorry, I'm not sure how to respond to that." };
   } catch (error) {
     console.error("Error generating synthetic response:", error);
-    return "Sorry, I'm having trouble responding right now. Let's chat again later!";
+    return { message: "Sorry, I'm having trouble responding right now. Let's chat again later!" };
   }
 }
 
 /**
  * Build a detailed context string about the user based on their profile and interests
  */
-function buildUserContext(user: UserProfile, interests: string[]): string {
+function buildUserContext(user: any, interests: string[]): string {
   let context = '';
   
   // Basic profile information
