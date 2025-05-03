@@ -378,7 +378,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
                     <div className="flex flex-wrap gap-2 mb-4">
                       {suggestedInterests.map((suggestion, index) => (
                         <Badge
-                          key={index}
+                          key={`suggestion-${index}-${suggestion.name}`}
                           variant={selectedSuggestions.has(suggestion.name) ? "default" : "outline"}
                           className={`
                             cursor-pointer text-sm py-1.5 px-3
@@ -410,7 +410,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
                       <h3 className="font-medium text-sm mb-2 text-gray-700">Why these suggestions?</h3>
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {suggestedInterests.map((suggestion, index) => (
-                          <div key={index} className="text-xs text-gray-600 border-b border-gray-100 pb-2 last:border-0">
+                          <div key={`reason-${index}-${suggestion.name}`} className="text-xs text-gray-600 border-b border-gray-100 pb-2 last:border-0">
                             <span className="font-medium">{suggestion.emoji} {suggestion.name}:</span> {suggestion.reason || "Based on your selected interests"}
                           </div>
                         ))}
