@@ -217,8 +217,8 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
                     className={`
                       cursor-pointer text-sm py-1.5 px-3
                       ${userData.interests.includes(index) 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'hover:bg-muted/50'}
+                        ? 'bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] text-white' 
+                        : 'border border-gray-300 text-gray-700 hover:bg-gray-100/50'}
                     `}
                     onClick={() => handleInterestToggle(index)}
                   >
@@ -274,7 +274,8 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
               <div className="text-center">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] hover:opacity-90 transition-opacity text-white px-8 py-6 rounded-lg"
+                  variant="gradient"
+                  className="px-8 py-6 rounded-lg text-base"
                   onClick={handleNextStep}
                 >
                   <Sparkles className="mr-2 h-5 w-5" />
@@ -301,7 +302,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
         <Button
           onClick={handleNextStep}
           disabled={!canProceed()}
-          className="bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] hover:opacity-90 transition-opacity text-white"
+          variant="gradient"
         >
           {step === 3 ? (
             <>
