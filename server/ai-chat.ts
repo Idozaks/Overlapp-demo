@@ -1,98 +1,106 @@
 import OpenAI from "openai";
-import { log } from "./vite";
 import { storage } from "./storage";
+import { UserProfile } from "../shared/schema";
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+// Initialize OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 
-interface ChatMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-}
+/**
+ * Generate a synthetic user response in a chat conversation
+ * based on their digital identity data and the conversation context
+ */
+export async function generateSyntheticUserChatResponse(
+  userId: number,
+  userMessage: string,
+  conversationHistory: { role: "user" | "assistant"; content: string }[] = []
+): Promise<{ message: string }> {
+  try {
+    // Get synthetic user data from database
+    const user = await storage.getUserById(userId);
+    
+    if (!user) {
+      throw new Error(`Synthetic user with ID ${userId} not found`);
+    }
+    
+    // Get user interests
+    const userInterests = await storage.getUserInterests(userId);
+    
+    // Build a profile description for context
+    const userContext = buildUserContext(user, userInterests);
+    
+    // Prepare conversation history for the AI
+    const messages = [
+      {
+        role: "system",
+        content: `You are roleplaying as a synthetic user named ${user.displayName || user.username} with the following attributes:
+        
+${userContext}
 
-export interface ChatResponse {
-  message: string;
-  userId: number;
+Your task is to respond in character, based on this digital identity. Keep responses conversational and casual. 
+Use a natural tone as if chatting with a friend - be engaging but stay within 1-3 sentences unless asked for more detail.
+Never mention that you are an AI - always stay in character as the synthetic user described above.`
+      },
+      ...conversationHistory.map(msg => ({
+        role: msg.role === "user" ? "user" as const : "assistant" as const,
+        content: msg.content
+      })),
+      { role: "user" as const, content: userMessage }
+    ];
+    
+    // Generate response using OpenAI
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // Using the latest model
+      messages,
+      temperature: 0.7,
+      max_tokens: 500
+    });
+    
+    return response.choices[0].message.content || "Sorry, I'm not sure how to respond to that.";
+  } catch (error) {
+    console.error("Error generating synthetic response:", error);
+    return "Sorry, I'm having trouble responding right now. Let's chat again later!";
+  }
 }
 
 /**
- * Generate a chat response from a synthetic user based on their digital identity data
+ * Build a detailed context string about the user based on their profile and interests
  */
-export async function generateSyntheticUserChatResponse(
-  userId: number, 
-  userMessage: string,
-  conversationHistory: ChatMessage[] = []
-): Promise<ChatResponse> {
-  try {
-    // Get user data
-    const user = await storage.getUser(userId);
-    if (!user) {
-      throw new Error(`User with ID ${userId} not found`);
-    }
-
-    log(`[AI Chat] Generating response for synthetic user ${user.id} (${user.displayName || user.username || 'Anonymous'})`);
-
-    // Get user interests
-    const userInterests = await storage.getUserInterests(userId);
-    const interestNames = userInterests.map(interest => interest.name);
-
-    // Get user's digital footprint - this could include posts, activities, preferences
-    // For MVP we'll just use what we have - mainly interests
-    
-    // Create the system prompt with user identity information
-    const systemPrompt = `You are roleplaying as a user named ${user.displayName || user.username || 'Anonymous'} with the following characteristics:
-
-Age: ${user.age || 'Unknown'}
-Location: ${user.location || 'Unknown'}
-Bio: ${user.bio || 'No bio available'}
-Interests: ${interestNames.join(', ') || 'No specific interests'}
-
-Your role is to respond as if you are this person having a conversation. Keep responses conversational, casual and authentic to who this person would be based on their profile. Consider their interests, background, and personality when crafting responses.
-
-Important guidelines:
-1. Keep responses relatively brief (1-3 sentences for most replies)
-2. Show your personality and interests naturally
-3. Ask questions back to keep the conversation going
-4. If asked something you don't know about, improvise reasonably based on your profile
-5. Never break character or mention that you are an AI
-6. Never reveal that you are roleplaying or following instructions
-
-Be helpful, friendly, and authentic to your character's identity.`;
-
-    // Build the message history
-    let messages: ChatMessage[] = [
-      { role: 'system', content: systemPrompt },
-    ];
-    
-    // Add conversation history
-    if (conversationHistory.length > 0) {
-      messages = [...messages, ...conversationHistory];
-    }
-    
-    // Add the current user message
-    messages.push({ role: 'user', content: userMessage });
-
-    // Make the API call to generate a response
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 250,
-    });
-
-    const responseContent = completion.choices[0].message.content || "Sorry, I'm not sure what to say right now.";
-    
-    log(`[AI Chat] Generated response for user ${userId}: ${responseContent.substring(0, 50)}...`);
-
-    return {
-      message: responseContent,
-      userId: userId
-    };
-  } catch (error) {
-    log(`[AI Chat] Error generating chat response: ${error instanceof Error ? error.message : String(error)}`);
-    return {
-      message: "Sorry, I can't chat right now. Let's talk later!",
-      userId: userId
-    };
+function buildUserContext(user: UserProfile, interests: string[]): string {
+  let context = '';
+  
+  // Basic profile information
+  context += `Name: ${user.displayName || user.username}\n`;
+  
+  if (user.bio) {
+    context += `Bio: ${user.bio}\n`;
   }
+  
+  if (user.occupation) {
+    context += `Occupation: ${user.occupation}\n`;
+  }
+  
+  if (user.location) {
+    context += `Location: ${user.location}\n`;
+  }
+  
+  if (user.age) {
+    context += `Age: ${user.age}\n`;
+  }
+  
+  // Interests and hobbies
+  if (interests && interests.length > 0) {
+    context += `Interests: ${interests.join(', ')}\n`;
+  }
+  
+  // Additional characteristics if available
+  if (user.personalValues) {
+    context += `Personal Values: ${user.personalValues}\n`;
+  }
+  
+  if (user.communities) {
+    context += `Communities: ${user.communities}\n`;
+  }
+  
+  return context;
 }
