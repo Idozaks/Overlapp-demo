@@ -129,14 +129,16 @@ export default function OnboardingPage() {
   };
   
   return (
-    <div className="bg-[#101010] min-h-screen flex flex-col">
+    <div className="bg-white min-h-screen flex flex-col">
       {/* Header */}
-      <header className="py-4 px-6 flex items-center justify-between border-b border-gray-800">
+      <header className="py-4 px-6 flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center">
-          <Sparkles className="h-5 w-5 text-primary mr-2" />
-          <h1 className="text-xl font-bold">Overlapp</h1>
+          <div className="gradient-primary text-white p-1.5 rounded-md">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <h1 className="text-xl font-bold ml-2 bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] bg-clip-text text-transparent">Overlapp</h1>
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="gradient-primary gradient-text font-medium">
           Step {step} of 3
         </div>
       </header>
@@ -160,21 +162,21 @@ export default function OnboardingPage() {
                   Choose an avatar
                 </label>
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  {[1, 2, 3, 4, 5, 6].map((num) => (
+                  {["Lisa", "Dustin", "Maggie", "Willow", "Felix", "Harper", "Zoe", "Morgan", "Ash"].map((name, index) => (
                     <div 
-                      key={num}
+                      key={index}
                       className={`
                         rounded-lg p-2 cursor-pointer transition-all duration-300
-                        ${userData.avatar === `/avatars/avatar${num}.svg` 
+                        ${userData.avatar === `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}` 
                           ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' 
                           : 'hover:bg-muted/50'}
                       `}
-                      onClick={() => handleAvatarSelect(`/avatars/avatar${num}.svg`)}
+                      onClick={() => handleAvatarSelect(`https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`)}
                     >
                       <img 
-                        src={`/avatars/avatar${num}.svg`} 
-                        alt={`Avatar ${num}`}
-                        className="w-full h-auto"
+                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`} 
+                        alt={`Avatar ${name}`}
+                        className="w-full h-auto rounded-full"
                       />
                     </div>
                   ))}
@@ -225,36 +227,39 @@ export default function OnboardingPage() {
           
           {step === 3 && (
             <>
-              <h2 className="text-2xl font-bold mb-6 text-center">Ready to Spark?</h2>
-              <div className="bg-card rounded-lg p-6 mb-8">
+              <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] bg-clip-text text-transparent">Ready to Spark?</h2>
+              <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-100">
                 <div className="flex items-center mb-6">
                   <img 
                     src={userData.avatar} 
                     alt="Selected avatar" 
-                    className="w-20 h-20 mr-4"
+                    className="w-20 h-20 mr-4 rounded-full shadow-sm"
                   />
                   <div>
-                    <h3 className="text-xl font-bold">
+                    <h3 className="text-xl font-bold text-gray-800">
                       {userData.name || "Anonymous Explorer"}
                     </h3>
-                    <p className="text-muted-foreground">
+                    <p className="text-gray-500 font-medium">
                       {userData.interests.length} interests selected
                     </p>
                   </div>
                 </div>
                 
                 <div className="mb-4">
-                  <h4 className="font-medium mb-2">Selected Interests:</h4>
+                  <h4 className="font-medium mb-2 text-gray-700">Selected Interests:</h4>
                   <div className="flex flex-wrap gap-2">
                     {userData.interests.map((interestId) => (
-                      <Badge key={interestId}>
+                      <Badge 
+                        key={interestId}
+                        className="bg-gradient-to-r from-[#4D7FE8]/10 to-[#40E0D0]/10 text-[#4D7FE8] border-[#4D7FE8]/20"
+                      >
                         {INTERESTS[interestId]}
                       </Badge>
                     ))}
                   </div>
                 </div>
                 
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500 border-t border-gray-100 pt-4 mt-4">
                   Your profile is stored locally and can be deleted at any time.
                 </p>
               </div>
@@ -262,10 +267,10 @@ export default function OnboardingPage() {
               <div className="text-center">
                 <Button 
                   size="lg" 
-                  className="bg-primary text-primary-foreground"
+                  className="bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] hover:opacity-90 transition-opacity text-white px-8 py-6 rounded-lg"
                   onClick={handleNextStep}
                 >
-                  <Sparkles className="mr-2 h-4 w-4" />
+                  <Sparkles className="mr-2 h-5 w-5" />
                   Spark It!
                 </Button>
               </div>
@@ -275,11 +280,12 @@ export default function OnboardingPage() {
       </AnimatePresence>
       
       {/* Footer Navigation */}
-      <div className="px-6 py-4 border-t border-gray-800 flex justify-between">
+      <div className="px-6 py-4 border-t border-gray-100 flex justify-between">
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={handlePrevStep}
           disabled={step === 1}
+          className="text-gray-600"
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
           Back
@@ -288,6 +294,7 @@ export default function OnboardingPage() {
         <Button
           onClick={handleNextStep}
           disabled={!canProceed()}
+          className="bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] hover:opacity-90 transition-opacity text-white"
         >
           {step === 3 ? (
             <>
