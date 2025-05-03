@@ -33,9 +33,12 @@ const defaultOptions: CelebrationOptions = {
   }
 };
 
+// Hack for TypeScript to make the types work better with the confetti library
+type ConfettiFunction = (options?: CelebrationOptions) => Promise<void> | null;
+
 export function useCelebration() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const confettiRef = useRef<confetti.CreateTypes | null>(null);
+  const confettiRef = useRef<ConfettiFunction | null>(null);
 
   const initCanvas = useCallback((canvas?: HTMLCanvasElement) => {
     if (canvas) {
@@ -43,17 +46,17 @@ export function useCelebration() {
       confettiRef.current = confetti.create(canvas, {
         resize: true,
         useWorker: true
-      });
+      }) as unknown as ConfettiFunction;
     } else if (typeof window !== 'undefined') {
       // If no canvas is provided, use the global instance
-      confettiRef.current = confetti;
+      confettiRef.current = confetti as unknown as ConfettiFunction;
     }
   }, []);
 
   const trigger = useCallback((options?: CelebrationOptions) => {
     if (!confettiRef.current) {
       // Fallback to global instance if not initialized
-      confettiRef.current = confetti;
+      confettiRef.current = confetti as unknown as ConfettiFunction;
     }
 
     const mergedOptions = {
@@ -61,12 +64,12 @@ export function useCelebration() {
       ...options
     };
 
-    confettiRef.current(mergedOptions);
+    confettiRef.current?.(mergedOptions);
   }, []);
 
   const triggerFromElement = useCallback((element: HTMLElement, options?: CelebrationOptions) => {
     if (!confettiRef.current) {
-      confettiRef.current = confetti;
+      confettiRef.current = confetti as unknown as ConfettiFunction;
     }
 
     const rect = element.getBoundingClientRect();
