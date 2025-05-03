@@ -86,6 +86,8 @@ import About from "@/pages/About"; // Import the About component
 import Marketplace from "@/pages/marketplace"; // Import the Marketplace component
 import EntityOverlap from "@/pages/marketplace/EntityOverlap"; // Import the EntityOverlap component
 import ChatPage from "@/pages/chat"; // Import the Chat component
+import { SyntheticUsersListPage } from "@/pages/chat/SyntheticUsersListPage"; // Import the Synthetic Users List page
+import { SyntheticChatPage } from "@/pages/chat/SyntheticChatPage"; // Import the Synthetic Chat page
 import Animation from "./pages/Animation"; // Import the Animation component
 import MvpPromo from "@/pages/MvpPromo"; // Import the MVP Promotional page
 import SimulationController from "@/components/demo/SimulationController"; // Import the SimulationController component
@@ -427,6 +429,8 @@ function Router() {
         );
       }} />
       <Route path="/chat" component={ChatPage} />
+      <Route path="/chat/synthetic" component={SyntheticUsersListPage} />
+      <Route path="/chat/:id" component={SyntheticChatPage} />
       <Route path="/animation" component={Animation} />
       <Route path="/mvp-promo" component={MvpPromo} />
       
