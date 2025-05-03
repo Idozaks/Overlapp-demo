@@ -143,7 +143,8 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         if (suggestion.emoji && typeof suggestion.emoji === 'string') {
           // Ensure we get just the first emoji if multiple are returned
           const trimmedEmoji = suggestion.emoji.trim();
-          const emojiMatch = trimmedEmoji.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/u);
+          // Simple emoji extraction as a workaround for the regex issue
+          const emojiMatch = [trimmedEmoji[0]];
           if (emojiMatch) {
             emoji = emojiMatch[0];
           }
@@ -217,7 +218,7 @@ export async function generateEmojisForInterests(interests: Array<{id: number, n
       batches.push(interests.slice(i, i + batchSize));
     }
 
-    const processedInterests = [];
+    const processedInterests: Array<{id: number, name: string, emoji: string}> = [];
 
     // Process each batch
     for (let i = 0; i < batches.length; i++) {
@@ -352,7 +353,7 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
     return { interests: processedInterests };
 
     } catch (error) {
-      log("[OpenAI] Error generating emojis for interests:", error);
+      log("[OpenAI] Error generating emojis for interests:", String(error));
 
       // Return the original interests with no emoji on error
       return { 
