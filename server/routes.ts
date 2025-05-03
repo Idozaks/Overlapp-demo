@@ -1497,57 +1497,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid interests format - must be a non-empty array" });
       }
 
+      // Use the OpenAI service that provides enhanced suggestions with emojis and reasons
+      const result = await enrichInterests(interests);
+      
+      if (result && result.suggestions && Array.isArray(result.suggestions)) {
+        return res.json(result);
+      }
+      
+      // Fallback in case of error in the enrichment service
       const prompt = `Given these interests: ${interests.join(", ")}\n\n` +
         "For each interest, suggest 2-3 related or more specific interests. " +
-        "Format the response as a simple array of strings, including only the new suggestions. " +
+        "Format your response as a JSON array of objects with the following structure:" +
+        "[\n" +
+        "  {\n" +
+        "    \"name\": \"Suggested Interest Name\",\n" +
+        "    \"emoji\": \"🔍\",\n" +
+        "    \"reason\": \"Brief explanation of why this interest relates to the user's existing interests\"\n" +
+        "  }\n" +
+        "]\n" +
         "The suggestions should be specific and related to the original interests. " +
-        "For example, if 'Sports' is given, suggest specific sports or related activities.";
+        "For each suggestion, provide a brief explanation of why it's related to the user's interests. " +
+        "For example, if 'Photography' is given, you might suggest 'Street Photography' with a reason " +
+        "like 'Expands your photographic skills to urban environments and everyday life moments.'";
 
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant that suggests related interests based on a user's current interests. Keep suggestions concise and relevant."
+            content: "You are a helpful assistant that suggests related interests based on a user's current interests. Provide each suggestion with a relevant emoji and explanation. Keep suggestions concise and relevant."
           },
           {
             role: "user",
             content: prompt
           }
         ],
+        response_format: { type: "json_object" },
         temperature: 0.7,
-        max_tokens: 200
+        max_tokens: 500
       });
 
-      let suggestions: string[] = [];
       try {
         const content = completion.choices[0].message.content || "[]";
-        if (content.startsWith("[") && content.endsWith("]")) {
-          suggestions = JSON.parse(content);
-        } else {
-          suggestions = content
-            .split(",")
-            .map(s => s.trim())
-            .filter(s => s.length > 0);
+        let parsedSuggestions = [];
+        
+        try {
+          // Parse the JSON response
+          const parsedContent = JSON.parse(content);
+          parsedSuggestions = Array.isArray(parsedContent) ? parsedContent : parsedContent.suggestions || [];
+          
+          // Ensure each suggestion has the required fields
+          parsedSuggestions = parsedSuggestions.map(sugg => ({
+            name: typeof sugg.name === 'string' ? sugg.name.trim() : '',
+            emoji: typeof sugg.emoji === 'string' ? sugg.emoji.trim() : '✨',
+            reason: typeof sugg.reason === 'string' ? sugg.reason.trim() : 'Based on your selected interests'
+          })).filter(sugg => sugg.name.length > 0);
+          
+          // Filter out duplicates and existing interests
+          parsedSuggestions = parsedSuggestions.filter(sugg => 
+            !interests.includes(sugg.name)
+          );
+        } catch (parseError) {
+          log("Error parsing JSON:", String(parseError));
+          // Attempt fallback parsing
+          const lines = content.split('\n').filter(line => line.trim().length > 0);
+          for (const line of lines) {
+            const match = line.match(/["'](.+?)["']/);
+            if (match && match[1]) {
+              parsedSuggestions.push({
+                name: match[1].trim(),
+                emoji: '✨',
+                reason: 'Based on your selected interests'
+              });
+            }
+          }
+        }
+        
+        if (parsedSuggestions.length === 0) {
+          // Provide fallback suggestions
+          parsedSuggestions = [
+            { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
+            { name: "Photography Workshops", emoji: "📸", reason: "Learn new techniques and connect with other photography enthusiasts." },
+            { name: "Tech Podcasts", emoji: "🎧", reason: "Stay updated on technology trends while on the go." },
+            { name: "Outdoor Adventures", emoji: "🏕️", reason: "Combine your love for nature with exciting activities." },
+            { name: "Local Volunteering", emoji: "🤝", reason: "Give back to your community while meeting like-minded people." }
+          ].filter(sugg => !interests.includes(sugg.name));
         }
 
-        // Clean suggestions without creating them in the database
-        suggestions = suggestions
-          .map(suggestion => suggestion.replace(/[\[\]"]/g, '').trim())
-          .filter(s => s.length > 0);
-
-        // Filter out duplicates and existing interests
-        suggestions = Array.from(new Set(suggestions))
-          .filter(s => !interests.includes(s));
-
-        res.json({ suggestions });
+        res.json({ suggestions: parsedSuggestions });
       } catch (error) {
-        log("Error parsing OpenAI response:", error instanceof Error ? error.message : String(error));
-        suggestions = (completion.choices[0].message.content || "")
-          .split("\n")
-          .map(s => s.replace(/^[-*\d.]+\s*/, "").trim())
-          .filter(s => s.length > 0);
-        res.json({ suggestions });
+        log("Error in interest enrichment:", error instanceof Error ? error.message : String(error));
+        // Return fallback suggestions
+        const fallbackSuggestions = [
+          { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
+          { name: "Photography Workshops", emoji: "📸", reason: "Learn new techniques and connect with other photography enthusiasts." },
+          { name: "Tech Podcasts", emoji: "🎧", reason: "Stay updated on technology trends while on the go." },
+          { name: "Outdoor Adventures", emoji: "🏕️", reason: "Combine your love for nature with exciting activities." },
+          { name: "Local Volunteering", emoji: "🤝", reason: "Give back to your community while meeting like-minded people." }
+        ].filter(sugg => !interests.includes(sugg.name));
+        
+        res.json({ suggestions: fallbackSuggestions });
       }
     } catch (error) {
       log("Interest enrichment error:", error instanceof Error ? error.message : String(error));
