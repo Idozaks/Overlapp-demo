@@ -8,6 +8,7 @@ interface EnrichInterestsResponse {
   suggestions: Array<{
     name: string;
     emoji: string;
+    reason?: string;
   }>;
 }
 
@@ -36,27 +37,28 @@ export async function enrichInterests(interests: string[]): Promise<EnrichIntere
       messages: [
         {
           role: "system",
-          content: "You are a JSON API endpoint that returns interest suggestions in a specific format. You must respond with ONLY valid JSON containing an array of interests with name and emoji fields. No explanations, comments, or extra text."
+          content: "You are a JSON API endpoint that returns interest suggestions in a specific format. You must respond with ONLY valid JSON containing an array of interests with name, emoji, and reason fields. The reason field should explain why the suggestion fits the user's existing interests. No explanations, comments, or extra text."
         },
         {
           role: "user",
           content: `I need to generate interest suggestions based on these existing interests: ${interests.join(", ")}.
 
 IMPORTANT RULES:
-1. Respond with EXACTLY 10 interest suggestions
+1. Respond with EXACTLY 5 interest suggestions
 2. Include ONLY the required JSON format shown below - no explanations or other text
-3. Each suggestion MUST have both a "name" field (string) and "emoji" field (single Unicode emoji)
-4. Choose widely supported emojis that display well on mobile
-5. Do not duplicate any existing interests in the suggestions
+3. Each suggestion MUST have a "name" field (string), "emoji" field (single Unicode emoji), and a "reason" field that briefly explains why it relates to the user's interests
+4. Make each reason concise (15-25 words) and personalized
+5. Choose widely supported emojis that display well on mobile
+6. Do not duplicate any existing interests in the suggestions
 
 EXAMPLE RESPONSE FORMAT:
 {
   "suggestions": [
-    {"name": "Travel Photography", "emoji": "📸"},
-    {"name": "Mountain Hiking", "emoji": "🏔️"},
-    {"name": "Jazz Music", "emoji": "🎷"},
-    {"name": "Italian Cooking", "emoji": "🍝"},
-    {"name": "Urban Sketching", "emoji": "✏️"}
+    {"name": "Travel Photography", "emoji": "📸", "reason": "Since you enjoy Travel and Photography, combining these passions could enhance your experiences in both areas."},
+    {"name": "Mountain Hiking", "emoji": "🏔️", "reason": "Given your interest in Fitness and Travel, exploring mountain trails offers adventure and exercise together."},
+    {"name": "Jazz Music", "emoji": "🎷", "reason": "Your interest in Music suggests you might enjoy exploring the rich complexity of jazz."},
+    {"name": "Italian Cooking", "emoji": "🍝", "reason": "Because you like Food & Cooking, exploring Italian cuisine could expand your culinary repertoire."},
+    {"name": "Urban Sketching", "emoji": "✏️", "reason": "Combining your interests in Art & Design with Travel, urban sketching lets you capture places you visit."}
   ]
 }
 
@@ -136,6 +138,7 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         // Create a properly formatted suggestion with normalized emoji
         const name = suggestion.name.trim();
         let emoji = '✨'; // Default fallback
+        let reason = suggestion.reason || 'Based on your selected interests';
 
         if (suggestion.emoji && typeof suggestion.emoji === 'string') {
           // Ensure we get just the first emoji if multiple are returned
@@ -146,7 +149,7 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
           }
         }
 
-        validSuggestions.push({ name, emoji });
+        validSuggestions.push({ name, emoji, reason });
       }
 
       // Filter out duplicates and existing interests
@@ -155,11 +158,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
       // If we couldn't get any valid suggestions, provide fallbacks
       if (validSuggestions.length === 0) {
         const fallbacks = [
-          { name: "Creative Writing", emoji: "✍️" },
-          { name: "Literature Analysis", emoji: "📚" },
-          { name: "Audio Books", emoji: "🎧" },
-          { name: "Poetry", emoji: "📝" },
-          { name: "Art Exhibitions", emoji: "🖼️" }
+          { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
+          { name: "Literature Analysis", emoji: "📚", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
+          { name: "Audio Books", emoji: "🎧", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
+          { name: "Poetry", emoji: "📝", reason: "Explore emotional expression and linguistic creativity through verse." },
+          { name: "Art Exhibitions", emoji: "🖼️", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
         ].filter(s => !interests.includes(s.name));
 
         validSuggestions = fallbacks;
@@ -173,11 +176,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
 
       // Use fallbacks if JSON parsing fails
       const fallbacks = [
-        { name: "Creative Writing", emoji: "✍️" },
-        { name: "Literature Analysis", emoji: "📚" },
-        { name: "Audio Books", emoji: "🎧" },
-        { name: "Poetry", emoji: "📝" },
-        { name: "Art Exhibitions", emoji: "🖼️" }
+        { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
+        { name: "Literature Analysis", emoji: "📚", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
+        { name: "Audio Books", emoji: "🎧", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
+        { name: "Poetry", emoji: "📝", reason: "Explore emotional expression and linguistic creativity through verse." },
+        { name: "Art Exhibitions", emoji: "🖼️", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
       ].filter(s => !interests.includes(s.name));
 
       log("[OpenAI] Using fallback suggestions");
@@ -188,11 +191,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
 
     // Provide fallbacks even in case of complete API failure
     const fallbacks = [
-      { name: "Creative Writing", emoji: "✍️" },
-      { name: "Literature Analysis", emoji: "📚" },
-      { name: "Audio Books", emoji: "🎧" },
-      { name: "Poetry", emoji: "📝" },
-      { name: "Art Exhibitions", emoji: "🖼️" }
+        { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
+        { name: "Literature Analysis", emoji: "📚", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
+        { name: "Audio Books", emoji: "🎧", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
+        { name: "Poetry", emoji: "📝", reason: "Explore emotional expression and linguistic creativity through verse." },
+        { name: "Art Exhibitions", emoji: "🖼️", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
     ].filter(s => !Array.isArray(interests) ? true : !interests.includes(s.name));
 
     return { suggestions: fallbacks };
@@ -328,10 +331,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
             if (!interest.name || typeof interest.name !== 'string' || interest.name.trim() === '') continue;
 
             // Use name instead of ID for matching
+            const id = interest.id || 0; // Default to 0 if ID is missing
             const name = interest.name.trim();
             const emoji = (interest.emoji && typeof interest.emoji === 'string') ? interest.emoji.trim() : '✨';
 
-            processedInterests.push({ name, emoji });
+            processedInterests.push({ id, name, emoji });
           } catch (err) {
             log(`[OpenAI] Error processing interest: ${err}`);
             // Continue with next interest even if this one fails
