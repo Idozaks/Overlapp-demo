@@ -40,7 +40,11 @@ const INTERESTS = [
   "Volunteering"
 ];
 
-export default function OnboardingPage() {
+interface OnboardingPageProps {
+  onComplete?: (userData: any) => void;
+}
+
+export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
@@ -94,17 +98,20 @@ export default function OnboardingPage() {
     if (step < 3) {
       setStep(step + 1);
     } else {
-      // Save user data to localStorage
-      localStorage.setItem('userData', JSON.stringify(userData));
-      
       // Show success toast
       toast({
         title: "Profile created successfully!",
         description: "Your connections are ready to explore."
       });
       
-      // Navigate to hybrid page
-      setLocation('/hybrid');
+      // If onComplete prop is provided, call it with userData
+      if (onComplete) {
+        onComplete(userData);
+      } else {
+        // Otherwise, save to localStorage and navigate
+        localStorage.setItem('userData', JSON.stringify(userData));
+        setLocation('/hybrid');
+      }
     }
   };
   
