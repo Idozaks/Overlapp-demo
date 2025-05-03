@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Alex Chen",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    "interests": ["Photography", "Travel", "Design"],
+    "location": "Tel Aviv",
+    "bio": "UX Designer with a passion for travel and photography",
+    "matchPercentage": 85
+  },
+  {
+    "id": 2,
+    "name": "Maya Cohen",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Maya",
+    "interests": ["Food", "Coffee", "Music"],
+    "location": "Jerusalem",
+    "bio": "Food blogger and coffee enthusiast",
+    "matchPercentage": 72
+  },
+  {
+    "id": 3,
+    "name": "Daniel Levy",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Daniel",
+    "interests": ["Technology", "Startups", "Hiking"],
+    "location": "Haifa",
+    "bio": "Tech entrepreneur who loves the outdoors",
+    "matchPercentage": 65
+  },
+  {
+    "id": 4,
+    "name": "Sophia Kim",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia",
+    "interests": ["Art", "Photography", "Travel"],
+    "location": "Tel Aviv",
+    "bio": "Visual artist exploring the intersection of art and technology",
+    "matchPercentage": 92
+  },
+  {
+    "id": 5,
+    "name": "Ethan Miller",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Ethan",
+    "interests": ["Music", "Technology", "Coffee"],
+    "location": "Be'er Sheva",
+    "bio": "Software developer by day, musician by night",
+    "matchPercentage": 68
+  }
+]
