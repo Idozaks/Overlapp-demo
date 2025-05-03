@@ -42,6 +42,12 @@ const INTERESTS = [
   "Volunteering"
 ];
 
+interface InterestSuggestion {
+  name: string;
+  emoji: string;
+  reason?: string;
+}
+
 interface OnboardingPageProps {
   onComplete?: (userData: any) => void;
 }
@@ -53,8 +59,15 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
   const [userData, setUserData] = useState({
     name: '',
     avatar: '/avatars/avatar1.svg',
-    interests: [] as number[]
+    interests: [] as number[],
+    enrichedInterests: [] as string[]
   });
+  
+  // States for enriched interests
+  const [suggestedInterests, setSuggestedInterests] = useState<InterestSuggestion[]>([]);
+  const [selectedSuggestions, setSelectedSuggestions] = useState<Set<string>>(new Set());
+  const [isEnriching, setIsEnriching] = useState(false);
+  const [showAiThinking, setShowAiThinking] = useState(false);
   
   // Animation variants
   const pageVariants = {
@@ -95,9 +108,84 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
     setUserData({ ...userData, interests: newInterests });
   };
   
+  // Handle suggested interest toggle
+  const handleSuggestionToggle = (suggestion: string) => {
+    setSelectedSuggestions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(suggestion)) {
+        newSet.delete(suggestion);
+      } else {
+        newSet.add(suggestion);
+      }
+      return newSet;
+    });
+  };
+  
+  // Enrich interests mutation
+  const enrichInterestsMutation = useMutation({
+    mutationFn: async (interests: string[]) => {
+      try {
+        const cleanedInterests = interests.filter(Boolean);
+        if (!cleanedInterests.length) {
+          throw new Error('No valid interests provided');
+        }
+
+        const response = await apiRequest('/api/interests/enrich', {
+          method: 'POST',
+          body: { interests: cleanedInterests }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to enrich interests');
+        }
+
+        const data = await response.json();
+        return data?.suggestions || [];
+      } catch (error) {
+        console.error('Interest enrichment error:', error);
+        throw error;
+      }
+    },
+    onSuccess: (data) => {
+      // Process suggestions
+      setSuggestedInterests(data);
+      setIsEnriching(false);
+      setShowAiThinking(false);
+      
+      toast({
+        title: "Interest Suggestions Ready!",
+        description: "AI has suggested interests that might interest you."
+      });
+    },
+    onError: (error: any) => {
+      setIsEnriching(false);
+      setShowAiThinking(false);
+      toast({
+        title: "Couldn't Generate Suggestions",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
   // Move to next step
   const handleNextStep = () => {
-    if (step < 3) {
+    if (step === 2) {
+      // If we're moving from step 2 to step 3, enrich the interests
+      setIsEnriching(true);
+      setShowAiThinking(true);
+      const selectedInterestNames = userData.interests.map(id => INTERESTS[id]);
+      enrichInterestsMutation.mutate(selectedInterestNames);
+      setStep(3);
+    } else if (step === 3) {
+      // Save selected enriched interests and move to final step
+      setUserData({
+        ...userData,
+        enrichedInterests: Array.from(selectedSuggestions)
+      });
+      setStep(4);
+    } else if (step < 4) {
       setStep(step + 1);
     } else {
       // Show success toast
@@ -132,6 +220,9 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
     } else if (step === 2) {
       // For step 2, at least 1 interest must be selected
       return userData.interests.length > 0;
+    } else if (step === 3) {
+      // For step 3, don't require AI-suggested interests, but disable the button during enrichment
+      return !isEnriching;
     }
     
     return true;
@@ -148,7 +239,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
           <h1 className="text-xl font-bold ml-2 bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] bg-clip-text text-transparent">Overlapp</h1>
         </div>
         <div className="gradient-primary gradient-text font-medium">
-          Step {step} of 3
+          Step {step} of 4
         </div>
       </header>
       
@@ -236,6 +327,80 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
           
           {step === 3 && (
             <>
+              <h2 className="text-2xl font-bold mb-4 text-center bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] bg-clip-text text-transparent">
+                Enhance Your Interests
+              </h2>
+              <p className="text-muted-foreground mb-6 text-center">
+                AI will suggest additional interests based on your selections
+              </p>
+              
+              {isEnriching || showAiThinking ? (
+                <div className="flex flex-col items-center justify-center py-10 mb-6">
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+                    <p className="text-lg font-medium">AI is thinking...</p>
+                  </div>
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                  <p className="text-sm text-muted-foreground text-center max-w-xs">
+                    Analyzing your interests to find relevant suggestions that match your profile.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Tap on the suggestions you'd like to add to your profile:
+                  </p>
+                  
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {suggestedInterests.map((suggestion, index) => (
+                        <Badge
+                          key={index}
+                          variant={selectedSuggestions.has(suggestion.name) ? "default" : "outline"}
+                          className={`
+                            cursor-pointer text-sm py-1.5 px-3
+                            ${selectedSuggestions.has(suggestion.name) 
+                              ? 'bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] text-white' 
+                              : 'border border-gray-300 text-gray-700 hover:bg-gray-100/50'}
+                          `}
+                          onClick={() => handleSuggestionToggle(suggestion.name)}
+                        >
+                          {suggestion.emoji} {suggestion.name}
+                        </Badge>
+                      ))}
+                      
+                      {suggestedInterests.length === 0 && !isEnriching && (
+                        <p className="text-sm text-muted-foreground p-2">
+                          No suggestions could be generated. You can proceed to the next step.
+                        </p>
+                      )}
+                    </div>
+                    
+                    <p className="text-xs text-muted-foreground">
+                      Selected: {selectedSuggestions.size} suggestions
+                    </p>
+                  </div>
+                  
+                  {/* Interest suggestion reasoning */}
+                  {suggestedInterests.length > 0 && (
+                    <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                      <h3 className="font-medium text-sm mb-2 text-gray-700">Why these suggestions?</h3>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {suggestedInterests.map((suggestion, index) => (
+                          <div key={index} className="text-xs text-gray-600 border-b border-gray-100 pb-2 last:border-0">
+                            <span className="font-medium">{suggestion.emoji} {suggestion.name}:</span> {suggestion.reason || "Based on your selected interests"}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+          
+          {step === 4 && (
+            <>
               <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] bg-clip-text text-transparent">Ready to Spark?</h2>
               <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-100">
                 <div className="flex items-center mb-6">
@@ -249,7 +414,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
                       {userData.name || "Anonymous Explorer"}
                     </h3>
                     <p className="text-gray-500 font-medium">
-                      {userData.interests.length} interests selected
+                      {userData.interests.length + userData.enrichedInterests.length} interests selected
                     </p>
                   </div>
                 </div>
@@ -259,10 +424,19 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
                   <div className="flex flex-wrap gap-2">
                     {userData.interests.map((interestId) => (
                       <Badge 
-                        key={interestId}
+                        key={`base-${interestId}`}
                         className="bg-gradient-to-r from-[#4D7FE8]/10 to-[#40E0D0]/10 text-[#4D7FE8] border-[#4D7FE8]/20"
                       >
                         {INTERESTS[interestId]}
+                      </Badge>
+                    ))}
+                    
+                    {userData.enrichedInterests.map((interest, idx) => (
+                      <Badge 
+                        key={`enriched-${idx}`}
+                        className="bg-gradient-to-r from-[#4D7FE8]/10 to-[#40E0D0]/10 text-[#4D7FE8] border-[#4D7FE8]/20"
+                      >
+                        {interest}
                       </Badge>
                     ))}
                   </div>
@@ -306,7 +480,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
           disabled={!canProceed()}
           variant="gradient"
         >
-          {step === 3 ? (
+          {step === 4 ? (
             <>
               <Sparkles className="mr-2 h-4 w-4" />
               Enter Overlapp
