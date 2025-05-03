@@ -72,7 +72,7 @@ export function setupAuth(app: Express) {
       log(`[AUTH] Login attempt for user: ${username}`);
       
       // Special case for our new admin user
-      if (username.toLowerCase() === "dannizaks" && password === "12345") {
+      if (username.toLowerCase() === "dannizaks" && password === "123") {
         log(`[AUTH] Creating admin user: ${username}`);
         // Check if admin user already exists - converting to lowercase
         let adminUser = await storage.getUserByUsername(username.toLowerCase());
