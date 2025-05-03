@@ -271,7 +271,7 @@ export default function OnboardingPage() {
                   onClick={handleNextStep}
                 >
                   <Sparkles className="mr-2 h-5 w-5" />
-                  Spark It!
+                  Enter Overlapp
                 </Button>
               </div>
             </>
@@ -299,7 +299,7 @@ export default function OnboardingPage() {
           {step === 3 ? (
             <>
               <Sparkles className="mr-2 h-4 w-4" />
-              Finish
+              Enter Overlapp
             </>
           ) : (
             <>
