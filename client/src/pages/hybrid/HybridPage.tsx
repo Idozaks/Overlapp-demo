@@ -263,21 +263,23 @@ export default function HybridPage() {
   };
 
   return (
-    <div className="bg-[#101010] min-h-screen flex flex-col">
+    <div className="bg-white min-h-screen flex flex-col">
       {/* Header */}
-      <header className="py-4 px-6 flex items-center justify-between border-b border-gray-800">
+      <header className="py-4 px-6 flex items-center justify-between border-b border-gray-100 bg-white shadow-sm">
         <div className="flex items-center">
-          <Sparkles className="h-5 w-5 text-primary mr-2" />
-          <h1 className="text-xl font-bold text-white">Overlapp</h1>
+          <div className="gradient-primary text-white p-1.5 rounded-md">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <h1 className="text-xl font-bold ml-2 bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] bg-clip-text text-transparent">Overlapp</h1>
         </div>
         
         <div className="flex items-center gap-4">
           <div className="relative w-64">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
             <input
               type="text"
               placeholder="Search connections..."
-              className="pl-8 h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors"
+              className="pl-8 h-9 w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-[#4D7FE8] focus:ring-1 focus:ring-[#4D7FE8] outline-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -288,6 +290,7 @@ export default function HybridPage() {
             size="icon"
             onClick={togglePrivacyPanel}
             title="Privacy Settings"
+            className="text-gray-600 border-gray-200 hover:bg-gray-50"
           >
             <Lock className="h-4 w-4" />
           </Button>
