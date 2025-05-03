@@ -20,6 +20,7 @@ import * as entityOverlapService from "./entityOverlap";
 import { generateAIAnalysis, AnalysisRequest } from "./ai-analysis";
 import { generateSpeech, splitTextForTTS } from "./tts";
 import { generateStreamingUserOverlapAnalysis } from "./streamingUserOverlap";
+import { generateSyntheticUserChatResponse } from "./ai-chat";
 
 const scryptAsync = promisify(scrypt);
 
@@ -2641,6 +2642,73 @@ Example response format:
     } catch (error) {
       log("Error generating chat link:", error instanceof Error ? error.message : String(error));
       res.status(500).json({ message: "Unable to generate chat link" });
+    }
+  });
+  
+  // AI-powered synthetic user chat
+  app.post("/api/synthetic-chat/:userId", async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      const { message, conversationHistory } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ message: "Valid message is required" });
+      }
+      
+      const userIdNum = parseInt(userId);
+      if (isNaN(userIdNum)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Check if user exists
+      const user = await storage.getUser(userIdNum);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      log(`[Synthetic Chat] Processing chat request for user ${userIdNum}, message: ${message.substring(0, 30)}...`);
+      
+      // Convert conversation history to the format expected by the AI service
+      const formattedHistory = Array.isArray(conversationHistory) 
+        ? conversationHistory.map(msg => {
+            // Ensure the role is one of the valid types
+            let role: 'system' | 'user' | 'assistant' = 'user';
+            
+            if (msg.role === 'assistant' || msg.role === 'system') {
+              role = msg.role;
+            }
+            
+            return {
+              role,
+              content: msg.content
+            };
+          })
+        : [];
+      
+      // Generate response from the AI service
+      const response = await generateSyntheticUserChatResponse(
+        userIdNum,
+        message,
+        formattedHistory
+      );
+      
+      // Return the response
+      res.json({
+        userId: userIdNum,
+        message: response.message,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      log(`[Synthetic Chat] Error: ${error instanceof Error ? error.message : String(error)}`);
+      res.status(500).json({
+        message: "Failed to generate chat response",
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
   
