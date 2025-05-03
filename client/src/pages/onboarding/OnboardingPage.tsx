@@ -7,7 +7,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Sparkles, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { apiRequest } from "@/lib/queryClient";
+import { useMutation } from "@tanstack/react-query";
 
 // Define interests
 const INTERESTS = [
