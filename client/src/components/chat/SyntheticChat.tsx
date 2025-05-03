@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
+import React, { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, SendIcon } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Loader2, SendIcon, Bot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
+import { cn } from "@/lib/utils";
 
 interface Message {
   id: string;
@@ -23,171 +23,190 @@ interface SyntheticChatProps {
 }
 
 export function SyntheticChat({ userId, userName, userAvatar, initialMessage }: SyntheticChatProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
   const { toast } = useToast();
-
-  // Add initial message when the component mounts
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
+    // Add initial welcome message if provided
     if (initialMessage) {
-      setMessages([
-        {
-          id: "initial",
-          content: initialMessage,
-          sender: 'synthetic',
-          timestamp: new Date(),
-        },
-      ]);
+      const welcomeMessage: Message = {
+        id: `synthetic-${Date.now()}`,
+        content: initialMessage,
+        sender: 'synthetic',
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
     }
   }, [initialMessage]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current;
-      scrollContainer.scrollTop = scrollContainer.scrollHeight;
-    }
+    scrollToBottom();
   }, [messages]);
 
-  // Format conversation history for the API
-  const formatConversationHistory = () => {
-    return messages.map((msg) => ({
-      role: msg.sender === 'user' ? 'user' : 'assistant',
-      content: msg.content,
-    }));
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Send message to the synthetic user and get a response
   const sendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!input.trim()) return;
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "You need to be logged in to send messages.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    // Add user message to the chat
+    // Add user message to state
     const userMessage: Message = {
       id: `user-${Date.now()}`,
-      content: inputMessage,
+      content: input,
       sender: 'user',
-      timestamp: new Date(),
+      timestamp: new Date()
     };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInputMessage("");
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
     setIsLoading(true);
-
+    
     try {
-      // Send the message to the API
+      // Send message to API
       const response = await axios.post(`/api/synthetic-chat/${userId}`, {
-        message: inputMessage,
-        conversationHistory: formatConversationHistory(),
+        message: input
       });
-
-      // Add synthetic user's response to the chat
-      if (response.data && response.data.message) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `synthetic-${Date.now()}`,
-            content: response.data.message,
-            sender: 'synthetic',
-            timestamp: new Date(response.data.timestamp || Date.now()),
-          },
-        ]);
-      }
+      
+      // Add synthetic user response
+      const syntheticMessage: Message = {
+        id: `synthetic-${Date.now()}`,
+        content: response.data.message,
+        sender: 'synthetic',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, syntheticMessage]);
     } catch (error) {
-      console.error("Failed to get response:", error);
+      console.error("Error sending message:", error);
       toast({
         title: "Error",
-        description: "Failed to get a response. Please try again.",
-        variant: "destructive",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle Enter key press
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
 
+  // Format timestamp
+  const formatTime = (date: Date) => {
+    return new Intl.DateTimeFormat('default', {
+      hour: 'numeric',
+      minute: 'numeric'
+    }).format(date);
+  };
+
   return (
-    <Card className="w-full max-w-md mx-auto h-[500px] flex flex-col">
-      <CardHeader className="pb-2">
-        <div className="flex items-center gap-2">
-          <Avatar>
-            {userAvatar ? (
-              <AvatarImage src={userAvatar} alt={userName} />
+    <div className="flex flex-col h-full">
+      {/* Messages container */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={cn(
+              "flex items-start gap-2 max-w-[85%]",
+              message.sender === 'user' ? "ml-auto flex-row-reverse" : ""
+            )}
+          >
+            {message.sender === 'synthetic' ? (
+              <Avatar className="h-8 w-8 mt-1">
+                {userAvatar ? (
+                  <AvatarImage src={userAvatar} alt={userName} />
+                ) : (
+                  <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
+                )}
+              </Avatar>
             ) : (
-              <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+              <Avatar className="h-8 w-8 mt-1">
+                {user?.avatar ? (
+                  <AvatarImage src={user.avatar} alt={user.displayName || user.username} />
+                ) : (
+                  <AvatarFallback>{(user?.displayName || user?.username || 'U').charAt(0)}</AvatarFallback>
+                )}
+              </Avatar>
             )}
-          </Avatar>
-          <CardTitle className="text-lg">{userName}</CardTitle>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="flex-grow overflow-hidden p-0">
-        <ScrollArea 
-          ref={scrollAreaRef}
-          className="h-[380px] p-4"
-        >
-          <div className="flex flex-col gap-3">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.sender === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    message.sender === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  }`}
-                >
-                  <p className="text-sm">{message.content}</p>
-                  <p className="text-xs opacity-70 mt-1">
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-              </div>
-            ))}
             
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-lg px-4 py-2 bg-muted">
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <p className="text-sm">Typing...</p>
-                  </div>
-                </div>
+            <div className={cn(
+              "rounded-lg px-3 py-2 text-sm",
+              message.sender === 'user' 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted"
+            )}>
+              {message.content.split("\n").map((text, i) => (
+                <React.Fragment key={i}>
+                  {text}
+                  {i < message.content.split("\n").length - 1 && <br />}
+                </React.Fragment>
+              ))}
+              
+              <div className={cn(
+                "text-xs mt-1",
+                message.sender === 'user' 
+                  ? "text-primary-foreground/70" 
+                  : "text-muted-foreground"
+              )}>
+                {formatTime(message.timestamp)}
               </div>
-            )}
+            </div>
           </div>
-        </ScrollArea>
-      </CardContent>
+        ))}
+        
+        {isLoading && (
+          <div className="flex items-start gap-2 max-w-[85%]">
+            <Avatar className="h-8 w-8 mt-1">
+              {userAvatar ? (
+                <AvatarImage src={userAvatar} alt={userName} />
+              ) : (
+                <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
+              )}
+            </Avatar>
+            
+            <div className="flex items-center space-x-2 bg-muted rounded-lg px-4 py-3">
+              <div className="h-2 w-2 rounded-full bg-muted-foreground/30 animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="h-2 w-2 rounded-full bg-muted-foreground/30 animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="h-2 w-2 rounded-full bg-muted-foreground/30 animate-bounce"></div>
+            </div>
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
       
-      <CardFooter className="pt-0">
-        <div className="flex w-full gap-2">
-          <Input
+      {/* Input form */}
+      <div className="border-t p-3 bg-card">
+        <div className="flex items-end gap-2">
+          <Textarea
             placeholder="Type a message..."
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={handleKeyPress}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="min-h-[60px] resize-none"
             disabled={isLoading}
-            className="flex-grow"
           />
           <Button 
             size="icon" 
             onClick={sendMessage} 
-            disabled={isLoading || !inputMessage.trim()}
+            disabled={!input.trim() || isLoading}
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -196,7 +215,7 @@ export function SyntheticChat({ userId, userName, userAvatar, initialMessage }: 
             )}
           </Button>
         </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }

@@ -278,10 +278,16 @@ function ChatPage() {
             <p className="text-muted-foreground mb-6 max-w-md">
               Select an existing conversation from the sidebar or start a new one to begin chatting.
             </p>
-            <Button onClick={() => setNewConversationOpen(true)}>
-              <PlusIcon className="h-4 w-4 mr-2" />
-              Start a New Conversation
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button onClick={() => setNewConversationOpen(true)}>
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Start a New Conversation
+              </Button>
+              <Button variant="outline" onClick={() => window.location.href = '/chat/synthetic'}>
+                <UsersIcon className="h-4 w-4 mr-2" />
+                Chat with Synthetic Users
+              </Button>
+            </div>
           </div>
         )}
       </div>
