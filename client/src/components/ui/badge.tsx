@@ -9,12 +9,15 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+          "border-transparent bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] text-white shadow hover:opacity-90",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
+          "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
+        outline:
+          "text-foreground border-input hover:bg-accent hover:text-accent-foreground",
+        gradient:
+          "border-transparent bg-gradient-to-r from-[#4D7FE8] to-[#40E0D0] text-white shadow hover:opacity-90",
       },
     },
     defaultVariants: {
@@ -28,8 +31,17 @@ export interface BadgeProps
     VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
+  // Add iOS gradient fix for gradient variants
+  const isGradient = variant === 'default' || variant === 'gradient';
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div 
+      className={cn(
+        badgeVariants({ variant }), 
+        isGradient && 'ios-gradient-fix',
+        className
+      )} 
+      {...props} 
+    />
   )
 }
 

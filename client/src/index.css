@@ -184,14 +184,23 @@
 @layer components {
   .gradient-primary {
     @apply bg-gradient-to-br from-[#4D7FE8] to-[#40E0D0];
+    -webkit-background-clip: text; /* iOS fix for gradient text */
   }
 
   .gradient-secondary {
     @apply bg-gradient-to-br from-[#40E0D0] to-[#9966CC];
+    -webkit-background-clip: text; /* iOS fix for gradient text */
   }
 
   .gradient-text {
     @apply bg-clip-text text-transparent;
+    -webkit-background-clip: text; /* iOS fix for gradient text */
+  }
+  
+  /* iOS-specific gradient button fix */
+  .ios-gradient-fix {
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
   }
 
   .circle-pattern {
@@ -236,6 +245,23 @@
 
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* iOS Safari specific fixes */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS-specific tweaks */
+    .bg-gradient-to-r,
+    .bg-gradient-to-br {
+      -webkit-background-clip: padding-box;
+      background-clip: padding-box;
+    }
+    
+    /* Fix for gradient badges and buttons */
+    button, 
+    .badge {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
   }
 }
 
