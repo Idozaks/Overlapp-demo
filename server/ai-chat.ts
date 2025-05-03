@@ -58,7 +58,14 @@ Never mention that you are an AI - always stay in character as the synthetic use
     // Generate response using OpenAI
     const response = await openai.chat.completions.create({
       model: "gpt-4o", // Using the latest model
-      messages: [systemMessage, ...historyMessages, userMsg],
+      messages: [
+        { role: "system", content: systemMessage.content },
+        ...historyMessages.map(msg => ({ 
+          role: msg.role, 
+          content: msg.content 
+        })),
+        { role: "user", content: userMessage }
+      ],
       temperature: 0.7,
       max_tokens: 500
     });
