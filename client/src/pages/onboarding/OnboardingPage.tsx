@@ -148,8 +148,31 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
       }
     },
     onSuccess: (data) => {
+      // Validate data format
+      console.log('Received enriched interests data:', data);
+      
+      // Make sure we have valid suggestion objects with name, emoji, and reason
+      const validSuggestions = data.map((suggestion: any) => {
+        // Handle both string and object formats for backwards compatibility
+        if (typeof suggestion === 'string') {
+          return {
+            name: suggestion,
+            emoji: '✨',
+            reason: 'Based on your selected interests'
+          };
+        } else if (typeof suggestion === 'object' && suggestion !== null) {
+          return {
+            name: suggestion.name || '',
+            emoji: suggestion.emoji || '✨',
+            reason: suggestion.reason || 'Based on your selected interests'
+          };
+        }
+        // Default fallback
+        return null;
+      }).filter(Boolean);
+      
       // Process suggestions
-      setSuggestedInterests(data);
+      setSuggestedInterests(validSuggestions);
       setIsEnriching(false);
       setShowAiThinking(false);
       
