@@ -31,8 +31,10 @@ export default function Profile() {
   const [, navigate] = useLocation();
   
   // Use the ID from params if available, otherwise use the current user's ID if logged in
-  const userId = id ? parseInt(id) : (currentUser ? currentUser.id : null);
-  console.log('[Profile] Resolved userId:', userId, 'Current user ID:', currentUser?.id);
+  // Handle potential NaN case after parsing
+  const parsedId = id ? parseInt(id) : null;
+  const userId = (!isNaN(parsedId) && parsedId !== null) ? parsedId : (currentUser ? currentUser.id : null);
+  console.log('[Profile] Resolved userId:', userId, 'Current user ID:', currentUser?.id, 'Parsed ID:', parsedId);
   
   const queryClient = useQueryClient();
 

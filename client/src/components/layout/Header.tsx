@@ -59,6 +59,7 @@ export function Header() {
 
   const mainMenuItems = [
     { label: 'Home', path: '/' },
+    { label: 'Chat', path: '/chat' },
     { 
       label: 'Engage', 
       path: '/engage',
