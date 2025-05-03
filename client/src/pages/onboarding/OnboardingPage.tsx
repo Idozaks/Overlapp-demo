@@ -130,6 +130,8 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
           throw new Error('No valid interests provided');
         }
 
+        console.log('Sending interests for enrichment:', cleanedInterests);
+        
         const response = await apiRequest('/api/interests/enrich', {
           method: 'POST',
           body: { interests: cleanedInterests }
@@ -137,10 +139,12 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
 
         if (!response.ok) {
           const errorData = await response.json();
+          console.error('Interest enrichment API error:', errorData);
           throw new Error(errorData.message || 'Failed to enrich interests');
         }
 
         const data = await response.json();
+        console.log('Received enriched interests response:', data);
         return data?.suggestions || [];
       } catch (error) {
         console.error('Interest enrichment error:', error);

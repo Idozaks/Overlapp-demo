@@ -1498,6 +1498,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Use the OpenAI service that provides enhanced suggestions with emojis and reasons
+      log("[DEBUG] Calling openaiService.enrichInterests with interests:", interests);
       const result = await openaiService.enrichInterests(interests);
       
       if (result && result.suggestions && Array.isArray(result.suggestions)) {
