@@ -105,7 +105,9 @@ function Router() {
   return (
     <Switch>
       {/* New UX Flow Routes */}
-      <Route path="/" component={OnboardingPage} />  
+      <Route path="/">
+        {(params) => <OnboardingPage {...params} />}
+      </Route>  
       <Route path="/home" component={HomePage} />
       <Route path="/hybrid" component={HybridPage} />
       <Route path="/admin" component={AdminPage} />
