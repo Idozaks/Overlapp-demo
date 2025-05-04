@@ -88,9 +88,9 @@ export function SyntheticChatPage() {
           
           <Avatar className="h-10 w-10 mr-3">
             {user.avatar ? (
-              <AvatarImage src={user.avatar} alt={user.displayName} />
+              <AvatarImage src={user.avatar} alt={user.displayName || user.username} />
             ) : (
-              <AvatarFallback>{user.displayName.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{(user.displayName || user.username).charAt(0)}</AvatarFallback>
             )}
           </Avatar>
           
