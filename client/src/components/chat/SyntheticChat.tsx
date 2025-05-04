@@ -75,10 +75,25 @@ export function SyntheticChat({ userId, userName, userAvatar, initialMessage }: 
     setIsLoading(true);
     
     try {
-      // Send message to API
-      const response = await axios.post(`/api/synthetic-chat/${userId}`, {
-        message: input
+      // Prepare conversation history for the API
+      const conversationHistory = messages.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      }));
+      
+      console.log("Sending message to synthetic chat API:", {
+        userId,
+        message: input,
+        conversationHistory
       });
+      
+      // Send message to API with conversation history
+      const response = await axios.post(`/api/synthetic-chat/${userId}`, {
+        message: input,
+        conversationHistory
+      });
+      
+      console.log("Synthetic chat API response:", response.data);
       
       // Add synthetic user response
       const syntheticMessage: Message = {
