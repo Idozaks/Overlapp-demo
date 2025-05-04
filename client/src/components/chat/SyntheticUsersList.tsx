@@ -129,7 +129,7 @@ export function SyntheticUsersList() {
               
               {user.interests && user.interests.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {user.interests.slice(0, 4).map((interest: string, idx: number) => (
+                  {user.interests.slice(0, 4).map((interest, idx) => (
                     <Badge variant="secondary" key={idx} className="text-xs">
                       {interest}
                     </Badge>
