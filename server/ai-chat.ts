@@ -102,6 +102,61 @@ function buildUserContext(user: any, interests: string[]): string {
     context += `Age: ${user.age}\n`;
   }
   
+  // Demographic information
+  if (user.gender) {
+    context += `Gender: ${user.gender}\n`;
+  }
+  
+  if (user.ageRange) {
+    context += `Age Range: ${user.ageRange}\n`;
+  }
+  
+  if (user.countryOfOrigin) {
+    context += `Country of Origin: ${user.countryOfOrigin}\n`;
+  }
+  
+  // Cultural and educational background
+  if (user.languagesSpoken) {
+    context += `Languages Spoken: ${user.languagesSpoken}\n`;
+  }
+  
+  if (user.culturalBackground) {
+    context += `Cultural Background: ${user.culturalBackground}\n`;
+  }
+  
+  if (user.education) {
+    context += `Education: ${user.education}\n`;
+  }
+  
+  if (user.professionalField) {
+    context += `Professional Field: ${user.professionalField}\n`;
+  }
+  
+  // Social preferences
+  if (user.eventPreferences) {
+    context += `Event Preferences: ${user.eventPreferences}\n`;
+  }
+  
+  if (user.collaborationStyle) {
+    context += `Collaboration Style: ${user.collaborationStyle}\n`;
+  }
+  
+  if (user.digitalIdentity) {
+    context += `Digital Identity: ${user.digitalIdentity}\n`;
+  }
+  
+  if (user.physicalActivityLevel) {
+    context += `Physical Activity Level: ${user.physicalActivityLevel}\n`;
+  }
+  
+  if (user.culturalExperiences) {
+    context += `Cultural Experiences: ${user.culturalExperiences}\n`;
+  }
+  
+  if (user.learningStyle) {
+    context += `Learning Style: ${user.learningStyle}\n`;
+  }
+  
   // Interests and hobbies
   if (interests && interests.length > 0) {
     context += `Interests: ${interests.join(', ')}\n`;
@@ -112,9 +167,11 @@ function buildUserContext(user: any, interests: string[]): string {
     context += `Personal Values: ${user.personalValues}\n`;
   }
   
-  if (user.communities) {
-    context += `Communities: ${user.communities}\n`;
+  if (user.communityAffiliations) {
+    context += `Community Affiliations: ${user.communityAffiliations}\n`;
   }
+  
+  console.log("Generated user context for chat:", context);
   
   return context;
 }
