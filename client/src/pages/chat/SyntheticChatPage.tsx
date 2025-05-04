@@ -22,8 +22,14 @@ interface User {
 
 export function SyntheticChatPage() {
   const [, setLocation] = useLocation();
-  const [, params] = useRoute("/chat/:id");
+  const [matchSynthetic, paramsSynthetic] = useRoute("/chat/synthetic/:id");
+  const [matchRegular, paramsRegular] = useRoute("/chat/:id");
+  
+  // Use the ID from either route
+  const params = matchSynthetic ? paramsSynthetic : paramsRegular;
   const userId = params?.id ? parseInt(params.id) : 0;
+  
+  console.log("SyntheticChatPage - Route params:", { matchSynthetic, paramsSynthetic, matchRegular, paramsRegular, userId });
 
   // Fetch user details
   const { data: user, isLoading, error } = useQuery({

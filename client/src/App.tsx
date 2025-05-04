@@ -430,6 +430,7 @@ function Router() {
       }} />
       <Route path="/chat" component={ChatPage} />
       <Route path="/chat/synthetic" component={SyntheticUsersListPage} />
+      <Route path="/chat/synthetic/:id" component={SyntheticChatPage} />
       <Route path="/chat/:id" component={SyntheticChatPage} />
       <Route path="/animation" component={Animation} />
       <Route path="/mvp-promo" component={MvpPromo} />
