@@ -24,18 +24,23 @@ export function SyntheticUsersList() {
   const [, setLocation] = useLocation();
 
   // Fetch list of synthetic users
-  const { data: users, isLoading, error } = useQuery({
+  const { data: usersData, isLoading, error } = useQuery({
     queryKey: ['/api/users'],
     queryFn: async () => {
       const response = await axios.get('/api/users', {
         params: { synthetic: true, limit: 10 }
       });
-      return response.data as SyntheticUser[];
+      console.log("Synthetic users API response:", response.data);
+      return response.data;
     },
   });
+  
+  // Extract users array from the response structure
+  const users = usersData?.users || [];
 
   const handleChatClick = (userId: number) => {
-    setLocation(`/chat/${userId}`);
+    console.log("Navigating to synthetic chat with user ID:", userId);
+    setLocation(`/chat/synthetic/${userId}`);
   };
 
   if (isLoading) {
