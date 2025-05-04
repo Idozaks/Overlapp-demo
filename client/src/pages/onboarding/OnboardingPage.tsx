@@ -50,9 +50,10 @@ interface InterestSuggestion {
 
 interface OnboardingPageProps {
   onComplete?: (userData: any) => void;
+  params?: { [param: string]: string | undefined };
 }
 
-export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
+export default function OnboardingPage({ onComplete, params }: OnboardingPageProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
