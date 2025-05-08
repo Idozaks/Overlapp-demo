@@ -42,9 +42,9 @@ interface ConnectionAnalysis {
   compatibilityScore: number;
   compatibilityReasoning: string;
   conversationStarters: string[];
-  sharedInterests: string[];
-  complementaryDifferences: string[];
-  recommendedActivities: string[];
+  sharedInterests: Array<string | { interest: string; explanation?: string }>;
+  complementaryDifferences: Array<string | { interest: string; explanation?: string }>;
+  recommendedActivities: Array<string | { activity: string; reason?: string }>;
 }
 
 const PersonNearby: FC = () => {
@@ -362,7 +362,11 @@ const PersonNearby: FC = () => {
                   <div className="flex flex-wrap gap-2">
                     {connectionAnalysis.sharedInterests.map((interest, i) => (
                       <Badge key={i} variant="secondary">
-                        {interest}
+                        {typeof interest === 'object' && interest !== null && 'interest' in interest 
+                          ? (interest as { interest: string }).interest 
+                          : typeof interest === 'string' 
+                            ? interest
+                            : ''}
                       </Badge>
                     ))}
                   </div>
@@ -374,7 +378,11 @@ const PersonNearby: FC = () => {
                 <div>
                   <h3 className="text-sm font-medium mb-2">Complementary Differences</h3>
                   <p className="text-sm text-muted-foreground">
-                    {connectionAnalysis.complementaryDifferences.join(', ')}
+                    {connectionAnalysis.complementaryDifferences.map(diff => 
+                      typeof diff === 'object' && diff !== null && 'interest' in diff 
+                        ? (diff as { interest: string }).interest 
+                        : String(diff)
+                    ).join(', ')}
                   </p>
                 </div>
               )}
@@ -385,7 +393,11 @@ const PersonNearby: FC = () => {
                   <h3 className="text-sm font-medium mb-2">Recommended Activities</h3>
                   <ul className="space-y-1">
                     {connectionAnalysis.recommendedActivities.map((activity, i) => (
-                      <li key={i} className="text-sm">• {activity}</li>
+                      <li key={i} className="text-sm">• {
+                        typeof activity === 'object' && activity !== null && 'activity' in activity 
+                          ? (activity as { activity: string }).activity 
+                          : String(activity)
+                      }</li>
                     ))}
                   </ul>
                 </div>
