@@ -97,6 +97,9 @@ import PreviewPage from "@/pages/tenant-dashboard/PreviewPage"; // Import the Wi
 import SampleSitesPage from "@/pages/samples"; // Import the Sample Sites page
 import BookClubSamplePage from "@/pages/samples/bookclub"; // Import the BookClub sample site
 import AuthPage from "@/pages/auth-page"; // Import the Authentication page
+import HomeSelector from "@/pages/HomeSelector"; // Import the HomeSelector component
+import PersonNearby from "@/pages/PersonNearby"; // Import the PersonNearby component
+import WebsiteOverlap from "@/pages/WebsiteOverlap"; // Import the WebsiteOverlap component
 
 
 function Router() {
