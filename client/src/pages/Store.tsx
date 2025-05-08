@@ -80,7 +80,7 @@ const StorePage: FC = () => {
   
   // Mutation for store analysis
   const analyzeStore = useMutation({
-    mutationFn: async (store: Store) => {
+    mutationFn: async (store: StoreEntity) => {
       try {
         console.log("Sending store analysis request for:", store.name);
         
@@ -125,7 +125,7 @@ const StorePage: FC = () => {
   }, []);
 
   // Simulated store data
-  const mockStores: Store[] = [
+  const mockStores: StoreEntity[] = [
     {
       id: 1,
       name: "Book Haven",
@@ -189,7 +189,7 @@ const StorePage: FC = () => {
   ];
 
   // Filter stores based on active tab
-  const filterStores = (stores: Store[], tab: string, query: string) => {
+  const filterStores = (stores: StoreEntity[], tab: string, query: string) => {
     let filtered = [...stores];
     
     // Apply search query filter
@@ -199,7 +199,7 @@ const StorePage: FC = () => {
         store.name.toLowerCase().includes(lowerQuery) || 
         store.category.toLowerCase().includes(lowerQuery) ||
         store.description.toLowerCase().includes(lowerQuery) ||
-        store.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+        store.tags.some((tag: string) => tag.toLowerCase().includes(lowerQuery))
       );
     }
     
@@ -215,10 +215,15 @@ const StorePage: FC = () => {
   const displayedStores = filterStores(storesData?.stores || mockStores, activeTab, searchQuery);
 
   // Extract unique categories from stores
-  const categories = [...new Set([
-    "all", 
-    ...(storesData?.stores || mockStores).map(store => store.category.toLowerCase())
-  ])];
+  const categories = ["all"];
+  
+  // Add unique categories from stores
+  (storesData?.stores || mockStores).forEach(store => {
+    const category = store.category.toLowerCase();
+    if (!categories.includes(category)) {
+      categories.push(category);
+    }
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -381,7 +386,7 @@ const StorePage: FC = () => {
                   </div>
                   
                   <div className="flex flex-wrap gap-1.5 mb-4">
-                    {store.tags.map((tag, i) => (
+                    {store.tags.map((tag: string, i: number) => (
                       <Badge key={i} variant="secondary" className="text-xs">
                         {tag}
                       </Badge>

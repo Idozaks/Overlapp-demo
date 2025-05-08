@@ -448,6 +448,10 @@ function Router() {
       <Route path="/home-selector" component={HomeSelector} />
       <Route path="/person-nearby" component={PersonNearby} />
       <Route path="/website-overlap" component={WebsiteOverlap} />
+      <Route path="/person-online" component={PersonOnline} />
+      <Route path="/store" component={StorePage} />
+      <Route path="/sign-object" component={SignObject} />
+      <Route path="/online-service" component={OnlineService} />
       
       {/* OverlapLite Widget Tenant Dashboard Routes */}
       <Route path="/tenant/login" component={LoginPage} />
