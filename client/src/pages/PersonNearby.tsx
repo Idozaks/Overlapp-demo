@@ -311,36 +311,38 @@ const PersonNearby: FC = () => {
                   <span className="font-medium">Compatibility Score</span>
                   <Badge 
                     className={
-                      connectionAnalysis.compatibilityScore >= 80 
+                      (connectionAnalysis.compatibilityScore || 0) >= 80 
                         ? "bg-green-500" 
-                        : connectionAnalysis.compatibilityScore >= 60 
+                        : (connectionAnalysis.compatibilityScore || 0) >= 60 
                         ? "bg-amber-500" 
                         : "bg-red-500"
                     }
                   >
-                    {connectionAnalysis.compatibilityScore}%
+                    {connectionAnalysis.compatibilityScore || 0}%
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {connectionAnalysis.compatibilityReasoning}
+                  {connectionAnalysis.compatibilityReasoning || "Analysis in progress. Try again in a moment."}
                 </p>
               </div>
               
               {/* Conversation Starters */}
-              <div>
-                <h3 className="text-sm font-medium mb-2">Conversation Starters</h3>
-                <ul className="space-y-2">
-                  {connectionAnalysis.conversationStarters.map((starter, i) => (
-                    <li key={i} className="text-sm flex gap-2">
-                      <MessageCircleIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                      <span>{starter}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {connectionAnalysis.conversationStarters && connectionAnalysis.conversationStarters.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Conversation Starters</h3>
+                  <ul className="space-y-2">
+                    {connectionAnalysis.conversationStarters.map((starter, i) => (
+                      <li key={i} className="text-sm flex gap-2">
+                        <MessageCircleIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>{starter}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               
               {/* Shared Interests */}
-              {connectionAnalysis.sharedInterests.length > 0 && (
+              {connectionAnalysis.sharedInterests && connectionAnalysis.sharedInterests.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium mb-2">Shared Interests</h3>
                   <div className="flex flex-wrap gap-2">
@@ -354,7 +356,7 @@ const PersonNearby: FC = () => {
               )}
               
               {/* Complementary Differences */}
-              {connectionAnalysis.complementaryDifferences.length > 0 && (
+              {connectionAnalysis.complementaryDifferences && connectionAnalysis.complementaryDifferences.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium mb-2">Complementary Differences</h3>
                   <p className="text-sm text-muted-foreground">
@@ -364,7 +366,7 @@ const PersonNearby: FC = () => {
               )}
               
               {/* Recommended Activities */}
-              {connectionAnalysis.recommendedActivities.length > 0 && (
+              {connectionAnalysis.recommendedActivities && connectionAnalysis.recommendedActivities.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium mb-2">Recommended Activities</h3>
                   <ul className="space-y-1">

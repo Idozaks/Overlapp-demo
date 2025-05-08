@@ -99,11 +99,13 @@ Provide a JSON response with the following structure:
         recommendedActivities: result.recommendedActivities || ["Meet for coffee to discuss shared interests."]
       } as ConnectionAnalysisResult;
     } catch (parseError) {
-      log("[Connection Analysis] Error parsing OpenAI response:", parseError);
+      log("[Connection Analysis] Error parsing OpenAI response:", 
+        parseError instanceof Error ? parseError.message : String(parseError));
       throw new Error("Failed to parse connection analysis result");
     }
   } catch (error) {
-    log("[Connection Analysis] Error:", error);
+    log("[Connection Analysis] Error:", 
+      error instanceof Error ? error.message : String(error));
     // Return default values in case of error
     return {
       compatibilityScore: 50,

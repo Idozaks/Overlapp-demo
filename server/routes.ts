@@ -1613,7 +1613,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Connection potential analysis endpoint for nearby people
   app.post("/api/connections/analyze", async (req: Request, res: Response) => {
     try {
-      log("[Connection Analysis] Received request:", JSON.stringify(req.body));
+      // Log request without stringifying again to avoid double-stringification issues
+      log("[Connection Analysis] Received request");
       
       if (!req.body || typeof req.body !== 'object') {
         return res.status(400).json({ message: "Invalid request body format" });
@@ -1644,8 +1645,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const analysis = await analyzeConnectionPotential(
         userInterests,
         targetInterests,
-        userBio || '',
-        targetBio || ''
+        userBio as string || '',
+        targetBio as string || ''
       );
       
       log("[Connection Analysis] Analysis complete:", JSON.stringify({
