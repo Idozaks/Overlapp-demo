@@ -20,11 +20,11 @@ export const HomeSelector: FC = () => {
 
   const cards: Card[] = [
     { label: "Person Nearby",       icon: UserGroupIcon,          onClick: () => navigate("/person-nearby") },
-    { label: "Person Online",       icon: ComputerDesktopIcon,    onClick: () => alert("Coming soon") },
+    { label: "Person Online",       icon: ComputerDesktopIcon,    onClick: () => navigate("/person-online") },
     { label: "Website",             icon: GlobeAltIcon,           onClick: () => navigate("/website-overlap") },
-    { label: "Store",               icon: BuildingStorefrontIcon, onClick: () => alert("Coming soon") },
-    { label: "Sign / Object",       icon: InformationCircleIcon,  onClick: () => alert("Coming soon") },
-    { label: "Online Service",      icon: Cog6ToothIcon,          onClick: () => alert("Coming soon") },
+    { label: "Store",               icon: BuildingStorefrontIcon, onClick: () => navigate("/store") },
+    { label: "Sign / Object",       icon: InformationCircleIcon,  onClick: () => navigate("/sign-object") },
+    { label: "Online Service",      icon: Cog6ToothIcon,          onClick: () => navigate("/online-service") },
   ];
 
   return (
