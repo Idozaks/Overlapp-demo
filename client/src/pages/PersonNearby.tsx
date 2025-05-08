@@ -76,12 +76,12 @@ const PersonNearby: FC = () => {
     mutationFn: async (targetUser: NearbyUser) => {
       const response = await apiRequest('/api/connections/analyze', {
         method: 'POST',
-        body: JSON.stringify({
+        body: {
           userInterests: currentUser.interests,
           targetInterests: targetUser.interests,
           userBio: currentUser.bio,
           targetBio: targetUser.bio || ''
-        })
+        }
       });
       return response as unknown as ConnectionAnalysis;
     },
