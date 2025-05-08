@@ -1,12 +1,30 @@
 import { FC, useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPinIcon, UserIcon, TagIcon, RefreshCw } from "lucide-react";
+import { 
+  MapPinIcon, 
+  UserIcon, 
+  TagIcon, 
+  RefreshCw, 
+  SparklesIcon, 
+  Loader2, 
+  MessageCircleIcon
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 type NearbyUser = {
   id: number;
@@ -19,15 +37,65 @@ type NearbyUser = {
   distance?: number;
 }
 
+// Connection analysis result type
+interface ConnectionAnalysis {
+  compatibilityScore: number;
+  compatibilityReasoning: string;
+  conversationStarters: string[];
+  sharedInterests: string[];
+  complementaryDifferences: string[];
+  recommendedActivities: string[];
+}
+
 const PersonNearby: FC = () => {
   const [radius, setRadius] = useState<number>(10);
   const [location, setLocation] = useState<string>("");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [selectedUser, setSelectedUser] = useState<NearbyUser | null>(null);
+  const [analysisOpen, setAnalysisOpen] = useState(false);
+  const [connectionAnalysis, setConnectionAnalysis] = useState<ConnectionAnalysis | null>(null);
+  const { toast } = useToast();
+  
+  // Mock data for current user
+  const currentUser = {
+    id: 0,
+    username: "current_user",
+    displayName: "Current User",
+    bio: "Tech enthusiast and outdoor adventurer. Love discovering new apps and hiking trails.",
+    interests: ["Technology", "Hiking", "Photography", "Coffee", "Reading"]
+  };
 
   // Get nearby users
   const { data: nearbyUsers, isLoading, refetch } = useQuery<{users: NearbyUser[]}>({
     queryKey: ['/api/users/nearby', radius, userLocation],
     enabled: !!userLocation,
+  });
+  
+  // Mutation for connection analysis
+  const analyzeConnection = useMutation({
+    mutationFn: async (targetUser: NearbyUser) => {
+      const response = await apiRequest('/api/connections/analyze', {
+        method: 'POST',
+        body: JSON.stringify({
+          userInterests: currentUser.interests,
+          targetInterests: targetUser.interests,
+          userBio: currentUser.bio,
+          targetBio: targetUser.bio || ''
+        })
+      });
+      return response as unknown as ConnectionAnalysis;
+    },
+    onSuccess: (data) => {
+      setConnectionAnalysis(data);
+      setAnalysisOpen(true);
+    },
+    onError: (error) => {
+      toast({
+        title: "Connection analysis failed",
+        description: error instanceof Error ? error.message : "Could not analyze connection potential",
+        variant: "destructive"
+      });
+    }
   });
 
   // Simulate getting current location
@@ -198,7 +266,20 @@ const PersonNearby: FC = () => {
                   
                   <div className="flex justify-between mt-4">
                     <Button size="sm" variant="outline">View Profile</Button>
-                    <Button size="sm">Connect</Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        analyzeConnection.mutate(user);
+                      }}
+                      disabled={analyzeConnection.isPending && selectedUser?.id === user.id}
+                    >
+                      {analyzeConnection.isPending && selectedUser?.id === user.id ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing</>
+                      ) : (
+                        <><SparklesIcon className="w-4 h-4 mr-2" /> Connect</>
+                      )}
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -206,6 +287,103 @@ const PersonNearby: FC = () => {
           ))}
         </div>
       )}
+      
+      {/* Connection Analysis Dialog */}
+      <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <SparklesIcon className="w-5 h-5 text-primary" />
+              Connection Analysis
+            </DialogTitle>
+            <DialogDescription>
+              {selectedUser && (
+                <span>Your potential connection with {selectedUser.displayName || selectedUser.username}</span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {connectionAnalysis && (
+            <div className="space-y-4 my-2">
+              {/* Compatibility Score */}
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium">Compatibility Score</span>
+                  <Badge 
+                    className={
+                      connectionAnalysis.compatibilityScore >= 80 
+                        ? "bg-green-500" 
+                        : connectionAnalysis.compatibilityScore >= 60 
+                        ? "bg-amber-500" 
+                        : "bg-red-500"
+                    }
+                  >
+                    {connectionAnalysis.compatibilityScore}%
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {connectionAnalysis.compatibilityReasoning}
+                </p>
+              </div>
+              
+              {/* Conversation Starters */}
+              <div>
+                <h3 className="text-sm font-medium mb-2">Conversation Starters</h3>
+                <ul className="space-y-2">
+                  {connectionAnalysis.conversationStarters.map((starter, i) => (
+                    <li key={i} className="text-sm flex gap-2">
+                      <MessageCircleIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                      <span>{starter}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              {/* Shared Interests */}
+              {connectionAnalysis.sharedInterests.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Shared Interests</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {connectionAnalysis.sharedInterests.map((interest, i) => (
+                      <Badge key={i} variant="secondary">
+                        {interest}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Complementary Differences */}
+              {connectionAnalysis.complementaryDifferences.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Complementary Differences</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {connectionAnalysis.complementaryDifferences.join(', ')}
+                  </p>
+                </div>
+              )}
+              
+              {/* Recommended Activities */}
+              {connectionAnalysis.recommendedActivities.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Recommended Activities</h3>
+                  <ul className="space-y-1">
+                    {connectionAnalysis.recommendedActivities.map((activity, i) => (
+                      <li key={i} className="text-sm">• {activity}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button className="w-full" onClick={() => setAnalysisOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

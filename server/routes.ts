@@ -1609,6 +1609,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Connection potential analysis endpoint for nearby people
+  app.post("/api/connections/analyze", async (req: Request, res: Response) => {
+    try {
+      log("[Connection Analysis] Received request:", JSON.stringify(req.body));
+      
+      if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({ message: "Invalid request body format" });
+      }
+      
+      const { userInterests, targetInterests, userBio, targetBio } = req.body;
+      
+      if (!userInterests || !targetInterests) {
+        const missingFields = [];
+        if (!userInterests) missingFields.push('userInterests');
+        if (!targetInterests) missingFields.push('targetInterests');
+        
+        return res.status(400).json({ 
+          message: `Missing required fields: ${missingFields.join(', ')}` 
+        });
+      }
+      
+      // Check if OpenAI API key is set
+      if (!process.env.OPENAI_API_KEY) {
+        log("[Connection Analysis] OPENAI_API_KEY is not set");
+        return res.status(500).json({ 
+          message: "OpenAI API key is not configured" 
+        });
+      }
+      
+      // Generate connection analysis using OpenAI
+      log("[Connection Analysis] Calling analyzeConnectionPotential...");
+      const analysis = await analyzeConnectionPotential(
+        userInterests,
+        targetInterests,
+        userBio || '',
+        targetBio || ''
+      );
+      
+      log("[Connection Analysis] Analysis complete:", JSON.stringify({
+        score: analysis.compatibilityScore,
+        hasReasoning: !!analysis.compatibilityReasoning,
+        conversationStartersCount: analysis.conversationStarters?.length || 0
+      }));
+      
+      res.json(analysis);
+    } catch (error) {
+      log("[Connection Analysis] Error:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ 
+        message: "Failed to analyze connection potential",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
   
   app.post("/api/interests/categorize-all", async (req: Request, res: Response) => {
     try {
