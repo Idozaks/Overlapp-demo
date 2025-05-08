@@ -226,9 +226,9 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
       if (onComplete) {
         onComplete(userData);
       } else {
-        // Otherwise, save to localStorage and navigate
+        // Otherwise, save to localStorage and navigate to home-selector
         localStorage.setItem('userData', JSON.stringify(userData));
-        setLocation('/hybrid');
+        setLocation('/home-selector');
       }
     }
   };
