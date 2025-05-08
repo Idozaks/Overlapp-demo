@@ -100,6 +100,10 @@ import AuthPage from "@/pages/auth-page"; // Import the Authentication page
 import HomeSelector from "@/pages/HomeSelector"; // Import the HomeSelector component
 import PersonNearby from "@/pages/PersonNearby"; // Import the PersonNearby component
 import WebsiteOverlap from "@/pages/WebsiteOverlap"; // Import the WebsiteOverlap component
+import PersonOnline from "@/pages/PersonOnline"; // Import the PersonOnline component
+import StorePage from "@/pages/Store"; // Import the Store component
+import SignObject from "@/pages/SignObject"; // Import the SignObject component
+import OnlineService from "@/pages/OnlineService"; // Import the OnlineService component
 
 
 function Router() {

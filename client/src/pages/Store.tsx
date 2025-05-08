@@ -31,7 +31,8 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-type Store = {
+// Renamed to StoreEntity to avoid conflicts with the Store component from lucide-react
+type StoreEntity = {
   id: number;
   name: string;
   category: string;
@@ -54,12 +55,13 @@ interface StoreAnalysis {
   bestTimesToVisit: string[];
 }
 
+// Changed name to StorePage to avoid conflict with the Store component from lucide-react
 const StorePage: FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [radius, setRadius] = useState<number>(5);
   const [location, setLocation] = useState<string>("");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [selectedStore, setSelectedStore] = useState<StoreEntity | null>(null);
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [storeAnalysis, setStoreAnalysis] = useState<StoreAnalysis | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
@@ -69,7 +71,7 @@ const StorePage: FC = () => {
   const currentUserInterests = ["Shopping", "Fashion", "Technology", "Books", "Coffee", "Organic Food"];
 
   // Get stores
-  const { data: storesData, isLoading, refetch } = useQuery<{stores: Store[]}>({
+  const { data: storesData, isLoading, refetch } = useQuery<{stores: StoreEntity[]}>({
     queryKey: userLocation 
       ? [`/api/stores/nearby/${radius}`, `?lat=${userLocation.lat}&lng=${userLocation.lng}&q=${searchQuery}`]
       : ['/api/stores/nearby', radius, searchQuery],
