@@ -1642,13 +1642,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Generate connection analysis using OpenAI
       log("[Connection Analysis] Calling analyzeConnectionPotential...");
+      log("[Connection Analysis] User interests:", JSON.stringify(userInterests));
+      log("[Connection Analysis] Target interests:", JSON.stringify(targetInterests));
+      
       const analysis = await analyzeConnectionPotential(
         userInterests,
         targetInterests,
         userBio as string || '',
         targetBio as string || ''
       );
-      
+    
       log("[Connection Analysis] Analysis complete:", JSON.stringify({
         score: analysis.compatibilityScore,
         hasReasoning: !!analysis.compatibilityReasoning,

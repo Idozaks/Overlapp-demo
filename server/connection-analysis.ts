@@ -34,6 +34,10 @@ export async function analyzeConnectionPotential(
     log("[Connection Analysis] Analyzing connection potential");
     log(`[Connection Analysis] User interests: ${userInterests.join(", ")}`);
     log(`[Connection Analysis] Target interests: ${targetInterests.join(", ")}`);
+    
+    if (!Array.isArray(userInterests) || !Array.isArray(targetInterests)) {
+      throw new Error("User interests and target interests must be arrays");
+    }
 
     // Calculate overlapping interests
     const sharedInterests = userInterests.filter(interest => 
