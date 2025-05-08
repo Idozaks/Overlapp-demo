@@ -21,6 +21,7 @@ import { generateAIAnalysis, AnalysisRequest } from "./ai-analysis";
 import { generateSpeech, splitTextForTTS } from "./tts";
 import { generateStreamingUserOverlapAnalysis } from "./streamingUserOverlap";
 import { generateSyntheticUserChatResponse } from "./ai-chat";
+import { analyzeConnectionPotential } from "./connection-analysis";
 
 const scryptAsync = promisify(scrypt);
 
