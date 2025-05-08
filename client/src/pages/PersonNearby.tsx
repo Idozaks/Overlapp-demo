@@ -304,8 +304,8 @@ const PersonNearby: FC = () => {
       
       {/* Connection Analysis Dialog */}
       <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <SparklesIcon className="w-5 h-5 text-primary" />
               Connection Analysis
@@ -318,7 +318,7 @@ const PersonNearby: FC = () => {
           </DialogHeader>
           
           {connectionAnalysis && (
-            <div className="space-y-4 my-2">
+            <div className="space-y-4 my-2 overflow-y-auto pr-2 flex-grow">
               {/* Compatibility Score */}
               <div className="bg-muted/50 p-4 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
@@ -335,7 +335,7 @@ const PersonNearby: FC = () => {
                     {connectionAnalysis.compatibilityScore || 0}%
                   </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground break-words">
                   {connectionAnalysis.compatibilityReasoning || "Analysis in progress. Try again in a moment."}
                 </p>
               </div>
@@ -348,7 +348,7 @@ const PersonNearby: FC = () => {
                     {connectionAnalysis.conversationStarters.map((starter, i) => (
                       <li key={i} className="text-sm flex gap-2">
                         <MessageCircleIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        <span>{starter}</span>
+                        <span className="break-words">{starter}</span>
                       </li>
                     ))}
                   </ul>
@@ -377,7 +377,7 @@ const PersonNearby: FC = () => {
               {connectionAnalysis.complementaryDifferences && connectionAnalysis.complementaryDifferences.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium mb-2">Complementary Differences</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground break-words">
                     {connectionAnalysis.complementaryDifferences.map(diff => 
                       typeof diff === 'object' && diff !== null && 'interest' in diff 
                         ? (diff as { interest: string }).interest 
@@ -393,7 +393,7 @@ const PersonNearby: FC = () => {
                   <h3 className="text-sm font-medium mb-2">Recommended Activities</h3>
                   <ul className="space-y-1">
                     {connectionAnalysis.recommendedActivities.map((activity, i) => (
-                      <li key={i} className="text-sm">• {
+                      <li key={i} className="text-sm break-words">• {
                         typeof activity === 'object' && activity !== null && 'activity' in activity 
                           ? (activity as { activity: string }).activity 
                           : String(activity)
@@ -405,7 +405,7 @@ const PersonNearby: FC = () => {
             </div>
           )}
           
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0 mt-2 pt-2 border-t">
             <Button className="w-full" onClick={() => setAnalysisOpen(false)}>
               Close
             </Button>
