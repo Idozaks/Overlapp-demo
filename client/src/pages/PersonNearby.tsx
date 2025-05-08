@@ -67,23 +67,37 @@ const PersonNearby: FC = () => {
 
   // Get nearby users
   const { data: nearbyUsers, isLoading, refetch } = useQuery<{users: NearbyUser[]}>({
-    queryKey: ['/api/users/nearby', radius, userLocation],
+    queryKey: userLocation 
+      ? [`/api/users/nearby/${radius}`, `?lat=${userLocation.lat}&lng=${userLocation.lng}`]
+      : ['/api/users/nearby', radius],
     enabled: !!userLocation,
   });
   
   // Mutation for connection analysis
   const analyzeConnection = useMutation({
     mutationFn: async (targetUser: NearbyUser) => {
-      const response = await apiRequest('/api/connections/analyze', {
-        method: 'POST',
-        body: {
+      try {
+        console.log("Sending connection analysis request with data:", {
           userInterests: currentUser.interests,
-          targetInterests: targetUser.interests,
-          userBio: currentUser.bio,
-          targetBio: targetUser.bio || ''
-        }
-      });
-      return response as unknown as ConnectionAnalysis;
+          targetInterests: targetUser.interests
+        });
+        
+        const response = await apiRequest('/api/connections/analyze', {
+          method: 'POST',
+          body: {
+            userInterests: currentUser.interests,
+            targetInterests: targetUser.interests,
+            userBio: currentUser.bio,
+            targetBio: targetUser.bio || ''
+          }
+        });
+        
+        console.log("Connection analysis response:", response);
+        return response as unknown as ConnectionAnalysis;
+      } catch (error) {
+        console.error("Connection analysis error:", error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       setConnectionAnalysis(data);

@@ -1645,23 +1645,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       log("[Connection Analysis] User interests:", JSON.stringify(userInterests));
       log("[Connection Analysis] Target interests:", JSON.stringify(targetInterests));
       
-      const analysis = await analyzeConnectionPotential(
-        userInterests,
-        targetInterests,
-        userBio as string || '',
-        targetBio as string || ''
-      );
-    
-      log("[Connection Analysis] Analysis complete:", JSON.stringify({
-        score: analysis.compatibilityScore,
-        hasReasoning: !!analysis.compatibilityReasoning,
-        conversationStartersCount: analysis.conversationStarters?.length || 0
-      }));
+      try {
+        const analysis = await analyzeConnectionPotential(
+          userInterests,
+          targetInterests,
+          userBio as string || '',
+          targetBio as string || ''
+        );
       
-      res.json(analysis);
+        log("[Connection Analysis] Analysis complete:", JSON.stringify({
+          score: analysis.compatibilityScore,
+          hasReasoning: !!analysis.compatibilityReasoning,
+          conversationStartersCount: analysis.conversationStarters?.length || 0
+        }));
+        
+        // Ensure we're setting the correct content type
+        res.setHeader('Content-Type', 'application/json');
+        return res.json(analysis);
+      } catch (analysisError) {
+        log("[Connection Analysis] Analysis Error:", 
+          analysisError instanceof Error ? analysisError.message : String(analysisError));
+        return res.status(500).json({ 
+          message: "Failed to analyze connection: OpenAI API error",
+          error: analysisError instanceof Error ? analysisError.message : String(analysisError)
+        });
+      }
     } catch (error) {
-      log("[Connection Analysis] Error:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({ 
+      log("[Connection Analysis] General Error:", error instanceof Error ? error.message : String(error));
+      return res.status(500).json({ 
         message: "Failed to analyze connection potential",
         error: error instanceof Error ? error.message : String(error)
       });
