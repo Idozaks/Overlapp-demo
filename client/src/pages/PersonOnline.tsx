@@ -55,14 +55,53 @@ const PersonOnline: FC = () => {
   const [connectionAnalysis, setConnectionAnalysis] = useState<ConnectionAnalysis | null>(null);
   const { toast } = useToast();
   
-  // Mock data for current user
-  const currentUser = {
-    id: 0,
-    username: "current_user",
-    displayName: "Current User",
-    bio: "Digital explorer interested in tech, design, and online communities.",
-    interests: ["Technology", "Programming", "UX Design", "Online Communities", "Digital Art"]
+  // Get user data from localStorage if available
+  const getUserDataFromStorage = () => {
+    try {
+      const storedData = localStorage.getItem('userData');
+      if (storedData) {
+        const userData = JSON.parse(storedData);
+        console.log("Found user data in localStorage:", userData);
+        
+        // Combine both selected interests and enriched interests
+        const allInterests = [
+          ...(userData.interests || []).map((id: number) => {
+            // If it's MVP mode, we have a global list of INTERESTS
+            const INTERESTS = [
+              "Music", "Art & Design", "Travel", "Food & Dining", "Fashion",
+              "Technology", "Books", "Movies", "Gaming", "Sports & Fitness",
+              "Photography", "Dancing", "Podcasts", "Hiking", "Cooking", 
+              "Pets", "Yoga", "Writing", "Programming", "Painting"
+            ];
+            return INTERESTS[id] || `Interest ${id}`;
+          }),
+          ...(userData.enrichedInterests || [])
+        ];
+        
+        return {
+          id: 0,
+          username: userData.name?.toLowerCase().replace(/\s+/g, '_') || "current_user",
+          displayName: userData.name || "Current User",
+          bio: userData.bio || "App user interested in exploring connections.",
+          interests: allInterests.filter(Boolean)
+        };
+      }
+    } catch (error) {
+      console.error("Error parsing user data from localStorage:", error);
+    }
+    
+    // Fallback data if nothing in localStorage
+    return {
+      id: 0,
+      username: "current_user",
+      displayName: "Current User",
+      bio: "Digital explorer interested in tech, design, and online communities.",
+      interests: ["Technology", "Programming", "UX Design", "Online Communities", "Digital Art"]
+    };
   };
+  
+  // Get current user data either from localStorage or fallback
+  const currentUser = getUserDataFromStorage();
 
   // Get online users
   const { data: onlineUsers, isLoading, refetch } = useQuery<{users: OnlineUser[]}>({
