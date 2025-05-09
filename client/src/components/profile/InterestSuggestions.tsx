@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -154,19 +154,54 @@ export default function InterestSuggestions({
     onSuccess: (data) => {
       console.log('Received enriched interests:', data);
 
-
-      // Process suggestions and remove duplicates
-      const uniqueSuggestions = Array.from(new Set(data));
-      const validSuggestions = uniqueSuggestions
-        .filter((suggestion: string) => 
-          suggestion && 
-          suggestion.trim().length > 0 && 
-          !currentInterests.includes(suggestion.trim())
-        )
-        .map((suggestion: string) => ({
-          name: suggestion.trim(),
-          emoji: generateInterestEmoji(suggestion.trim())
-        }));
+      // Process suggestions differently based on what the API returned
+      let validSuggestions = [];
+      
+      if (data && Array.isArray(data.suggestions)) {
+        // New API format returns an object with suggestions array
+        console.log('Using new API response format with suggestions array');
+        validSuggestions = data.suggestions
+          .filter((suggestion: any) => 
+            suggestion && 
+            suggestion.name && 
+            !currentInterests.includes(suggestion.name)
+          )
+          .map((suggestion: any) => ({
+            name: suggestion.name,
+            emoji: '', // Always empty as we've removed emojis
+            reason: suggestion.reason || '',
+            isFallback: suggestion.isFallback || false
+          }));
+      } else {
+        // Legacy format or unexpected format - try to handle it gracefully
+        console.log('Using legacy API response format');
+        const uniqueSuggestions = Array.from(new Set(data));
+        validSuggestions = uniqueSuggestions
+          .filter((suggestion: any) => {
+            if (typeof suggestion === 'string') {
+              return suggestion && suggestion.trim().length > 0 && !currentInterests.includes(suggestion.trim());
+            } else if (suggestion && typeof suggestion === 'object') {
+              return suggestion.name && !currentInterests.includes(suggestion.name);
+            }
+            return false;
+          })
+          .map((suggestion: any) => {
+            if (typeof suggestion === 'string') {
+              return {
+                name: suggestion.trim(),
+                emoji: '',
+                isFallback: false
+              };
+            } else {
+              return {
+                name: suggestion.name,
+                emoji: '',
+                reason: suggestion.reason || '',
+                isFallback: suggestion.isFallback || false
+              };
+            }
+          });
+      }
 
       console.log('Processed suggestions:', validSuggestions);
 
@@ -262,85 +297,87 @@ export default function InterestSuggestions({
   };
 
   return (
-    <div className="container max-w-2xl mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <Button variant="ghost" size="icon" onClick={handleGoBack} className="self-start">
-              <ArrowLeft className="h-5 w-5" />
+    <TooltipProvider>
+      <div className="container max-w-2xl mx-auto p-4">
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <Button variant="ghost" size="icon" onClick={handleGoBack} className="self-start">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div className="text-center flex-1">
+                <CardTitle className="text-xl">{t("profile.aiSuggestions")}</CardTitle>
+                <CardDescription>
+                  {t("profile.aiSuggestionsDescription")}
+                </CardDescription>
+              </div>
+              <div className="w-8"></div> {/* Spacer to balance the back button */}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading || showAiThinking ? (
+              <div className="flex flex-col items-center justify-center py-10">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+                  <p className="text-lg font-medium">{t("profile.aiThinking")}</p>
+                </div>
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("profile.tapToSelectInterests")}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {suggestedInterests.map((suggestion, index) => (
+                    <Tooltip key={`suggestion-${suggestion.name}-${index}`}>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant={selectedSuggestions.has(suggestion.name) ? "default" : "outline"}
+                          className={`cursor-pointer text-sm py-1.5 px-3 hover:shadow-sm transition-all ${suggestion.isFallback ? 'border-dashed border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100' : ''}`}
+                          onClick={() => toggleSuggestion(suggestion.name)}
+                        >
+                          {suggestion.name}
+                          {suggestion.isFallback && (
+                            <span className="ml-1 text-[10px] italic text-amber-600 dark:text-amber-400">(suggested)</span>
+                          )}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="max-w-xs">
+                          <p className="font-medium">{suggestion.name}</p>
+                          {suggestion.reason && (
+                            <p className="text-xs mt-1">{suggestion.reason}</p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+
+                  {suggestedInterests.length === 0 && !isLoading && (
+                    <p className="text-sm text-muted-foreground">
+                      {t("profile.noSuggestionsFound")}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+          </CardContent>
+          <div className="flex justify-end gap-3 p-4"> {/* Added CardFooter for better styling */}
+            <Button variant="outline" onClick={handleGoBack}>
+              {t("common.cancel")}
             </Button>
-            <div className="text-center flex-1">
-              <CardTitle className="text-xl">{t("profile.aiSuggestions")}</CardTitle>
-              <CardDescription>
-                {t("profile.aiSuggestionsDescription")}
-              </CardDescription>
-            </div>
-            <div className="w-8"></div> {/* Spacer to balance the back button */}
+            <Button 
+              onClick={handleSaveSelections}
+              disabled={selectedSuggestions.size === 0 || isLoading}
+            >
+              {t("common.save")}
+            </Button>
+
           </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading || showAiThinking ? (
-            <div className="flex flex-col items-center justify-center py-10">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Sparkles className="h-6 w-6 text-primary animate-pulse" />
-                <p className="text-lg font-medium">{t("profile.aiThinking")}</p>
-              </div>
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <>
-              <p className="text-sm text-muted-foreground mb-4">
-                {t("profile.tapToSelectInterests")}
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-6">
-                {suggestedInterests.map((suggestion, index) => (
-                  <Tooltip
-                    key={`suggestion-${suggestion.name}-${index}`}
-                    content={
-                      <div className="max-w-xs">
-                        <p className="font-medium">{suggestion.name}</p>
-                        {suggestion.reason && (
-                          <p className="text-xs mt-1 text-slate-200">{suggestion.reason}</p>
-                        )}
-                      </div>
-                    }
-                  >
-                    <Badge
-                      variant={selectedSuggestions.has(suggestion.name) ? "default" : "outline"}
-                      className={`cursor-pointer text-sm py-1.5 px-3 hover:shadow-sm transition-all ${suggestion.isFallback ? 'border-dashed border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100' : ''}`}
-                      onClick={() => toggleSuggestion(suggestion.name)}
-                    >
-                      {suggestion.name}
-                      {suggestion.isFallback && (
-                        <span className="ml-1 text-[10px] italic text-amber-600 dark:text-amber-400">(suggested)</span>
-                      )}
-                    </Badge>
-                  </Tooltip>
-                ))}
-
-                {suggestedInterests.length === 0 && !isLoading && (
-                  <p className="text-sm text-muted-foreground">
-                    {t("profile.noSuggestionsFound")}
-                  </p>
-                )}
-              </div>
-            </>
-          )}
-        </CardContent>
-        <div className="flex justify-end gap-3 p-4"> {/* Added CardFooter for better styling */}
-          <Button variant="outline" onClick={handleGoBack}>
-            {t("common.cancel")}
-          </Button>
-          <Button 
-            onClick={handleSaveSelections}
-            disabled={selectedSuggestions.size === 0 || isLoading}
-          >
-            {t("common.save")}
-          </Button>
-
-        </div>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </TooltipProvider>
   );
 }
