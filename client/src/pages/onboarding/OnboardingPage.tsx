@@ -161,7 +161,7 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
         if (typeof suggestion === 'string') {
           return {
             name: suggestion,
-            emoji: '✨',
+            emoji: '', // No emoji for MVP
             reason: 'Based on your selected interests'
           };
         } else if (typeof suggestion === 'object' && suggestion !== null) {
@@ -393,7 +393,7 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
                           `}
                           onClick={() => handleSuggestionToggle(suggestion.name)}
                         >
-                          ◊ {suggestion.name}
+                          {suggestion.name}
                         </Badge>
                       ))}
                       
@@ -416,7 +416,7 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {suggestedInterests.map((suggestion, index) => (
                           <div key={`reason-${index}-${suggestion.name}`} className="text-xs text-gray-600 border-b border-gray-100 pb-2 last:border-0">
-                            <span className="font-medium">◊ {suggestion.name}:</span> {suggestion.reason || "Based on your selected interests"}
+                            <span className="font-medium">{suggestion.name}:</span> {suggestion.reason || "Based on your selected interests"}
                           </div>
                         ))}
                       </div>
