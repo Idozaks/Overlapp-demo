@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { GptButton } from "@/components/ui/gpt-button";
 import { 
   Loader2, 
   ArrowLeft, 
@@ -1058,16 +1059,17 @@ export default function UserOverlap() {
                   })()}
                 </p>
                 <div className="mt-4">
-                  <Button
+                  <GptButton
                     size="sm"
                     variant="outline"
                     onClick={regenerateAnalysis}
                     className="gap-2"
-                    disabled={isGenerating}
+                    isLoading={isGenerating}
+                    loadingText="Generating..."
                   >
-                    <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
-                    {isGenerating ? 'Generating...' : 'Generate Detailed Analysis'}
-                  </Button>
+                    <RefreshCw className="h-4 w-4" />
+                    Generate Detailed Analysis
+                  </GptButton>
                 </div>
               </div>
             )}
@@ -1082,14 +1084,15 @@ export default function UserOverlap() {
                   </h3>
                   <div className="flex gap-2">
                     {!isStreaming ? (
-                      <Button 
+                      <GptButton 
                         size="sm" 
                         variant="outline"
                         onClick={startStreamingAnalysis}
-                        disabled={isStreaming}
+                        isLoading={false}
                       >
+                        <Sparkles className="h-3 w-3 mr-1" />
                         Start Streaming
-                      </Button>
+                      </GptButton>
                     ) : (
                       <Button 
                         size="sm" 
