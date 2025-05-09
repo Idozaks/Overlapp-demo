@@ -9,23 +9,39 @@ async function throwIfResNotOk(res: Response) {
 }
 
 interface RequestOptions {
+  url?: string;
   method?: string;
   body?: unknown;
+  data?: unknown;
 }
 
-export async function apiRequest(url: string, options?: RequestOptions): Promise<any> {
-  const isFormData = options?.body instanceof FormData;
+export async function apiRequest<T = any>(url: string | RequestOptions, options?: RequestOptions): Promise<T> {
+  // Handle the case where the first argument is the options object
+  let requestUrl: string;
+  let requestOptions: RequestOptions = {};
+
+  if (typeof url === 'string') {
+    requestUrl = url;
+    requestOptions = options || {};
+  } else {
+    requestUrl = url.url as string;
+    requestOptions = url;
+  }
+  
+  // Use 'data' or 'body' field for consistency with axios
+  const bodyData = requestOptions.data || requestOptions.body;
+  const isFormData = bodyData instanceof FormData;
   try {
-    console.log(`Making API request to: ${url}`, options);
-    const res = await fetch(url, {
-      method: options?.method || 'GET',
+    console.log(`Making API request to: ${requestUrl}`, requestOptions);
+    const res = await fetch(requestUrl, {
+      method: requestOptions.method || 'GET',
       headers: {
         ...(!isFormData && { "Content-Type": "application/json" }),
         "Accept": "application/json"
       },
       body: isFormData
-        ? options?.body
-        : options?.body ? JSON.stringify(options.body) : undefined,
+        ? bodyData as FormData
+        : bodyData ? JSON.stringify(bodyData) : undefined,
       credentials: "include",
     });
     
@@ -46,7 +62,7 @@ export async function apiRequest(url: string, options?: RequestOptions): Promise
     } else {
       const text = await res.text();
       console.log("Non-JSON response received:", text.substring(0, 100));
-      return { text };
+      return { text } as unknown as T;
     }
   } catch (error) {
     console.error("Error in apiRequest:", error); // Added error logging
@@ -113,7 +129,7 @@ export const getQueryFn: <T>(options: {
       } else {
         const text = await res.text();
         console.log("Non-JSON response received:", text.substring(0, 100));
-        return { text };
+        return { text } as unknown as T;
       }
     } catch (error) {
       console.error("Error in getQueryFn:", error); // Added error logging

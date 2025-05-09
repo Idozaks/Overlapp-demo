@@ -22,6 +22,7 @@ import { generateSpeech, splitTextForTTS } from "./tts";
 import { generateStreamingUserOverlapAnalysis } from "./streamingUserOverlap";
 import { generateSyntheticUserChatResponse } from "./ai-chat";
 import { generateStoreOverlapAnalysis } from "./storeOverlap";
+import { generateWebsiteAnalysis } from "./websiteAnalysis";
 import { connectionRouter } from "./connection-api";
 
 const scryptAsync = promisify(scrypt);
@@ -505,6 +506,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Website analysis endpoint
+  app.post("/api/website/analyze", async (req: Request, res: Response) => {
+    try {
+      // For MVP, we're allowing this endpoint to work without authentication
+      const { url, userInterests } = req.body;
+      
+      log("Website Analysis Request:", JSON.stringify({
+        url,
+        userInterestsCount: userInterests?.length
+      }, null, 2));
+      
+      if (!url || !userInterests || !Array.isArray(userInterests)) {
+        const missingFields = [];
+        if (!url) missingFields.push('url');
+        if (!userInterests) missingFields.push('userInterests');
+        else if (!Array.isArray(userInterests)) missingFields.push('userInterests (must be an array)');
+        
+        log("Missing required fields for website analysis:", missingFields.join(', '));
+        return res.status(400).json({ 
+          message: `Missing required fields: ${missingFields.join(', ')}`
+        });
+      }
+      
+      // Check if OpenAI API key is set
+      if (!process.env.OPENAI_API_KEY) {
+        log("OPENAI_API_KEY is not set");
+        return res.status(500).json({ 
+          message: "OpenAI API key is not configured" 
+        });
+      }
+      
+      // Generate website overlap analysis
+      log(`Generating website analysis for URL: ${url}`);
+      const analysisResult = await generateWebsiteAnalysis({
+        url,
+        userInterests
+      });
+      
+      log("Website analysis generated successfully:", JSON.stringify({
+        websiteName: analysisResult.websiteName,
+        overlapScore: analysisResult.overlapScore,
+        matchingInterestsCount: analysisResult.matchingInterests?.length || 0
+      }, null, 2));
+      
+      res.json(analysisResult);
+    } catch (error) {
+      log("Error generating website analysis:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ 
+        message: "Unable to generate website analysis", 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
+  });
+
   // Store overlap analysis endpoint
   app.post("/api/stores/analyze", async (req: Request, res: Response) => {
     try {
