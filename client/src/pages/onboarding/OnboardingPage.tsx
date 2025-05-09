@@ -135,18 +135,17 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
         
         const response = await apiRequest('/api/interests/enrich', {
           method: 'POST',
-          body: JSON.stringify({ interests: cleanedInterests })
+          body: { interests: cleanedInterests }
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('Interest enrichment API error:', errorData);
-          throw new Error(errorData.message || 'Failed to enrich interests');
+        // Modified to handle both response structures
+        if (response.error || response.message) {
+          console.error('Interest enrichment API error:', response);
+          throw new Error(response.message || response.error || 'Failed to enrich interests');
         }
 
-        const data = await response.json();
-        console.log('Received enriched interests response:', data);
-        return data?.suggestions || [];
+        console.log('Received enriched interests response:', response);
+        return response?.suggestions || [];
       } catch (error) {
         console.error('Interest enrichment error:', error);
         throw error;
