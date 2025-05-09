@@ -1845,11 +1845,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (parsedSuggestions.length === 0) {
           // Provide fallback suggestions
           parsedSuggestions = [
-            { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
-            { name: "Photography Workshops", emoji: "📸", reason: "Learn new techniques and connect with other photography enthusiasts." },
-            { name: "Tech Podcasts", emoji: "🎧", reason: "Stay updated on technology trends while on the go." },
-            { name: "Outdoor Adventures", emoji: "🏕️", reason: "Combine your love for nature with exciting activities." },
-            { name: "Local Volunteering", emoji: "🤝", reason: "Give back to your community while meeting like-minded people." }
+            { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles." },
+            { name: "Photography Workshops", emoji: "", reason: "Learn new techniques and connect with other photography enthusiasts." },
+            { name: "Tech Podcasts", emoji: "", reason: "Stay updated on technology trends while on the go." },
+            { name: "Outdoor Adventures", emoji: "", reason: "Combine your love for nature with exciting activities." },
+            { name: "Local Volunteering", emoji: "", reason: "Give back to your community while meeting like-minded people." }
           ].filter(sugg => !interests.includes(sugg.name));
         }
 
@@ -1858,11 +1858,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         log("Error in interest enrichment:", error instanceof Error ? error.message : String(error));
         // Return fallback suggestions
         const fallbackSuggestions = [
-          { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
-          { name: "Photography Workshops", emoji: "📸", reason: "Learn new techniques and connect with other photography enthusiasts." },
-          { name: "Tech Podcasts", emoji: "🎧", reason: "Stay updated on technology trends while on the go." },
-          { name: "Outdoor Adventures", emoji: "🏕️", reason: "Combine your love for nature with exciting activities." },
-          { name: "Local Volunteering", emoji: "🤝", reason: "Give back to your community while meeting like-minded people." }
+          { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles." },
+          { name: "Photography Workshops", emoji: "", reason: "Learn new techniques and connect with other photography enthusiasts." },
+          { name: "Tech Podcasts", emoji: "", reason: "Stay updated on technology trends while on the go." },
+          { name: "Outdoor Adventures", emoji: "", reason: "Combine your love for nature with exciting activities." },
+          { name: "Local Volunteering", emoji: "", reason: "Give back to your community while meeting like-minded people." }
         ].filter(sugg => !interests.includes(sugg.name));
         
         res.json({ suggestions: fallbackSuggestions });

@@ -154,11 +154,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
       // If we couldn't get any valid suggestions, provide fallbacks
       if (validSuggestions.length === 0) {
         const fallbacks = [
-          { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
-          { name: "Literature Analysis", emoji: "📚", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
-          { name: "Audio Books", emoji: "🎧", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
-          { name: "Poetry", emoji: "📝", reason: "Explore emotional expression and linguistic creativity through verse." },
-          { name: "Art Exhibitions", emoji: "🖼️", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
+          { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles." },
+          { name: "Literature Analysis", emoji: "", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
+          { name: "Audio Books", emoji: "", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
+          { name: "Poetry", emoji: "", reason: "Explore emotional expression and linguistic creativity through verse." },
+          { name: "Art Exhibitions", emoji: "", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
         ].filter(s => !interests.includes(s.name));
 
         validSuggestions = fallbacks;
@@ -172,11 +172,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
 
       // Use fallbacks if JSON parsing fails
       const fallbacks = [
-        { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
-        { name: "Literature Analysis", emoji: "📚", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
-        { name: "Audio Books", emoji: "🎧", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
-        { name: "Poetry", emoji: "📝", reason: "Explore emotional expression and linguistic creativity through verse." },
-        { name: "Art Exhibitions", emoji: "🖼️", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
+        { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles." },
+        { name: "Literature Analysis", emoji: "", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
+        { name: "Audio Books", emoji: "", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
+        { name: "Poetry", emoji: "", reason: "Explore emotional expression and linguistic creativity through verse." },
+        { name: "Art Exhibitions", emoji: "", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
       ].filter(s => !interests.includes(s.name));
 
       log("[OpenAI] Using fallback suggestions");
@@ -187,11 +187,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
 
     // Provide fallbacks even in case of complete API failure
     const fallbacks = [
-        { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
-        { name: "Literature Analysis", emoji: "📚", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
-        { name: "Audio Books", emoji: "🎧", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
-        { name: "Poetry", emoji: "📝", reason: "Explore emotional expression and linguistic creativity through verse." },
-        { name: "Art Exhibitions", emoji: "🖼️", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
+        { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles." },
+        { name: "Literature Analysis", emoji: "", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
+        { name: "Audio Books", emoji: "", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
+        { name: "Poetry", emoji: "", reason: "Explore emotional expression and linguistic creativity through verse." },
+        { name: "Art Exhibitions", emoji: "", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
     ].filter(s => !Array.isArray(interests) ? true : !interests.includes(s.name));
 
     return { suggestions: fallbacks };
