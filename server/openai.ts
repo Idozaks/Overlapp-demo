@@ -141,13 +141,8 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         let reason = suggestion.reason || 'Based on your selected interests';
 
         if (suggestion.emoji && typeof suggestion.emoji === 'string') {
-          // Ensure we get just the first emoji if multiple are returned
-          const trimmedEmoji = suggestion.emoji.trim();
-          // Simple emoji extraction as a workaround for the regex issue
-          const emojiMatch = [trimmedEmoji[0]];
-          if (emojiMatch) {
-            emoji = emojiMatch[0];
-          }
+          // The MVP doesn't display emojis, so we'll just set it to empty string
+        emoji = ''; // Explicitly set to empty string to avoid rendering issues
         }
 
         validSuggestions.push({ name, emoji, reason });
