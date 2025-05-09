@@ -312,7 +312,7 @@ export default function InterestSuggestions({
                     className="cursor-pointer text-sm py-1.5 px-3 hover:shadow-sm transition-all"
                     onClick={() => toggleSuggestion(suggestion.name)}
                   >
-                    {suggestion.emoji} {suggestion.name}
+                    {suggestion.name}
                   </Badge>
                 ))}
 
@@ -335,32 +335,7 @@ export default function InterestSuggestions({
           >
             {t("common.save")}
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => generateEmojisMutation.mutate()}
-            disabled={generateEmojisMutation.isPending}
-          >
-            {generateEmojisMutation.isPending ? (
-              <div className="flex items-center">
-                <div className="relative w-6 h-6 mr-2">
-                  <div className="absolute inset-0">
-                    <svg className="w-full h-full" viewBox="0 0 36 36">
-                      <circle cx="18" cy="18" r="16" fill="none" className="stroke-current" strokeWidth="2" strokeDasharray="100" strokeDashoffset={100 - progress}/>
-                    </svg>
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">
-                    {progress}%
-                  </div>
-                </div>
-                Generating...
-              </div>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Add Emojis
-              </>
-            )}
-          </Button>
+
         </div>
       </Card>
     </div>
