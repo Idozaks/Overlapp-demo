@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { GptButton } from "@/components/ui/gpt-button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -438,31 +439,19 @@ const PersonOnline: FC = () => {
                       <ArrowUpRightIcon className="w-3 h-3 mr-2" />
                       Visit Platform
                     </Button>
-                    <Button
+                    <GptButton
                       size="sm"
-                      variant="secondary"
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
                       onClick={() => {
                         setSelectedUser(user);
                         analyzeConnection.mutate(user);
                       }}
-                      disabled={
-                        analyzeConnection.isPending &&
-                        selectedUser?.id === user.id
-                      }
+                      isLoading={analyzeConnection.isPending && selectedUser?.id === user.id}
+                      loadingText="Analyzing..."
+                      className="gap-2"
                     >
-                      {analyzeConnection.isPending &&
-                      selectedUser?.id === user.id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
-                          Analyzing
-                        </>
-                      ) : (
-                        <>
-                          <SparklesIcon className="w-4 h-4 mr-2 animate-pulse" /> Analyze Overlap
-                        </>
-                      )}
-                    </Button>
+                      <SparklesIcon className="w-4 h-4" /> 
+                      Analyze Overlap
+                    </GptButton>
                   </div>
                 </div>
               </CardContent>
@@ -476,7 +465,7 @@ const PersonOnline: FC = () => {
         <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
-              <SparklesIcon className="w-5 h-5 text-purple-600 animate-pulse" />
+              <SparklesIcon className="w-5 h-5 text-teal-500" />
               Connection Analysis
             </DialogTitle>
             <DialogDescription>
@@ -492,7 +481,7 @@ const PersonOnline: FC = () => {
           {analyzeConnection.isPending ? (
             <div className="py-8 space-y-4">
               <div className="flex flex-col items-center justify-center">
-                <BrainCircuit className="w-12 h-12 text-purple-600 mb-4 animate-pulse" />
+                <BrainCircuit className="w-12 h-12 text-teal-500 mb-4 animate-pulse" />
                 <p className="text-lg font-medium mb-2">
                   Analyzing Psychology Profile
                 </p>
@@ -510,7 +499,7 @@ const PersonOnline: FC = () => {
                     <span>Analyzing profiles...</span>
                     <span className="font-medium">{Math.min(Math.round(progressValue), 99)}%</span>
                   </div>
-                  <Progress value={Math.min(progressValue, 99)} className="h-2 [&>div]:bg-purple-600" />
+                  <Progress value={Math.min(progressValue, 99)} className="h-2 [&>div]:bg-teal-500" />
                 </div>
               </div>
             </div>
@@ -545,11 +534,11 @@ const PersonOnline: FC = () => {
                   <CollapsibleTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full flex items-center justify-center gap-2 mt-4 border-purple-300 hover:bg-purple-50"
+                      className="w-full flex items-center justify-center gap-2 mt-4 border-teal-300 hover:bg-teal-50"
                     >
-                      <BrainCircuit className="w-4 h-4 text-purple-600" />
+                      <BrainCircuit className="w-4 h-4 text-teal-500" />
                       <span>View Psychological Overlap</span>
-                      <ChevronDown className="h-4 w-4 text-purple-400 transition-all group-data-[state=open]:rotate-180" />
+                      <ChevronDown className="h-4 w-4 text-teal-400 transition-all group-data-[state=open]:rotate-180" />
                     </Button>
                   </CollapsibleTrigger>
 
@@ -566,7 +555,7 @@ const PersonOnline: FC = () => {
                             {connectionAnalysis.conversationStarters.map(
                               (starter, i) => (
                                 <li key={i} className="text-sm flex gap-2">
-                                  <MessageCircleIcon className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                                  <MessageCircleIcon className="w-4 h-4 text-teal-500 shrink-0 mt-0.5" />
                                   <span className="break-words">{starter}</span>
                                 </li>
                               ),
