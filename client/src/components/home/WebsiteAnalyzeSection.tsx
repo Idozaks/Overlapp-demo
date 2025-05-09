@@ -1,13 +1,17 @@
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
-import { GlobeIcon, Loader2, SparklesIcon, ArrowRightIcon, MessageCircleIcon } from "lucide-react";
+import { 
+  GlobeIcon, Loader2, SparklesIcon, ArrowRightIcon, 
+  MessageCircleIcon, ShoppingCartIcon, UsersIcon, 
+  NewspaperIcon, GraduationCapIcon, HeartIcon, 
+  MusicIcon, PlayIcon, BookIcon, CameraIcon 
+} from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 type WebsiteAnalysisRequest = {
@@ -26,16 +30,116 @@ type WebsiteAnalysisResult = {
   description?: string;
 };
 
+type WebsiteOption = {
+  id: number;
+  name: string;
+  url: string;
+  category: string;
+  icon: JSX.Element;
+};
+
 export const WebsiteAnalyzeSection: FC = () => {
-  const [url, setUrl] = useState("");
+  const [selectedWebsite, setSelectedWebsite] = useState<WebsiteOption | null>(null);
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [analysis, setAnalysis] = useState<WebsiteAnalysisResult | null>(null);
+  const [preloadedAnalyses, setPreloadedAnalyses] = useState<Record<number, WebsiteAnalysisResult>>({});
+  const [activePreloads, setActivePreloads] = useState<Set<number>>(new Set());
   
   // Mock user interests for MVP demo
   const mockUserInterests = [
     "Technology", "Programming", "Web Development", 
     "Artificial Intelligence", "Machine Learning", 
-    "Data Science", "UX/UI Design", "Startups"
+    "Data Science", "UX/UI Design", "Startups",
+    "Music", "Movies", "Education", "Shopping",
+    "Photography", "Literature", "Social Media"
+  ];
+
+  // Predefined website options
+  const websiteOptions: WebsiteOption[] = [
+    {
+      id: 1,
+      name: "GitHub",
+      url: "https://github.com",
+      category: "Technology",
+      icon: <GlobeIcon className="w-5 h-5" />
+    },
+    {
+      id: 2,
+      name: "Amazon",
+      url: "https://amazon.com",
+      category: "Shopping",
+      icon: <ShoppingCartIcon className="w-5 h-5" />
+    },
+    {
+      id: 3,
+      name: "LinkedIn",
+      url: "https://linkedin.com",
+      category: "Social",
+      icon: <UsersIcon className="w-5 h-5" />
+    },
+    {
+      id: 4,
+      name: "TechCrunch",
+      url: "https://techcrunch.com",
+      category: "News",
+      icon: <NewspaperIcon className="w-5 h-5" />
+    },
+    {
+      id: 5,
+      name: "Coursera",
+      url: "https://coursera.org",
+      category: "Education",
+      icon: <GraduationCapIcon className="w-5 h-5" />
+    },
+    {
+      id: 6,
+      name: "Etsy",
+      url: "https://etsy.com",
+      category: "Shopping",
+      icon: <ShoppingCartIcon className="w-5 h-5" />
+    },
+    {
+      id: 7,
+      name: "Spotify",
+      url: "https://spotify.com",
+      category: "Music",
+      icon: <MusicIcon className="w-5 h-5" />
+    },
+    {
+      id: 8,
+      name: "Netflix",
+      url: "https://netflix.com",
+      category: "Entertainment",
+      icon: <PlayIcon className="w-5 h-5" />
+    },
+    {
+      id: 9,
+      name: "Goodreads",
+      url: "https://goodreads.com",
+      category: "Books",
+      icon: <BookIcon className="w-5 h-5" />
+    },
+    {
+      id: 10,
+      name: "Unsplash",
+      url: "https://unsplash.com",
+      category: "Photography",
+      icon: <CameraIcon className="w-5 h-5" />
+    },
+    {
+      id: 11,
+      name: "Medium",
+      url: "https://medium.com",
+      category: "Content",
+      icon: <NewspaperIcon className="w-5 h-5" />
+    },
+    {
+      id: 12,
+      name: "Pinterest",
+      url: "https://pinterest.com",
+      category: "Social",
+      icon: <HeartIcon className="w-5 h-5" />
+    },
   ];
 
   const analyzeWebsite = useMutation({
@@ -50,15 +154,64 @@ export const WebsiteAnalyzeSection: FC = () => {
       });
       return response as WebsiteAnalysisResult;
     },
-    onSuccess: (data) => {
-      setAnalysis(data);
-      setAnalysisOpen(true);
+    onSuccess: (data, variables) => {
+      // Only open the dialog if this is the selected website
+      const website = websiteOptions.find(w => w.url === variables);
+      if (website && selectedWebsite && website.id === selectedWebsite.id) {
+        setAnalysis(data);
+        setAnalysisOpen(true);
+      }
+      
+      // Store the preloaded analysis
+      if (website) {
+        setPreloadedAnalyses(prev => ({
+          ...prev,
+          [website.id]: data
+        }));
+        
+        // Remove from active preloads
+        setActivePreloads(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(website.id);
+          return newSet;
+        });
+      }
     }
   });
 
-  const handleAnalyze = () => {
-    if (url) {
-      analyzeWebsite.mutate(url);
+  // Preload analyses in the background
+  useEffect(() => {
+    // Get random websites to preload (3 at a time)
+    const preloadCount = 3;
+    const websitesToPreload = [...websiteOptions]
+      .filter(w => !preloadedAnalyses[w.id] && !activePreloads.has(w.id))
+      .sort(() => Math.random() - 0.5)
+      .slice(0, preloadCount);
+    
+    if (websitesToPreload.length === 0) return;
+    
+    // Mark these as active preloads
+    const newActivePreloads = new Set(activePreloads);
+    websitesToPreload.forEach(website => {
+      newActivePreloads.add(website.id);
+      // Start preloading
+      analyzeWebsite.mutate(website.url);
+    });
+    
+    setActivePreloads(newActivePreloads);
+  }, [preloadedAnalyses, activePreloads]);
+
+  const handleSelectWebsite = (website: WebsiteOption) => {
+    setSelectedWebsite(website);
+    
+    // If analysis is already preloaded, show it immediately
+    if (preloadedAnalyses[website.id]) {
+      setAnalysis(preloadedAnalyses[website.id]);
+      setAnalysisOpen(true);
+    } else {
+      // Otherwise start analysis and open dialog to show loading
+      analyzeWebsite.mutate(website.url);
+      setAnalysisOpen(true);
     }
   };
 
@@ -70,45 +223,32 @@ export const WebsiteAnalyzeSection: FC = () => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Analyze Website</h2>
-      <p className="text-muted-foreground">
-        Enter a website URL to discover how it aligns with your interests
+      <h2 className="text-xl font-semibold">Website Interest Analysis</h2>
+      <p className="text-muted-foreground mb-4">
+        Discover how these popular websites align with your interests
       </p>
 
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4">
-            <div className="relative">
-              <GlobeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="Enter website URL"
-                className="pl-10"
-              />
+      {/* Website grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {websiteOptions.map((website) => (
+          <Button
+            key={website.id}
+            variant="outline"
+            className={`h-auto p-3 flex flex-col items-center justify-center gap-2 hover:bg-muted ${
+              selectedWebsite?.id === website.id ? 'ring-2 ring-primary' : ''
+            }`}
+            onClick={() => handleSelectWebsite(website)}
+          >
+            <div className="p-2 rounded-full bg-primary/10">
+              {website.icon}
             </div>
-            <Button 
-              onClick={handleAnalyze}
-              disabled={!url || analyzeWebsite.isPending}
-              className={`bg-teal-500 hover:bg-teal-600 text-white ${
-                analyzeWebsite.isPending ? 'bg-amber-500 hover:bg-amber-600' : ''
-              }`}
-            >
-              {analyzeWebsite.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> 
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <SparklesIcon className="w-4 h-4 mr-2" /> 
-                  Analyze Overlap
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <span className="text-xs font-medium">{website.name}</span>
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+              {website.category}
+            </Badge>
+          </Button>
+        ))}
+      </div>
 
       {/* Analysis Dialog */}
       <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
@@ -119,16 +259,16 @@ export const WebsiteAnalyzeSection: FC = () => {
               Website Analysis
             </DialogTitle>
             <DialogDescription>
-              {analysis && (
+              {selectedWebsite && (
                 <div className="flex items-center">
                   <span>Analysis for </span>
                   <a 
-                    href={analysis.url} 
+                    href={selectedWebsite.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-primary hover:underline flex items-center ml-1"
                   >
-                    {analysis.websiteName}
+                    {selectedWebsite.name}
                     <ArrowRightIcon className="w-3 h-3 ml-1" />
                   </a>
                 </div>
@@ -136,7 +276,12 @@ export const WebsiteAnalyzeSection: FC = () => {
             </DialogDescription>
           </DialogHeader>
           
-          {analysis && (
+          {!analysis ? (
+            <div className="flex flex-col items-center justify-center py-10">
+              <Loader2 className="w-8 h-8 text-amber-500 animate-spin mb-4" />
+              <p className="text-muted-foreground text-sm">Analyzing website content and interests...</p>
+            </div>
+          ) : (
             <ScrollArea className="flex-grow my-2 pr-4">
               <div className="space-y-4">
                 {/* Overlap Score */}
