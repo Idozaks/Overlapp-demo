@@ -1857,37 +1857,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
+        let usingFallbacks = false;
+        
         if (parsedSuggestions.length === 0) {
           // Provide fallback suggestions
+          usingFallbacks = true;
           parsedSuggestions = [
-            { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles." },
-            { name: "Photography Workshops", emoji: "", reason: "Learn new techniques and connect with other photography enthusiasts." },
-            { name: "Tech Podcasts", emoji: "", reason: "Stay updated on technology trends while on the go." },
-            { name: "Outdoor Adventures", emoji: "", reason: "Combine your love for nature with exciting activities." },
-            { name: "Local Volunteering", emoji: "", reason: "Give back to your community while meeting like-minded people." }
+            { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles.", isFallback: true },
+            { name: "Photography Workshops", emoji: "", reason: "Learn new techniques and connect with other photography enthusiasts.", isFallback: true },
+            { name: "Tech Podcasts", emoji: "", reason: "Stay updated on technology trends while on the go.", isFallback: true },
+            { name: "Outdoor Adventures", emoji: "", reason: "Combine your love for nature with exciting activities.", isFallback: true },
+            { name: "Local Volunteering", emoji: "", reason: "Give back to your community while meeting like-minded people.", isFallback: true }
           ].filter(sugg => !interests.includes(sugg.name));
         }
 
-        res.json({ suggestions: parsedSuggestions });
+        res.json({ 
+          suggestions: parsedSuggestions,
+          usingFallbacks: usingFallbacks
+        });
       } catch (error) {
         log("Error in interest enrichment:", error instanceof Error ? error.message : String(error));
-        // Return fallback suggestions
+        // Return fallback suggestions with clear indication they are fallbacks
         const fallbackSuggestions = [
-          { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles." },
-          { name: "Photography Workshops", emoji: "", reason: "Learn new techniques and connect with other photography enthusiasts." },
-          { name: "Tech Podcasts", emoji: "", reason: "Stay updated on technology trends while on the go." },
-          { name: "Outdoor Adventures", emoji: "", reason: "Combine your love for nature with exciting activities." },
-          { name: "Local Volunteering", emoji: "", reason: "Give back to your community while meeting like-minded people." }
+          { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles.", isFallback: true },
+          { name: "Photography Workshops", emoji: "", reason: "Learn new techniques and connect with other photography enthusiasts.", isFallback: true },
+          { name: "Tech Podcasts", emoji: "", reason: "Stay updated on technology trends while on the go.", isFallback: true },
+          { name: "Outdoor Adventures", emoji: "", reason: "Combine your love for nature with exciting activities.", isFallback: true },
+          { name: "Local Volunteering", emoji: "", reason: "Give back to your community while meeting like-minded people.", isFallback: true }
         ].filter(sugg => !interests.includes(sugg.name));
         
-        res.json({ suggestions: fallbackSuggestions });
+        res.json({ 
+          suggestions: fallbackSuggestions,
+          usingFallbacks: true
+        });
       }
     } catch (error) {
       log("Interest enrichment error:", error instanceof Error ? error.message : String(error));
-      res.status(500).json({
-        message: "Failed to enrich interests",
-        error: error instanceof Error ? error.message : String(error)
-      });
+      
+      // Even in case of a total error, still try to provide fallback suggestions
+      try {
+        // Return fallback suggestions with clear indication they are fallbacks
+        const fallbackSuggestions = [
+          { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles.", isFallback: true },
+          { name: "Photography Workshops", emoji: "", reason: "Learn new techniques and connect with other photography enthusiasts.", isFallback: true },
+          { name: "Tech Podcasts", emoji: "", reason: "Stay updated on technology trends while on the go.", isFallback: true },
+          { name: "Outdoor Adventures", emoji: "", reason: "Combine your love for nature with exciting activities.", isFallback: true },
+          { name: "Local Volunteering", emoji: "", reason: "Give back to your community while meeting like-minded people.", isFallback: true }
+        ].filter(sugg => !interests.includes(sugg.name));
+        
+        return res.json({ 
+          suggestions: fallbackSuggestions,
+          usingFallbacks: true
+        });
+      } catch {
+        // If providing fallbacks also fails, then return error
+        res.status(500).json({
+          message: "Failed to enrich interests",
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
     }
   });
 

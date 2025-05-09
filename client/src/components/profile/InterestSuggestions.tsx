@@ -233,7 +233,7 @@ export default function InterestSuggestions({
         toast({
           title: t("profile.enrichPartialSuccess"),
           description: t("profile.usingFallbackSuggestions"),
-          variant: "warning"
+          variant: "default" // Changed from "warning" to "default" as warning is not a valid variant
         });
       } else {
         toast({
@@ -347,7 +347,7 @@ export default function InterestSuggestions({
                   <div className="mb-4 p-3 border border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800 rounded-md text-amber-800 dark:text-amber-200">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <Sparkles className="h-4 w-4 text-amber-500" />
-                      <span>AI suggestions are currently unavailable - showing standard suggestions</span>
+                      <span>AI-powered suggestions are temporarily unavailable - showing curated alternatives</span>
                     </div>
                   </div>
                 )}
