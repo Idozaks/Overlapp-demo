@@ -197,6 +197,39 @@ const PersonOnline: FC = () => {
     },
   });
 
+  // Effect to simulate progress when analyzing
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (analyzeConnection.isPending) {
+      setProgressValue(0); // Reset progress
+      
+      // Start the progress simulation
+      interval = setInterval(() => {
+        setProgressValue(prevProgress => {
+          // Increment but simulate slowdown near high percentages
+          // to give time for the actual API response
+          if (prevProgress < 70) {
+            return prevProgress + 5; // Faster in the beginning
+          } else if (prevProgress < 90) {
+            return prevProgress + 2; // Slower in the middle
+          } else {
+            return prevProgress + 0.5; // Very slow at the end
+          }
+        });
+      }, 200); // Update every 200ms
+    } else {
+      // When analysis is complete, set to 100%
+      if (progressValue > 0) {
+        setProgressValue(100);
+      }
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [analyzeConnection.isPending, progressValue]);
+
   // Simulated online users data
   const mockOnlineUsers: OnlineUser[] = [
     {
@@ -424,8 +457,7 @@ const PersonOnline: FC = () => {
                         </>
                       ) : (
                         <>
-                          <SparklesIcon className="w-4 h-4 mr-2" /> Analyze
-                          Match
+                          <SparklesIcon className="w-4 h-4 mr-2" /> Analyze Overlap
                         </>
                       )}
                     </Button>
@@ -464,20 +496,19 @@ const PersonOnline: FC = () => {
                 </p>
                 <p className="text-sm text-muted-foreground text-center mb-4 max-w-xs">
                   Our AI is analyzing the psychological overlap between your
-                  profile and
+                  profile and {" "}
                   {selectedUser?.displayName ||
                     selectedUser?.username ||
-                    "'s profile"}
-                  .
+                    "'s profile"}.
                 </p>
 
-                {/* Fake progress that increases over time */}
+                {/* Dynamic progress that increases over time */}
                 <div className="w-full max-w-xs space-y-2">
                   <div className="flex justify-between text-sm mb-1">
                     <span>Analyzing profiles...</span>
-                    <span className="font-medium">65%</span>
+                    <span className="font-medium">{Math.min(Math.round(progressValue), 99)}%</span>
                   </div>
-                  <Progress value={65} className="h-2" />
+                  <Progress value={Math.min(progressValue, 99)} className="h-2" />
                 </div>
               </div>
             </div>
