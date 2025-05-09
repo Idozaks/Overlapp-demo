@@ -440,6 +440,8 @@ const PersonOnline: FC = () => {
                     </Button>
                     <Button
                       size="sm"
+                      variant="secondary"
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
                       onClick={() => {
                         setSelectedUser(user);
                         analyzeConnection.mutate(user);
@@ -457,7 +459,7 @@ const PersonOnline: FC = () => {
                         </>
                       ) : (
                         <>
-                          <SparklesIcon className="w-4 h-4 mr-2" /> Analyze Overlap
+                          <SparklesIcon className="w-4 h-4 mr-2 animate-pulse" /> Analyze Overlap
                         </>
                       )}
                     </Button>
@@ -474,7 +476,7 @@ const PersonOnline: FC = () => {
         <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
-              <SparklesIcon className="w-5 h-5 text-primary" />
+              <SparklesIcon className="w-5 h-5 text-purple-600 animate-pulse" />
               Connection Analysis
             </DialogTitle>
             <DialogDescription>
@@ -490,7 +492,7 @@ const PersonOnline: FC = () => {
           {analyzeConnection.isPending ? (
             <div className="py-8 space-y-4">
               <div className="flex flex-col items-center justify-center">
-                <BrainCircuit className="w-12 h-12 text-primary mb-4 animate-pulse" />
+                <BrainCircuit className="w-12 h-12 text-purple-600 mb-4 animate-pulse" />
                 <p className="text-lg font-medium mb-2">
                   Analyzing Psychology Profile
                 </p>
@@ -508,7 +510,7 @@ const PersonOnline: FC = () => {
                     <span>Analyzing profiles...</span>
                     <span className="font-medium">{Math.min(Math.round(progressValue), 99)}%</span>
                   </div>
-                  <Progress value={Math.min(progressValue, 99)} className="h-2" />
+                  <Progress value={Math.min(progressValue, 99)} className="h-2 [&>div]:bg-purple-600" />
                 </div>
               </div>
             </div>
@@ -543,11 +545,11 @@ const PersonOnline: FC = () => {
                   <CollapsibleTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full flex items-center justify-center gap-2 mt-4"
+                      className="w-full flex items-center justify-center gap-2 mt-4 border-purple-300 hover:bg-purple-50"
                     >
-                      <BrainCircuit className="w-4 h-4" />
+                      <BrainCircuit className="w-4 h-4 text-purple-600" />
                       <span>View Psychological Overlap</span>
-                      <ChevronDown className="h-4 w-4 text-muted-foreground transition-all group-data-[state=open]:rotate-180" />
+                      <ChevronDown className="h-4 w-4 text-purple-400 transition-all group-data-[state=open]:rotate-180" />
                     </Button>
                   </CollapsibleTrigger>
 
@@ -564,7 +566,7 @@ const PersonOnline: FC = () => {
                             {connectionAnalysis.conversationStarters.map(
                               (starter, i) => (
                                 <li key={i} className="text-sm flex gap-2">
-                                  <MessageCircleIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                  <MessageCircleIcon className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
                                   <span className="break-words">{starter}</span>
                                 </li>
                               ),
