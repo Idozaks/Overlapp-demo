@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +13,8 @@ import { useTranslation } from "react-i18next";
 interface InterestSuggestion {
   name: string;
   emoji: string;
+  isFallback?: boolean;
+  reason?: string;
 }
 
 interface InterestSuggestionsProps {
@@ -292,14 +295,28 @@ export default function InterestSuggestions({
 
               <div className="flex flex-wrap gap-2 mb-6">
                 {suggestedInterests.map((suggestion, index) => (
-                  <Badge
+                  <Tooltip
                     key={`suggestion-${suggestion.name}-${index}`}
-                    variant={selectedSuggestions.has(suggestion.name) ? "default" : "outline"}
-                    className="cursor-pointer text-sm py-1.5 px-3 hover:shadow-sm transition-all"
-                    onClick={() => toggleSuggestion(suggestion.name)}
+                    content={
+                      <div className="max-w-xs">
+                        <p className="font-medium">{suggestion.name}</p>
+                        {suggestion.reason && (
+                          <p className="text-xs mt-1 text-slate-200">{suggestion.reason}</p>
+                        )}
+                      </div>
+                    }
                   >
-                    {suggestion.name}
-                  </Badge>
+                    <Badge
+                      variant={selectedSuggestions.has(suggestion.name) ? "default" : "outline"}
+                      className={`cursor-pointer text-sm py-1.5 px-3 hover:shadow-sm transition-all ${suggestion.isFallback ? 'border-dashed border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100' : ''}`}
+                      onClick={() => toggleSuggestion(suggestion.name)}
+                    >
+                      {suggestion.name}
+                      {suggestion.isFallback && (
+                        <span className="ml-1 text-[10px] italic text-amber-600 dark:text-amber-400">(suggested)</span>
+                      )}
+                    </Badge>
+                  </Tooltip>
                 ))}
 
                 {suggestedInterests.length === 0 && !isLoading && (
