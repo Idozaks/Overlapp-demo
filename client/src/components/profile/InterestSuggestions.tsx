@@ -33,7 +33,8 @@ export default function InterestSuggestions({
   const [selectedSuggestions, setSelectedSuggestions] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
-  const [progress, setProgress] = useState(0); // Added progress state
+  // Emoji generation progress no longer needed as we removed emojis
+  // const [progress, setProgress] = useState(0); // Added progress state
 
   // Initialize animations and UI state
   useEffect(() => {
@@ -54,8 +55,7 @@ export default function InterestSuggestions({
   const generateEmojisMutation = useMutation({
     mutationFn: async () => {
       const totalInterests = suggestions.length;
-      // Let the server handle the batching
-      setProgress(0);
+      // Emoji generation no longer needed
       
       // First get all existing interests
       const interestsResponse = await fetch('/api/interests');
@@ -89,18 +89,17 @@ export default function InterestSuggestions({
 
       const data = await response.json();
       
-      // Final progress update
-      setProgress(100);
+      // Emoji generation removed
       return data.interests;
     },
     onMutate: () => {
-      setProgress(0);
+      // Progress tracking removed
     },
     onSettled: () => {
-      setProgress(0); // Reset progress on completion or error
+      // Progress tracking removed
     },
     onSuccess: (data) => {
-      setProgress(100); // Set progress to 100% on success
+      // Progress tracking removed
       setSuggestions(prev => 
         prev.map(suggestion => {
           const match = data.find(d => d.name === suggestion.name);
@@ -253,23 +252,10 @@ export default function InterestSuggestions({
     setLocation(`/profile/${userId}/edit`);
   };
 
-  // Placeholder for emoji generation - needs implementation
+  // Emoji generation removed as requested
   const generateInterestEmoji = (interest: string): string => {
-    // Implement your emoji generation logic here based on the interest
-    // For example, a simple mapping:
-    const emojiMap: { [key: string]: string } = {
-      "Gaming": "🎮",
-      "Reading": "📚",
-      "Coding": "💻",
-      "Movies": "🎬",
-      "Music": "🎵",
-      "Sports": "⚽️",
-      "Travel": "✈️",
-      "Cooking": "🍳",
-      "Art": "🎨",
-      "default": "✨"
-    };
-    return emojiMap[interest] || emojiMap["default"];
+    // Return empty string for all interests since we've removed emojis
+    return '';
   };
 
   return (
