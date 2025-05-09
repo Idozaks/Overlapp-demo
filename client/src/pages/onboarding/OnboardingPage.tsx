@@ -165,16 +165,10 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
             reason: 'Based on your selected interests'
           };
         } else if (typeof suggestion === 'object' && suggestion !== null) {
-          // Check for valid emoji (not diamond/question mark placeholder)
-          let emoji = suggestion.emoji || '✨';
-          // If emoji is a diamond (◇) or other placeholder, replace with spark
-          if (/^[\u25C7\u25A1\u2753\u2B1C\u25CB]$/.test(emoji)) {
-            emoji = '✨';
-          }
-          
+          // For MVP: Completely remove emojis to avoid display issues
           return {
             name: suggestion.name || '',
-            emoji: emoji,
+            emoji: '', // No emoji 
             reason: suggestion.reason || 'Based on your selected interests'
           };
         }
@@ -399,7 +393,7 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
                           `}
                           onClick={() => handleSuggestionToggle(suggestion.name)}
                         >
-                          {suggestion.emoji} {suggestion.name}
+                          ◊ {suggestion.name}
                         </Badge>
                       ))}
                       
@@ -422,7 +416,7 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {suggestedInterests.map((suggestion, index) => (
                           <div key={`reason-${index}-${suggestion.name}`} className="text-xs text-gray-600 border-b border-gray-100 pb-2 last:border-0">
-                            <span className="font-medium">{suggestion.emoji} {suggestion.name}:</span> {suggestion.reason || "Based on your selected interests"}
+                            <span className="font-medium">◊ {suggestion.name}:</span> {suggestion.reason || "Based on your selected interests"}
                           </div>
                         ))}
                       </div>
