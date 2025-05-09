@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { GptButton } from "@/components/ui/gpt-button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -319,20 +320,19 @@ const PersonNearby: FC = () => {
                   
                   <div className="flex justify-between mt-4">
                     <Button size="sm" variant="outline">View Profile</Button>
-                    <Button 
+                    <GptButton 
                       size="sm"
                       onClick={() => {
                         setSelectedUser(user);
                         analyzeConnection.mutate(user);
                       }}
-                      disabled={analyzeConnection.isPending && selectedUser?.id === user.id}
+                      isLoading={analyzeConnection.isPending && selectedUser?.id === user.id}
+                      loadingText="Analyzing..."
+                      className="gap-2"
                     >
-                      {analyzeConnection.isPending && selectedUser?.id === user.id ? (
-                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing</>
-                      ) : (
-                        <><SparklesIcon className="w-4 h-4 mr-2" /> Connect</>
-                      )}
-                    </Button>
+                      <SparklesIcon className="w-4 h-4" /> 
+                      Analyze Overlap
+                    </GptButton>
                   </div>
                 </div>
               </CardContent>
