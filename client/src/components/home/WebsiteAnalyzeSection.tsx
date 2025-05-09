@@ -64,8 +64,11 @@ export const WebsiteAnalyzeSection: FC = () => {
   
   // Save analyses to localStorage whenever they change
   useEffect(() => {
-    if (Object.keys(preloadedAnalyses).length > 0) {
+    try {
       localStorage.setItem('website-analyses', JSON.stringify(preloadedAnalyses));
+      console.log('Saved analyses to localStorage:', Object.keys(preloadedAnalyses).length);
+    } catch (e) {
+      console.error('Failed to save analyses to localStorage', e);
     }
   }, [preloadedAnalyses]);
   
@@ -247,23 +250,38 @@ export const WebsiteAnalyzeSection: FC = () => {
   
   // Reset all cached analyses
   const handleResetAnalyses = () => {
+    console.log('Resetting all analyses...');
+    // Clear localStorage and state
     localStorage.removeItem('website-analyses');
     setPreloadedAnalyses({});
+    
+    // Reset active preloads
+    const currentActivePreloads = new Set(activePreloads);
     setActivePreloads(new Set());
-    // Immediately start preloading 3 random websites
-    setTimeout(() => {
-      const websitesToPreload = [...websiteOptions]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3);
-      
-      const newActivePreloads = new Set<number>();
-      websitesToPreload.forEach(website => {
-        newActivePreloads.add(website.id);
+    
+    // Force refresh - we need to force fresh analyses from the server
+    // by invalidating the mutations
+    analyzeWebsite.reset();
+    
+    // Immediately start preloading 3 random websites with fresh data
+    const websitesToPreload = [...websiteOptions]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3);
+    
+    console.log('Starting fresh preloads for:', websitesToPreload.map(w => w.name).join(', '));
+    
+    const newActivePreloads = new Set<number>();
+    websitesToPreload.forEach(website => {
+      newActivePreloads.add(website.id);
+      // Use a timeout to ensure React has time to process the previous state updates
+      setTimeout(() => {
         analyzeWebsite.mutate(website.url);
-      });
-      
+      }, 50);
+    });
+    
+    setTimeout(() => {
       setActivePreloads(newActivePreloads);
-    }, 100);
+    }, 50);
   };
 
   return (
@@ -288,24 +306,40 @@ export const WebsiteAnalyzeSection: FC = () => {
 
       {/* Website grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {websiteOptions.map((website) => (
-          <Button
-            key={website.id}
-            variant="outline"
-            className={`h-auto p-3 flex flex-col items-center justify-center gap-2 hover:bg-muted ${
-              selectedWebsite?.id === website.id ? 'ring-2 ring-primary' : ''
-            }`}
-            onClick={() => handleSelectWebsite(website)}
-          >
-            <div className="p-2 rounded-full bg-primary/10">
-              {website.icon}
-            </div>
-            <span className="text-xs font-medium">{website.name}</span>
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-              {website.category}
-            </Badge>
-          </Button>
-        ))}
+        {websiteOptions.map((website) => {
+          const isPreloaded = !!preloadedAnalyses[website.id];
+          const isLoading = activePreloads.has(website.id);
+          
+          return (
+            <Button
+              key={website.id}
+              variant="outline"
+              className={`h-auto p-3 flex flex-col items-center justify-center gap-2 hover:bg-muted relative ${
+                selectedWebsite?.id === website.id ? 'ring-2 ring-primary' : ''
+              }`}
+              onClick={() => handleSelectWebsite(website)}
+            >
+              {/* Status indicator */}
+              {isPreloaded && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full" 
+                  title="Analysis ready"></div>
+              )}
+              {isLoading && (
+                <div className="absolute top-1 right-1 w-2 h-2">
+                  <Loader2 className="w-3 h-3 animate-spin text-amber-500" />
+                </div>
+              )}
+                
+              <div className="p-2 rounded-full bg-primary/10">
+                {website.icon}
+              </div>
+              <span className="text-xs font-medium">{website.name}</span>
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                {website.category}
+              </Badge>
+            </Button>
+          );
+        })}
       </div>
 
       {/* Analysis Dialog */}
