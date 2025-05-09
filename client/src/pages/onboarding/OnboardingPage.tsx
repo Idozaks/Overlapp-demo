@@ -165,9 +165,16 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
             reason: 'Based on your selected interests'
           };
         } else if (typeof suggestion === 'object' && suggestion !== null) {
+          // Check for valid emoji (not diamond/question mark placeholder)
+          let emoji = suggestion.emoji || '✨';
+          // If emoji is a diamond (◇) or other placeholder, replace with spark
+          if (/^[\u25C7\u25A1\u2753\u2B1C\u25CB]$/.test(emoji)) {
+            emoji = '✨';
+          }
+          
           return {
             name: suggestion.name || '',
-            emoji: suggestion.emoji || '✨',
+            emoji: emoji,
             reason: suggestion.reason || 'Based on your selected interests'
           };
         }
