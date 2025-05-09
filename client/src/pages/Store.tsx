@@ -493,7 +493,7 @@ const StorePage: FC = () => {
                   <ul className="space-y-2">
                     {storeAnalysis.recommendations.map((rec, i) => (
                       <li key={i} className="text-sm flex gap-2">
-                        <MessageCircleIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <MessageCircleIcon className="w-4 h-4 text-teal-500 shrink-0 mt-0.5" />
                         <span className="break-words">{rec}</span>
                       </li>
                     ))}
@@ -508,7 +508,7 @@ const StorePage: FC = () => {
                   <ul className="space-y-1">
                     {storeAnalysis.bestTimesToVisit.map((time, i) => (
                       <li key={i} className="text-sm flex gap-2">
-                        <CalendarIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <CalendarIcon className="w-4 h-4 text-teal-500 shrink-0 mt-0.5" />
                         <span className="break-words">{time}</span>
                       </li>
                     ))}
