@@ -21,6 +21,7 @@ import { generateAIAnalysis, AnalysisRequest } from "./ai-analysis";
 import { generateSpeech, splitTextForTTS } from "./tts";
 import { generateStreamingUserOverlapAnalysis } from "./streamingUserOverlap";
 import { generateSyntheticUserChatResponse } from "./ai-chat";
+import { generateStoreOverlapAnalysis } from "./storeOverlap";
 import { connectionRouter } from "./connection-api";
 
 const scryptAsync = promisify(scrypt);
@@ -383,6 +384,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get nearby stores endpoint
+  app.get("/api/stores/nearby/:radius", async (req: Request, res: Response) => {
+    try {
+      const radius = parseInt(req.params.radius) || 5; // Default radius of 5 miles
+      const { lat, lng, q } = req.query;
+      
+      log("Nearby Stores Request:", JSON.stringify({
+        radius,
+        lat,
+        lng,
+        q
+      }, null, 2));
+      
+      // For MVP/demo purposes, return mock store data
+      // In a real app, we would query a database with geospatial features
+      const mockStores = [
+        {
+          id: 1,
+          name: "Book Haven",
+          category: "Bookstore",
+          description: "An independent bookstore offering a curated selection of fiction, non-fiction, and specialty books.",
+          address: "123 Reading St, New York, NY",
+          distance: 0.7,
+          tags: ["Books", "Reading", "Literature", "Coffee"],
+          openHours: "9:00 AM - 9:00 PM",
+          rating: 4.8,
+          overlapScore: 75
+        },
+        {
+          id: 2,
+          name: "Tech Universe",
+          category: "Electronics",
+          description: "The latest gadgets, computers, and tech accessories with expert staff to help you find what you need.",
+          address: "456 Digital Ave, New York, NY",
+          distance: 1.2,
+          tags: ["Technology", "Electronics", "Gadgets", "Computers"],
+          openHours: "10:00 AM - 8:00 PM",
+          rating: 4.5,
+          overlapScore: 82
+        },
+        {
+          id: 3,
+          name: "Green Earth Market",
+          category: "Grocery",
+          description: "Organic produce, sustainable goods, and locally-sourced foods committed to environmental responsibility.",
+          address: "789 Eco Blvd, New York, NY",
+          distance: 0.9,
+          tags: ["Organic", "Sustainable", "Local", "Food"],
+          openHours: "8:00 AM - 10:00 PM",
+          rating: 4.6,
+          overlapScore: 68
+        },
+        {
+          id: 4,
+          name: "Fashion Forward",
+          category: "Clothing",
+          description: "Trendy and fashionable clothing for all styles, sizes, and occasions with seasonal collections.",
+          address: "101 Style St, New York, NY",
+          distance: 1.5,
+          tags: ["Fashion", "Clothing", "Accessories", "Style"],
+          openHours: "10:00 AM - 9:00 PM",
+          rating: 4.3,
+          overlapScore: 79
+        },
+        {
+          id: 5,
+          name: "The Coffee Lab",
+          category: "Café",
+          description: "Specialty coffee shop featuring single-origin beans, handcrafted beverages, and fresh pastries.",
+          address: "202 Brew Lane, New York, NY",
+          distance: 0.4,
+          tags: ["Coffee", "Café", "Pastries", "Relaxation"],
+          openHours: "6:00 AM - 7:00 PM",
+          rating: 4.9,
+          overlapScore: 88
+        }
+      ];
+      
+      // Apply filters if search query is provided
+      let filteredStores = [...mockStores];
+      if (q && typeof q === 'string' && q.trim() !== '') {
+        const searchQuery = q.toLowerCase().trim();
+        filteredStores = filteredStores.filter(store => 
+          store.name.toLowerCase().includes(searchQuery) || 
+          store.category.toLowerCase().includes(searchQuery) ||
+          store.description.toLowerCase().includes(searchQuery) ||
+          store.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery))
+        );
+      }
+      
+      // Filter by radius
+      filteredStores = filteredStores.filter(store => store.distance <= radius);
+      
+      // Sort by distance
+      filteredStores.sort((a, b) => a.distance - b.distance);
+      
+      res.json({ stores: filteredStores });
+    } catch (error) {
+      log("Error fetching nearby stores:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ 
+        message: "Unable to fetch nearby stores", 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
+  });
+
   // AI Companions routes
   app.get("/api/ai/companions", async (req: Request, res: Response) => {
     try {
@@ -398,6 +505,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Store overlap analysis endpoint
+  app.post("/api/stores/analyze", async (req: Request, res: Response) => {
+    try {
+      // For MVP, we're allowing this endpoint to work without authentication
+      const { storeId, userInterests } = req.body;
+      
+      log("Store Analysis Request:", JSON.stringify({
+        storeId,
+        userInterestsCount: userInterests?.length
+      }, null, 2));
+      
+      if (!storeId || !userInterests || !Array.isArray(userInterests)) {
+        const missingFields = [];
+        if (!storeId) missingFields.push('storeId');
+        if (!userInterests) missingFields.push('userInterests');
+        else if (!Array.isArray(userInterests)) missingFields.push('userInterests (must be an array)');
+        
+        log("Missing required fields for store analysis:", missingFields.join(', '));
+        return res.status(400).json({ 
+          message: `Missing required fields: ${missingFields.join(', ')}`
+        });
+      }
+      
+      // Check if OpenAI API key is set
+      if (!process.env.OPENAI_API_KEY) {
+        log("OPENAI_API_KEY is not set");
+        return res.status(500).json({ 
+          message: "OpenAI API key is not configured" 
+        });
+      }
+      
+      // Get mock store data for demo purposes (in a production app, we'd fetch from DB)
+      // In a real implementation, we'd fetch the store data from the database
+      // This mock implementation is just for the MVP
+      const mockStore = {
+        id: storeId,
+        name: `Store ${storeId}`,
+        category: "Retail",
+        description: "A retail store with various products",
+        products: ["Books", "Electronics", "Clothing", "Food"],
+        tags: ["Shopping", "Retail", "Products"]
+      };
+      
+      // For MVP/demo purposes, using hardcoded store data based on ID
+      if (storeId === 1) {
+        mockStore.name = "Book Haven";
+        mockStore.category = "Bookstore";
+        mockStore.description = "An independent bookstore offering a curated selection of fiction, non-fiction, and specialty books.";
+        mockStore.products = ["Books", "Journals", "Stationery", "Reading accessories"];
+        mockStore.tags = ["Books", "Reading", "Literature", "Coffee"];
+      } else if (storeId === 2) {
+        mockStore.name = "Tech Universe";
+        mockStore.category = "Electronics";
+        mockStore.description = "The latest gadgets, computers, and tech accessories with expert staff to help you find what you need.";
+        mockStore.products = ["Smartphones", "Computers", "Gadgets", "Smart home devices"];
+        mockStore.tags = ["Technology", "Electronics", "Gadgets", "Computers"];
+      } else if (storeId === 3) {
+        mockStore.name = "Green Earth Market";
+        mockStore.category = "Grocery";
+        mockStore.description = "Organic produce, sustainable goods, and locally-sourced foods committed to environmental responsibility.";
+        mockStore.products = ["Organic produce", "Vegan options", "Bulk foods", "Local products"];
+        mockStore.tags = ["Organic", "Sustainable", "Local", "Food"]; 
+      } else if (storeId === 4) {
+        mockStore.name = "Fashion Forward";
+        mockStore.category = "Clothing";
+        mockStore.description = "Trendy and fashionable clothing for all styles, sizes, and occasions with seasonal collections.";
+        mockStore.products = ["Clothing", "Shoes", "Accessories", "Seasonal collections"];
+        mockStore.tags = ["Fashion", "Clothing", "Accessories", "Style"];
+      } else if (storeId === 5) {
+        mockStore.name = "The Coffee Lab";
+        mockStore.category = "Café";
+        mockStore.description = "Specialty coffee shop featuring single-origin beans, handcrafted beverages, and fresh pastries.";
+        mockStore.products = ["Coffee", "Tea", "Pastries", "Light meals"];
+        mockStore.tags = ["Coffee", "Café", "Pastries", "Relaxation"];
+      }
+      
+      // Generate store overlap analysis
+      log(`Generating store overlap analysis for store ${storeId} and user interests`);
+      const analysisResult = await generateStoreOverlapAnalysis({
+        storeId,
+        storeName: mockStore.name,
+        storeCategory: mockStore.category,
+        storeDescription: mockStore.description,
+        storeProducts: mockStore.products,
+        storeTags: mockStore.tags,
+        userInterests
+      });
+      
+      log("Store analysis generated successfully:", JSON.stringify({
+        storeName: mockStore.name,
+        overlapScore: analysisResult.overlapScore,
+        matchingInterestsCount: analysisResult.matchingInterests?.length || 0
+      }, null, 2));
+      
+      res.json(analysisResult);
+    } catch (error) {
+      log("Error generating store overlap analysis:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ 
+        message: "Unable to generate store overlap analysis", 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
+  });
+
   // Create a demo AI companion for testing
   app.post("/api/ai/companions/demo", async (req: Request, res: Response) => {
     try {

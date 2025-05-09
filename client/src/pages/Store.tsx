@@ -406,6 +406,10 @@ const StorePage: FC = () => {
                   <div className="flex justify-end">
                     <Button 
                       size="sm"
+                      variant="outline"
+                      className={`bg-teal-500 hover:bg-teal-600 text-white ${
+                        analyzeStore.isPending && selectedStore?.id === store.id ? 'bg-amber-500 hover:bg-amber-600' : ''
+                      }`}
                       onClick={() => {
                         setSelectedStore(store);
                         analyzeStore.mutate(store);
@@ -415,7 +419,7 @@ const StorePage: FC = () => {
                       {analyzeStore.isPending && selectedStore?.id === store.id ? (
                         <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing</>
                       ) : (
-                        <><SparklesIcon className="w-4 h-4 mr-2" /> Analyze Fit</>
+                        <><SparklesIcon className="w-4 h-4 mr-2" /> Analyze Overlap</>
                       )}
                     </Button>
                   </div>
@@ -431,7 +435,7 @@ const StorePage: FC = () => {
         <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
-              <SparklesIcon className="w-5 h-5 text-primary" />
+              <SparklesIcon className="w-5 h-5 text-teal-500" />
               Store Analysis
             </DialogTitle>
             <DialogDescription>
