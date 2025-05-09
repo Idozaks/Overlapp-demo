@@ -10,7 +10,8 @@ import {
   GlobeIcon, Loader2, SparklesIcon, ArrowRightIcon, 
   MessageCircleIcon, ShoppingCartIcon, UsersIcon, 
   NewspaperIcon, GraduationCapIcon, HeartIcon, 
-  MusicIcon, PlayIcon, BookIcon, CameraIcon 
+  MusicIcon, PlayIcon, BookIcon, CameraIcon,
+  RefreshCcw
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -42,8 +43,31 @@ export const WebsiteAnalyzeSection: FC = () => {
   const [selectedWebsite, setSelectedWebsite] = useState<WebsiteOption | null>(null);
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [analysis, setAnalysis] = useState<WebsiteAnalysisResult | null>(null);
-  const [preloadedAnalyses, setPreloadedAnalyses] = useState<Record<number, WebsiteAnalysisResult>>({});
+  
+  // Load cached analyses from localStorage on component mount
+  const [preloadedAnalyses, setPreloadedAnalyses] = useState<Record<number, WebsiteAnalysisResult>>(() => {
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('website-analyses');
+      if (cached) {
+        try {
+          return JSON.parse(cached);
+        } catch (e) {
+          console.error('Failed to parse cached analyses', e);
+          return {};
+        }
+      }
+    }
+    return {};
+  });
+  
   const [activePreloads, setActivePreloads] = useState<Set<number>>(new Set());
+  
+  // Save analyses to localStorage whenever they change
+  useEffect(() => {
+    if (Object.keys(preloadedAnalyses).length > 0) {
+      localStorage.setItem('website-analyses', JSON.stringify(preloadedAnalyses));
+    }
+  }, [preloadedAnalyses]);
   
   // Mock user interests for MVP demo
   const mockUserInterests = [
@@ -220,13 +244,47 @@ export const WebsiteAnalyzeSection: FC = () => {
     if (score >= 60) return "bg-amber-500";
     return "bg-red-500";
   };
+  
+  // Reset all cached analyses
+  const handleResetAnalyses = () => {
+    localStorage.removeItem('website-analyses');
+    setPreloadedAnalyses({});
+    setActivePreloads(new Set());
+    // Immediately start preloading 3 random websites
+    setTimeout(() => {
+      const websitesToPreload = [...websiteOptions]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      
+      const newActivePreloads = new Set<number>();
+      websitesToPreload.forEach(website => {
+        newActivePreloads.add(website.id);
+        analyzeWebsite.mutate(website.url);
+      });
+      
+      setActivePreloads(newActivePreloads);
+    }, 100);
+  };
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Website Interest Analysis</h2>
-      <p className="text-muted-foreground mb-4">
-        Discover how these popular websites align with your interests
-      </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-semibold">Website Interest Analysis</h2>
+          <p className="text-muted-foreground">
+            Discover how these popular websites align with your interests
+          </p>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={handleResetAnalyses}
+          className="h-8 text-xs"
+        >
+          <RefreshCcw className="w-3 h-3 mr-1" />
+          Reset Analyses
+        </Button>
+      </div>
 
       {/* Website grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
