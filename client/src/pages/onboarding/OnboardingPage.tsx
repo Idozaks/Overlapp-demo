@@ -135,7 +135,7 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
         
         const response = await apiRequest('/api/interests/enrich', {
           method: 'POST',
-          body: { interests: cleanedInterests }
+          body: JSON.stringify({ interests: cleanedInterests })
         });
 
         if (!response.ok) {
