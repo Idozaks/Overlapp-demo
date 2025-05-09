@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useLocation } from "wouter";
 import {
   UserGroupIcon,
@@ -7,10 +7,14 @@ import {
   BuildingStorefrontIcon,
   InformationCircleIcon,
   Cog6ToothIcon,
+  UserCircleIcon
 } from "@heroicons/react/24/outline";
 import WebsiteAnalyzeSection from "@/components/home/WebsiteAnalyzeSection";
+import MvpUserProfile from "@/components/profile/MvpUserProfile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 type OverlapCard = {
   label: string;
@@ -20,6 +24,7 @@ type OverlapCard = {
 
 export const HomeSelector: FC = () => {
   const [, navigate] = useLocation();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const cards: OverlapCard[] = [
     { label: "Person Nearby",       icon: UserGroupIcon,          onClick: () => navigate("/person-nearby") },
@@ -32,8 +37,28 @@ export const HomeSelector: FC = () => {
 
   return (
     <main className="min-h-screen p-6 md:p-8 bg-background">
-      <h1 className="text-2xl font-bold mb-4">Overlapp Dashboard</h1>
+      <div className="flex justify-between items-center mb-2">
+        <h1 className="text-2xl font-bold">Overlapp Dashboard</h1>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="rounded-full w-10 h-10"
+          onClick={() => setProfileOpen(true)}
+        >
+          <Avatar className="h-9 w-9">
+            <AvatarFallback className="bg-primary/10 text-primary">
+              GU
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </div>
       <p className="text-muted-foreground mb-8">Discover your digital-physical overlap with people, places, and content</p>
+      
+      {/* MVP User Profile Dialog */}
+      <MvpUserProfile 
+        isOpen={profileOpen} 
+        onClose={() => setProfileOpen(false)} 
+      />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Quick Access Cards */}
