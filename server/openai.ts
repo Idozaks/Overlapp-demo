@@ -159,6 +159,7 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         ].filter(s => !interests.includes(s.name));
 
         validSuggestions = fallbacks;
+        log("[OpenAI] Using fallback suggestions due to no valid suggestions");
       }
 
       log("[OpenAI] Final suggestions count: " + validSuggestions.length);

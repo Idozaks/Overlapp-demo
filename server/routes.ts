@@ -1765,12 +1765,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid interests format - must be a non-empty array" });
       }
 
-      // Use the OpenAI service that provides enhanced suggestions with emojis and reasons
-      log("[DEBUG] Calling openaiService.enrichInterests with interests:", interests);
-      const result = await openaiService.enrichInterests(interests);
-      
-      if (result && result.suggestions && Array.isArray(result.suggestions)) {
-        return res.json(result);
+      try {
+        // Use the OpenAI service that provides enhanced suggestions with emojis and reasons
+        log("[DEBUG] Calling openaiService.enrichInterests with interests:", interests);
+        const result = await openaiService.enrichInterests(interests);
+        
+        if (result && result.suggestions && Array.isArray(result.suggestions)) {
+          // Check if all suggestions are fallbacks (which means the AI failed to generate)
+          const allFallbacks = result.suggestions.every(sugg => sugg.isFallback === true);
+          
+          if (allFallbacks) {
+            log("[DEBUG] All suggestions are fallbacks - AI service may be unavailable");
+          }
+          
+          return res.json({
+            ...result,
+            usingFallbacks: allFallbacks
+          });
+        }
+      } catch (apiError) {
+        // Log the API error but continue to fallbacks
+        log("[ERROR] OpenAI API error:", apiError);
       }
       
       // Fallback in case of error in the enrichment service

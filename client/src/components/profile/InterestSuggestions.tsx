@@ -36,6 +36,7 @@ export default function InterestSuggestions({
   const [selectedSuggestions, setSelectedSuggestions] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
+  const [usingFallbacks, setUsingFallbacks] = useState(false);
   // Emoji generation progress no longer needed as we removed emojis
   // const [progress, setProgress] = useState(0); // Added progress state
 
@@ -157,6 +158,14 @@ export default function InterestSuggestions({
       // Process suggestions differently based on what the API returned
       let validSuggestions = [];
       
+      // Check if we're using fallbacks
+      if (data && data.usingFallbacks) {
+        setUsingFallbacks(true);
+        console.log('Using fallback suggestions due to AI service limitations');
+      } else {
+        setUsingFallbacks(false);
+      }
+      
       if (data && Array.isArray(data.suggestions)) {
         // New API format returns an object with suggestions array
         console.log('Using new API response format with suggestions array');
@@ -219,10 +228,19 @@ export default function InterestSuggestions({
       setSuggestedInterests(validSuggestions);
       setIsLoading(false);
       setShowAiThinking(false);
-      toast({
-        title: t("profile.enrichSuccess"),
-        description: t("profile.enrichSuccessMessage")
-      });
+      
+      if (data && data.usingFallbacks) {
+        toast({
+          title: t("profile.enrichPartialSuccess"),
+          description: t("profile.usingFallbackSuggestions"),
+          variant: "warning"
+        });
+      } else {
+        toast({
+          title: t("profile.enrichSuccess"),
+          description: t("profile.enrichSuccessMessage")
+        });
+      }
     },
     onError: (error: Error) => {
       setIsLoading(false);
@@ -325,6 +343,15 @@ export default function InterestSuggestions({
               </div>
             ) : (
               <>
+                {usingFallbacks && (
+                  <div className="mb-4 p-3 border border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800 rounded-md text-amber-800 dark:text-amber-200">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <Sparkles className="h-4 w-4 text-amber-500" />
+                      <span>AI suggestions are currently unavailable - showing standard suggestions</span>
+                    </div>
+                  </div>
+                )}
+                
                 <p className="text-sm text-muted-foreground mb-4">
                   {t("profile.tapToSelectInterests")}
                 </p>
