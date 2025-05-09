@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, MapPin, BookOpen, Calendar, PencilIcon } from "lucide-react";
 
-// Mock user data for MVP
-const defaultUser = {
+// Fallback user data for MVP
+const fallbackUser = {
   name: "Guest User",
   username: "guest_user",
   bio: "I'm interested in technology, design, and connecting with like-minded individuals.",
@@ -24,15 +24,77 @@ const defaultUser = {
   ]
 };
 
+// Profile data structure type - for localStorage
+interface OnboardingProfile {
+  name?: string;
+  email?: string;
+  location?: string;
+  occupation?: string;
+  bio?: string;
+  interests?: string[];
+}
+
 interface MvpUserProfileProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 export const MvpUserProfile: FC<MvpUserProfileProps> = ({ isOpen, onClose }) => {
-  // In MVP we're using the default user data
-  // In a full implementation, this would fetch from an API
-  const [user] = useState(defaultUser);
+  // Initialize with fallback data, but try to load from localStorage
+  const [user, setUser] = useState({
+    ...fallbackUser,
+    // We'll populate this with real values from localStorage
+  });
+
+  // Load profile data from localStorage when component mounts
+  useEffect(() => {
+    try {
+      // Try to get user profile from localStorage - using the 'userData' key from OnboardingPage
+      const storedUserData = localStorage.getItem('userData');
+      
+      if (storedUserData) {
+        const userData = JSON.parse(storedUserData);
+        console.log('Loaded user data from localStorage:', userData);
+        
+        // Extract interest names from the indices
+        let interestNames: string[] = [];
+        
+        // Handle both numeric interest indices and string arrays (enriched interests)
+        if (userData.interests && Array.isArray(userData.interests)) {
+          // Get interest names from the static INTERESTS array
+          const INTERESTS = [
+            "Technology", "Art & Design", "Food & Cooking", "Fitness", "Travel", 
+            "Music", "Reading", "Photography", "Gaming", "Fashion", "Gardening", 
+            "Movies", "Science", "Sports", "Podcasts", "Hiking", "Crafts", 
+            "Writing", "Dancing", "Yoga", "Meditation", "Camping", "Cycling", 
+            "Coffee", "Wine", "Pets", "Volunteering"
+          ];
+          
+          // Convert interest indices to names if they are numbers
+          if (userData.interests.length > 0 && typeof userData.interests[0] === 'number') {
+            interestNames = userData.interests.map((id: number) => INTERESTS[id]);
+          }
+        }
+        
+        // Add enriched interests if available
+        if (userData.enrichedInterests && Array.isArray(userData.enrichedInterests)) {
+          interestNames = [...interestNames, ...userData.enrichedInterests];
+        }
+        
+        // Update user with stored profile data
+        setUser(prev => ({
+          ...prev,
+          name: userData.name || prev.name,
+          username: userData.name ? userData.name.toLowerCase().replace(/\s+/g, '_') : prev.username,
+          // No bio field in userData, so keeping the default
+          // Use the enriched + regular interests if available
+          interests: interestNames.length > 0 ? interestNames : prev.interests,
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading profile from localStorage:', error);
+    }
+  }, []);
   const [, navigate] = useLocation();
   
   // Handle edit profile - in MVP this would lead to onboarding
