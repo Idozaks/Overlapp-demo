@@ -71,9 +71,9 @@ export async function apiRequest<T = any>(url: string | RequestOptions, options?
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
+export const getQueryFn: <TData = unknown>(options: {
   on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
+}) => QueryFunction<TData> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     try {
@@ -129,7 +129,7 @@ export const getQueryFn: <T>(options: {
       } else {
         const text = await res.text();
         console.log("Non-JSON response received:", text.substring(0, 100));
-        return { text } as unknown as T;
+        return { text } as unknown as TData;
       }
     } catch (error) {
       console.error("Error in getQueryFn:", error); // Added error logging
