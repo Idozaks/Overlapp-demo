@@ -9,6 +9,7 @@ import {
   CardTitle 
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { GptButton } from '@/components/ui/gpt-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -720,23 +721,15 @@ export function AnalyzeOverlap() {
                       View enhanced AI analysis of your compatibility with {data.entity.name}, 
                       including personalized insights and recommendations.
                     </p>
-                    <Button 
-                      onClick={generateAIAnalysis} 
-                      disabled={isGeneratingAI}
+                    <GptButton 
+                      onClick={generateAIAnalysis}
+                      isLoading={isGeneratingAI}
+                      loadingText="Generating..."
                       className="gap-2"
                     >
-                      {isGeneratingAI ? (
-                        <>
-                          <RefreshCw className="h-4 w-4 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4" />
-                          Show Enhanced Analysis
-                        </>
-                      )}
-                    </Button>
+                      <Sparkles className="h-4 w-4" />
+                      Show Enhanced Analysis
+                    </GptButton>
                   </div>
                 )}
               </TabsContent>
