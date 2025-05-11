@@ -5,7 +5,7 @@
 # ✨ Overlapp - Where Digital Identity Meets Physical Reality
 
 <div align="center">
-  <img src="./client/public/logo.png" alt="Overlapp Logo" width="180" style="margin: 20px 0"/>
+  <img src="public/images/overlapp-logo-animated.gif" alt="Overlapp Animated Logo" width="100%" style="max-width:600px; border-radius:12px; margin: 20px 0"/>
   
   **Discover meaningful connections in both your digital and physical worlds.**
   
