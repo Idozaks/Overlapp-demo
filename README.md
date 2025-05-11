@@ -12,36 +12,38 @@
   [View Demo](https://overlapp.replit.app) | [Try MVP](#getting-started) | [Watch the Tour](https://youtube.com/overlapp)
 </div>
 
-## 📺 See Overlapp in Action
+## 📺 Official Overlapp YouTube Videos
+
+Below are four official Overlapp videos. Click the thumbnails or titles to watch on YouTube.
 
 <div align="center">
   <table>
     <tr>
       <td align="center" width="50%">
         <a href="https://youtu.be/wa2ZeE_BhWY">
-          <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="Product Overview" width="300" style="border-radius:8px;" />
+          <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="Overlapp Product Demo" width="300" style="border-radius:8px;" />
         </a>
-        <p><em>Product Overview</em></p>
+        <p><strong><a href="https://youtu.be/wa2ZeE_BhWY">Overlapp Product Demo</a></strong></p>
       </td>
       <td align="center" width="50%">
         <a href="https://youtu.be/J-ACL_Q2UXw">
-          <img src="https://img.youtube.com/vi/J-ACL_Q2UXw/maxresdefault.jpg" alt="Feature Walkthrough" width="300" style="border-radius:8px;" />
+          <img src="https://img.youtube.com/vi/J-ACL_Q2UXw/maxresdefault.jpg" alt="Overlapp Feature Walkthrough" width="300" style="border-radius:8px;" />
         </a>
-        <p><em>Feature Walkthrough</em></p>
+        <p><strong><a href="https://youtu.be/J-ACL_Q2UXw">Overlapp Feature Walkthrough</a></strong></p>
       </td>
     </tr>
     <tr>
       <td align="center">
         <a href="https://youtu.be/yWqN2HUGDZw">
-          <img src="https://img.youtube.com/vi/yWqN2HUGDZw/maxresdefault.jpg" alt="Use Case Demo" width="300" style="border-radius:8px;" />
+          <img src="https://img.youtube.com/vi/yWqN2HUGDZw/maxresdefault.jpg" alt="Overlapp Use Case Demo" width="300" style="border-radius:8px;" />
         </a>
-        <p><em>Use Case Demo</em></p>
+        <p><strong><a href="https://youtu.be/yWqN2HUGDZw">Overlapp Use Case Demo</a></strong></p>
       </td>
       <td align="center">
         <a href="https://youtu.be/Rk7t0TWYNDg">
-          <img src="https://img.youtube.com/vi/Rk7t0TWYNDg/maxresdefault.jpg" alt="Technical Architecture" width="300" style="border-radius:8px;" />
+          <img src="https://img.youtube.com/vi/Rk7t0TWYNDg/maxresdefault.jpg" alt="Overlapp Technical Architecture" width="300" style="border-radius:8px;" />
         </a>
-        <p><em>Technical Architecture</em></p>
+        <p><strong><a href="https://youtu.be/Rk7t0TWYNDg">Overlapp Technical Architecture</a></strong></p>
       </td>
     </tr>
   </table>
