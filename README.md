@@ -15,10 +15,36 @@
 ## 📺 See Overlapp in Action
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=wa2ZeE_BhWY">
-    <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="Overlapp Product Demo" width="600" style="border-radius:10px" />
-  </a>
-  <p><em>👆 Click to watch our 2-minute product overview</em></p>
+  <table>
+    <tr>
+      <td align="center" width="50%">
+        <a href="https://youtu.be/wa2ZeE_BhWY">
+          <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="Product Overview" width="300" style="border-radius:8px;" />
+        </a>
+        <p><em>Product Overview</em></p>
+      </td>
+      <td align="center" width="50%">
+        <a href="https://youtu.be/J-ACL_Q2UXw">
+          <img src="https://img.youtube.com/vi/J-ACL_Q2UXw/maxresdefault.jpg" alt="Feature Walkthrough" width="300" style="border-radius:8px;" />
+        </a>
+        <p><em>Feature Walkthrough</em></p>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href="https://youtu.be/yWqN2HUGDZw">
+          <img src="https://img.youtube.com/vi/yWqN2HUGDZw/maxresdefault.jpg" alt="Use Case Demo" width="300" style="border-radius:8px;" />
+        </a>
+        <p><em>Use Case Demo</em></p>
+      </td>
+      <td align="center">
+        <a href="https://youtu.be/Rk7t0TWYNDg">
+          <img src="https://img.youtube.com/vi/Rk7t0TWYNDg/maxresdefault.jpg" alt="Technical Architecture" width="300" style="border-radius:8px;" />
+        </a>
+        <p><em>Technical Architecture</em></p>
+      </td>
+    </tr>
+  </table>
 </div>
 
 ## 🚀 The Next Generation Social Discovery Platform
