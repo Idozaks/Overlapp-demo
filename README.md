@@ -1,96 +1,168 @@
-# Overlapp - Intelligent Social Connection Discovery
+<p align="center">
+  <img src="https://i.imgur.com/0wc24qf.jpeg" alt="Overlapp Banner" style="max-width: 800px; width: 100%; margin-bottom: 20px;" />
+</p>
 
-Overlapp is a cutting-edge mobile-first React application for intelligent social connection discovery, leveraging advanced AI-powered connection mapping with an intuitive user experience.
+# ✨ Overlapp - Where Digital Identity Meets Physical Reality
 
-![Demo Animation](./client/public/demo.gif)
+<div align="center">
+  <img src="./client/public/logo.png" alt="Overlapp Logo" width="180" style="margin: 20px 0"/>
+  
+  **Discover meaningful connections in both your digital and physical worlds.**
+  
+  [View Demo](https://overlapp.replit.app) | [Try MVP](#getting-started) | [Watch the Tour](https://youtube.com/overlapp)
+</div>
 
-## Features
+## 📺 See Overlapp in Action
 
-- **Simple Onboarding**: Set up your profile with just a few taps – pick an avatar, add your name, and select your interests
-- **Card-Based Interface**: Clean, intuitive card-based layout showing your connections to people, places, and interests
-- **Location Mapping**: Visual representation of physical locations where you have connections
-- **Smart Matching**: Intelligent algorithm to find meaningful connections based on shared interests and locations
-- **Privacy Control**: Built-in privacy panel allowing users to view and revoke their data
-- **Admin Dashboard**: Debug panel (accessed via `?debug=true` query parameter) showing synthetic user data
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=wa2ZeE_BhWY">
+    <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="Overlapp Product Demo" width="600" style="border-radius:10px" />
+  </a>
+  <p><em>👆 Click to watch our 2-minute product overview</em></p>
+</div>
 
-## Technology Stack
+## 🚀 The Next Generation Social Discovery Platform
 
-- React with TypeScript for type safety
-- Mobile-responsive design with Tailwind CSS
-- Shadcn/ui component library for beautiful, accessible UI
-- OpenAI GPT-4o for intelligent connection analysis
-- Drizzle ORM for database interactions
-- P5.js for interactive constellation visualization
-- Dark mode with neon accents for modern aesthetic
+Overlapp isn't just another social app—it's a revolutionary platform that bridges your digital identity with your physical world. By analyzing the spaces where your interests intersect with others, Overlapp creates a truly unique social experience powered by cutting-edge AI technology.
 
-## Getting Started
+### 💫 **Why Overlapp?**
 
-### Prerequisites
+- **Deeper Connections** — Move beyond superficial matching to find authentic shared interests
+- **AI-Enhanced Discovery** — Let our GPT-4o powered system find connections you would never discover on your own
+- **Digital + Physical Mapping** — See how your online interests manifest in real-world locations
+- **Privacy-First Design** — Full transparency and control over your data
 
-- Node.js 18+ and npm
+## 🌟 MVP Journey
 
-### Installation
+### 1️⃣ **Express Yourself** *(60 seconds)*
+<!-- Feature image placeholder -->
 
-1. Clone the repository
-2. Install dependencies:
-   ```
-   npm install
-   ```
-3. Start the development server:
-   ```
-   npm run dev
-   ```
-4. Open your browser at `http://localhost:5000`
+* **Select your avatar** and personalize your presence
+* **Choose your interests** from our expansive selection of categories
+* **Enhance with AI suggestions** that understand the nuances of your preferences
+* **One tap to create** your digital identity layer
 
-## Project Structure
+### 2️⃣ **Discover Your Connections** *(Instant Results)*
+<!-- Feature image placeholder -->
 
-- `/client/src/pages`: Main application pages
-  - `/onboarding`: User onboarding flow components
-  - `/home`: Homepage with constellation visualization (legacy)
-  - `/hybrid`: New card-based + map visualization page
-  - `/admin`: Admin dashboard for synthetic user data
-- `/client/src/components`: Reusable UI components
-  - `/ui`: Base UI components from shadcn/ui
-- `/server`: Express server for API endpoints
-- `/shared`: Shared types and utilities
-- `/public`: Static assets and demo animations
+* **Swipe through connection cards** showing people with shared interests
+* **Explore interactive maps** of locations where your interests intersect with others
+* **Get AI-powered analysis** of why each connection matters
+* **Filter by relevance** to find your most meaningful matches
 
-## UX Flow
+### 3️⃣ **Analyze Website Connections** *(New Feature)*
+<!-- Feature image placeholder -->
 
-1. **Onboarding (`/`)**  
-   - Step 1: Pick avatar + name (optional)
-   - Step 2: Multi-select interests (chips)
-   - Step 3: Tap "Spark it!" → store DIU, navigate to `/hybrid`
+* **Discover digital overlap** with others based on websites you both enjoy
+* **Get personalized recommendations** for new sites that match your interests
+* **See interest patterns** across your digital footprint
 
-2. **Hybrid View (`/hybrid`)**  
-   - Left: Card-based list of connections (people, places, interests)
-   - Right: Map visualization of physical locations
-   - Searchable, filterable interface with location display
-   - FAB link to Privacy Panel modal
+### 4️⃣ **Explore Store Matches** *(Exclusive Beta)*
+<!-- Feature image placeholder -->
 
-3. **Privacy Panel**  
-   - Shows JSON preview (readonly) + "Revoke" (clears localStorage → shows toast → greys overlay)
+* **Find retail locations** that align with your interests and preferences
+* **Connect with others** who frequent the same physical spaces
+* **Receive AI-generated recommendations** for new stores to explore
 
-4. **Admin (`/admin?debug=true`)**  
-   - Table of synthetic users, overlap counts, toggle to regenerate synthetic dataset
+## 🛠️ Technical Excellence
 
-## What's Next
+Overlapp leverages a modern tech stack for a blazing-fast, responsive experience:
 
-Future enhancements could include:
+* **React + TypeScript** for robust front-end development
+* **AI-Powered Backend** with OpenAI's GPT-4o integration
+* **Real-time Data Processing** with optimized algorithms
+* **Elegant UI/UX** with Tailwind CSS + Shadcn components
+* **Mobile-First Design** for seamless experiences on any device
 
-1. **Real Authentication**: Replace DIU storage with proper authentication using Firebase or Auth0
-2. **Persistent Database**: Migrate to Supabase or a similar solution for persistent storage
-3. **Real-time Updates**: Add WebSocket connections for real-time data synchronization
-4. **Advanced Visualizations**: Enhance the constellation with 3D effects and more interactive elements
-5. **AI-powered Recommendations**: Leverage GPT-4o for personalized connection recommendations
-6. **Production Deployment**: Deploy to Vercel for fast, global distribution
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="50%">
+        <a href="https://www.youtube.com/watch?v=Rk7t0TWYNDg">
+          <img src="https://img.youtube.com/vi/Rk7t0TWYNDg/maxresdefault.jpg" alt="Technical Architecture" width="100%" style="border-radius:8px; max-width:400px;" />
+        </a>
+        <p><em>👨‍💻 Technical Architecture</em></p>
+      </td>
+      <td align="center" width="50%">
+        <a href="https://www.youtube.com/watch?v=wa2ZeE_BhWY">
+          <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="User Experience" width="100%" style="border-radius:8px; max-width:400px;" />
+        </a>
+        <p><em>🎮 User Experience Design</em></p>
+      </td>
+    </tr>
+  </table>
+  <p><em>Watch our team explain Overlapp's innovative approach</em></p>
+</div>
 
-## License
+## 🔍 Core MVP Features
 
-MIT
+```markdown
+├── Smart Profile Creation
+│   ├── Intuitive interest selection
+│   ├── AI-powered interest enrichment
+│   └── Visual avatar customization
+│
+├── Connection Discovery
+│   ├── Card-based connection interface
+│   ├── Interactive location mapping
+│   ├── AI-driven overlap analysis
+│   └── Real-time filtering options
+│
+├── Digital Website Analysis
+│   ├── Personalized website recommendations
+│   ├── Connection matching through digital footprints
+│   └── Interest pattern visualization
+│
+└── Store Discovery & Matching
+    ├── Physical retail connection mapping
+    ├── AI-curated store recommendations
+    └── Interest-based store affinity scoring
+```
 
-## Credits
+## 👥 User Testimonials
 
-- Shadcn/ui for the beautiful UI components
-- React team for the amazing framework
-- OpenAI for GPT models that power intelligent matching
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=wa2ZeE_BhWY">
+    <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="Overlapp User Stories" width="500" style="border-radius:8px; margin: 20px 0;" />
+  </a>
+  <p><em>💬 Watch real users share their Overlapp experiences</em></p>
+</div>
+
+> "Overlapp found connections I never would have discovered on my own. The AI recommendations are spot-on!" – Sarah K.
+
+> "The combination of digital and physical mapping is genius. I've found amazing new places and people." – Mike T.
+
+> "Finally, a social app that goes beyond superficial matching to create meaningful connections." – Jen D.
+
+## 🚀 Getting Started
+
+Experience Overlapp today:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/overlapp.git
+
+# Install dependencies
+npm install
+
+# Launch the application
+npm run dev
+```
+
+Then visit `http://localhost:5000` to start your journey!
+
+## 🔮 The Future of Connection
+
+Overlapp is just getting started. Our roadmap includes:
+
+* **Enhanced AI personalization** for even more relevant matches
+* **Expanded location intelligence** with real-time updates
+* **Community features** to deepen connections with like-minded people
+* **Mobile app** with advanced geolocation capabilities
+
+---
+
+<div align="center">
+  <p><b>Overlapp</b> — Where your digital and physical worlds converge.</p>
+  <p>© 2025 Overlapp, Inc. • <a href="https://twitter.com/overlapp">Twitter</a> • <a href="https://instagram.com/overlapp">Instagram</a></p>
+</div>

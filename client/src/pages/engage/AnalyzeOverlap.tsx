@@ -9,6 +9,7 @@ import {
   CardTitle 
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { GptButton } from '@/components/ui/gpt-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -559,25 +560,17 @@ export function AnalyzeOverlap() {
                   <div className="space-y-6">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-lg font-medium">AI-Powered Compatibility Analysis</h3>
-                      <Button 
+                      <GptButton 
                         variant="outline" 
                         size="sm" 
                         onClick={generateAIAnalysis}
-                        disabled={isGeneratingAI}
+                        isLoading={isGeneratingAI}
+                        loadingText="Analyzing..."
                         className="gap-2"
                       >
-                        {isGeneratingAI ? (
-                          <>
-                            <RefreshCw className="h-4 w-4 animate-spin" />
-                            Analyzing...
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="h-4 w-4" />
-                            Refresh Analysis
-                          </>
-                        )}
-                      </Button>
+                        <RefreshCw className="h-4 w-4" />
+                        Refresh Analysis
+                      </GptButton>
                     </div>
                   
                     <div className="p-4 bg-primary/5 rounded-lg">
@@ -720,23 +713,15 @@ export function AnalyzeOverlap() {
                       View enhanced AI analysis of your compatibility with {data.entity.name}, 
                       including personalized insights and recommendations.
                     </p>
-                    <Button 
-                      onClick={generateAIAnalysis} 
-                      disabled={isGeneratingAI}
+                    <GptButton 
+                      onClick={generateAIAnalysis}
+                      isLoading={isGeneratingAI}
+                      loadingText="Generating..."
                       className="gap-2"
                     >
-                      {isGeneratingAI ? (
-                        <>
-                          <RefreshCw className="h-4 w-4 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4" />
-                          Show Enhanced Analysis
-                        </>
-                      )}
-                    </Button>
+                      <Sparkles className="h-4 w-4" />
+                      Show Enhanced Analysis
+                    </GptButton>
                   </div>
                 )}
               </TabsContent>
@@ -749,20 +734,17 @@ export function AnalyzeOverlap() {
             
             <div className="flex items-center gap-2">
               {!aiAnalysis && (
-                <Button 
+                <GptButton 
                   onClick={generateAIAnalysis} 
                   variant="outline" 
                   size="sm" 
                   className="gap-1"
-                  disabled={isGeneratingAI}
+                  isLoading={isGeneratingAI}
+                  loadingText="Generating..."
                 >
-                  {isGeneratingAI ? (
-                    <RefreshCw className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-3 w-3" />
-                  )}
-                  {isGeneratingAI ? 'Generating...' : 'AI Analysis'}
-                </Button>
+                  <Sparkles className="h-3 w-3" />
+                  AI Analysis
+                </GptButton>
               )}
               <Button variant="outline" size="sm" className="gap-1">
                 <Save className="h-3 w-3" /> Save Analysis

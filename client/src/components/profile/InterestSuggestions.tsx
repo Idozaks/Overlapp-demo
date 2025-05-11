@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +13,8 @@ import { useTranslation } from "react-i18next";
 interface InterestSuggestion {
   name: string;
   emoji: string;
+  isFallback?: boolean;
+  reason?: string;
 }
 
 interface InterestSuggestionsProps {
@@ -33,7 +36,9 @@ export default function InterestSuggestions({
   const [selectedSuggestions, setSelectedSuggestions] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [showAiThinking, setShowAiThinking] = useState(false);
-  const [progress, setProgress] = useState(0); // Added progress state
+  const [usingFallbacks, setUsingFallbacks] = useState(false);
+  // Emoji generation progress no longer needed as we removed emojis
+  // const [progress, setProgress] = useState(0); // Added progress state
 
   // Initialize animations and UI state
   useEffect(() => {
@@ -54,8 +59,7 @@ export default function InterestSuggestions({
   const generateEmojisMutation = useMutation({
     mutationFn: async () => {
       const totalInterests = suggestions.length;
-      // Let the server handle the batching
-      setProgress(0);
+      // Emoji generation no longer needed
       
       // First get all existing interests
       const interestsResponse = await fetch('/api/interests');
@@ -89,18 +93,17 @@ export default function InterestSuggestions({
 
       const data = await response.json();
       
-      // Final progress update
-      setProgress(100);
+      // Emoji generation removed
       return data.interests;
     },
     onMutate: () => {
-      setProgress(0);
+      // Progress tracking removed
     },
     onSettled: () => {
-      setProgress(0); // Reset progress on completion or error
+      // Progress tracking removed
     },
     onSuccess: (data) => {
-      setProgress(100); // Set progress to 100% on success
+      // Progress tracking removed
       setSuggestions(prev => 
         prev.map(suggestion => {
           const match = data.find(d => d.name === suggestion.name);
@@ -152,19 +155,62 @@ export default function InterestSuggestions({
     onSuccess: (data) => {
       console.log('Received enriched interests:', data);
 
-
-      // Process suggestions and remove duplicates
-      const uniqueSuggestions = Array.from(new Set(data));
-      const validSuggestions = uniqueSuggestions
-        .filter((suggestion: string) => 
-          suggestion && 
-          suggestion.trim().length > 0 && 
-          !currentInterests.includes(suggestion.trim())
-        )
-        .map((suggestion: string) => ({
-          name: suggestion.trim(),
-          emoji: generateInterestEmoji(suggestion.trim())
-        }));
+      // Process suggestions differently based on what the API returned
+      let validSuggestions = [];
+      
+      // Check if we're using fallbacks
+      if (data && data.usingFallbacks) {
+        setUsingFallbacks(true);
+        console.log('Using fallback suggestions due to AI service limitations');
+      } else {
+        setUsingFallbacks(false);
+      }
+      
+      if (data && Array.isArray(data.suggestions)) {
+        // New API format returns an object with suggestions array
+        console.log('Using new API response format with suggestions array');
+        validSuggestions = data.suggestions
+          .filter((suggestion: any) => 
+            suggestion && 
+            suggestion.name && 
+            !currentInterests.includes(suggestion.name)
+          )
+          .map((suggestion: any) => ({
+            name: suggestion.name,
+            emoji: '', // Always empty as we've removed emojis
+            reason: suggestion.reason || '',
+            isFallback: suggestion.isFallback || false
+          }));
+      } else {
+        // Legacy format or unexpected format - try to handle it gracefully
+        console.log('Using legacy API response format');
+        const uniqueSuggestions = Array.from(new Set(data));
+        validSuggestions = uniqueSuggestions
+          .filter((suggestion: any) => {
+            if (typeof suggestion === 'string') {
+              return suggestion && suggestion.trim().length > 0 && !currentInterests.includes(suggestion.trim());
+            } else if (suggestion && typeof suggestion === 'object') {
+              return suggestion.name && !currentInterests.includes(suggestion.name);
+            }
+            return false;
+          })
+          .map((suggestion: any) => {
+            if (typeof suggestion === 'string') {
+              return {
+                name: suggestion.trim(),
+                emoji: '',
+                isFallback: false
+              };
+            } else {
+              return {
+                name: suggestion.name,
+                emoji: '',
+                reason: suggestion.reason || '',
+                isFallback: suggestion.isFallback || false
+              };
+            }
+          });
+      }
 
       console.log('Processed suggestions:', validSuggestions);
 
@@ -182,10 +228,19 @@ export default function InterestSuggestions({
       setSuggestedInterests(validSuggestions);
       setIsLoading(false);
       setShowAiThinking(false);
-      toast({
-        title: t("profile.enrichSuccess"),
-        description: t("profile.enrichSuccessMessage")
-      });
+      
+      if (data && data.usingFallbacks) {
+        toast({
+          title: t("profile.enrichPartialSuccess"),
+          description: t("profile.usingFallbackSuggestions"),
+          variant: "default" // Changed from "warning" to "default" as warning is not a valid variant
+        });
+      } else {
+        toast({
+          title: t("profile.enrichSuccess"),
+          description: t("profile.enrichSuccessMessage")
+        });
+      }
     },
     onError: (error: Error) => {
       setIsLoading(false);
@@ -253,116 +308,103 @@ export default function InterestSuggestions({
     setLocation(`/profile/${userId}/edit`);
   };
 
-  // Placeholder for emoji generation - needs implementation
+  // Emoji generation removed as requested
   const generateInterestEmoji = (interest: string): string => {
-    // Implement your emoji generation logic here based on the interest
-    // For example, a simple mapping:
-    const emojiMap: { [key: string]: string } = {
-      "Gaming": "🎮",
-      "Reading": "📚",
-      "Coding": "💻",
-      "Movies": "🎬",
-      "Music": "🎵",
-      "Sports": "⚽️",
-      "Travel": "✈️",
-      "Cooking": "🍳",
-      "Art": "🎨",
-      "default": "✨"
-    };
-    return emojiMap[interest] || emojiMap["default"];
+    // Return empty string for all interests since we've removed emojis
+    return '';
   };
 
   return (
-    <div className="container max-w-2xl mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <Button variant="ghost" size="icon" onClick={handleGoBack} className="self-start">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="text-center flex-1">
-              <CardTitle className="text-xl">{t("profile.aiSuggestions")}</CardTitle>
-              <CardDescription>
-                {t("profile.aiSuggestionsDescription")}
-              </CardDescription>
-            </div>
-            <div className="w-8"></div> {/* Spacer to balance the back button */}
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading || showAiThinking ? (
-            <div className="flex flex-col items-center justify-center py-10">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Sparkles className="h-6 w-6 text-primary animate-pulse" />
-                <p className="text-lg font-medium">{t("profile.aiThinking")}</p>
+    <TooltipProvider>
+      <div className="container max-w-2xl mx-auto p-4">
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <Button variant="ghost" size="icon" onClick={handleGoBack} className="self-start">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div className="text-center flex-1">
+                <CardTitle className="text-xl">{t("profile.aiSuggestions")}</CardTitle>
+                <CardDescription>
+                  {t("profile.aiSuggestionsDescription")}
+                </CardDescription>
               </div>
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <div className="w-8"></div> {/* Spacer to balance the back button */}
             </div>
-          ) : (
-            <>
-              <p className="text-sm text-muted-foreground mb-4">
-                {t("profile.tapToSelectInterests")}
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-6">
-                {suggestedInterests.map((suggestion, index) => (
-                  <Badge
-                    key={`suggestion-${suggestion.name}-${index}`}
-                    variant={selectedSuggestions.has(suggestion.name) ? "default" : "outline"}
-                    className="cursor-pointer text-sm py-1.5 px-3 hover:shadow-sm transition-all"
-                    onClick={() => toggleSuggestion(suggestion.name)}
-                  >
-                    {suggestion.emoji} {suggestion.name}
-                  </Badge>
-                ))}
-
-                {suggestedInterests.length === 0 && !isLoading && (
-                  <p className="text-sm text-muted-foreground">
-                    {t("profile.noSuggestionsFound")}
-                  </p>
-                )}
-              </div>
-            </>
-          )}
-        </CardContent>
-        <div className="flex justify-end gap-3 p-4"> {/* Added CardFooter for better styling */}
-          <Button variant="outline" onClick={handleGoBack}>
-            {t("common.cancel")}
-          </Button>
-          <Button 
-            onClick={handleSaveSelections}
-            disabled={selectedSuggestions.size === 0 || isLoading}
-          >
-            {t("common.save")}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => generateEmojisMutation.mutate()}
-            disabled={generateEmojisMutation.isPending}
-          >
-            {generateEmojisMutation.isPending ? (
-              <div className="flex items-center">
-                <div className="relative w-6 h-6 mr-2">
-                  <div className="absolute inset-0">
-                    <svg className="w-full h-full" viewBox="0 0 36 36">
-                      <circle cx="18" cy="18" r="16" fill="none" className="stroke-current" strokeWidth="2" strokeDasharray="100" strokeDashoffset={100 - progress}/>
-                    </svg>
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">
-                    {progress}%
-                  </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading || showAiThinking ? (
+              <div className="flex flex-col items-center justify-center py-10">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+                  <p className="text-lg font-medium">{t("profile.aiThinking")}</p>
                 </div>
-                Generating...
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Add Emojis
+                {usingFallbacks && (
+                  <div className="mb-4 p-3 border border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800 rounded-md text-amber-800 dark:text-amber-200">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <Sparkles className="h-4 w-4 text-amber-500" />
+                      <span>AI-powered suggestions are temporarily unavailable - showing curated alternatives</span>
+                    </div>
+                  </div>
+                )}
+                
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("profile.tapToSelectInterests")}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {suggestedInterests.map((suggestion, index) => (
+                    <Tooltip key={`suggestion-${suggestion.name}-${index}`}>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant={selectedSuggestions.has(suggestion.name) ? "default" : "outline"}
+                          className={`cursor-pointer text-sm py-1.5 px-3 hover:shadow-sm transition-all ${suggestion.isFallback ? 'border-dashed border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100' : ''}`}
+                          onClick={() => toggleSuggestion(suggestion.name)}
+                        >
+                          {suggestion.name}
+                          {suggestion.isFallback && (
+                            <span className="ml-1 text-[10px] italic text-amber-600 dark:text-amber-400">(suggested)</span>
+                          )}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="max-w-xs">
+                          <p className="font-medium">{suggestion.name}</p>
+                          {suggestion.reason && (
+                            <p className="text-xs mt-1">{suggestion.reason}</p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+
+                  {suggestedInterests.length === 0 && !isLoading && (
+                    <p className="text-sm text-muted-foreground">
+                      {t("profile.noSuggestionsFound")}
+                    </p>
+                  )}
+                </div>
               </>
             )}
-          </Button>
-        </div>
-      </Card>
-    </div>
+          </CardContent>
+          <div className="flex justify-end gap-3 p-4"> {/* Added CardFooter for better styling */}
+            <Button variant="outline" onClick={handleGoBack}>
+              {t("common.cancel")}
+            </Button>
+            <Button 
+              onClick={handleSaveSelections}
+              disabled={selectedSuggestions.size === 0 || isLoading}
+            >
+              {t("common.save")}
+            </Button>
+
+          </div>
+        </Card>
+      </div>
+    </TooltipProvider>
   );
 }

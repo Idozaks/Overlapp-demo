@@ -138,15 +138,14 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
           body: { interests: cleanedInterests }
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('Interest enrichment API error:', errorData);
-          throw new Error(errorData.message || 'Failed to enrich interests');
+        // Modified to handle both response structures
+        if (response.error || response.message) {
+          console.error('Interest enrichment API error:', response);
+          throw new Error(response.message || response.error || 'Failed to enrich interests');
         }
 
-        const data = await response.json();
-        console.log('Received enriched interests response:', data);
-        return data?.suggestions || [];
+        console.log('Received enriched interests response:', response);
+        return response?.suggestions || [];
       } catch (error) {
         console.error('Interest enrichment error:', error);
         throw error;
@@ -162,13 +161,14 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
         if (typeof suggestion === 'string') {
           return {
             name: suggestion,
-            emoji: '✨',
+            emoji: '', // No emoji for MVP
             reason: 'Based on your selected interests'
           };
         } else if (typeof suggestion === 'object' && suggestion !== null) {
+          // For MVP: Completely remove emojis to avoid display issues
           return {
             name: suggestion.name || '',
-            emoji: suggestion.emoji || '✨',
+            emoji: '', // No emoji 
             reason: suggestion.reason || 'Based on your selected interests'
           };
         }
@@ -226,9 +226,9 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
       if (onComplete) {
         onComplete(userData);
       } else {
-        // Otherwise, save to localStorage and navigate
+        // Otherwise, save to localStorage and navigate to home-selector
         localStorage.setItem('userData', JSON.stringify(userData));
-        setLocation('/hybrid');
+        setLocation('/home-selector');
       }
     }
   };
@@ -393,7 +393,7 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
                           `}
                           onClick={() => handleSuggestionToggle(suggestion.name)}
                         >
-                          {suggestion.emoji} {suggestion.name}
+                          {suggestion.name}
                         </Badge>
                       ))}
                       
@@ -416,7 +416,7 @@ export default function OnboardingPage({ onComplete, params }: OnboardingPagePro
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {suggestedInterests.map((suggestion, index) => (
                           <div key={`reason-${index}-${suggestion.name}`} className="text-xs text-gray-600 border-b border-gray-100 pb-2 last:border-0">
-                            <span className="font-medium">{suggestion.emoji} {suggestion.name}:</span> {suggestion.reason || "Based on your selected interests"}
+                            <span className="font-medium">{suggestion.name}:</span> {suggestion.reason || "Based on your selected interests"}
                           </div>
                         ))}
                       </div>

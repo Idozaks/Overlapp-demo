@@ -9,6 +9,7 @@ interface EnrichInterestsResponse {
     name: string;
     emoji: string;
     reason?: string;
+    isFallback?: boolean;
   }>;
 }
 
@@ -37,7 +38,7 @@ export async function enrichInterests(interests: string[]): Promise<EnrichIntere
       messages: [
         {
           role: "system",
-          content: "You are a JSON API endpoint that returns interest suggestions in a specific format. You must respond with ONLY valid JSON containing an array of interests with name, emoji, and reason fields. The reason field should explain why the suggestion fits the user's existing interests. No explanations, comments, or extra text."
+          content: "You are a JSON API endpoint that returns interest suggestions in a specific format. You must respond with ONLY valid JSON containing an array of interests with name, emoji, and reason fields. The emoji field should always be an empty string. The reason field should explain why the suggestion fits the user's existing interests. No explanations, comments, or extra text."
         },
         {
           role: "user",
@@ -46,19 +47,19 @@ export async function enrichInterests(interests: string[]): Promise<EnrichIntere
 IMPORTANT RULES:
 1. Respond with EXACTLY 5 interest suggestions
 2. Include ONLY the required JSON format shown below - no explanations or other text
-3. Each suggestion MUST have a "name" field (string), "emoji" field (single Unicode emoji), and a "reason" field that briefly explains why it relates to the user's interests
+3. Each suggestion MUST have a "name" field (string), "emoji" field (must always be an empty string ""), and a "reason" field that briefly explains why it relates to the user's interests
 4. Make each reason concise (15-25 words) and personalized
-5. Choose widely supported emojis that display well on mobile
+5. Do not include any emojis in the emoji field - it should be an empty string
 6. Do not duplicate any existing interests in the suggestions
 
 EXAMPLE RESPONSE FORMAT:
 {
   "suggestions": [
-    {"name": "Travel Photography", "emoji": "📸", "reason": "Since you enjoy Travel and Photography, combining these passions could enhance your experiences in both areas."},
-    {"name": "Mountain Hiking", "emoji": "🏔️", "reason": "Given your interest in Fitness and Travel, exploring mountain trails offers adventure and exercise together."},
-    {"name": "Jazz Music", "emoji": "🎷", "reason": "Your interest in Music suggests you might enjoy exploring the rich complexity of jazz."},
-    {"name": "Italian Cooking", "emoji": "🍝", "reason": "Because you like Food & Cooking, exploring Italian cuisine could expand your culinary repertoire."},
-    {"name": "Urban Sketching", "emoji": "✏️", "reason": "Combining your interests in Art & Design with Travel, urban sketching lets you capture places you visit."}
+    {"name": "Travel Photography", "emoji": "", "reason": "Since you enjoy Travel and Photography, combining these passions could enhance your experiences in both areas."},
+    {"name": "Mountain Hiking", "emoji": "", "reason": "Given your interest in Fitness and Travel, exploring mountain trails offers adventure and exercise together."},
+    {"name": "Jazz Music", "emoji": "", "reason": "Your interest in Music suggests you might enjoy exploring the rich complexity of jazz."},
+    {"name": "Italian Cooking", "emoji": "", "reason": "Because you like Food & Cooking, exploring Italian cuisine could expand your culinary repertoire."},
+    {"name": "Urban Sketching", "emoji": "", "reason": "Combining your interests in Art & Design with Travel, urban sketching lets you capture places you visit."}
   ]
 }
 
@@ -120,7 +121,8 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
         if (typeof suggestion === 'string') {
           validSuggestions.push({
             name: suggestion.trim(),
-            emoji: '✨'
+            emoji: '',
+            reason: 'Based on your selected interests'
           });
           continue;
         }
@@ -135,20 +137,10 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
           continue;
         }
 
-        // Create a properly formatted suggestion with normalized emoji
+        // Create a properly formatted suggestion with empty emoji
         const name = suggestion.name.trim();
-        let emoji = '✨'; // Default fallback
+        const emoji = ''; // Always use empty string for emojis
         let reason = suggestion.reason || 'Based on your selected interests';
-
-        if (suggestion.emoji && typeof suggestion.emoji === 'string') {
-          // Ensure we get just the first emoji if multiple are returned
-          const trimmedEmoji = suggestion.emoji.trim();
-          // Simple emoji extraction as a workaround for the regex issue
-          const emojiMatch = [trimmedEmoji[0]];
-          if (emojiMatch) {
-            emoji = emojiMatch[0];
-          }
-        }
 
         validSuggestions.push({ name, emoji, reason });
       }
@@ -159,14 +151,15 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
       // If we couldn't get any valid suggestions, provide fallbacks
       if (validSuggestions.length === 0) {
         const fallbacks = [
-          { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
-          { name: "Literature Analysis", emoji: "📚", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
-          { name: "Audio Books", emoji: "🎧", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
-          { name: "Poetry", emoji: "📝", reason: "Explore emotional expression and linguistic creativity through verse." },
-          { name: "Art Exhibitions", emoji: "🖼️", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
+          { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles.", isFallback: true },
+          { name: "Literature Analysis", emoji: "", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions.", isFallback: true },
+          { name: "Audio Books", emoji: "", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking.", isFallback: true },
+          { name: "Poetry", emoji: "", reason: "Explore emotional expression and linguistic creativity through verse.", isFallback: true },
+          { name: "Art Exhibitions", emoji: "", reason: "Appreciate visual creativity and artistic expression in curated spaces.", isFallback: true }
         ].filter(s => !interests.includes(s.name));
 
         validSuggestions = fallbacks;
+        log("[OpenAI] Using fallback suggestions due to no valid suggestions");
       }
 
       log("[OpenAI] Final suggestions count: " + validSuggestions.length);
@@ -177,11 +170,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
 
       // Use fallbacks if JSON parsing fails
       const fallbacks = [
-        { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
-        { name: "Literature Analysis", emoji: "📚", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
-        { name: "Audio Books", emoji: "🎧", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
-        { name: "Poetry", emoji: "📝", reason: "Explore emotional expression and linguistic creativity through verse." },
-        { name: "Art Exhibitions", emoji: "🖼️", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
+        { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles.", isFallback: true },
+        { name: "Literature Analysis", emoji: "", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions.", isFallback: true },
+        { name: "Audio Books", emoji: "", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking.", isFallback: true },
+        { name: "Poetry", emoji: "", reason: "Explore emotional expression and linguistic creativity through verse.", isFallback: true },
+        { name: "Art Exhibitions", emoji: "", reason: "Appreciate visual creativity and artistic expression in curated spaces.", isFallback: true }
       ].filter(s => !interests.includes(s.name));
 
       log("[OpenAI] Using fallback suggestions");
@@ -192,11 +185,11 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
 
     // Provide fallbacks even in case of complete API failure
     const fallbacks = [
-        { name: "Creative Writing", emoji: "✍️", reason: "Express yourself creatively through writing stories, essays or articles." },
-        { name: "Literature Analysis", emoji: "📚", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions." },
-        { name: "Audio Books", emoji: "🎧", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking." },
-        { name: "Poetry", emoji: "📝", reason: "Explore emotional expression and linguistic creativity through verse." },
-        { name: "Art Exhibitions", emoji: "🖼️", reason: "Appreciate visual creativity and artistic expression in curated spaces." }
+        { name: "Creative Writing", emoji: "", reason: "Express yourself creatively through writing stories, essays or articles.", isFallback: true },
+        { name: "Literature Analysis", emoji: "", reason: "Deepen your understanding of texts by examining themes, characters, and author intentions.", isFallback: true },
+        { name: "Audio Books", emoji: "", reason: "Enjoy literature through listening - perfect for busy schedules or multitasking.", isFallback: true },
+        { name: "Poetry", emoji: "", reason: "Explore emotional expression and linguistic creativity through verse.", isFallback: true },
+        { name: "Art Exhibitions", emoji: "", reason: "Appreciate visual creativity and artistic expression in curated spaces.", isFallback: true }
     ].filter(s => !Array.isArray(interests) ? true : !interests.includes(s.name));
 
     return { suggestions: fallbacks };
@@ -334,7 +327,7 @@ YOUR RESPONSE MUST BE VALID JSON MATCHING THIS EXACT STRUCTURE.`
             // Use name instead of ID for matching
             const id = interest.id || 0; // Default to 0 if ID is missing
             const name = interest.name.trim();
-            const emoji = (interest.emoji && typeof interest.emoji === 'string') ? interest.emoji.trim() : '✨';
+            const emoji = ''; // Always use empty string for emojis
 
             processedInterests.push({ id, name, emoji });
           } catch (err) {

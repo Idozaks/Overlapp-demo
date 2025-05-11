@@ -49,6 +49,18 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        // New teal and amber colors for AI/GPT request buttons
+        "teal-cta": {
+          DEFAULT: "#14B8A6",
+          hover: "#17D4BE",
+          pressed: "#0E927F",
+        },
+        "amber-active": {
+          DEFAULT: "#FFB547",
+          hover: "#FFC062",
+          pressed: "#E29C34",
+        },
+        "surface": "#111824",
       },
       keyframes: {
         "accordion-down": {
@@ -80,6 +92,18 @@ export default {
           "50%": { transform: "scale(1.2)" },
           "100%": { transform: "scale(0.8)" },
         },
+        "scale-up": {
+          "0%": { transform: "scale(1)" },
+          "100%": { transform: "scale(1.04)" }
+        },
+        "scale-down": {
+          "0%": { transform: "scale(1.04)" },
+          "100%": { transform: "scale(0.98)" }
+        },
+        "spinner": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -89,6 +113,9 @@ export default {
         "blink": "blink 1s step-end infinite",
         "pulse-gradient": "pulse-gradient 6s ease infinite",
         "wave": "wave 1.5s infinite",
+        "scale-up": "scale-up 0.2s ease-out forwards",
+        "scale-down": "scale-down 0.1s ease-out forwards",
+        "spinner": "spinner 1s linear infinite",
       },
     },
   },

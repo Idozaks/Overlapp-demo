@@ -9,25 +9,61 @@ async function throwIfResNotOk(res: Response) {
 }
 
 interface RequestOptions {
+  url?: string;
   method?: string;
   body?: unknown;
+  data?: unknown;
 }
 
-export async function apiRequest(url: string, options?: RequestOptions): Promise<Response> {
-  const isFormData = options?.body instanceof FormData;
+export async function apiRequest<T = any>(url: string | RequestOptions, options?: RequestOptions): Promise<T> {
+  // Handle the case where the first argument is the options object
+  let requestUrl: string;
+  let requestOptions: RequestOptions = {};
+
+  if (typeof url === 'string') {
+    requestUrl = url;
+    requestOptions = options || {};
+  } else {
+    requestUrl = url.url as string;
+    requestOptions = url;
+  }
+  
+  // Use 'data' or 'body' field for consistency with axios
+  const bodyData = requestOptions.data || requestOptions.body;
+  const isFormData = bodyData instanceof FormData;
   try {
-    const res = await fetch(url, {
-      method: options?.method || 'GET',
+    console.log(`Making API request to: ${requestUrl}`, requestOptions);
+    const res = await fetch(requestUrl, {
+      method: requestOptions.method || 'GET',
       headers: {
         ...(!isFormData && { "Content-Type": "application/json" }),
+        "Accept": "application/json"
       },
       body: isFormData
-        ? options?.body
-        : options?.body ? JSON.stringify(options.body) : undefined,
+        ? bodyData as FormData
+        : bodyData ? JSON.stringify(bodyData) : undefined,
       credentials: "include",
     });
+    
     await throwIfResNotOk(res);
-    return res;
+    
+    // Try to parse as JSON, but handle text response if not valid JSON
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      try {
+        const data = await res.json();
+        return data;
+      } catch (jsonError) {
+        console.error("Error parsing JSON response:", jsonError);
+        const text = await res.text();
+        console.log("Response text:", text);
+        throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
+      }
+    } else {
+      const text = await res.text();
+      console.log("Non-JSON response received:", text.substring(0, 100));
+      return { text } as unknown as T;
+    }
   } catch (error) {
     console.error("Error in apiRequest:", error); // Added error logging
     throw error; // Re-throw the error for handling higher up
@@ -35,9 +71,9 @@ export async function apiRequest(url: string, options?: RequestOptions): Promise
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
+export const getQueryFn: <TData = unknown>(options: {
   on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
+}) => QueryFunction<TData> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     try {
@@ -55,14 +91,21 @@ export const getQueryFn: <T>(options: {
             // Last item is a string (e.g., 'messages', 'participants')
             url += `/${queryKey[i]}`;
           } else if (queryKey[i] !== null && queryKey[i] !== undefined) {
-            // Middle items are likely IDs
-            url += `/${queryKey[i]}`;
+            // If it's an object, don't append it to the URL path
+            if (typeof queryKey[i] !== 'object') {
+              url += `/${queryKey[i]}`;
+            } else {
+              console.warn(`Object passed in queryKey position ${i}, skipping:`, queryKey[i]);
+            }
           }
         }
       }
       
       console.log(`Making fetch request to: ${url}`);
       const res = await fetch(url, {
+        headers: {
+          "Accept": "application/json"
+        },
         credentials: "include",
       });
 
@@ -71,7 +114,23 @@ export const getQueryFn: <T>(options: {
       }
 
       await throwIfResNotOk(res);
-      return await res.json();
+      
+      // Try to parse as JSON, but handle text response if not valid JSON
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        try {
+          return await res.json();
+        } catch (jsonError) {
+          console.error("Error parsing JSON response:", jsonError);
+          const text = await res.text();
+          console.log("Response text:", text.substring(0, 100));
+          throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
+        }
+      } else {
+        const text = await res.text();
+        console.log("Non-JSON response received:", text.substring(0, 100));
+        return { text } as unknown as TData;
+      }
     } catch (error) {
       console.error("Error in getQueryFn:", error); // Added error logging
       throw error; // Re-throw the error

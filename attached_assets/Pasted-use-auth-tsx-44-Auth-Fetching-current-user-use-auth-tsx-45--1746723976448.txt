@@ -1,0 +1,344 @@
+use-auth.tsx:44 [Auth] Fetching current user
+use-auth.tsx:45 
+            
+            
+           GET https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/api/user 401 (Unauthorized)
+queryFn @ use-auth.tsx:45
+fetchFn @ @tanstack_react-query.js?v=68dadd34:840
+run @ @tanstack_react-query.js?v=68dadd34:494
+start @ @tanstack_react-query.js?v=68dadd34:536
+fetch @ @tanstack_react-query.js?v=68dadd34:926
+executeFetch_fn @ @tanstack_react-query.js?v=68dadd34:2211
+onSubscribe @ @tanstack_react-query.js?v=68dadd34:1898
+subscribe @ @tanstack_react-query.js?v=68dadd34:24
+(anonymous) @ @tanstack_react-query.js?v=68dadd34:3022
+subscribeToStore @ chunk-I3COAS7K.js?v=68dadd34:11984
+commitHookEffectListMount @ chunk-I3COAS7K.js?v=68dadd34:16915
+commitPassiveMountOnFiber @ chunk-I3COAS7K.js?v=68dadd34:18156
+commitPassiveMountEffects_complete @ chunk-I3COAS7K.js?v=68dadd34:18129
+commitPassiveMountEffects_begin @ chunk-I3COAS7K.js?v=68dadd34:18119
+commitPassiveMountEffects @ chunk-I3COAS7K.js?v=68dadd34:18109
+flushPassiveEffectsImpl @ chunk-I3COAS7K.js?v=68dadd34:19490
+flushPassiveEffects @ chunk-I3COAS7K.js?v=68dadd34:19447
+performSyncWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18868
+flushSyncCallbacks @ chunk-I3COAS7K.js?v=68dadd34:9119
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19432
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+finishConcurrentRender @ chunk-I3COAS7K.js?v=68dadd34:18805
+performConcurrentWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18718
+workLoop @ chunk-I3COAS7K.js?v=68dadd34:197
+flushWork @ chunk-I3COAS7K.js?v=68dadd34:176
+performWorkUntilDeadline @ chunk-I3COAS7K.js?v=68dadd34:384
+use-auth.tsx:54 [Auth] User not authenticated
+queryClient.ts:88 Making fetch request to: /api/users/nearby/10?lat=40.7128&lng=-74.006
+queryClient.ts:115 Non-JSON response received: <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style data-vite-theme="" data-inject-first="">:root {
+PersonNearby.tsx:80 Sending connection analysis request with data: {userInterests: Array(5), targetInterests: Array(4)}
+queryClient.ts:19 Making API request to: /api/connections/analyze {method: 'POST', body: {…}}
+PersonNearby.tsx:95 Connection analysis response: {compatibilityScore: 85, compatibilityReasoning: 'Both share a strong interest in photography and hi…potentially enriching their experiences together.', conversationStarters: Array(3), sharedInterests: Array(2), complementaryDifferences: Array(3), …}
+chunk-I3COAS7K.js?v=68dadd34:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {interest, explanation}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-I3COAS7K.js?v=68dadd34:9934:17)
+    at reconcileChildFibers2 (chunk-I3COAS7K.js?v=68dadd34:10564:15)
+    at reconcileChildren (chunk-I3COAS7K.js?v=68dadd34:14290:37)
+    at updateHostComponent (chunk-I3COAS7K.js?v=68dadd34:14807:11)
+    at beginWork (chunk-I3COAS7K.js?v=68dadd34:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-I3COAS7K.js?v=68dadd34:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-I3COAS7K.js?v=68dadd34:3699:24)
+    at invokeGuardedCallback (chunk-I3COAS7K.js?v=68dadd34:3733:39)
+    at beginWork$1 (chunk-I3COAS7K.js?v=68dadd34:19765:15)
+    at performUnitOfWork (chunk-I3COAS7K.js?v=68dadd34:19198:20)
+throwOnInvalidObjectType @ chunk-I3COAS7K.js?v=68dadd34:9934
+reconcileChildFibers2 @ chunk-I3COAS7K.js?v=68dadd34:10564
+reconcileChildren @ chunk-I3COAS7K.js?v=68dadd34:14290
+updateHostComponent @ chunk-I3COAS7K.js?v=68dadd34:14807
+beginWork @ chunk-I3COAS7K.js?v=68dadd34:15935
+callCallback2 @ chunk-I3COAS7K.js?v=68dadd34:3674
+invokeGuardedCallbackDev @ chunk-I3COAS7K.js?v=68dadd34:3699
+invokeGuardedCallback @ chunk-I3COAS7K.js?v=68dadd34:3733
+beginWork$1 @ chunk-I3COAS7K.js?v=68dadd34:19765
+performUnitOfWork @ chunk-I3COAS7K.js?v=68dadd34:19198
+workLoopSync @ chunk-I3COAS7K.js?v=68dadd34:19137
+renderRootSync @ chunk-I3COAS7K.js?v=68dadd34:19116
+performSyncWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18874
+flushSyncCallbacks @ chunk-I3COAS7K.js?v=68dadd34:9119
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19432
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+finishConcurrentRender @ chunk-I3COAS7K.js?v=68dadd34:18805
+performConcurrentWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18718
+workLoop @ chunk-I3COAS7K.js?v=68dadd34:197
+flushWork @ chunk-I3COAS7K.js?v=68dadd34:176
+performWorkUntilDeadline @ chunk-I3COAS7K.js?v=68dadd34:384
+chunk-I3COAS7K.js?v=68dadd34:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {interest, explanation}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-I3COAS7K.js?v=68dadd34:9934:17)
+    at reconcileChildFibers2 (chunk-I3COAS7K.js?v=68dadd34:10564:15)
+    at reconcileChildren (chunk-I3COAS7K.js?v=68dadd34:14290:37)
+    at updateHostComponent (chunk-I3COAS7K.js?v=68dadd34:14807:11)
+    at beginWork (chunk-I3COAS7K.js?v=68dadd34:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-I3COAS7K.js?v=68dadd34:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-I3COAS7K.js?v=68dadd34:3699:24)
+    at invokeGuardedCallback (chunk-I3COAS7K.js?v=68dadd34:3733:39)
+    at beginWork$1 (chunk-I3COAS7K.js?v=68dadd34:19765:15)
+    at performUnitOfWork (chunk-I3COAS7K.js?v=68dadd34:19198:20)
+throwOnInvalidObjectType @ chunk-I3COAS7K.js?v=68dadd34:9934
+reconcileChildFibers2 @ chunk-I3COAS7K.js?v=68dadd34:10564
+reconcileChildren @ chunk-I3COAS7K.js?v=68dadd34:14290
+updateHostComponent @ chunk-I3COAS7K.js?v=68dadd34:14807
+beginWork @ chunk-I3COAS7K.js?v=68dadd34:15935
+callCallback2 @ chunk-I3COAS7K.js?v=68dadd34:3674
+invokeGuardedCallbackDev @ chunk-I3COAS7K.js?v=68dadd34:3699
+invokeGuardedCallback @ chunk-I3COAS7K.js?v=68dadd34:3733
+beginWork$1 @ chunk-I3COAS7K.js?v=68dadd34:19765
+performUnitOfWork @ chunk-I3COAS7K.js?v=68dadd34:19198
+workLoopSync @ chunk-I3COAS7K.js?v=68dadd34:19137
+renderRootSync @ chunk-I3COAS7K.js?v=68dadd34:19116
+performSyncWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18874
+flushSyncCallbacks @ chunk-I3COAS7K.js?v=68dadd34:9119
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19432
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+finishConcurrentRender @ chunk-I3COAS7K.js?v=68dadd34:18805
+performConcurrentWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18718
+workLoop @ chunk-I3COAS7K.js?v=68dadd34:197
+flushWork @ chunk-I3COAS7K.js?v=68dadd34:176
+performWorkUntilDeadline @ chunk-I3COAS7K.js?v=68dadd34:384
+chunk-I3COAS7K.js?v=68dadd34:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {interest, explanation}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-I3COAS7K.js?v=68dadd34:9934:17)
+    at reconcileChildFibers2 (chunk-I3COAS7K.js?v=68dadd34:10564:15)
+    at reconcileChildren (chunk-I3COAS7K.js?v=68dadd34:14290:37)
+    at updateHostComponent (chunk-I3COAS7K.js?v=68dadd34:14807:11)
+    at beginWork (chunk-I3COAS7K.js?v=68dadd34:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-I3COAS7K.js?v=68dadd34:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-I3COAS7K.js?v=68dadd34:3699:24)
+    at invokeGuardedCallback (chunk-I3COAS7K.js?v=68dadd34:3733:39)
+    at beginWork$1 (chunk-I3COAS7K.js?v=68dadd34:19765:15)
+    at performUnitOfWork (chunk-I3COAS7K.js?v=68dadd34:19198:20)
+throwOnInvalidObjectType @ chunk-I3COAS7K.js?v=68dadd34:9934
+reconcileChildFibers2 @ chunk-I3COAS7K.js?v=68dadd34:10564
+reconcileChildren @ chunk-I3COAS7K.js?v=68dadd34:14290
+updateHostComponent @ chunk-I3COAS7K.js?v=68dadd34:14807
+beginWork @ chunk-I3COAS7K.js?v=68dadd34:15935
+callCallback2 @ chunk-I3COAS7K.js?v=68dadd34:3674
+invokeGuardedCallbackDev @ chunk-I3COAS7K.js?v=68dadd34:3699
+invokeGuardedCallback @ chunk-I3COAS7K.js?v=68dadd34:3733
+beginWork$1 @ chunk-I3COAS7K.js?v=68dadd34:19765
+performUnitOfWork @ chunk-I3COAS7K.js?v=68dadd34:19198
+workLoopSync @ chunk-I3COAS7K.js?v=68dadd34:19137
+renderRootSync @ chunk-I3COAS7K.js?v=68dadd34:19116
+recoverFromConcurrentError @ chunk-I3COAS7K.js?v=68dadd34:18736
+performSyncWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18879
+flushSyncCallbacks @ chunk-I3COAS7K.js?v=68dadd34:9119
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19432
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+finishConcurrentRender @ chunk-I3COAS7K.js?v=68dadd34:18805
+performConcurrentWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18718
+workLoop @ chunk-I3COAS7K.js?v=68dadd34:197
+flushWork @ chunk-I3COAS7K.js?v=68dadd34:176
+performWorkUntilDeadline @ chunk-I3COAS7K.js?v=68dadd34:384
+chunk-I3COAS7K.js?v=68dadd34:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {interest, explanation}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-I3COAS7K.js?v=68dadd34:9934:17)
+    at reconcileChildFibers2 (chunk-I3COAS7K.js?v=68dadd34:10564:15)
+    at reconcileChildren (chunk-I3COAS7K.js?v=68dadd34:14290:37)
+    at updateHostComponent (chunk-I3COAS7K.js?v=68dadd34:14807:11)
+    at beginWork (chunk-I3COAS7K.js?v=68dadd34:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-I3COAS7K.js?v=68dadd34:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-I3COAS7K.js?v=68dadd34:3699:24)
+    at invokeGuardedCallback (chunk-I3COAS7K.js?v=68dadd34:3733:39)
+    at beginWork$1 (chunk-I3COAS7K.js?v=68dadd34:19765:15)
+    at performUnitOfWork (chunk-I3COAS7K.js?v=68dadd34:19198:20)
+throwOnInvalidObjectType @ chunk-I3COAS7K.js?v=68dadd34:9934
+reconcileChildFibers2 @ chunk-I3COAS7K.js?v=68dadd34:10564
+reconcileChildren @ chunk-I3COAS7K.js?v=68dadd34:14290
+updateHostComponent @ chunk-I3COAS7K.js?v=68dadd34:14807
+beginWork @ chunk-I3COAS7K.js?v=68dadd34:15935
+callCallback2 @ chunk-I3COAS7K.js?v=68dadd34:3674
+invokeGuardedCallbackDev @ chunk-I3COAS7K.js?v=68dadd34:3699
+invokeGuardedCallback @ chunk-I3COAS7K.js?v=68dadd34:3733
+beginWork$1 @ chunk-I3COAS7K.js?v=68dadd34:19765
+performUnitOfWork @ chunk-I3COAS7K.js?v=68dadd34:19198
+workLoopSync @ chunk-I3COAS7K.js?v=68dadd34:19137
+renderRootSync @ chunk-I3COAS7K.js?v=68dadd34:19116
+recoverFromConcurrentError @ chunk-I3COAS7K.js?v=68dadd34:18736
+performSyncWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18879
+flushSyncCallbacks @ chunk-I3COAS7K.js?v=68dadd34:9119
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19432
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+finishConcurrentRender @ chunk-I3COAS7K.js?v=68dadd34:18805
+performConcurrentWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18718
+workLoop @ chunk-I3COAS7K.js?v=68dadd34:197
+flushWork @ chunk-I3COAS7K.js?v=68dadd34:176
+performWorkUntilDeadline @ chunk-I3COAS7K.js?v=68dadd34:384
+hook.js:608 The above error occurred in the <div> component:
+
+    at div
+    at Badge (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/ui/badge.tsx:36:18)
+    at div
+    at div
+    at div
+    at div
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-B5W4ZB4T.js?v=68dadd34:41:13
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NZGK2IN7.js?v=68dadd34:61:7
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-JI7DTWDM.js?v=68dadd34:52:11
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-JI7DTWDM.js?v=68dadd34:33:11
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-B5W4ZB4T.js?v=68dadd34:41:13
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-A7EKLCIN.js?v=68dadd34:35:5
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:234:13
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:157:58
+    at Presence (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7JZXJKGZ.js?v=68dadd34:24:11)
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:148:64
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-JI7DTWDM.js?v=68dadd34:52:11
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-JI7DTWDM.js?v=68dadd34:33:11
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-B5W4ZB4T.js?v=68dadd34:41:13
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NZGK2IN7.js?v=68dadd34:260:22
+    at Presence (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7JZXJKGZ.js?v=68dadd34:24:11)
+    at Provider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-43RB3RZG.js?v=68dadd34:38:15)
+    at DialogPortal (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:111:11)
+    at _c3 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/ui/dialog.tsx:51:12)
+    at Provider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-43RB3RZG.js?v=68dadd34:38:15)
+    at Dialog (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:52:5)
+    at div
+    at PersonNearby (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/pages/PersonNearby.tsx:45:31)
+    at Route (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=68dadd34:323:16)
+    at Switch (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=68dadd34:379:17)
+    at Router (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=4WbaidEGy2PVg9eqmCxQw:112:20)
+    at div
+    at MotionComponent (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=68dadd34:945:40)
+    at div
+    at MotionComponent (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=68dadd34:945:40)
+    at PageTransition (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/layout/PageTransition.tsx:23:3)
+    at div
+    at ParallaxLayout (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/layout/ParallaxLayout.tsx:53:3)
+    at PresenceChild (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=68dadd34:121:24)
+    at AnimatePresence (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=68dadd34:210:26)
+    at AnimatedRoutes (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/layout/AnimatedRoutes.tsx:22:42)
+    at main
+    at div
+    at DemoProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-demo.tsx:20:32)
+    at AuthProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-auth.tsx:26:32)
+    at QueryClientProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=68dadd34:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608
+logCapturedError @ chunk-I3COAS7K.js?v=68dadd34:14032
+update.callback @ chunk-I3COAS7K.js?v=68dadd34:14052
+callCallback @ chunk-I3COAS7K.js?v=68dadd34:11248
+commitUpdateQueue @ chunk-I3COAS7K.js?v=68dadd34:11265
+commitLayoutEffectOnFiber @ chunk-I3COAS7K.js?v=68dadd34:17093
+commitLayoutMountEffects_complete @ chunk-I3COAS7K.js?v=68dadd34:17980
+commitLayoutEffects_begin @ chunk-I3COAS7K.js?v=68dadd34:17969
+commitLayoutEffects @ chunk-I3COAS7K.js?v=68dadd34:17920
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19353
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+performSyncWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18895
+flushSyncCallbacks @ chunk-I3COAS7K.js?v=68dadd34:9119
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19432
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+finishConcurrentRender @ chunk-I3COAS7K.js?v=68dadd34:18805
+performConcurrentWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18718
+workLoop @ chunk-I3COAS7K.js?v=68dadd34:197
+flushWork @ chunk-I3COAS7K.js?v=68dadd34:176
+performWorkUntilDeadline @ chunk-I3COAS7K.js?v=68dadd34:384
+hook.js:608 The above error occurred in the <div> component:
+
+    at div
+    at Badge (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/ui/badge.tsx:36:18)
+    at div
+    at div
+    at div
+    at div
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-B5W4ZB4T.js?v=68dadd34:41:13
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NZGK2IN7.js?v=68dadd34:61:7
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-JI7DTWDM.js?v=68dadd34:52:11
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-JI7DTWDM.js?v=68dadd34:33:11
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-B5W4ZB4T.js?v=68dadd34:41:13
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-A7EKLCIN.js?v=68dadd34:35:5
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:234:13
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:157:58
+    at Presence (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7JZXJKGZ.js?v=68dadd34:24:11)
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:148:64
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-JI7DTWDM.js?v=68dadd34:52:11
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-JI7DTWDM.js?v=68dadd34:33:11
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-B5W4ZB4T.js?v=68dadd34:41:13
+    at https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NZGK2IN7.js?v=68dadd34:260:22
+    at Presence (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-7JZXJKGZ.js?v=68dadd34:24:11)
+    at Provider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-43RB3RZG.js?v=68dadd34:38:15)
+    at DialogPortal (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:111:11)
+    at _c3 (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/ui/dialog.tsx:51:12)
+    at Provider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-43RB3RZG.js?v=68dadd34:38:15)
+    at Dialog (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DDKYAT2D.js?v=68dadd34:52:5)
+    at div
+    at PersonNearby (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/pages/PersonNearby.tsx:45:31)
+    at Route (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=68dadd34:323:16)
+    at Switch (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=68dadd34:379:17)
+    at Router (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/App.tsx?v=4WbaidEGy2PVg9eqmCxQw:112:20)
+    at div
+    at MotionComponent (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=68dadd34:945:40)
+    at div
+    at MotionComponent (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=68dadd34:945:40)
+    at PageTransition (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/layout/PageTransition.tsx:23:3)
+    at div
+    at ParallaxLayout (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/layout/ParallaxLayout.tsx:53:3)
+    at PresenceChild (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=68dadd34:121:24)
+    at AnimatePresence (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=68dadd34:210:26)
+    at AnimatedRoutes (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/components/layout/AnimatedRoutes.tsx:22:42)
+    at main
+    at div
+    at DemoProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-demo.tsx:20:32)
+    at AuthProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/src/hooks/use-auth.tsx:26:32)
+    at QueryClientProvider (https://1821c872-c2f3-45db-8c8d-35edc6538342-00-25wq78fe68xt5.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=68dadd34:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608
+logCapturedError @ chunk-I3COAS7K.js?v=68dadd34:14032
+update.callback @ chunk-I3COAS7K.js?v=68dadd34:14052
+callCallback @ chunk-I3COAS7K.js?v=68dadd34:11248
+commitUpdateQueue @ chunk-I3COAS7K.js?v=68dadd34:11265
+commitLayoutEffectOnFiber @ chunk-I3COAS7K.js?v=68dadd34:17093
+commitLayoutMountEffects_complete @ chunk-I3COAS7K.js?v=68dadd34:17980
+commitLayoutEffects_begin @ chunk-I3COAS7K.js?v=68dadd34:17969
+commitLayoutEffects @ chunk-I3COAS7K.js?v=68dadd34:17920
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19353
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+performSyncWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18895
+flushSyncCallbacks @ chunk-I3COAS7K.js?v=68dadd34:9119
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19432
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+finishConcurrentRender @ chunk-I3COAS7K.js?v=68dadd34:18805
+performConcurrentWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18718
+workLoop @ chunk-I3COAS7K.js?v=68dadd34:197
+flushWork @ chunk-I3COAS7K.js?v=68dadd34:176
+performWorkUntilDeadline @ chunk-I3COAS7K.js?v=68dadd34:384
+chunk-I3COAS7K.js?v=68dadd34:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {interest, explanation}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-I3COAS7K.js?v=68dadd34:9934:17)
+    at reconcileChildFibers2 (chunk-I3COAS7K.js?v=68dadd34:10564:15)
+    at reconcileChildren (chunk-I3COAS7K.js?v=68dadd34:14290:37)
+    at updateHostComponent (chunk-I3COAS7K.js?v=68dadd34:14807:11)
+    at beginWork (chunk-I3COAS7K.js?v=68dadd34:15935:22)
+    at beginWork$1 (chunk-I3COAS7K.js?v=68dadd34:19753:22)
+    at performUnitOfWork (chunk-I3COAS7K.js?v=68dadd34:19198:20)
+    at workLoopSync (chunk-I3COAS7K.js?v=68dadd34:19137:13)
+    at renderRootSync (chunk-I3COAS7K.js?v=68dadd34:19116:15)
+    at recoverFromConcurrentError (chunk-I3COAS7K.js?v=68dadd34:18736:28)
+throwOnInvalidObjectType @ chunk-I3COAS7K.js?v=68dadd34:9934
+reconcileChildFibers2 @ chunk-I3COAS7K.js?v=68dadd34:10564
+reconcileChildren @ chunk-I3COAS7K.js?v=68dadd34:14290
+updateHostComponent @ chunk-I3COAS7K.js?v=68dadd34:14807
+beginWork @ chunk-I3COAS7K.js?v=68dadd34:15935
+beginWork$1 @ chunk-I3COAS7K.js?v=68dadd34:19753
+performUnitOfWork @ chunk-I3COAS7K.js?v=68dadd34:19198
+workLoopSync @ chunk-I3COAS7K.js?v=68dadd34:19137
+renderRootSync @ chunk-I3COAS7K.js?v=68dadd34:19116
+recoverFromConcurrentError @ chunk-I3COAS7K.js?v=68dadd34:18736
+performSyncWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18879
+flushSyncCallbacks @ chunk-I3COAS7K.js?v=68dadd34:9119
+commitRootImpl @ chunk-I3COAS7K.js?v=68dadd34:19432
+commitRoot @ chunk-I3COAS7K.js?v=68dadd34:19277
+finishConcurrentRender @ chunk-I3COAS7K.js?v=68dadd34:18805
+performConcurrentWorkOnRoot @ chunk-I3COAS7K.js?v=68dadd34:18718
+workLoop @ chunk-I3COAS7K.js?v=68dadd34:197
+flushWork @ chunk-I3COAS7K.js?v=68dadd34:176
+performWorkUntilDeadline @ chunk-I3COAS7K.js?v=68dadd34:384
