@@ -821,6 +821,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // AI-powered Icebreaker Suggestions endpoint
+  app.get("/api/conversations/:id/icebreakers", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    const userId = (req.user as User).id;
+    const conversationId = parseInt(req.params.id, 10);
+    if (isNaN(conversationId)) {
+      return res.status(400).json({ message: "Invalid conversation ID" });
+    }
+    try {
+      // Only support one-on-one conversations
+      const participants = await storage.getConversationParticipants(conversationId);
+      const otherParticipants = participants.filter(p => p.userId !== userId);
+      if (otherParticipants.length !== 1) {
+        return res.status(400).json({ message: "Icebreakers only supported for direct conversations" });
+      }
+      const otherUser = otherParticipants[0].user;
+      // Fetch interests for both users
+      const myInterests = await storage.getUserInterests(userId);
+      const otherInterests = await storage.getUserInterests(otherUser.id);
+      const shared = myInterests
+        .map(i => i.name)
+        .filter(name => otherInterests.some(o => o.name === name));
+      // Build prompt
+      const prompt = `Generate 3 short, friendly icebreaker messages between two users.
+User A loves: ${myInterests.map(i => i.name).join(", ")}.
+User B loves: ${otherInterests.map(i => i.name).join(", ")}.
+They both share interests: ${shared.join(", ")}.
+Provide only the message text, each on a new line.`.trim();
+      // Call OpenAI
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: "You are a helpful assistant generating icebreakers." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.8,
+        max_tokens: 150
+      });
+      const content = response.choices?.[0]?.message?.content || "";
+      const icebreakers = content
+        .split(/\r?\n/)
+        .map(line => line.replace(/^[0-9\.\-\s]+/, "").trim())
+        .filter(line => line.length > 0);
+      res.json({ icebreakers });
+    } catch (error) {
+      log("Error generating icebreakers:", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ message: "Failed to generate icebreakers", error: String(error) });
+    }
+  });
+  
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
       if (!req.isAuthenticated()) {

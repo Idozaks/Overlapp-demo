@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { Message, useChat } from '@/hooks/use-chat';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { useAuth } from '@/hooks/use-auth';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,9 @@ export function ChatConversation({ conversationId, className }: ChatConversation
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  // Icebreaker suggestions state
+  const [icebreakers, setIcebreakers] = useState<string[]>([]);
+  const [loadingIcebreakers, setLoadingIcebreakers] = useState(false);
   
   // Check if conversation is with an AI
   const isAiConversation = participants.some(p => p.role === 'ai');
@@ -86,6 +90,23 @@ export function ChatConversation({ conversationId, className }: ChatConversation
     sendMessage({ content, contentType, mediaUrl });
     scrollToBottom();
   };
+
+  // Fetch AI-generated icebreakers for this conversation
+  const fetchIcebreakers = async () => {
+    if (!conversationId) return;
+    setLoadingIcebreakers(true);
+    try {
+      const res = await fetch(`/api/conversations/${conversationId}/icebreakers`);
+      if (res.ok) {
+        const data = await res.json();
+        setIcebreakers(Array.isArray(data.icebreakers) ? data.icebreakers : []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch icebreakers', e);
+    } finally {
+      setLoadingIcebreakers(false);
+    }
+  };
   
   // Get typing users for this conversation
   const typingUserIds = Object.keys(typingIndicators)
@@ -113,6 +134,40 @@ export function ChatConversation({ conversationId, className }: ChatConversation
   
   return (
     <div className={cn("flex flex-col h-full", className)}>
+      {/* Icebreaker suggestions */}
+      <div className="flex justify-end p-2">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchIcebreakers}
+              disabled={loadingIcebreakers || !canSendMessages}
+            >
+              {loadingIcebreakers ? <Loader2Icon className="animate-spin h-4 w-4" /> : "💡 Icebreakers"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent side="bottom" align="end">
+            {icebreakers.length > 0 ? (
+              icebreakers.map((text, idx) => (
+                <Button
+                  key={idx}
+                  variant="ghost"
+                  className="justify-start w-full"
+                  onClick={() => {
+                    handleSendMessage(text);
+                    setIcebreakers([]);
+                  }}
+                >
+                  {text}
+                </Button>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No suggestions yet.</p>
+            )}
+          </PopoverContent>
+        </Popover>
+      </div>
       {/* Messages container */}
       <div 
         ref={messageContainerRef}
