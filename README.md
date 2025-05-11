@@ -11,8 +11,8 @@
 ## 📺 See Overlapp in Action
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
-    <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" alt="Overlapp Demo Video" width="600" style="border-radius:10px" />
+  <a href="https://www.youtube.com/watch?v=wa2ZeE_BhWY">
+    <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="Overlapp Product Demo" width="600" style="border-radius:10px" />
   </a>
   <p><em>👆 Click to watch our 2-minute product overview</em></p>
 </div>
@@ -71,10 +71,23 @@ Overlapp leverages a modern tech stack for a blazing-fast, responsive experience
 * **Mobile-First Design** for seamless experiences on any device
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=YE7VzlLtp-4">
-    <img src="https://img.youtube.com/vi/YE7VzlLtp-4/maxresdefault.jpg" alt="Technical Architecture Walkthrough" width="500" style="border-radius:8px; margin: 20px 0;" />
-  </a>
-  <p><em>👨‍💻 Watch our lead engineer explain Overlapp's architecture</em></p>
+  <table>
+    <tr>
+      <td align="center" width="50%">
+        <a href="https://www.youtube.com/watch?v=Rk7t0TWYNDg">
+          <img src="https://img.youtube.com/vi/Rk7t0TWYNDg/maxresdefault.jpg" alt="Technical Architecture" width="100%" style="border-radius:8px; max-width:400px;" />
+        </a>
+        <p><em>👨‍💻 Technical Architecture</em></p>
+      </td>
+      <td align="center" width="50%">
+        <a href="https://www.youtube.com/watch?v=wa2ZeE_BhWY">
+          <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="User Experience" width="100%" style="border-radius:8px; max-width:400px;" />
+        </a>
+        <p><em>🎮 User Experience Design</em></p>
+      </td>
+    </tr>
+  </table>
+  <p><em>Watch our team explain Overlapp's innovative approach</em></p>
 </div>
 
 ## 🔍 Core MVP Features
@@ -105,8 +118,8 @@ Overlapp leverages a modern tech stack for a blazing-fast, responsive experience
 ## 👥 User Testimonials
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=DLzxrzFCyOs">
-    <img src="https://img.youtube.com/vi/DLzxrzFCyOs/maxresdefault.jpg" alt="Overlapp User Stories" width="500" style="border-radius:8px; margin: 20px 0;" />
+  <a href="https://www.youtube.com/watch?v=wa2ZeE_BhWY">
+    <img src="https://img.youtube.com/vi/wa2ZeE_BhWY/maxresdefault.jpg" alt="Overlapp User Stories" width="500" style="border-radius:8px; margin: 20px 0;" />
   </a>
   <p><em>💬 Watch real users share their Overlapp experiences</em></p>
 </div>
