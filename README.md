@@ -47,7 +47,7 @@ Overlapp isn't just another social app—it's a revolutionary platform that brid
 * **See interest patterns** across your digital footprint
 
 ### 4️⃣ **Explore Store Matches** *(Exclusive Beta)*
-![Store Matching](./client/public/store-matching.png)
+<!-- Feature image placeholder -->
 
 * **Find retail locations** that align with your interests and preferences
 * **Connect with others** who frequent the same physical spaces
