@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://i.imgur.com/0wc24qf.jpeg" alt="Overlapp Banner" style="max-width: 800px; width: 100%; margin-bottom: 20px;" />
+</p>
+
 # ✨ Overlapp - Where Digital Identity Meets Physical Reality
 
 <div align="center">
