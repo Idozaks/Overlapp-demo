@@ -25,6 +25,7 @@ interface MenuItem {
   label: string;
   path?: string;
   subItems?: MenuItem[];
+  className?: string;
 }
 
 export function Header() {
@@ -42,6 +43,11 @@ export function Header() {
 
   const mainMenuItems: MenuItem[] = [
     { label: t('common.nav.home'), path: '/' },
+    { 
+      label: 'Discover', 
+      path: '/home-selector',
+      className: 'bg-primary/10 hover:bg-primary/20 text-primary font-semibold',
+    },
     { 
       label: t('common.nav.social'), 
       path: '/social',
@@ -132,7 +138,10 @@ export function Header() {
           <Button
             key={item.label}
             variant="ghost"
-            className={cn(isActive(item.path) && "bg-accent")}
+            className={cn(
+              isActive(item.path) && "bg-accent",
+              item.className
+            )}
             asChild
           >
             <Link href={item.path || '/'}>
@@ -178,7 +187,8 @@ export function Header() {
               href={item.path || '/'}
               className={cn(
                 "px-2 py-1 rounded hover:bg-accent",
-                isActive(item.path) && "bg-accent"
+                isActive(item.path) && "bg-accent",
+                item.className
               )}
               onClick={() => setMobileOpen(false)}
             >
@@ -251,8 +261,11 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
       <div className="container flex h-14 items-center">
         <div className="flex items-center gap-2 mr-4">
-          <Link href="/" className="flex items-center space-x-2">
-            <img src="/logo.png" alt="Overlapp Logo" className="h-8 w-8" />
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="relative h-8 w-8 overflow-hidden rounded-full">
+              <img src="/logo.png" alt="Overlapp Logo" className="absolute h-8 w-8 group-hover:opacity-0 transition-opacity duration-300" />
+              <img src="/images/overlapp-logo-animated.gif" alt="Overlapp Animated Logo" className="absolute h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </div>
             <span className="font-bold text-lg hidden sm:inline-block">Overlapp</span>
           </Link>
         </div>
