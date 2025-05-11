@@ -8,7 +8,14 @@
   [View Demo](https://overlapp.replit.app) | [Try MVP](#getting-started) | [Watch the Tour](https://youtube.com/overlapp)
 </div>
 
-<!-- Placeholder for demo animation -->
+## 📺 See Overlapp in Action
+
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+    <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" alt="Overlapp Demo Video" width="600" style="border-radius:10px" />
+  </a>
+  <p><em>👆 Click to watch our 2-minute product overview</em></p>
+</div>
 
 ## 🚀 The Next Generation Social Discovery Platform
 
@@ -63,6 +70,13 @@ Overlapp leverages a modern tech stack for a blazing-fast, responsive experience
 * **Elegant UI/UX** with Tailwind CSS + Shadcn components
 * **Mobile-First Design** for seamless experiences on any device
 
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=YE7VzlLtp-4">
+    <img src="https://img.youtube.com/vi/YE7VzlLtp-4/maxresdefault.jpg" alt="Technical Architecture Walkthrough" width="500" style="border-radius:8px; margin: 20px 0;" />
+  </a>
+  <p><em>👨‍💻 Watch our lead engineer explain Overlapp's architecture</em></p>
+</div>
+
 ## 🔍 Core MVP Features
 
 ```markdown
@@ -89,6 +103,13 @@ Overlapp leverages a modern tech stack for a blazing-fast, responsive experience
 ```
 
 ## 👥 User Testimonials
+
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=DLzxrzFCyOs">
+    <img src="https://img.youtube.com/vi/DLzxrzFCyOs/maxresdefault.jpg" alt="Overlapp User Stories" width="500" style="border-radius:8px; margin: 20px 0;" />
+  </a>
+  <p><em>💬 Watch real users share their Overlapp experiences</em></p>
+</div>
 
 > "Overlapp found connections I never would have discovered on my own. The AI recommendations are spot-on!" – Sarah K.
 
